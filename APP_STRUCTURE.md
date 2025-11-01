@@ -1,0 +1,124 @@
+# superApp_v4 – Folder Structure (generated)
+
+Root: `/Users/zebusmacmini4/development/superApp_version4/superApp_v4`
+
+- index.html
+- vite.config.js
+- package.json
+- package-lock.json
+- README.md
+- firebase.json
+- .firebaserc
+- plugins/
+  - vuetify.js
+- public/
+  - charting_library/ (bundles and assets)
+  - css/
+    - style.css
+  - favicon.ico
+  - favicon.svg
+  - index.html
+  - theme-dark.css
+  - theme-light.css
+- src/
+  - main.js
+  - apiurl.js
+  - firebase.js
+  - utils/
+    - webSocketEventBus.js
+  - stores/
+    - appStore.js
+    - authStore.js
+    - navStore.js
+    - sessionStore.js
+  - router/
+    - index.js
+  - plugins/
+    - vuetify.js
+  - assets/
+    - style.css
+    - images, icons, fonts, sounds, themes (various SVG/PNG/MP3)
+  - components/
+    - AppBar.vue
+    - LightweightChart.vue
+    - MultiChart.vue
+    - TVChartContainer.vue
+    - TVChartContainerMOB.vue
+    - TVMChartContainer.vue
+    - Layout/
+      - LayoutSrc.vue
+    - mixins/
+      - getAPIdata.js
+    - utils/
+      - formatters.js (if present)
+  - views/
+    - ViewsLayout.vue
+    - StartCheck.vue
+    - NotFoundPage.vue
+    - Accounts/
+      - FundSrc.vue
+      - SettingSrc.vue
+      - AlertScreen.vue
+    - Dashboard/
+      - DashBoard.vue
+      - StatBoard.vue
+      - stocks/
+        - StocksSrc.vue
+        - StocksDetails.vue
+        - StocksIndices.vue
+        - StockMarket.vue
+        - StockScreener.vue
+        - StockAD.vue
+        - SingleStocks.vue
+      - mutualfund/
+        - MutualSrc.vue
+        - MutualOrderbook.vue
+        - MutualCategorieSrc.vue
+        - MuturalNfoSrc.vue
+        - MutualSingle.vue
+      - ipos/
+        - IpoSrc.vue
+        - IpoOrderbook.vue
+        - IpoPerformance.vue
+      - bonds/
+        - BondSrc.vue
+        - BondsOrderbook.vue
+      - collections/
+        - CollectionSrc.vue
+        - CollectionSingle.vue
+      - NewsAI/
+        - MasterFile.vue
+    - Orders/
+      - OrderScreen.vue
+    - Positions/
+      - PosiTions.vue
+      - ## Positions Module Migration Plan (Vue .mdc
+    - Holdings/
+      - HolDings.vue
+      - PortfiloAn.vue (if present)
+    - Watchlist/
+      - WatchList.vue
+
+- Documentation (migration and notes in project root):
+  - HOLDINGS_MIGRATION_NOTES.md
+  - HOLDINGS_MIGRATION_SUMMARY.md
+  - HOLDINGS_COMPLETION_REPORT.md
+  - HOLDINGS_TESTING_CHECKLIST.md
+  - POSITIONS_MIGRATION_NOTES.md
+  - POSITIONS_TEST_PLAN.md
+  - POSITIONS_VERIFICATION_CHECKLIST.md
+  - POSITIONS_PHASE1_AUDIT.md
+  - ORDERS_MIGRATION_NOTES.md
+  - CHART_FUNCTIONALITY_FIXES.md
+  - WATCHLIST_CHART_FIXES.md
+  - WATCHLIST_MIGRATION_SUMMARY.md
+  - WEBSOCKET_IMPLEMENTATION.md
+  - WEBSOCKET_CONNECTION_FIX.md
+  - WEBSOCKET_MIGRATION.md
+  - API_* and LOGIN_* summaries
+  - COMPLETE_MIGRATION_SUMMARY.md
+  - EVENTBUS_TO_PINIA_MIGRATION.md
+  - FIREBASE_SETUP.md
+  - Various debug/fix docs
+
+Note: `node_modules/` and `public/charting_library/` contain many files and are summarized here to keep this overview readable.

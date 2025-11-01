@@ -1,0 +1,177 @@
+## Positions Module Migration Plan (Vue 3 + Pinia + Vuetify 3)
+
+This document outlines the phased migration plan for the Positions module from the legacy Vue 2 stack to Vue 3, Pinia, and Vuetify 3. It includes scope, tasks, deliverables, acceptance criteria, and verification steps.
+
+### Scope
+- Align data contracts from legacy to new module (`positiondata`, `expositiondata`, stats, groups).
+- Migrate UI: data tables, filters, actions (Exit/Convert), drawer, grouping, and charts.
+- Realtime updates via WebSocket event bridge.
+- UX consistency and error handling.
+- Unit tests for critical calculations.
+
+## Phases
+
+### Phase 1 — Data Contracts & Store Readiness
+- Map legacy fields used in `SuperApp-FE-main-2/src/views/Positions/PosiTions.vue` to Vue 3 `superApp_v4/src/views/Positions/PosiTions.vue`.
+- Confirm API adapters:
+  - getMPosotion, getEXPosition: shape, field names, and derived fields (e.g., `way`, `disabled`, `tokn`, `avgprc`, etc.).
+  - getMPosotionCon, getPlaceOrder: required payloads (product codes, qty, freeze qty), and success/error shape.
+  - getPostPnL: MTM array for chart [{name, value}].
+- Verify Pinia stores:
+  - `authStore`: `uid`, `mtoken`.
+  - `appStore`: `showSnackbar(type, message)` and any loading/error flags.
+
+Deliverables:
+- Field mapping table (legacy → new).
+- Confirmed adapter contracts; noted deviations fixed or shimmed.
+
+Acceptance:
+- No runtime errors after initial data loads.
+- All required fields present for table, stats, actions.
+
+---
+
+### Phase 2 — Tables, Headers, Sorting, Filtering
+- Validate Vuetify v3 `v-data-table` usage:
+  - `show-select`, `v-model` selection, `item-key`, `headers`, `items`, `loading`, `fixed-header`, `:items-per-page="-1"`.
+  - Slots: `#item.tsym`, `#item.actions`, `v-slot:no-data`, `v-slot:loading`.
+- Finalize dynamic header builder `buildHeadersFrom`:
+  - Include numeric alignment and only headers present in data.
+  - Separate configs for positions and exposures.
+- Ensure search and `exchtype` filtering operate on the same array the table renders (`filteredPositions`).
+
+Deliverables:
+- Stable dynamic headers for both tables.
+- Correct sorting, alignment, search, and filter behavior.
+
+Acceptance:
+- Headers render correctly with live data; no warnings.
+- Sorting toggles and persists direction; search and filters apply properly.
+
+---
+
+### Phase 3 — Actions: Exit, Convert, Drawer
+- Exit flow:
+  - Wire `setSSDtab('exit-order', ...)` to actual confirmation/dialog (or shared order component).
+  - Batch square-off with freeze quantity handling; retry/backoff and error reporting.
+- Conversion flow:
+  - Validate product mapping CNC/C/MIS/I/NRML/M.
+  - Lot size handling for MCX and non-MCX.
+  - Proper success/error feedback, state reset, and local state updates.
+- Drawer:
+  - Ensure details reflect latest live values, guard for missing fields.
+
+Deliverables:
+- Functional Exit and Convert actions with dialogs and robust error handling.
+- Verified freeze-qty batching logic.
+
+Acceptance:
+- Successful square-off and conversion on test instruments.
+- Failures show meaningful snackbars; no stuck loaders.
+
+---
+
+### Phase 4 — Stats and Chips
+- Confirm `computeStats` math:
+  - `tradeval` based on `val` only when positive.
+  - `oppnl` based on open positions’ `rpnl`.
+  - `pnl` and `mtm` totals with correct sign formatting via `differentView`.
+- Chips:
+  - Accurate counts (positive/negative/closed/open) and empty-state behavior.
+
+Deliverables:
+- Correct summary card totals and chip counts.
+
+Acceptance:
+- Totals match manual calculations on a known dataset.
+
+---
+
+### Phase 5 — Grouping and Chart
+- Grouping:
+  - Group by symbol prefix as in legacy; default to first group; MTM color/text parity.
+  - Keep `postgroups` synchronized when `positiondata` updates.
+- Chart:
+  - Fetch PnL via `getPostPnL` for selected group.
+  - ECharts line chart: smooth line, responsive resize, cleanup on unmount.
+
+Deliverables:
+- Working group selector with live MTM recalc.
+- Chart displays recent MTM series and resizes.
+
+Acceptance:
+- Switching group updates chart and MTM color accurately.
+- No console errors on mount/unmount.
+
+---
+
+### Phase 6 — Realtime Updates
+- Standardize event names: subscribe on load, unsubscribe on unmount.
+- Update logic parity for positions/exposures (ltp, rpnl, mtm, hp/lp).
+- Guards for missing tokens, partial payloads, and numeric coercions.
+
+Deliverables:
+- Stable realtime updates without flicker or exceptions.
+
+Acceptance:
+- Live prices adjust PnL/MTM correctly; no leaks or stale listeners.
+
+---
+
+### Phase 7 — UX Consistency
+- Normalize loaders and disabled states across flows.
+- Consistent snackbar messages for success, info, and error.
+
+Deliverables:
+- Unified UX states; accessible labels where applicable.
+
+Acceptance:
+- Smooth user experience with clear feedback.
+
+---
+
+### Phase 8 — Tests and Verification
+- Unit tests:
+  - `computeStats` math and formatting.
+  - `buildHeadersFrom` behavior with varying datasets.
+  - WebSocket updater math paths.
+- Manual verification checklist (see below).
+- Optional E2E smoke for core actions.
+
+Deliverables:
+- Test suite for critical paths; checklist completion report.
+
+Acceptance:
+- All unit tests pass locally; checklist items verified.
+
+## Known Items to Address
+- Confirm stray backticks in `sessionStorage` read (line near `c3RhdHVz`) are removed.
+- Ensure `window.dispatchEvent('web-scoketOn')` naming matches emitter/listener consistently.
+
+## Manual Verification Checklist
+- Data:
+  - Positions and exposures load without errors; counts are correct.
+- Tables:
+  - Headers align and sort; selection works and persists; search/filter OK.
+- Actions:
+  - Exit (single/batch) places correct orders respecting freeze qty; success/error snackbars.
+  - Convert opens, validates qty/product, and updates UI on success.
+- Stats & Chips:
+  - MTM/PNL/trade value match manual numbers; chip counts accurate.
+- Grouping & Chart:
+  - Changing group updates MTM color and chart; chart resizes on window changes.
+- Realtime:
+  - LTP updates PnL/MTM; no console errors; unsubscribes on navigation.
+- UX:
+  - Loaders/spinners show appropriately; no stuck states.
+
+## Deliverables Summary
+- Migrated `PosiTions.vue` with tables, actions, grouping, and chart.
+- Stable API adapter usage with validated contracts.
+- Realtime update wiring and cleanup.
+- Tests for critical calculations and a completed manual checklist.
+
+## Rollout Strategy
+- Develop behind a feature flag or separate route.
+- Validate with demo accounts/instruments.
+- Gradual enablement after QA sign-off.

@@ -1,0 +1,24 @@
+/* Dark theme styles */
+:root {
+  --primary: #2196F3;
+  --secondary: #424242;
+  --accent: #FF4081;
+  --error: #FF5252;
+  --info: #2196F3;
+  --success: #4CAF50;
+  --warning: #FFC107;
+  --mainbg: #121212;
+  --secbg: #1e1e1e;
+  --maintext: #ffffff;
+  --subtext: #cccccc;
+  --cardbg: #1e1e1e;
+  --btnclr: #2196F3;
+  --btntext: #ffffff;
+}
+
+/* Tenon Font Family */
+*,
+html,
+body {
+  font-family: 'Tenon', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
+}
