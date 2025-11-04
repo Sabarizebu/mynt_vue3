@@ -100,17 +100,20 @@
                             :bg-color="'secbg'" density="comfortable" flat block class="rounded-pill"
                             item-title="title" item-value="value" />
                     </v-col>
+                    <!-- Phase 7: Add uppercase conversion on input matching old app -->
                     <v-col cols="10" class="ml-auto">
                         <v-autocomplete :disabled="model && model.set" @update:model-value="setListinbsk"
                             :loading="searchloading" item-title="tsym" return-object class="rounded-pill" flat
                             variant="solo" :bg-color="'secbg'" density="comfortable" v-model="model"
                             v-model:search="search" hide-details label="Search script" :items="sfilterdata"
-                            prepend-inner-icon="mdi-magnify" append-icon="" no-filter clearable />
+                            prepend-inner-icon="mdi-magnify" append-icon="" no-filter clearable
+                            @update:search="onSearchInputUppercase" />
                     </v-col>
                 </v-row>
 
-                <v-data-table v-if="!model || !model.token" fixed-header :hide-default-footer="true"
-                    :loading="loading" class="mt-0 rounded-lg overflow-y-auto"
+                <!-- Phase 7: Add must-sort and sort-by to match old app -->
+                <v-data-table v-if="!model || !model.token" must-sort :sort-by="['idx']" :sort-desc="[true]"
+                    fixed-header :hide-default-footer="true" :loading="loading" class="mt-0 rounded-lg overflow-y-auto"
                     style="border: 1px solid var(--outline)" height="240" :headers="singlebskheader"
                     :items="orderbookdata" :items-per-page="20">
                     <template #item.tsym="{ item }">
@@ -135,20 +138,26 @@
                             :items="['Qty', 'Amount']" dense append-icon="mdi-chevron-down" variant="outlined"
                             class="rounded-lg" />
                     </template>
-                    <template #item.actions="{ item, index }">
+                    <!-- Phase 7: Use SVG icon matching old app -->
+                    <template #item.actions="{ item }">
                         <div @click.stop>
-                            <v-btn icon size="small" @click="setListcancel(item, 'pop')">
-                                <v-icon>mdi-trash-can-outline</v-icon>
+                            <v-btn icon size="small" class="text-align-center mt-2" @click="setListcancel(item, 'pop')">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="24" height="24">
+                                    <path fill="currentColor" fill-rule="evenodd"
+                                        d="M11.5 6a.5.5 0 0 0-.5.5V8h6V6.5a.5.5 0 0 0-.5-.5h-5zM18 8V6.5c0-.83-.67-1.5-1.5-1.5h-5c-.83 0-1.5.67-1.5 1.5V8H5.5a.5.5 0 0 0 0 1H7v12.5A2.5 2.5 0 0 0 9.5 24h9a2.5 2.5 0 0 0 2.5-2.5V9h1.5a.5.5 0 0 0 0-1H18zm2 1H8v12.5c0 .83.67 1.5 1.5 1.5h9c.83 0 1.5-.67 1.5-1.5V9zm-8.5 3c.28 0 .5.22.5.5v7a.5.5 0 0 1-1 0v-7c0-.28.22-.5.5-.5zm5.5.5a.5.5 0 0 0-1 0v7a.5.5 0 0 0 1 0v-7z">
+                                    </path>
+                                </svg>
                             </v-btn>
                         </div>
                     </template>
+                    <!-- Phase 7: Use v-col structure matching old app -->
                     <template #no-data>
-                        <div class="text-center">
-                            <div class="mx-auto py-16 mt-16">
-                                <img class="mx-auto" width="80px" :src="noDataImg" />
+                        <v-col cols="12" class="text-center pa-16">
+                            <div class="mx-auto">
+                                <img class="align-self-stretch mx-auto" width="80px" :src="noDataImg" alt="no data" />
                                 <h5 class="txt-999 font-weight-regular">There is no data here yet!</h5>
                             </div>
-                        </div>
+                        </v-col>
                     </template>
                 </v-data-table>
                 <v-row class="pt-3">
@@ -274,9 +283,11 @@ function setSIPdialog(item) {
         sipdate.value = `${item.start_date.slice(4)}-${item.start_date.slice(2, 4)}-${item.start_date.slice(0, 2)}`
         sipinstall.value = item.end_period
         singledata.value = item
+        // Phase 7: Add idx to each scrip for sorting
         if (item.Scrips && item.Scrips.length > 0) {
             for (let e = 0; e < item.Scrips.length; e++) {
                 item.Scrips[e].invby = item.Scrips[e].qty && item.Scrips[e].qty > 0 ? 'Qty' : 'Amount'
+                item.Scrips[e].idx = e // Phase 7: Add idx for sorting
             }
             orderbookdata.value = item.Scrips
         } else {
@@ -307,31 +318,63 @@ function setSearchFilter() {
     }
 }
 
+// Phase 7: Handle uppercase conversion for search input
+function onSearchInputUppercase(value) {
+    if (value && typeof value === 'string') {
+        search.value = value.toUpperCase()
+    }
+}
+
+// Phase 6: Add scrip from search autocomplete
 function setListinbsk() {
     if (model.value && model.value.token) {
-        orderbookdata.value.push({
+        // Phase 6: Check for duplicates before adding
+        const exists = orderbookdata.value.find(
+            o => String(o.token) === String(model.value.token) && o.exch === model.value.exch
+        )
+        
+        if (exists) {
+            appStore.showSnackbar(2, `${model.value.tsym} is already in the SIP order`)
+            model.value = null
+            search.value = null
+            return
+        }
+        
+        // Phase 6 & 7: Add scrip with proper defaults and idx for sorting
+        const scrip = {
             exch: model.value.exch,
-            invby: 'Qty',
-            prd: 'C',
-            qty: '1',
+            tsym: model.value.tsym,
             token: model.value.token,
-            tsym: model.value.tsym
-        })
+            prd: 'C', // Default to Delivery
+            invby: 'Qty', // Default investment type
+            qty: Number(model.value.ls || 1), // Default quantity to lot size (as number for editing)
+            idx: orderbookdata.value.length, // Phase 7: Add idx for sorting
+        }
+        
+        orderbookdata.value.push(scrip)
+        // Force reactivity update
+        orderbookdata.value = [...orderbookdata.value]
+        
         model.value = null
         search.value = null
     }
 }
 
+// Phase 6: Change investment type (Qty/Amount) for a scrip
 function setInvestby(item) {
-    const ind = orderbookdata.value.findIndex(o => o.token === item.token)
+    const ind = orderbookdata.value.findIndex(o => String(o.token) === String(item.token) && o.exch === item.exch)
     if (ind >= 0) {
         if (item.invby === 'Qty') {
-            orderbookdata.value[ind].qty = 1
+            // Switch to quantity-based: set default quantity, remove amount
+            orderbookdata.value[ind].qty = Number(orderbookdata.value[ind].qty || orderbookdata.value[ind].ls || 1)
             delete orderbookdata.value[ind].prc
-        } else {
-            orderbookdata.value[ind].prc = 1000
+        } else if (item.invby === 'Amount') {
+            // Switch to amount-based: set default amount, remove quantity
+            orderbookdata.value[ind].prc = Number(orderbookdata.value[ind].prc || 1000)
             delete orderbookdata.value[ind].qty
         }
+        // Force reactivity update
+        orderbookdata.value = [...orderbookdata.value]
     }
 }
 
@@ -379,11 +422,18 @@ function openCancelDialog(item) {
     canceldialog.value = true
 }
 
+// Phase 6: Remove scrip from orderbookdata or open cancel dialog for SIP order
 function setListcancel(item, type) {
     if (type === 'pop') {
-        const did = orderbookdata.value.findIndex(o => o.token === item.token)
-        if (did >= 0) orderbookdata.value.splice(did, 1)
+        // Phase 6: Remove scrip from orderbookdata
+        const did = orderbookdata.value.findIndex(o => String(o.token) === String(item.token) && o.exch === item.exch)
+        if (did >= 0) {
+            orderbookdata.value.splice(did, 1)
+            // Force reactivity update
+            orderbookdata.value = [...orderbookdata.value]
+        }
     } else {
+        // Open cancel dialog for SIP order deletion
         singledata.value = item
         canceldialog.value = true
     }
@@ -400,14 +450,146 @@ function setviewSIP(item) {
     setmode.value = false
 }
 
+// Phase 3: Form Field Validation
+function validateSIPForm() {
+    const errors = []
+    
+    // 1. SIP Name validation
+    if (!sip_name.value || !sip_name.value.trim()) {
+        errors.push('SIP name is required')
+    } else if (!/^[A-Za-z\s]+$/.test(sip_name.value.trim())) {
+        errors.push('SIP name can only contain letters and spaces')
+    } else if (setmode.value) {
+        // Check for duplicate SIP name (only in create mode)
+        const ind = allbasketsdata.value.findIndex(o => o.sip_name === sip_name.value.trim())
+        if (ind >= 0) {
+            errors.push('SIP name already exists')
+        }
+    }
+    
+    // 2. Start Date validation
+    if (!sipdate.value) {
+        errors.push('Start date is required')
+    } else {
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        const startDate = new Date(sipdate.value)
+        startDate.setHours(0, 0, 0, 0)
+        
+        if (startDate < today) {
+            errors.push('Start date must be today or later')
+        }
+        
+        // Validate date format (YYYY-MM-DD)
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(sipdate.value)) {
+            errors.push('Start date must be in YYYY-MM-DD format')
+        }
+    }
+    
+    // 3. Frequency validation
+    if (!frequency.value) {
+        errors.push('Frequency is required')
+    } else {
+        const validFrequencies = ['Daily', 'Weekly', 'Fortnightly', 'Monthly']
+        if (!validFrequencies.includes(frequency.value)) {
+            errors.push('Frequency must be one of: Daily, Weekly, Fortnightly, Monthly')
+        }
+    }
+    
+    // 4. No. of SIPs validation
+    if (!sipinstall.value) {
+        errors.push('No. of SIPs is required')
+    } else if (isNaN(Number(sipinstall.value))) {
+        errors.push('No. of SIPs must be a number')
+    } else if (Number(sipinstall.value) <= 0) {
+        errors.push('No. of SIPs must be greater than zero')
+    }
+    
+    // 5. Scrips validation
+    if (!orderbookdata.value || orderbookdata.value.length === 0) {
+        errors.push('At least one scrip is required')
+    } else {
+        // Validate each scrip
+        orderbookdata.value.forEach((scrip, index) => {
+            if (!scrip.token) {
+                errors.push(`Scrip ${index + 1}: Token is required`)
+            }
+            if (!scrip.exch) {
+                errors.push(`Scrip ${index + 1}: Exchange is required`)
+            }
+            if (!scrip.tsym) {
+                errors.push(`Scrip ${index + 1}: Trading symbol is required`)
+            }
+            
+            // Validate quantity or amount based on investment type
+            if (scrip.invby === 'Qty') {
+                if (!scrip.qty || Number(scrip.qty) <= 0) {
+                    errors.push(`Scrip ${index + 1} (${scrip.tsym || 'Unknown'}): Quantity must be greater than zero`)
+                }
+            } else if (scrip.invby === 'Amount') {
+                if (!scrip.prc || Number(scrip.prc) <= 0) {
+                    errors.push(`Scrip ${index + 1} (${scrip.tsym || 'Unknown'}): Amount must be greater than zero`)
+                }
+            } else {
+                errors.push(`Scrip ${index + 1} (${scrip.tsym || 'Unknown'}): Investment type must be Qty or Amount`)
+            }
+        })
+    }
+    
+    return {
+        isValid: errors.length === 0,
+        errors
+    }
+}
+
 async function setPlaceorder() {
-    const ind = allbasketsdata.value.findIndex(o => o.sip_name === sip_name.value)
+    // Phase 3: Validate form before proceeding
+    const validation = validateSIPForm()
+    
+    if (!validation.isValid) {
+        // Show first error message
+        appStore.showSnackbar(2, validation.errors[0])
+        return
+    }
+    
+    const ind = allbasketsdata.value.findIndex(o => o.sip_name === sip_name.value.trim())
     if ((!setmode.value || (setmode.value && ind === -1)) && sipinstall.value > 0) {
         const date = new Date()
         const formattedDate = moment(date).format('DDMMYYYY')
         let item = {}
         const freqMap = { Daily: '0', Weekly: '1', Fortnightly: '2', Monthly: '3' }
+        
+        // Phase 4: Format Scrips array according to API requirements
+        // Map orderbookdata to ensure proper format (qty/amount as strings, prd defaults to 'C')
+        const formattedScrips = orderbookdata.value.map(scrip => {
+            const formattedScrip = {
+                exch: scrip.exch,
+                tsym: scrip.tsym,
+                token: scrip.token,
+                prd: scrip.prd || 'C', // Default to Delivery if not specified
+            }
+            
+            // Add qty or prc based on investment type
+            if (scrip.invby === 'Qty') {
+                // Quantity-based investment
+                if (scrip.qty) {
+                    formattedScrip.qty = String(scrip.qty)
+                }
+            } else if (scrip.invby === 'Amount') {
+                // Amount-based investment
+                if (scrip.prc) {
+                    formattedScrip.prc = String(scrip.prc)
+                }
+            } else {
+                // Default to quantity if investment type not set
+                formattedScrip.qty = String(scrip.qty || 1)
+            }
+            
+            return formattedScrip
+        })
+        
         if (setmode.value) {
+            // Create new SIP order
             item = {
                 uid: sessionStorage.getItem('userid'),
                 actid: sessionStorage.getItem('userid'),
@@ -415,10 +597,11 @@ async function setPlaceorder() {
                 start_date: moment(sipdate.value).format('DDMMYYYY'),
                 frequency: freqMap[frequency.value] || '0',
                 end_period: sipinstall.value.toString(),
-                sip_name: sip_name.value,
-                Scrips: orderbookdata.value,
+                sip_name: sip_name.value.trim(), // Trim whitespace
+                Scrips: formattedScrips,
             }
         } else {
+            // Modify existing SIP order
             item = {
                 uid: sessionStorage.getItem('userid'),
                 actid: sessionStorage.getItem('userid'),
@@ -426,9 +609,9 @@ async function setPlaceorder() {
                 start_date: moment(sipdate.value).format('DDMMYYYY'),
                 frequency: freqMap[frequency.value] || '0',
                 end_period: sipinstall.value.toString(),
-                sip_name: sip_name.value,
+                sip_name: sip_name.value.trim(), // Trim whitespace
                 internal: singledata.value.internal,
-                Scrips: orderbookdata.value,
+                Scrips: formattedScrips,
             }
         }
         orderloader.value = true
@@ -442,7 +625,8 @@ async function setPlaceorder() {
         }
         orderloader.value = false
     } else {
-        appStore.showSnackbar(2, !(sipinstall.value > 0) ? 'No.of SIPs not be zero' : 'SIP name is already exists')
+        // This should not happen due to validation, but keep as fallback
+        appStore.showSnackbar(2, !(sipinstall.value > 0) ? 'No.of SIPs must be greater than zero' : 'SIP name already exists')
     }
 }
 
@@ -478,30 +662,78 @@ function onOrderbookUpdate() {
     getOrderbook()
 }
 
+// Phase 2 & 6: Handle SIP order trigger from buy/sell dialog
+// Match old code behavior: set default values and add security to orderbookdata
+function handleSIPOrderTrigger(event) {
+    const securityData = event.detail
+    
+    // Debug: Log to verify event is received
+    console.log('SIP order trigger received:', securityData)
+    
+    if (securityData && securityData.token) {
+        // Initialize dialog in create mode (reset all fields)
+        setSIPdialog(null)
+        
+        // Match old code: Set default values when triggered from buy/sell dialog
+        // sip_name = tsym (stock symbol)
+        sip_name.value = securityData.tsym || securityData.symbol || ''
+        
+        // frequency = "Daily" (default) - match old code
+        const dailyFrequency = frequencylist.find(f => f.title === 'Daily' || f.value === 'Daily')
+        frequency.value = dailyFrequency?.value || 'Daily'
+        
+        // sipinstall = 5 (default number of SIPs)
+        sipinstall.value = 5
+        
+        // sipdate = 2 days from today (YYYY-MM-DD format)
+        const today = new Date()
+        const twoDaysLater = new Date(today)
+        twoDaysLater.setDate(today.getDate() + 2)
+        sipdate.value = twoDaysLater.toISOString().slice(0, 10)
+        
+        // Phase 6 & 7: Add the security to orderbookdata with proper defaults and idx for sorting
+        const scrip = {
+            exch: securityData.exch,
+            tsym: securityData.tsym,
+            token: securityData.token,
+            prd: 'C', // Default to Delivery
+            invby: 'Qty', // Default investment type
+            qty: Number(securityData.ls || 1), // Default quantity to lot size (as number for editing)
+            idx: orderbookdata.value.length, // Phase 7: Add idx for sorting
+        }
+        
+        // Phase 6: Check if already exists (prevent duplicates)
+        const exists = orderbookdata.value.find(
+            o => String(o.token) === String(scrip.token) && o.exch === scrip.exch
+        )
+        
+        if (!exists) {
+            orderbookdata.value.push(scrip)
+            // Force reactivity update
+            orderbookdata.value = [...orderbookdata.value]
+        } else {
+            // Show message if duplicate
+            appStore.showSnackbar(2, `${scrip.tsym} is already in the SIP order`)
+        }
+        
+        // Dialog is already opened by setSIPdialog(null)
+        // Verify dialog is opened
+        console.log('SIP dialog should be open. basketdialog:', basketdialog.value)
+    } else {
+        console.log('SIP order trigger received but no token found:', securityData)
+    }
+}
+
 onMounted(() => {
     getOrderbook()
     window.addEventListener('orderbook-update', onOrderbookUpdate)
-    window.addEventListener('siporder-trigger', (e) => {
-        const { item, type } = e.detail
-        if (type && item) {
-            setSIPdialog(null)
-            sip_name.value = item.tsym
-            frequency.value = 'Daily'
-            sipinstall.value = 5
-            sipdate.value = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 2).toISOString().slice(0, 10)
-            orderbookdata.value.push({
-                exch: item.exch,
-                invby: 'Qty',
-                prd: 'C',
-                qty: '1',
-                token: item.token,
-                tsym: item.tsym
-            })
-        }
-    })
+    // Phase 2: Listen for SIP order trigger from buy/sell dialog
+    window.addEventListener('siporder-trigger', handleSIPOrderTrigger)
 })
 
 onBeforeUnmount(() => {
     window.removeEventListener('orderbook-update', onOrderbookUpdate)
+    // Phase 2: Clean up SIP order trigger event listener
+    window.removeEventListener('siporder-trigger', handleSIPOrderTrigger)
 })
 </script>

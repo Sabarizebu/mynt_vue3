@@ -99,7 +99,8 @@
                     <v-tooltip bottom color="black" :value="tooltipVisible">
                         <template v-slot:activator="{ on: tooltipOn, attrs: tooltipAttrs }">
                             <div v-bind="tooltipAttrs" v-on="tooltipOn">
-                                <v-btn v-bind="attrs" v-on="on" @click="handleUserIdClick" color="secbg" small
+                                <v-btn v-bind="attrs" v-on="on" @click="handleUserIdClick" color="secbg"
+                                    style="background-color: var(--secbg) !important;color: black !important;" small
                                     class="mx-1 elevation-0">
                                     <span class="font-weight-medium fs-14">
                                         {{ authStore.clientdata?.CLIENT_ID || authStore.uid || "-" }}

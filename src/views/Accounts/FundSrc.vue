@@ -96,7 +96,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useAppStore } from '@/stores/appStore'
-import { getMLimits } from '@/components/mixins/getAPIdata'
+import { getMLimits, forceRefreshMLimits } from '@/components/mixins/getAPIdata'
 
 const appStore = useAppStore()
 
@@ -106,13 +106,24 @@ const expand = ref(false)
 
 async function getAllmargin() {
     loading.value = true
-    const data = await getMLimits(true)
+    // Manual refresh button - force refresh the API
+    const data = await forceRefreshMLimits(true)
     if (data && data.stat === 'Ok') {
         limits.value = data
     } else if (data !== 500) {
         appStore.showSnackbar(2, data && data.emsg ? data.emsg : 'Failed to load funds')
     }
     loading.value = false
+}
+
+async function loadLimits() {
+    // Initial load - use getMLimits which returns cached data if already loaded once
+    const data = await getMLimits(true)
+    if (data && data.stat === 'Ok') {
+        limits.value = data
+    } else if (data !== 500 && data && data.emsg) {
+        appStore.showSnackbar(2, data.emsg)
+    }
 }
 
 function openFunds(pageis) {
@@ -126,6 +137,6 @@ function openFunds(pageis) {
 }
 
 onMounted(() => {
-    getAllmargin()
+    loadLimits()
 })
 </script>

@@ -5,7 +5,7 @@
         </div>
         <!-- <img src="@/assets/stat.svg" width="100%" alt=""> -->
         <v-card v-else class="elevation-0 mb-6 mb-sm-16 px-6 py-4 pa-sm-6 rounded-lg" color="#51FFB6">
-            <v-row no-glutters>
+            <v-row no-gutters>
                 <v-col cols="3">
                     <p class="fs-36 font-weight-bold black--text lh-40 mb-0 d-none d-sm-flex">
                         Simple. <br />
@@ -20,7 +20,7 @@
 
                 </v-col>
                 <v-col cols="8" class="pos-rlt mr-4 ml-auto d-none d-sm-flex">
-                    <div style="width: 100%;" no-glutters class="pos-abs d-inline-flex flex-row-reverse">
+                    <div style="width: 100%;" no-gutters class="pos-abs d-inline-flex flex-row-reverse">
                         <v-card width="170px" class="pb-4 mr-3 stk-land-crds rounded-xl">
                             <img src="@/assets/stocks/main-card-3.svg" class="px-2" alt="main-card-3" width="100%" />
                             <p class="fs-16 font-weight-bold lh-16 px-4 mb-0">
@@ -48,20 +48,20 @@
                 </v-col>
             </v-row>
         </v-card>
-        <v-toolbar class="tool-sty elevation-0 crd-trn" dense>
+        <v-toolbar class="tool-sty elevation-0 crd-trn" density="compact">
             <img width="32px" src="@/assets/stocks/ind.svg" alt="ind" class="mr-1 pa-1" />
             <p class="title font-weight-bold mb-0 mr-3">Top indices</p>
             <v-spacer></v-spacer>
-            <v-btn @click="scrollToo('indices', -600)" class="mr-2" icon small outlined> <v-icon
+            <v-btn @click="scrollToo('indices', -600)" class="mr-2" variant="outlined" icon size="small"> <v-icon
                     size="24">mdi-chevron-left</v-icon> </v-btn>
-            <v-btn @click="scrollFrom('indices', 600)" class="mr-1" icon small outlined> <v-icon
+            <v-btn @click="scrollFrom('indices', 600)" class="mr-1" icon size="small" variant="outlined"> <v-icon
                     size="24">mdi-chevron-right</v-icon> </v-btn>
         </v-toolbar>
         <v-card id="indices" v-dragscroll.x class="crd-trn d-inline-flex overflow-x-auto elevation-0 no-scroll mb-2"
             width="100%">
             <v-card v-for="(s, l) in pdmwdata" :key="l" @click="setSSDtab('Details', s.token, s.exch, s.tsym)"
                 class="px-3 py-2 crd-trn pos-rlt table-row" :class="l != pdmwdata.length - 1 ? 'mr-4' : ''"
-                min-width="160px" outlined>
+                min-width="160px" style="border: 1px solid var(--outline) !important;">
                 <div v-if="uid" @click.stop class="pos-abs table-hov" style="bottom: 32px; right: 4px;">
                     <v-btn :disabled="!s.too"
                         @click="$router.push({ name: 'stocks advance decline', params: { abc: s.too } })"
@@ -84,21 +84,21 @@
                 <p class="subtitle-2 font-weight-bold mb-2 ws-p" v-text="s.tsym ? s.tsym : ''"></p>
                 <v-card class="pt-02 mb-3 elevation-0 rounded-pill" width="30%" color="maintext"></v-card>
                 <p class="fs-14 txt-000 font-weight-medium mb-0">
-                    ₹<span :id="`ssdpd${s.token}ltp`">{{ s.ltp ? s.ltp : "0.00" }}</span>
+                    ₹<span :id="`ssdpd${s.token}ltp`">{{ s.ltp ? Number(s.ltp).toFixed(2) : "0.00" }}</span>
                 </p>
                 <p class="fs-12 font-weight-medium mb-0" :id="`ssdpd${s.token}chpclr`"
                     :class="s.chp > 0 ? 'maingreen--text' : s.chp < 0 ? 'mainred--text' : 'subtext--text'">
-                    <span :id="`ssdpd${s.token}ch`">{{ s.ch ? s.ch : "0.00" }}</span>
-                    <span :id="`ssdpd${s.token}chp`"> ({{ s.chp ? s.chp : "0.00" }}%)</span>
+                    <span :id="`ssdpd${s.token}ch`">{{ s.ch ? Number(s.ch).toFixed(2) : "0.00" }}</span>
+                    <span :id="`ssdpd${s.token}chp`"> ({{ s.chp ? Number(s.chp).toFixed(2) : "0.00" }}%)</span>
                 </p>
             </v-card>
         </v-card>
         <v-btn to="/stocks/allindices" text variant="flat" class="text-none px-0 primary--text mb-6">See all
             indices</v-btn>
 
-        <v-row no-glutters class="mb-4">
+        <v-row no-gutters class="mb-4">
             <v-col cols="12" sm="6">
-                <v-row no-glutters>
+                <v-row no-gutters>
                     <template v-for="(l, v, p) in advdecitems">
                         <v-col @click="advdectab = (p === 0 ? 'sectors' : 'thematic')" cols="6" v-if="p < 2" :key="p"
                             class="text-center cursor-p">
@@ -117,10 +117,9 @@
                 <!-- Tabs content replicated using explicit state like notifications page -->
                 <div v-if="advdectab === 'sectors'">
                     <v-card v-for="(i, o) in advdecitems.Sectors.slice(0, 6)" :key="o"
-                        @click="setSSDtab('Details', i.data.token, 'NSE', advdecitems.wsdata[i.data.token].tsym)"
-                        width="100%" class="elevation-0 pa-3 rounded-lg" :class="o < 5 ? 'mb-' : ''" height=""
-                        color="secbg">
-                        <v-row no-glutters>
+                        @click="i.data && i.data.token && advdecitems.wsdata[i.data.token] ? setSSDtab('Details', i.data.token, 'NSE', advdecitems.wsdata[i.data.token].tsym) : null"
+                        width="100%" class="elevation-0 pa-3 rounded-lg" :class="o < 5 ? 'mb-2' : ''" bg-color="secbg">
+                        <v-row no-gutters>
                             <v-col cols="5" sm="4" class="pr-0">
                                 <p class="mb-0 subtitle-2 font-weight-medium lh-16">
                                     {{ i.title }} <span class="caption subtext-text font-weight-bold">({{ i.data
@@ -174,7 +173,7 @@
                                             style="width: 100%;"></v-card>
                                     </v-card>
                                 </v-card>
-                                <v-row no-glutters>
+                                <v-row no-gutters>
                                     <v-col cols="6" class="pt-1">
                                         <p v-if="i.data.Positive > 0" class="mb-0 lh-16 mt-2 subtitle-2">
                                             <v-icon color="maingreen" size="18">mdi-arrow-top-right</v-icon>
@@ -197,10 +196,9 @@
                 </div>
                 <div v-else-if="advdectab === 'thematic'">
                     <v-card v-for="(i, o) in advdecitems.Thematic.slice(0, 6)" :key="o"
-                        @click="setSSDtab('Details', i.data.token, 'NSE', advdecitems.wsdata[i.data.token].tsym)"
-                        width="100%" class="elevation-0 pa-3 rounded-lg" :class="o < 5 ? 'mb-' : ''" height=""
-                        color="secbg">
-                        <v-row no-glutters>
+                        @click="i.data && i.data.token && advdecitems.wsdata[i.data.token] ? setSSDtab('Details', i.data.token, 'NSE', advdecitems.wsdata[i.data.token].tsym) : null"
+                        width="100%" class="elevation-0 pa-3 rounded-lg" :class="o < 5 ? 'mb-2' : ''" bg-color="secbg">
+                        <v-row no-gutters>
                             <!-- duplicate same inner layout -->
                             <v-col cols="5" sm="4" class="pr-0">
                                 <p class="mb-0 subtitle-2 font-weight-medium lh-16">
@@ -211,23 +209,19 @@
                                 <p class="fs-14 maintext--text font-weight-medium mb-0 lh-16">
                                     <span
                                         v-if="advdecitems.wsdata && i.data && i.data.token && advdecitems.wsdata[i.data.token]">
-                                        <span :id="`ssdad${i.data.token}ltp`">₹{{ advdecitems.wsdata && i.data &&
-                                            i.data.token &&
-                                            advdecitems.wsdata[i.data.token] && advdecitems.wsdata[i.data.token].ltp ?
-                                            `${advdecitems.wsdata[i.data.token].ltp}` : "" }}</span> &nbsp;<span
-                                            class="fs-12"
-                                            :class="advdecitems.wsdata[i.data.token] ? (advdecitems.wsdata[i.data.token].chp > 0 ? 'maingreen--text' : advdecitems.wsdata[i.data.token].chp < 0 ? 'mainred--text' : 'subtext--text') : 'subtext--text'"
+                                        <span :id="`ssdad${i.data.token}ltp`">₹{{ advdecitems.wsdata[i.data.token].ltp
+                                            || '0.00'
+                                            }}</span> &nbsp;<span class="fs-12"
+                                            :class="getSectorColorClass(i.data.token)"
                                             :id="`ssdad${i.data.token}chpclr`"><span :id="`ssdad${i.data.token}ch`">{{
-                                                advdecitems.wsdata[i.data.token] ?
-                                                    `${advdecitems.wsdata[i.data.token].ch}` : "0.00"
-                                            }}</span>
-                                            <span :id="`ssdad${i.data.token}chp`"> ({{ advdecitems.wsdata[i.data.token]
-                                                &&
+                                                advdecitems.wsdata[i.data.token].ch || "0.00"
+                                                }}</span>
+                                            <span :id="`ssdad${i.data.token}chp`"> ({{
                                                 advdecitems.wsdata[i.data.token].chp ?
-                                                `${Number(advdecitems.wsdata[i.data.token].chp).toFixed(2)}` : "0.00"
+                                                    `${Number(advdecitems.wsdata[i.data.token].chp).toFixed(2)}` : "0.00"
                                             }}%)</span></span>
                                     </span>
-                                    <span v-else class="fs-12">0.00 <span class="fs-9"> 0.00 (0.00%)</span></span>
+                                    <span v-else class="fs-12">₹0.00 <span class="fs-9"> 0.00 (0.00%)</span></span>
                                 </p>
                             </v-col>
                             <v-col cols="7" sm="8" v-if="i.data">
@@ -250,7 +244,7 @@
                                             style="width: 100%;"></v-card>
                                     </v-card>
                                 </v-card>
-                                <v-row no-glutters>
+                                <v-row no-gutters>
                                     <v-col cols="6" class="pt-1">
                                         <p v-if="i.data.Positive > 0" class="mb-0 lh-16 mt-2 subtitle-2">
                                             <v-icon color="maingreen" size="18">mdi-arrow-top-right</v-icon>
@@ -275,17 +269,17 @@
                 <div class="text-center mt-2">
                     <v-btn v-if="advdecitems && (advdecitems.Sectors || advdecitems.Thematic)"
                         @click="$router.push({ name: 'stocks advance decline', params: { abc: advdectab === 'sectors' ? advdecitems.Sectors[0].key : advdecitems.Thematic[0].key, main: advdectab === 'sectors' ? 'Sectors' : 'Thematic' } })"
-                        text variant="flat" small block class="text-none primary--text px-2">See all</v-btn>
+                        text variant="flat" size="small" block class="text-none primary--text px-2">See all</v-btn>
                 </div>
             </v-col>
             <v-col cols="12" sm="6" class="pt-md-0">
-                <v-toolbar class="elevation-0" dense color="transparent">
+                <v-toolbar class="elevation-0" density="compact" color="transparent">
                     <p class="title font-weight-bold mb-0">Heatmap</p>
                     <v-spacer></v-spacer>
 
-                    <v-select @change="setStatavddec('yes')" :readonly="issloading" style="max-width: 50%"
+                    <v-select @update:model-value="setStatavddec()" :readonly="issloading" style="max-width: 50%"
                         v-model="treemaps" hide-details append-icon="mdi-chevron-down"
-                        class="rounded-pill d-none d-sm-flex" dense flat solo background-color="secbg"
+                        class="rounded-pill d-none d-sm-flex" density="compact" variant="flat" bg-color="secbg"
                         :items="treemapitem" label="Condition"></v-select>
                 </v-toolbar>
                 <v-card height="500px" width="100%" id="avddecchart"
@@ -295,21 +289,22 @@
                             <p class="mb-2 title font-weight-bold">Service temporarily unavailable</p>
                             <p class="mb-4 subtext--text">Unable to load heatmap data. We will retry s
                                 rtly.</p>
-                            <v-btn small color="primary" class="text-none" @click="setStatavddec()">Retry now</v-btn>
+                            <v-btn size="small" color="primary" class="text-none" @click="setStatavddec()">Retry
+                                now</v-btn>
                         </div>
                     </div>
                 </v-card>
             </v-col>
         </v-row>
 
-        <v-toolbar class="tool-sty elevation-0 my-3" ref="ttt" id="ttt" dense color="transparent">
+        <v-toolbar class="tool-sty elevation-0 my-3" ref="ttt" id="ttt" density="compact" color="transparent">
             <p class="title font-weight-bold mb-0 mr-3">Today's trade action</p>
             <v-spacer></v-spacer>
 
 
-            <v-btn @click="scrollToo('market', -600)" class="mx-2" icon small outlined> <v-icon
+            <v-btn @click="scrollToo('market', -600)" class="mx-2" icon size="small" variant="outlined"> <v-icon
                     size="24">mdi-chevron-left</v-icon> </v-btn>
-            <v-btn @click="scrollFrom('market', 600)" class="mr-1" icon small outlined> <v-icon
+            <v-btn @click="scrollFrom('market', 600)" class="mr-1" icon size="small" variant="outlined"> <v-icon
                     size="24">mdi-chevron-right</v-icon> </v-btn>
         </v-toolbar>
 
@@ -319,7 +314,7 @@
                 :class="l == 3 ? 'mr-1' : 'mr-4'">
                 <v-card style="border: thin solid var(--outline) !important" class="rounded-lg elevation-0"
                     color="cardbg">
-                    <v-toolbar class="elevation-0 mb-0 mt-1" dense color="transparent">
+                    <v-toolbar class="elevation-0 mb-0 mt-1" density="compact" color="transparent">
                         <img width="24px" :src="tradeIcons[l]" :alt="tradeLabels[l]" class="mr-2" />
                         <p class="font-weight-bold subtitle-2 mb-0 text-none">
                             {{ l == 3 ? "Most active" : l == 0
@@ -329,12 +324,12 @@
                         <v-spacer></v-spacer>
                         <v-btn :disabled="isloading"
                             @click="$router.push({ name: 'stocks market', params: { abc: l } })" text
-                            class="text-none px-0 primary--text" small>See all</v-btn>
+                            class="text-none px-0 primary--text" size="small">See all</v-btn>
                     </v-toolbar>
                     <v-data-table must-sort :sort-by="[l == 2 ? 'vol' : 'chp']" :sort-desc="l != 1 ? [true] : [false]"
-                        mobile-breakpoint hide-default-footer fixed-header :loading="isloading"
-                        class="rounded-lg overflow-y-auto" style="min-width: 330px" :headers="tradeheader"
-                        :search="opensearch" :items="tabel" :items-per-page="5">
+                        mobile hide-default-footer fixed-header :loading="isloading" class="rounded-lg overflow-y-auto"
+                        style="min-width: 330px" :headers="tradeheader" :search="opensearch" :items="tabel"
+                        :items-per-page="5">
                         <template v-slot:[`item.tsym`]="{ item }">
                             <p class="mb-0 lh-16">
                                 <span @click="setSinglestock(item.tsym.split('-')[0], item)"
@@ -381,8 +376,9 @@
             </div>
         </div>
 
-        <v-card style="border: thin solid var(--outline) !important" outlined class="rounded-lg mb-8" color="cardbg">
-            <v-toolbar ref="smcp" id="smcp" class="elevation-0 my-4" dense color="transparent">
+        <v-card style="border: thin solid var(--outline) !important" variant="outlined" class="rounded-lg mb-8"
+            color="cardbg">
+            <v-toolbar ref="smcp" id="smcp" class="elevation-0 my-4" density="compact" color="transparent">
                 <img width="40px" src="@/assets/stocks/srcm.svg" alt="srcm" class="mr-2" />
                 <p class="title font-weight-bold mb-0">Stock monitor</p>
                 <v-spacer></v-spacer>
@@ -400,9 +396,9 @@
 
             </v-toolbar>
 
-            <v-data-table must-sort :sort-by="['chp']" mobile-breakpoint :sort-desc="[true]" hide-default-footer
-                fixed-header :loading="issloading" class="rounded-lg overflow-y-auto" :headers="screenheader"
-                :search="opensearch" :items="screentitems" :items-per-page="10">
+            <v-data-table must-sort :sort-by="['chp']" mobile :sort-desc="[true]" hide-default-footer fixed-header
+                :loading="issloading" class="rounded-lg overflow-y-auto" :headers="screenheader" :search="opensearch"
+                :items="screentitems" :items-per-page="10">
                 <template v-slot:[`item.tsym`]="{ item }">
                     <span @click="setSinglestock(item.tsym.split('-')[0], item)"
                         class="font-weight-medium text-capitalize txt-dec-cust ws-p" v-text="item.tsym"></span>
@@ -473,7 +469,7 @@
                 all</v-btn>
         </v-card>
 
-        <v-row ref="eve" id="eve" no-glutters class="mb-6">
+        <v-row ref="eve" id="eve" no-gutters class="mb-6">
             <v-col cols="12" md="6" class="py-md-0">
                 <v-card style="border: thin solid var(--outline) !important"
                     class="crd-trn elevation-0 overflow-hidden rounded-lg" width="100%">
@@ -490,7 +486,7 @@
                             </v-container>
                         </div>
                         <div v-else-if="allcropact && allcropact.length > 0">
-                            <v-card outlined v-for="(d, e, f) in allcropact.slice(0, 5)" :key="f"
+                            <v-card variant="outlined" v-for="(d, e, f) in allcropact.slice(0, 5)" :key="f"
                                 class="mb-3 rounded-lg" color="secbg">
                                 <v-list-item>
                                     <v-list-item-content>
@@ -579,7 +575,7 @@
                         <div v-else-if="allnews && allnews.length > 0">
                             <div v-for="(n, e) in allnews.slice(0, 5)" :key="e" class="mb-0 cursor-p"
                                 @click="newsPage(n)">
-                                <v-row no-glutters>
+                                <v-row no-gutters>
                                     <v-col cols="4" sm="3" xl="2">
                                         <v-card class="rounded-lg elevation-0">
                                             <img :src="n.image" width="100%" height="60px" class="rounded-lg"
@@ -633,9 +629,10 @@
     </div>
 </template>
 
-<script>
-import * as echarts from "echarts";
-import { watch } from 'vue'
+<script setup>
+import { ref, reactive, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
+import { useTheme } from 'vuetify'
 import { dragscroll } from "vue-dragscroll";
 import StatBoard from "../StatBoard.vue";
 import { getADindice, getADindices, getHLbreakers, getTopList, getConTentList, getLtpdata, getSectordata, getssNews, getCorporateact } from "../../../components/mixins/getAPIdata";
@@ -643,6 +640,7 @@ import { useAppStore } from '../../../stores/appStore';
 import { useAuthStore } from '../../../stores/authStore';
 import { useNavStore } from '../../../stores/navStore';
 import { websocketSubscription, websocketUnsubscriptionChain } from '../../../components/mixins/webSocketstream';
+import * as echarts from "echarts";
 // import datadiskData from '../../../datadiskData.json'
 import ic_tg from '@/assets/stocks/tg.svg'
 import ic_tl from '@/assets/stocks/tl.svg'
@@ -651,973 +649,1749 @@ import ic_ma from '@/assets/stocks/ma.svg'
 import ic_sect from '@/assets/stocks/sect.svg'
 import ic_them from '@/assets/stocks/them.svg'
 
-export default {
-    directives: {
-        dragscroll,
-    },
-    /* eslint-disable */
-    data: () => ({
-        uid: null,
-        mtoken: null,
-        stoken: null,
+// Router and Theme
+const router = useRouter()
+const theme = useTheme()
 
-        tradeaction: 0,
-        isloading: false,
-        issloading: false,
-        isssloading: true,
-        issssloading: true,
+// Reactive data - Authentication
+const uid = ref(null)
+const mtoken = ref(null)
+const stoken = ref(null)
 
-        opensearch: null,
-        openHsearch: null,
+// Loading states
+const tradeaction = ref(0)
+const isloading = ref(false)
+const issloading = ref(false)
+const isssloading = ref(true)
+const issssloading = ref(true)
 
-        pdmwdata: [
-            { exch: "NSE", token: "26000", tsym: "Nifty 50", too: "NIFTY 50" },
-            { exch: "NSE", token: "26009", tsym: "Nifty Bank", too: "NIFTY BANK" },
-            { exch: "NSE", token: "26017", tsym: "India VIX", too: "" },
-            { exch: "BSE", token: "1", tsym: "SENSEX", too: "" },
-            { exch: "NSE", token: "26013", tsym: "Nifty Next 50", too: "NIFTY NEXT 50" },
-            { exch: "NSE", token: "26060", tsym: "NIFTY MIDCAP 150", too: "NIFTY MIDCAP 150" },
-            { exch: "NSE", token: "26062", tsym: "NIFTY SMLCAP 250", too: "NIFTY SMALLCAP 250" },
-            { exch: "NSE", token: "26076", tsym: "NIFTY MICROCAP250", too: "NIFTY MICROCAP 250" },
-        ],
+// Search states
+const opensearch = ref(null)
+const openHsearch = ref(null)
 
-        screent0item: [
-            { text: "Volume & Price Up", value: "VolUpPriceUp" },
-            { text: "Volume & Price Down", value: "VolUpPriceDown" },
-            { text: "Open High", value: "OpenHigh" },
-            { text: "Open Low", value: "OpenLow" },
-            { text: "High Break", value: "HighBreak" },
-            { text: "Low Break", value: "LowBreak" },
-        ],
-        screent0: "VolUpPriceUp",
-        screent1item: [
-            { text: "All", value: "A" },
-            { text: "Nifty 50", value: "NIFTY50" },
-            { text: "Nifty 500", value: "NIFTY500" },
-            { text: "Nifty MIDCAP 50", value: "NIFTYMCAP50" },
-            { text: "Nifty SMLCAP 50", value: "NIFTYSMCAP50" },
-        ],
-        screent1: "A",
-        screentitems: [],
-        screentidata: true,
+// PDMW Data (Top Indices)
+const pdmwdata = ref([
+    { exch: "NSE", token: "26000", tsym: "Nifty 50", too: "NIFTY 50" },
+    { exch: "NSE", token: "26009", tsym: "Nifty Bank", too: "NIFTY BANK" },
+    { exch: "NSE", token: "26017", tsym: "India VIX", too: "" },
+    { exch: "BSE", token: "1", tsym: "SENSEX", too: "" },
+    { exch: "NSE", token: "26013", tsym: "Nifty Next 50", too: "NIFTY NEXT 50" },
+    { exch: "NSE", token: "26060", tsym: "NIFTY MIDCAP 150", too: "NIFTY MIDCAP 150" },
+    { exch: "NSE", token: "26062", tsym: "NIFTY SMLCAP 250", too: "NIFTY SMALLCAP 250" },
+    { exch: "NSE", token: "26076", tsym: "NIFTY MICROCAP250", too: "NIFTY MICROCAP 250" },
+])
 
-        treemaps: "NIFTY 50",
-        treemapitem: [
-            "NIFTY 50",
-            "NIFTY NEXT 50",
-            "NIFTY 100",
-            "NIFTY 200",
-            "Nifty Total Market",
-            "NIFTY 500",
-            "NIFTY500 MULTICAP 50 25 25",
-            "NIFTY MIDCAP 150",
-            "NIFTY MIDCAP 50",
-            "Nifty Midcap Select",
-            "NIFTY Midcap 100",
-            "NIFTY SMALLCAP 250",
-            "NIFTY SMALLCAP 50",
-            "NIFTY FULL SMALL CAP 100",
-            "NIFTY MICROCAP 250",
-            "NIFTY LargeMidcap 250",
-            "NIFTY MIDSMALLCAP 400",
-            "NIFTY COMMODITIES",
-        ],
-        heatmapLoading: false,
-        heatmapError: false,
+// Screener data
+const screent0item = ref([
+    { text: "Volume & Price Up", value: "VolUpPriceUp" },
+    { text: "Volume & Price Down", value: "VolUpPriceDown" },
+    { text: "Open High", value: "OpenHigh" },
+    { text: "Open Low", value: "OpenLow" },
+    { text: "High Break", value: "HighBreak" },
+    { text: "Low Break", value: "LowBreak" },
+])
+const screent0 = ref("VolUpPriceUp")
+const screent1item = ref([
+    { text: "All", value: "A" },
+    { text: "Nifty 50", value: "NIFTY50" },
+    { text: "Nifty 500", value: "NIFTY500" },
+    { text: "Nifty MIDCAP 50", value: "NIFTYMCAP50" },
+    { text: "Nifty SMLCAP 50", value: "NIFTYSMCAP50" },
+])
+const screent1 = ref("A")
+const screentitems = ref([])
+const screentidata = ref(true)
 
-        trader1item: [
-            { text: "NSE", value: "NSEALL" },
-            { text: "NFO", value: "NFOALL" },
-        ],
-        trader1: "NSEALL",
-        tradeactionitem: [[], [], [], []],
-        // Pre-imported icons for trade action header: 0=tg,1=tl,2=vb,3=ma
-        tradeIcons: [ic_tg, ic_tl, ic_vb, ic_ma],
-        tradeLabels: ['tg', 'tl', 'vb', 'ma'],
-        // Icons for AD Segments: 0=sect, 1=them
-        advIcons: [ic_sect, ic_them],
-        advLabels: ['sect', 'them'],
+// Heatmap data
+const treemaps = ref("NIFTY 50")
+const treemapitem = ref([
+    "NIFTY 50",
+    "NIFTY NEXT 50",
+    "NIFTY 100",
+    "NIFTY 200",
+    "Nifty Total Market",
+    "NIFTY 500",
+    "NIFTY500 MULTICAP 50 25 25",
+    "NIFTY MIDCAP 150",
+    "NIFTY MIDCAP 50",
+    "Nifty Midcap Select",
+    "NIFTY Midcap 100",
+    "NIFTY SMALLCAP 250",
+    "NIFTY SMALLCAP 50",
+    "NIFTY FULL SMALL CAP 100",
+    "NIFTY MICROCAP 250",
+    "NIFTY LargeMidcap 250",
+    "NIFTY MIDSMALLCAP 400",
+    "NIFTY COMMODITIES",
+])
+const heatmapLoading = ref(false)
+const heatmapError = ref(false)
 
-        sectoritems: [],
-        sectorwslist: [],
-        sectorwapper: [],
+// Trade action data
+const trader1item = ref([
+    { text: "NSE", value: "NSEALL" },
+    { text: "NFO", value: "NFOALL" },
+])
+const trader1 = ref("NSEALL")
+const tradeactionitem = ref([[], [], [], []])
 
-        // mrkbreaker: [],
-        mrkbreakers: [],
+// Pre-imported icons for trade action header: 0=tg,1=tl,2=vb,3=ma
+const tradeIcons = [ic_tg, ic_tl, ic_vb, ic_ma]
+const tradeLabels = ['tg', 'tl', 'vb', 'ma']
+// Icons for AD Segments: 0=sect, 1=them
+const advIcons = [ic_sect, ic_them]
+const advLabels = ['sect', 'them']
 
-        advdecitems: {
-            Sectors: [],
-            Thematic: [],
-            wsdata: {}
-        },
-        advdectab: 'sectors',
+// Sector data
+const sectoritems = ref([])
+const sectorwslist = ref([])
+const sectorwapper = ref([])
 
-        totalnews: 0,
-        allnews: null,
-        newsloading: false,
+// Market breakers
+const mrkbreakers = ref([])
 
-        allcropact: null,
-        croploading: false,
+// Advance/Decline data
+const advdecitems = reactive({
+    Sectors: [],
+    Thematic: [],
+    wsdata: {}
+})
+const advdectab = ref('sectors')
 
-        elscrollview: true,
-        unwatchAuth: null,
-        sessionCheckInterval: null,
-        heatmapResizeObserver: null,
-    }),
-    computed: {
-        tradeheader() {
-            return [
-                { text: "Symbol", value: "tsym", sortable: false, class: "ws-p" },
-                { text: "Price", value: "ltp", sortable: false, align: "right", class: "ws-p" },
-            ];
-        },
-        highheader() {
-            return [
-                { text: "Symbol", value: "tsym", sortable: false, class: "ws-p" },
-                { text: "Last 50 minutes", value: "ltp", sortable: false, width: "80%", class: "ws-p" },
-            ];
-        },
-        screenheader() {
-            return [
-                { text: "Symbol", value: "tsym", sortable: false, class: "ws-p" },
-                { text: "Price", value: "ltp", sortable: false, align: "right", class: "ws-p" },
-                { text: "Open", value: "op", align: "right", class: "ws-p" },
-                { text: "High", value: "high", align: "right", class: "ws-p" },
-                { text: "Low", value: "low", align: "right", class: "ws-p" },
-                { text: "Close", value: "cp", align: "right", class: "ws-p" },
-                { text: "Volume", value: "vol", align: "right", class: "ws-p" },
-            ];
-        },
-    },
-    watch: {
-        // Ensure heatmap refreshes whenever the condition changes
-        treemaps() {
-            // Avoid overlapping renders
-            if (this.heatmapLoading) return;
-            this.setStatavddec();
+// News data
+const totalnews = ref(0)
+const allnews = ref(null)
+const newsloading = ref(false)
+
+// Corporate action data
+const allcropact = ref(null)
+const croploading = ref(false)
+
+// Scroll and lifecycle refs
+const elscrollview = ref(true)
+const unwatchAuth = ref(null)
+const sessionCheckInterval = ref(null)
+const pdmwdataPollInterval = ref(null)
+const heatmapResizeObserver = ref(null)
+
+// State tracking for WebSocket updates (like watchlist)
+const lastState = ref({})
+
+// Merge tick data function (like watchlist mergeTick)
+const mergeTick = (token, patch) => {
+    const prev = lastState.value[token] || {}
+    const out = { ...prev }
+
+    // Normalize numbers
+    const num = (v) => {
+        const n = parseFloat(v)
+        return isFinite(n) ? n : undefined
+    }
+
+    const ltp = num(patch.ltp ?? patch.lp ?? patch.l)
+    const prevClose = num(patch.c ?? patch.prev_close_price ?? patch.close)
+    const chIn = num(patch.ch)
+    const chpIn = num(patch.chp ?? patch.pc)
+
+    if (typeof ltp !== 'undefined') out.ltp = ltp
+    if (typeof prevClose !== 'undefined') out.prevClose = prevClose
+    if (typeof chIn !== 'undefined') out.ch = chIn
+    if (typeof chpIn !== 'undefined') out.chp = chpIn
+
+    // Derive missing values
+    if (typeof out.ch === 'undefined' && typeof out.ltp !== 'undefined' && typeof out.prevClose !== 'undefined') {
+        out.ch = out.ltp - out.prevClose
+    }
+    if (typeof out.chp === 'undefined' && typeof out.ch !== 'undefined' && typeof out.prevClose !== 'undefined' && out.prevClose > 0) {
+        out.chp = (out.ch / out.prevClose) * 100
+    }
+
+    lastState.value[token] = out
+    return out
+}
+
+// Computed properties
+const tradeheader = computed(() => {
+    return [
+        { title: "Symbol", key: "tsym", sortable: false, class: "ws-p" },
+        { title: "Price", key: "ltp", sortable: false, align: "end", class: "ws-p" },
+    ]
+})
+
+const highheader = computed(() => {
+    return [
+        { title: "Symbol", key: "tsym", sortable: false, class: "ws-p" },
+        { title: "Last 50 minutes", key: "ltp", sortable: false, width: "80%", class: "ws-p" },
+    ]
+})
+
+const screenheader = computed(() => {
+    return [
+        { title: "Symbol", key: "tsym", sortable: false, class: "ws-p" },
+        { title: "Price", key: "ltp", sortable: false, align: "end", class: "ws-p" },
+        { title: "Open", key: "op", align: "end", class: "ws-p" },
+        { title: "High", key: "high", align: "end", class: "ws-p" },
+        { title: "Low", key: "low", align: "end", class: "ws-p" },
+        { title: "Close", key: "cp", align: "end", class: "ws-p" },
+        { title: "Volume", key: "vol", align: "end", class: "ws-p" },
+    ]
+})
+// Watchers
+watch(treemaps, () => {
+    // Ensure heatmap refreshes whenever the condition changes
+    // Avoid overlapping renders
+    if (heatmapLoading.value) return
+    setStatavddec()
+})
+// Initialize sectors and thematic data (run once on setup)
+advdecitems.Sectors = [
+    { title: "Bank", key: "NIFTY BANK" },
+    { title: "Auto", key: "NIFTY AUTO" },
+    { title: "Financial Services", key: "NIFTY FINANCIAL SERVICES" },
+    { title: "FMCG", key: "NIFTY FMCG" },
+    { title: "Health Care", key: "Nifty HEALTHCARE" },
+    { title: "Pharma", key: "NIFTY PHARMA" },
+    { title: "IT", key: "NIFTY IT" },
+    { title: "Media", key: "NIFTY MEDIA" },
+    { title: "Metal", key: "NIFTY METAL" },
+    { title: "Realty", key: "NIFTY REALTY" },
+    { title: "Consumer Durables", key: "NIFTY CONSUMER DURABLES" },
+    { title: "Oil & Gas", key: "NIFTY OIL AND GAS INDEX" },
+]
+advdecitems.Thematic = [
+    { title: "Core Housing", key: "Nifty Core Housing" },
+    { title: "Energy", key: "NIFTY ENERGY" },
+    { title: "Consumption", key: "NIFTY INDIA CONSUMPTION" },
+    { title: "Defence", key: "Nifty India Defence" },
+    { title: "Digital", key: "Nifty India Digital" },
+    { title: "Manufacturing", key: "Nifty India Manufacturing" },
+    { title: "Infrastructure", key: "NIFTY INFRASTRUCTURE" },
+    { title: "MNC", key: "NIFTY MNC" },
+    { title: "Mobility", key: "Nifty Mobility" },
+    { title: "Transportation & Logistics", key: "Nifty Transportation & Logistics" },
+    { title: "PSE", key: "NIFTY PSE" },
+    { title: "REITs & InvITs", key: "Nifty REITs & InvITs" },
+    { title: "SME Emerge", key: "NIFTY SME EMERGE" },
+]
+
+// Lifecycle hooks
+onMounted(() => {
+    const appStore = useAppStore();
+    const authStore = useAuthStore();
+
+    // Check if user is logged in
+    let res = sessionStorage.getItem("c3RhdHVz");
+    if (res == "dmFsaWR1c2Vy") {
+        if (!uid.value && !stoken.value) {
+            mtoken.value = sessionStorage.getItem("msession");
+            stoken.value = sessionStorage.getItem("usession");
+            uid.value = sessionStorage.getItem("userid");
         }
-    },
-    created() {
-        // Initialize sectors and thematic data
-        this.advdecitems.Sectors = [
-            { title: "Bank", key: "NIFTY BANK" },
-            { title: "Auto", key: "NIFTY AUTO" },
-            { title: "Financial Services", key: "NIFTY FINANCIAL SERVICES" },
-            { title: "FMCG", key: "NIFTY FMCG" },
-            { title: "Health Care", key: "Nifty HEALTHCARE" },
-            { title: "Pharma", key: "NIFTY PHARMA" },
-            { title: "IT", key: "NIFTY IT" },
-            { title: "Media", key: "NIFTY MEDIA" },
-            { title: "Metal", key: "NIFTY METAL" },
-            { title: "Realty", key: "NIFTY REALTY" },
-            { title: "Consumer Durables", key: "NIFTY CONSUMER DURABLES" },
-            { title: "Oil & Gas", key: "NIFTY OIL AND GAS INDEX" },
-        ];
-        this.advdecitems.Thematic = [
-            { title: "Core Housing", key: "Nifty Core Housing" },
-            { title: "Energy", key: "NIFTY ENERGY" },
-            { title: "Consumption", key: "NIFTY INDIA CONSUMPTION" },
-            { title: "Defence", key: "Nifty India Defence" },
-            { title: "Digital", key: "Nifty India Digital" },
-            { title: "Manufacturing", key: "Nifty India Manufacturing" },
-            { title: "Infrastructure", key: "NIFTY INFRASTRUCTURE" },
-            { title: "MNC", key: "NIFTY MNC" },
-            { title: "Mobility", key: "Nifty Mobility" },
-            { title: "Transportation & Logistics", key: "Nifty Transportation & Logistics" },
-            { title: "PSE", key: "NIFTY PSE" },
-            { title: "REITs & InvITs", key: "Nifty REITs & InvITs" },
-            { title: "SME Emerge", key: "NIFTY SME EMERGE" },
-        ];
-    },
-    mounted() {
-        const appStore = useAppStore();
-        const authStore = useAuthStore();
 
-        // Check if user is logged in
-        let res = sessionStorage.getItem("c3RhdHVz");
-        if (res == "dmFsaWR1c2Vy") {
-            if (!this.uid && !this.stoken) {
-                this.mtoken = sessionStorage.getItem("msession");
-                this.stoken = sessionStorage.getItem("usession");
-                this.uid = sessionStorage.getItem("userid");
+    }
+
+    // Listen for WebSocket price updates
+    window.addEventListener('websocket-quote-update', handleQuoteUpdate);
+
+    // Listen for WebSocket connection events (similar to old eventBus)
+    window.addEventListener('web-scoketConn', handleWebSocketConnection);
+
+    // Note: We don't load pdmwdata array structure from localStorage to preserve full 8-item default array
+    // Only prices are cached/restored, not the array structure itself
+
+    // Initialize data loading
+    // Subscribe pdmwdata to WebSocket immediately (like Vue 2 line 855)
+    // This MUST happen before cache restore to ensure WebSocket subscription is active
+    // Subscribe pdmwdata to WebSocket
+    setWebsocket("sub", pdmwdata.value, "ssd-pd");
+
+    // Fetch initial indices data on mount (works for both logged in and logged out users)
+    // This ensures data is available immediately instead of waiting for WebSocket
+    fetchInitialIndicesData();
+    getADlistdata();
+    setStatavddec();
+    if (res != "dmFsaWR1c2Vy") {
+        getToplistdata();
+        getContentlistdata();
+    }
+    // Defensive re-subscribe shortly after mount to handle socket warm-up on hard refresh
+    setTimeout(() => {
+        // Always re-subscribe pdmwdata, not just if logged in
+        // This ensures all indices get WebSocket updates at mounting stage
+        setWebsocket('sub', pdmwdata.value, 'ssd-pd');
+        if (uid.value && Object.keys(advdecitems.wsdata || {}).length > 0) {
+            setWebsocket('sub', Object.values(advdecitems.wsdata), 'adv');
+        }
+        // Re-restore cache after subscription to ensure cached data shows if WebSocket not ready
+        updatePdmwdataFromCache()
+    }, 1200);
+
+    // Set up polling for non-logged-in users (fetch data every 5 seconds)
+    // For logged-in users, WebSocket will handle updates in real-time
+    if (!uid.value) {
+        pdmwdataPollInterval.value = setInterval(() => {
+            setWebsocket('sub', pdmwdata.value, 'ssd-pd');
+        }, 5000); // Poll every 5 seconds for non-logged-in users
+    }
+
+    checkVisibility();
+    // setInterval(() => {
+    //   getMrkBreakerdata();
+    // }, 50000)
+    if (elscrollview.value) {
+        nextTick(() => {
+            window.addEventListener('scroll', checkVisibility);
+        });
+    }
+
+    // Phase 1: Watch for uid changes to re-subscribe WebSocket after login
+    watch(uid, async (newUid, oldUid) => {
+        if (newUid && !oldUid) {
+            // User just logged in - re-subscribe WebSocket immediately
+            console.log('Phase 1: User logged in, re-subscribing WebSocket for top indices and sectors');
+            await nextTick();
+
+            // Stop polling interval if it exists (switch from polling to WebSocket)
+            if (pdmwdataPollInterval.value) {
+                clearInterval(pdmwdataPollInterval.value);
+                pdmwdataPollInterval.value = null;
             }
 
-        }
+            // Re-subscribe pdmwdata to WebSocket immediately
+            setWebsocket("sub", pdmwdata.value, "ssd-pd");
 
-        // Listen for WebSocket price updates
-        window.addEventListener('websocket-quote-update', this.handleQuoteUpdate);
+            // Re-subscribe sectors/thematic if data exists
+            if (Object.keys(advdecitems.wsdata || {}).length > 0) {
+                setWebsocket("sub", Object.values(advdecitems.wsdata), "adv");
+            }
 
-        // Listen for WebSocket connection events (similar to old eventBus)
-        window.addEventListener('web-scoketConn', this.handleWebSocketConnection);
+            // Re-fetch initial data immediately
+            await fetchInitialIndicesData();
+            await getADlistdata();
 
-        // Initialize data loading
-        this.setWebsocket("sub", this.pdmwdata, "ssd-pd");
-        this.getADlistdata();
-        this.setStatavddec();
-        if (res != "dmFsaWR1c2Vy") {
-            this.getToplistdata();
-            this.getContentlistdata();
-        }
-        // Defensive re-subscribe shortly after mount to handle socket warm-up on hard refresh
-        setTimeout(() => {
-            if (this.uid) {
-                this.setWebsocket('sub', this.pdmwdata, 'ssd-pd');
-                if (Object.keys(this.advdecitems.wsdata || {}).length > 0) {
-                    this.setWebsocket('sub', Object.values(this.advdecitems.wsdata), 'adv');
+            // Defensive re-subscription after short delay to ensure connection is ready
+            setTimeout(() => {
+                setWebsocket('sub', pdmwdata.value, 'ssd-pd');
+                if (Object.keys(advdecitems.wsdata || {}).length > 0) {
+                    setWebsocket('sub', Object.values(advdecitems.wsdata), 'adv');
                 }
+            }, 500);
+
+            // Second re-subscription for robustness
+            setTimeout(() => {
+                setWebsocket('sub', pdmwdata.value, 'ssd-pd');
+                if (Object.keys(advdecitems.wsdata || {}).length > 0) {
+                    setWebsocket('sub', Object.values(advdecitems.wsdata), 'adv');
+                }
+            }, 1200);
+        } else if (!newUid && oldUid) {
+            // User logged out - clear subscriptions if needed
+            console.log('Phase 1: User logged out');
+            // Start polling for non-logged-in users
+            if (!pdmwdataPollInterval.value) {
+                pdmwdataPollInterval.value = setInterval(() => {
+                    setWebsocket('sub', pdmwdata.value, 'ssd-pd');
+                }, 5000);
             }
-        }, 1200);
-        this.checkVisibility();
-        // setInterval(() => {
-        //   this.getMrkBreakerdata();
-        // }, 50000)
-        if (this.elscrollview) {
-            this.$nextTick(() => {
-                window.addEventListener('scroll', this.checkVisibility);
-            });
         }
+    }, { immediate: false });
 
-        // React to login after mount: start data loads and WS without refresh
-        const initializeLoggedInData = async () => {
-            const loggedIn = sessionStorage.getItem('c3RhdHVz') === 'dmFsaWR1c2Vy'
-            const nUid = authStore.uid || sessionStorage.getItem('userid')
-            const nMtok = authStore.mtoken || sessionStorage.getItem('msession')
+    // React to login after mount: start data loads and WS without refresh
+    const initializeLoggedInData = async () => {
+        const loggedIn = sessionStorage.getItem('c3RhdHVz') === 'dmFsaWR1c2Vy'
+        const nUid = authStore.uid || sessionStorage.getItem('userid')
+        const nMtok = authStore.mtoken || sessionStorage.getItem('msession')
 
-            // Only initialize if we have credentials and they're different from current
-            if (loggedIn && nUid && nMtok && (this.uid !== nUid || this.mtoken !== nMtok)) {
-                const wasLoggedOut = !this.uid
-                this.uid = nUid;
-                this.mtoken = nMtok;
-                this.stoken = sessionStorage.getItem('usession');
+        // Only initialize if we have credentials and they're different from current
+        if (loggedIn && nUid && nMtok && (uid.value !== nUid || mtoken.value !== nMtok)) {
+            const wasLoggedOut = !uid.value
+            uid.value = nUid;
+            mtoken.value = nMtok;
+            stoken.value = sessionStorage.getItem('usession');
 
-                // Force Vue to recognize the change
-                this.$forceUpdate();
+            // Note: We preserve the full 8-item pdmwdata array, not loading from localStorage
 
-                // Subscribe and load sections with WebSocket
-                if (wasLoggedOut) {
-                    // First time login on this page
-                    await this.getADlistdata();
-                    this.setWebsocket('sub', this.pdmwdata, 'ssd-pd');
-                    this.setStatavddec();
-                    await this.getToplistdata();
-                    await this.getContentlistdata();
-                    // Re-subscribe once more after a short delay to survive socket init races
-                    setTimeout(() => {
-                        this.setWebsocket('sub', this.pdmwdata, 'ssd-pd');
-                        if (Object.keys(this.advdecitems.wsdata || {}).length > 0) {
-                            this.setWebsocket('sub', Object.values(this.advdecitems.wsdata), 'adv');
-                        }
-                    }, 1000);
-                } else {
-                    // Re-subscribe WebSocket when credentials change
-                    this.setWebsocket('sub', this.pdmwdata, 'ssd-pd');
-                    if (Object.keys(this.advdecitems.wsdata || {}).length > 0) {
-                        this.setWebsocket('sub', Object.values(this.advdecitems.wsdata), 'adv');
+            // Stop polling interval if it exists (switch from polling to WebSocket)
+            if (pdmwdataPollInterval.value) {
+                clearInterval(pdmwdataPollInterval.value);
+                pdmwdataPollInterval.value = null;
+            }
+
+            // Subscribe and load sections with WebSocket
+            if (wasLoggedOut) {
+                // First time login on this page
+                // CRITICAL: Subscribe pdmwdata IMMEDIATELY after login (like Vue 2 line 855)
+                // This ensures WebSocket updates start flowing immediately
+                setWebsocket('sub', pdmwdata.value, 'ssd-pd');
+
+                // Fetch initial indices data IMMEDIATELY after login
+                // This ensures data is available right away before WebSocket kicks in
+                await fetchInitialIndicesData();
+
+                await getADlistdata();
+                setStatavddec();
+                await getToplistdata();
+                await getContentlistdata();
+
+                // CRITICAL: Re-fetch initial data after short delay to ensure we have latest prices
+                setTimeout(async () => {
+                    await fetchInitialIndicesData();
+                    setWebsocket('sub', pdmwdata.value, 'ssd-pd');
+                    if (Object.keys(advdecitems.wsdata || {}).length > 0) {
+                        setWebsocket('sub', Object.values(advdecitems.wsdata), 'adv');
                     }
-                    if (this.tradeactionitem && this.tradeactionitem.length > 0) {
-                        const arr = this.tradeactionitem[0]?.concat(this.tradeactionitem[1]?.concat(this.tradeactionitem[2]?.concat(this.tradeactionitem[3] || [])) || []) || [];
-                        if (arr.length > 0) {
-                            const wsdata = arr.map((o) => ({ exch: o.exch, token: o.token, tsym: o.tsym }));
-                            this.setWebsocket('sub', wsdata, 'ta');
-                        }
+                }, 500);
+
+                // Second re-subscription and data fetch for robustness (like Vue 2 timeout pattern)
+                setTimeout(async () => {
+                    await fetchInitialIndicesData();
+                    setWebsocket('sub', pdmwdata.value, 'ssd-pd');
+                    if (Object.keys(advdecitems.wsdata || {}).length > 0) {
+                        setWebsocket('sub', Object.values(advdecitems.wsdata), 'adv');
                     }
-                    if (this.screentitems && this.screentitems.length > 0) {
-                        this.setWebsocket('sub', this.screentitems, 'sc');
+                }, 1500);
+            } else {
+                // Note: We preserve the full 8-item pdmwdata array, not loading from localStorage
+
+                // Fetch initial indices data immediately after login
+                // This ensures data is available right away
+                await fetchInitialIndicesData();
+
+                // Re-subscribe WebSocket when credentials change
+                // CRITICAL: Always subscribe pdmwdata first (like Vue 2 line 855)
+                // This ensures WebSocket updates start flowing immediately after login
+                setWebsocket('sub', pdmwdata.value, 'ssd-pd');
+
+                if (Object.keys(advdecitems.wsdata || {}).length > 0) {
+                    setWebsocket('sub', Object.values(advdecitems.wsdata), 'adv');
+                }
+                if (tradeactionitem.value && tradeactionitem.value.length > 0) {
+                    const arr = tradeactionitem.value[0]?.concat(tradeactionitem.value[1]?.concat(tradeactionitem.value[2]?.concat(tradeactionitem.value[3] || [])) || []) || [];
+                    if (arr.length > 0) {
+                        const wsdata = arr.map((o) => ({ exch: o.exch, token: o.token, tsym: o.tsym }));
+                        setWebsocket('sub', wsdata, 'ta');
                     }
                 }
-            }
-        };
+                if (screentitems.value && screentitems.value.length > 0) {
+                    setWebsocket('sub', screentitems.value, 'sc');
+                }
 
-        // Initialize immediately if already logged in
-        this.$nextTick(() => {
+                // CRITICAL: Re-subscribe after delay to ensure WebSocket connection is active
+                setTimeout(() => {
+                    setWebsocket('sub', pdmwdata.value, 'ssd-pd');
+                    if (Object.keys(advdecitems.wsdata || {}).length > 0) {
+                        setWebsocket('sub', Object.values(advdecitems.wsdata), 'adv');
+                    }
+                }, 1000);
+            }
+        }
+    };
+
+    // Initialize immediately if already logged in
+    nextTick(() => {
+        initializeLoggedInData();
+    });
+
+    // Watch for login changes
+    unwatchAuth.value = watch(
+        () => [authStore.uid, authStore.mtoken],
+        async ([nUid, nMtok]) => {
+            if (nUid && nMtok) {
+                await nextTick();
+                await initializeLoggedInData();
+            }
+        },
+        { immediate: false }
+    );
+
+    // Also listen for sessionStorage changes (fallback)
+    const intervalId = setInterval(() => {
+        const loggedIn = sessionStorage.getItem('c3RhdHVz') === 'dmFsaWR1c2Vy'
+        if (loggedIn && !uid.value) {
             initializeLoggedInData();
+        }
+    }, 500);
+    sessionCheckInterval.value = intervalId;
+})
+
+// Cleanup on unmount
+onBeforeUnmount(() => {
+    window.removeEventListener('scroll', checkVisibility);
+    window.removeEventListener('websocket-quote-update', handleQuoteUpdate);
+    window.removeEventListener('web-scoketConn', handleWebSocketConnection);
+    if (unwatchAuth.value) {
+        unwatchAuth.value();
+        unwatchAuth.value = null;
+    }
+    if (sessionCheckInterval.value) {
+        clearInterval(sessionCheckInterval.value);
+        sessionCheckInterval.value = null;
+    }
+    if (pdmwdataPollInterval.value) {
+        clearInterval(pdmwdataPollInterval.value);
+        pdmwdataPollInterval.value = null;
+    }
+    if (heatmapResizeObserver.value) {
+        try { heatmapResizeObserver.value.disconnect(); } catch (_) { }
+        heatmapResizeObserver.value = null;
+    }
+})
+
+// Methods
+// Cache functions for pdmwdata prices
+const savePdmwdataCache = () => {
+    // Save current pdmwdata prices to cache
+    try {
+        const cache = {}
+        for (let i = 0; i < pdmwdata.value.length; i++) {
+            const item = pdmwdata.value[i]
+            if (item.token && (item.ltp || item.ch || item.chp)) {
+                cache[item.token] = {
+                    ltp: item.ltp || null,
+                    ch: item.ch || null,
+                    chp: item.chp || null,
+                    timestamp: Date.now()
+                }
+            }
+        }
+        if (Object.keys(cache).length > 0) {
+            localStorage.setItem(`${uid.value || 'guest'}_pdmwdata_cache`, JSON.stringify(cache))
+        }
+    } catch (err) {
+        console.log('savePdmwdataCache error:', err)
+    }
+}
+
+const loadPdmwdataCache = () => {
+    // Load cached prices for pdmwdata
+    try {
+        const cacheKey = `${uid.value || 'guest'}_pdmwdata_cache`
+        const cached = localStorage.getItem(cacheKey)
+        if (cached) {
+            return JSON.parse(cached)
+        }
+    } catch (err) {
+        console.log('loadPdmwdataCache error:', err)
+    }
+    return null
+}
+
+const updatePdmwdataFromCache = () => {
+    // Restore cached prices to pdmwdata array (only if current value is missing/zero)
+    const cache = loadPdmwdataCache()
+    if (cache) {
+        for (let i = 0; i < pdmwdata.value.length; i++) {
+            const item = pdmwdata.value[i]
+            if (item.token && cache[item.token]) {
+                const cached = cache[item.token]
+                // Only use cache if current value is missing, null, or 0
+                if (!item.ltp || item.ltp === "0.00" || item.ltp === "0" || item.ltp === 0) {
+                    if (cached.ltp) item.ltp = cached.ltp
+                }
+                if (!item.ch || item.ch === "0.00" || item.ch === "0" || item.ch === 0) {
+                    if (cached.ch) item.ch = cached.ch
+                }
+                if (!item.chp || item.chp === "0.00" || item.chp === "0" || item.chp === 0) {
+                    if (cached.chp) item.chp = cached.chp
+                }
+                // Update DOM elements with cached values
+                const ltpTag = document.getElementById(`ssdpd${item.token}ltp`)
+                if (ltpTag) {
+                    ltpTag.innerHTML = item.ltp || "0.00"
+                    const chTag = document.getElementById(`ssdpd${item.token}ch`)
+                    const chpTag = document.getElementById(`ssdpd${item.token}chp`)
+                    const chpclrTag = document.getElementById(`ssdpd${item.token}chpclr`)
+                    if (chTag) chTag.innerHTML = item.ch || "0.00"
+                    if (chpTag) chpTag.innerHTML = ` (${item.chp || "0.00"}%)`
+                    if (chpclrTag) {
+                        const ch = parseFloat(item.ch) || 0
+                        chpclrTag.className = ch > 0
+                            ? 'd-inline-flex font-weight-medium fs-12 px-2 maingreen--text'
+                            : ch < 0
+                                ? 'd-inline-flex font-weight-medium fs-12 px-2 mainred--text'
+                                : 'd-inline-flex font-weight-medium fs-12 px-2 subtext--text'
+                    }
+                }
+            }
+        }
+    }
+}
+
+const handleQuoteUpdate = (event) => {
+    // Handle WebSocket quote updates (like watchlist)
+    const data = event.detail;
+    if (data) {
+        // Check if this quote update is for any token in pdmwdata
+        const token = data.token || data.tk;
+        const exchange = data.exchange || data.e || data.exch || data.market_segment_id;
+
+        if (token) {
+            // Check if this token is in pdmwdata (by token and optionally by exchange)
+            const pIndex = pdmwdata.value.findIndex((o) => {
+                if (o.token == token) {
+                    // If exchange is provided, also match by exchange
+                    if (exchange) {
+                        return o.exch === exchange;
+                    }
+                    return true;
+                }
+                return false;
+            });
+
+            if (pIndex >= 0) {
+                // This is a pdmwdata token, process the update
+                // Use mergeTick to handle data merging (like watchlist)
+                optionChainDataParse(data);
+            }
+        } else {
+            // If no token, try to parse anyway (might be for other data)
+            optionChainDataParse(data);
+        }
+    }
+}
+
+const handleWebSocketConnection = (event) => {
+    // Handle WebSocket connection events (like watchlist handleWebSocketUpdate)
+    // Like Vue 2 line 870-874: checks page == "stockDASH" and calls optionChainDataParse
+    const detail = event.detail;
+
+    // Handle pdmwdata updates (like watchlist line 2114-2158)
+    if (detail && (detail.token || detail.tk)) {
+        const data = detail;
+        const token = data.token || data.tk;
+        const tokenStr = String(token);
+
+        // Update pdmwdata if token matches (like watchlist)
+        // Use string comparison to handle both string and number formats
+        if (pdmwdata.value && Array.isArray(pdmwdata.value)) {
+            const pIndex = pdmwdata.value.findIndex((o) => String(o.token) === tokenStr);
+            if (pIndex >= 0 && String(pdmwdata.value[pIndex].token) === tokenStr) {
+                // Process the update using optionChainDataParse (which uses mergeTick)
+                optionChainDataParse(data);
+            }
+        }
+    }
+
+    // The old implementation expects (data, page) parameters
+    if (Array.isArray(detail) && detail.length >= 2) {
+        const [data, page] = detail;
+        // Check for "stockDASH" like Vue 2, or "stocks" for compatibility
+        if ((page === "stockDASH" || page === "stocks" || page === "stockINC") && data) {
+            // Handle pdmwdata updates (top indices)
+            if (pdmwdata.value && Array.isArray(pdmwdata.value)) {
+                // Handle both single data object and array of data
+                if (Array.isArray(data)) {
+                    // If data is array, process each item
+                    for (let i = 0; i < data.length; i++) {
+                        if (data[i] && (data[i].token || data[i].tk)) {
+                            optionChainDataParse(data[i]);
+                        }
+                    }
+                } else if (data.token || data.tk) {
+                    // Single data object
+                    optionChainDataParse(data);
+                }
+            }
+
+            // Handle sectors/thematic updates (advdecitems.wsdata)
+            if (page === "stocks" && advdecitems.wsdata && data && (data.token || data.tk)) {
+                const token = data.token || data.tk;
+                if (advdecitems.wsdata[token]) {
+                    // This is a sector/thematic update
+                    updateSectorData(data);
+                }
+            }
+        }
+    } else if (detail && typeof detail === 'object') {
+        // Check if detail has page property
+        if (detail.page === "stockDASH" || detail.page === "stocks" || detail.page === "stockINC") {
+            // This is a page-specific event
+            if (detail.token || detail.tk) {
+                optionChainDataParse(detail);
+            }
+        } else if (detail.token || detail.tk) {
+            // Fallback for direct data - check if it matches pdmwdata tokens or sector tokens
+            const token = detail.token || detail.tk;
+            const tokenStr = String(token);
+
+            // Check if it's a top indices token (pdmwdata) - use string comparison
+            const pIndex = pdmwdata.value.findIndex((o) => String(o.token) === tokenStr);
+            if (pIndex >= 0) {
+                console.log('handleWebSocketConnection: Processing direct token update', tokenStr);
+                optionChainDataParse(detail);
+            }
+
+            // Check if it's a sector/thematic token (advdecitems.wsdata) - use string comparison
+            if (advdecitems.wsdata && advdecitems.wsdata[tokenStr]) {
+                updateSectorData(detail);
+            }
+        } else if (detail.t === 'dk' || detail.t === 'df') {
+            // Handle WebSocket feed format (t: 'dk' or 'df')
+            // Map tk to token, lp to lp, etc.
+            const token = detail.tk || detail.token;
+            if (token) {
+                const tokenStr = String(token);
+                // Use string comparison for token matching
+                const pIndex = pdmwdata.value.findIndex((o) => String(o.token) === tokenStr);
+                if (pIndex >= 0) {
+                    console.log('handleWebSocketConnection: Processing WebSocket feed format (dk/df) for token', tokenStr);
+                    // Map WebSocket feed format to optionChainDataParse format
+                    const mappedData = {
+                        token: token,
+                        tk: detail.tk,
+                        lp: detail.lp,
+                        ch: detail.ch || (detail.lp && detail.c ? detail.lp - detail.c : null),
+                        chp: detail.chp || detail.pc || (detail.c && detail.lp ? ((detail.lp - detail.c) / detail.c * 100) : null),
+                        c: detail.c,
+                        exchange: detail.e,
+                        exch: detail.e
+                    };
+                    optionChainDataParse(mappedData);
+
+                    // Also check if it's a sector/thematic token - use string comparison
+                    if (advdecitems.wsdata && advdecitems.wsdata[tokenStr]) {
+                        updateSectorData(mappedData);
+                    }
+                } else {
+                    console.warn('handleWebSocketConnection: WebSocket feed token not found in pdmwdata', tokenStr);
+                }
+            }
+        } else {
+            // If no token, try to parse anyway (might be for other data)
+            // But only if it's not a page-specific event that we're not handling
+            if (!detail.page || detail.page === "stockDASH" || detail.page === "stocks" || detail.page === "stockINC") {
+                optionChainDataParse(detail);
+            }
+        }
+    }
+}
+
+const checkVisibility = () => {
+    const ids = {
+        elo: document.getElementById('ttt'),
+        elt: document.getElementById('smcp'),
+        elr: document.getElementById('eve'),
+    };
+    if (isVisible(ids.elo) && tradeactionitem.value[0]?.length === 0) {
+        getToplistdata();
+    }
+
+    if (isVisible(ids.elt) && screentidata.value) {
+        screentidata.value = false;
+        getContentlistdata();
+    }
+
+    if (isVisible(ids.elr)) {
+        if (!allnews.value) getNews();
+        if (!allcropact.value) getCorpationaction();
+        elscrollview.value = false;
+    }
+}
+
+const isVisible = (el) => {
+    if (!el) return false;
+    const { top, left, bottom, right } = el.getBoundingClientRect();
+    const w = window.innerWidth || document.documentElement.clientWidth;
+    const h = window.innerHeight || document.documentElement.clientHeight;
+    return top >= 0 && left >= 0 && bottom <= h && right <= w;
+}
+
+const setSinglestock = (tsym, item) => {
+    if (uid.value) {
+        let path = [0, item.token, item.exch, item.tsym];
+        router.push({ name: "stocks details", params: { val: path } });
+    } else if (item.exch == "NSE") {
+        router.push(`/stocks/${tsym.toLowerCase()}`);
+    }
+}
+
+const scrollToo = (id, value) => {
+    const element = document.getElementById(`${id}`);
+    element.scrollBy({
+        left: value,
+        behavior: "smooth",
+    });
+}
+
+const scrollFrom = (id, value) => {
+    const element = document.getElementById(`${id}`);
+    element.scrollBy({
+        left: value,
+        behavior: "smooth",
+    });
+}
+
+const setScrpitCH = (x, i, a, l) => {
+    if (a == "TA") {
+        let f = tradeactionitem.value[x].findIndex((o) => o.token == i.token);
+        tradeactionitem.value[x][f]["ch"] = Number(i.lp) && Number(i.c) ? (Number(i.lp) - Number(i.c)).toFixed(2) : 0;
+        tradeactionitem.value[x][f]["chp"] = Number(i.ch) && Number(i.lp) ? ((Number(i.ch) / Number(i.lp)) * 100).toFixed(2) : 0;
+    } else if (a == "SCR") {
+        let f = screentitems.value.findIndex((o) => o.token == i.token);
+        screentitems.value[f]["ch"] = Number(i.lp) && Number(i.c) ? (Number(i.lp) - Number(i.c)).toFixed(2) : 0;
+        screentitems.value[f]["chp"] = Number(i.ch) && Number(i.lp) ? ((Number(i.ch) / Number(i.lp)) * 100).toFixed(2) : 0;
+    } else if (a == "st" && l < 5) {
+        let g = sectorwapper.value.indexOf(`${x}|${l}`);
+        if (sectorwslist.value && sectorwslist.value.length == 20) {
+            setWebsocket("sub", sectorwslist.value, a);
+            sectorwslist.value = [];
+        } else if (g == -1) {
+            sectorwslist.value.push({ exch: i.Symbol.split(":")[0], token: i.Token ? i.Token : "0" });
+            sectorwapper.value.push(`${x}|${l}`);
+        }
+    }
+}
+
+// Fetch initial price data for top indices (pdmwdata)
+const fetchInitialIndicesData = async () => {
+    if (!pdmwdata.value || pdmwdata.value.length === 0) {
+        console.log('fetchInitialIndicesData: pdmwdata is empty');
+        return;
+    }
+
+    try {
+        // Prepare data array for API call
+        const indicesData = pdmwdata.value.map(item => ({
+            exch: item.exch,
+            token: item.token,
+            tsym: item.tsym
+        }));
+
+        // Phase 3: Verify all indices are being fetched
+        console.log(`Phase 3: fetchInitialIndicesData: Fetching data for ${indicesData.length} indices`);
+        indicesData.forEach((item, index) => {
+            console.log(`Phase 3: Fetching index ${index + 1}/${indicesData.length}: ${item.exch}|${item.token}|${item.tsym}`);
         });
 
-        // Watch for login changes
-        this.unwatchAuth = watch(
-            () => [authStore.uid, authStore.mtoken],
-            async ([nUid, nMtok]) => {
-                if (nUid && nMtok) {
-                    await this.$nextTick();
-                    await initializeLoggedInData();
+        // Fetch LTP data for all indices
+        const response = await getLtpdata(indicesData);
+        const raw = response?.data;
+
+        if (raw) {
+            console.log('fetchInitialIndicesData: Received data for', Object.keys(raw).length, 'tokens');
+            let anyUpdated = false;
+            for (let l = 0; l < pdmwdata.value.length; l++) {
+                const item = pdmwdata.value[l];
+                const v = raw[item.token];
+
+                if (v) {
+                    const newLtp = Number(v.lp).toFixed(2);
+                    const newCh = Number(newLtp - Number(v.close)).toFixed(2);
+                    const newChp = Number(v.change).toFixed(2);
+
+                    // Always update - don't check if changed, just update
+                    pdmwdata.value[l]["ltp"] = newLtp;
+                    pdmwdata.value[l]["ch"] = newCh;
+                    pdmwdata.value[l]["chp"] = newChp;
+                    anyUpdated = true;
+
+                    // Update DOM elements immediately using nextTick to ensure DOM is ready
+                    await nextTick();
+                    const ltpTag = document.getElementById(`ssdpd${item.token}ltp`);
+                    if (ltpTag) {
+                        ltpTag.innerHTML = newLtp;
+                        const chTag = document.getElementById(`ssdpd${item.token}ch`);
+                        const chpTag = document.getElementById(`ssdpd${item.token}chp`);
+                        const chpclrTag = document.getElementById(`ssdpd${item.token}chpclr`);
+                        if (chTag) chTag.innerHTML = newCh;
+                        if (chpTag) chpTag.innerHTML = ` (${newChp}%)`;
+                        if (chpclrTag) {
+                            const ch = parseFloat(newCh) || 0;
+                            chpclrTag.className = ch > 0
+                                ? 'font-weight-medium fs-12 ws-p maingreen--text'
+                                : ch < 0
+                                    ? 'font-weight-medium fs-12 ws-p mainred--text'
+                                    : 'font-weight-medium fs-12 ws-p subtext--text';
+                        }
+                    }
+                } else {
+                    console.log('fetchInitialIndicesData: No data for token', item.token);
                 }
+            }
+
+            // Save to cache after updating all prices
+            if (anyUpdated) {
+                savePdmwdataCache();
+            }
+        } else {
+            console.log('fetchInitialIndicesData: No raw data received from API, trying cache');
+            // Try to load from cache (Phase 3.2: Add Fallback for Missing Top Indices Data)
+            const cache = loadPdmwdataCache();
+            if (cache) {
+                console.log('fetchInitialIndicesData: Loading data from cache');
+                updatePdmwdataFromCache();
+            }
+        }
+    } catch (error) {
+        console.error('fetchInitialIndicesData: Error fetching initial indices data:', error);
+        console.error('fetchInitialIndicesData: Error stack:', error.stack);
+        // Phase 3.2: Try to load from cache on error
+        try {
+            const cache = loadPdmwdataCache();
+            if (cache) {
+                console.log('fetchInitialIndicesData: Loading data from cache after error');
+                updatePdmwdataFromCache();
+            }
+        } catch (cacheError) {
+            console.error('fetchInitialIndicesData: Error loading cache:', cacheError);
+        }
+    }
+}
+
+const getToplistdata = async () => {
+    tradeactionitem.value = [];
+    isloading.value = true;
+    let lsto = await getTopList([trader1.value == "NSEALL" ? "NSE" : "NFO", trader1.value, "mostActive"]);
+    let lstt = await getTopList([trader1.value == "NSEALL" ? "NSE" : "NFO", trader1.value, "topG_L"]);
+
+    if (lsto.stat == "Ok" && lstt.stat == "Ok") {
+        tradeactionitem.value.push(lstt.topGainers);
+        tradeactionitem.value.push(lstt.topLosers);
+        tradeactionitem.value.push(lsto.byVolume);
+        tradeactionitem.value.push(lsto.byValue);
+
+        let arr = tradeactionitem.value[0].concat(tradeactionitem.value[1].concat(tradeactionitem.value[2].concat(tradeactionitem.value[3])));
+        let wsdata = [];
+        arr.map((o) => wsdata.push({ exch: o.exch, token: o.token, tsym: o.tsym }));
+        if (uid.value) {
+            setWebsocket("sub", wsdata, "ta");
+        }
+    }
+    isloading.value = false;
+}
+
+const getContentlistdata = async (change) => {
+    if (change == "yes" && uid.value) {
+        setWebsocket("unsub-D", screentitems.value, "sc");
+    }
+    issloading.value = true;
+    screentitems.value = [];
+    let data = await getConTentList(["NSE", screent1.value, screent0.value]);
+    if (data && data.length > 0) {
+        screentitems.value = data.slice(0, 10);
+        if (uid.value) {
+            setWebsocket("sub", data, "sc");
+        }
+    }
+    screentidata.value = false;
+    issloading.value = false;
+}
+
+const getSectorlistdata = async () => {
+    isssloading.value = true;
+    sectoritems.value = [];
+    let data = await getSectordata();
+    if (data && data.Bank) {
+        sectoritems.value.push({ txt: "Banking", data: data.Bank });
+        sectoritems.value.push({ txt: "Finance", data: data.Finance });
+        sectoritems.value.push({ txt: "Healthcare", data: data.Healthcare });
+        sectoritems.value.push({ txt: "Realty", data: data.Realty });
+    }
+    isssloading.value = false;
+}
+
+const getMrkBreakerdata = async () => {
+    mrkbreakers.value = [];
+    issssloading.value = true;
+    let data;
+    // data = hig
+    data = await getHLbreakers();
+    if (data) {
+        Object.entries(data).forEach(([key, value]) => {
+            value = value.slice(-10);
+            if (value && value.length < 10) {
+                let l = 10 - value.length;
+                for (let a = 0; a < l; a++) {
+                    var now = new Date(value[value.length - 1].time);
+                    now.setMinutes(now.getMinutes() + 5);
+                    const padL = (nr, len = 2, chr = `0`) => `${nr}`.padStart(2, chr);
+                    now = [padL(now.getMonth() + 1), padL(now.getDate()), now.getFullYear()].join("-") + " " + [padL(now.getHours()), padL(now.getMinutes()), padL(now.getSeconds())].join(":");
+                    value.push({ time: now, lowbreak: false, highbreak: false, points: 0.0, percentage: 0.0, Symbol: value[0].Symbol, Token: value[0].Token });
+                }
+            }
+            let max = Math.max(...value.map((o) => o.points));
+            let min = Math.min(...value.map((o) => o.points));
+            for (let v = 0; v < value.length; v++) {
+                value[v]["color"] = value[v].points == 0 ? "#FAFBFF" : value[v].points > 0 ? (value[v].points <= max / 3 ? "#caedc4" : value[v].points <= max / 2 ? "#a6e19d" : "#83d576") : value[v].points <= min / 3 ? "#ff4d4d" : value[v].points <= min / 2 ? "#ff8080" : "#ffb3b3";
+            }
+            mrkbreakers.value.push({ tsym: key, data: value });
+        });
+    }
+    // this.mrkbreaker = data;
+    issssloading.value = false;
+}
+
+const getADlistdata = async () => {
+    try {
+        // Phase 4.1: Add comprehensive error logging
+        console.log('getADlistdata: Starting to fetch sector/thematic data');
+        let data = await getADindices();
+        console.log('getADlistdata: getADindices response:', data);
+
+        if (data && data != 500) {
+            // Process sectors data with Vue 3 reactivity
+            // Always call setStatAD for all sectors, even if API doesn't return data (handles missing data gracefully)
+            advdecitems.Sectors.forEach((sector, index) => {
+                const processedData = setStatAD(data[sector.key] || null, sector.key);
+                advdecitems.Sectors[index].data = processedData;
+
+                // Log missing data for debugging
+                if (!data[sector.key]) {
+                    console.warn(`Missing API data for sector: ${sector.key} (${sector.title})`);
+                }
+            });
+
+            // Process thematic data with Vue 3 reactivity
+            // Always call setStatAD for all thematic, even if API doesn't return data
+            advdecitems.Thematic.forEach((thematic, index) => {
+                const processedData = setStatAD(data[thematic.key] || null, thematic.key);
+                advdecitems.Thematic[index].data = processedData;
+
+                // Log missing data for debugging
+                if (!data[thematic.key]) {
+                    console.warn(`Missing API data for thematic: ${thematic.key} (${thematic.title})`);
+                }
+            });
+
+            // Fetch initial LTP data for all sector/thematic indices if they don't have it
+            if (Object.keys(advdecitems.wsdata || {}).length > 0) {
+                const sectorTokens = Object.values(advdecitems.wsdata).filter(item =>
+                    item && item.token && (!item.ltp || item.ltp === '0.00' || item.ltp === null)
+                ).map(item => ({
+                    exch: item.exch || 'NSE',
+                    token: item.token,
+                    tsym: item.tsym
+                }));
+
+                if (sectorTokens.length > 0) {
+                    if (uid.value) {
+                        // For logged-in users, subscribe to WebSocket
+                        setWebsocket("sub", sectorTokens, "adv");
+                        // Re-subscribe after delay to ensure connection is ready
+                        setTimeout(() => {
+                            setWebsocket("sub", Object.values(advdecitems.wsdata), "adv");
+                        }, 1200);
+                    } else {
+                        // For non-logged-in users, fetch LTP data via API
+                        try {
+                            const ltpData = await getLtpdata(sectorTokens);
+                            if (ltpData && ltpData.data) {
+                                Object.keys(advdecitems.wsdata).forEach(token => {
+                                    const wsItem = advdecitems.wsdata[token];
+                                    const apiData = ltpData.data[token];
+                                    if (apiData && wsItem) {
+                                        const newLtp = Number(apiData.lp || 0).toFixed(2);
+                                        const newCh = Number(apiData.lp - apiData.close || 0).toFixed(2);
+                                        const newChp = Number(apiData.change || 0).toFixed(2);
+
+                                        wsItem.ltp = newLtp;
+                                        wsItem.ch = newCh;
+                                        wsItem.chp = newChp;
+
+                                        // Update DOM elements immediately
+                                        const ltpTag = document.getElementById(`ssdad${token}ltp`);
+                                        if (ltpTag) {
+                                            ltpTag.innerHTML = newLtp;
+                                            const chTag = document.getElementById(`ssdad${token}ch`);
+                                            const chpTag = document.getElementById(`ssdad${token}chp`);
+                                            const chpclrTag = document.getElementById(`ssdad${token}chpclr`);
+                                            if (chTag) chTag.innerHTML = newCh;
+                                            if (chpTag) chpTag.innerHTML = ` (${newChp}%)`;
+                                            if (chpclrTag) {
+                                                const chp = parseFloat(newChp) || 0;
+                                                chpclrTag.className = chp > 0 ? 'maingreen--text' : chp < 0 ? 'mainred--text' : 'subtext--text';
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                        } catch (error) {
+                            console.error('Error fetching LTP data for sectors:', error);
+                        }
+                    }
+                }
+
+                // Subscribe to WebSocket for real-time updates (for all sectors)
+                if (uid.value && Object.keys(advdecitems.wsdata || {}).length > 0) {
+                    setWebsocket("sub", Object.values(advdecitems.wsdata), "adv");
+                    // Re-subscribe after delay to ensure connection is ready
+                    setTimeout(() => {
+                        setWebsocket("sub", Object.values(advdecitems.wsdata), "adv");
+                    }, 1200);
+                }
+            }
+
+            // Sort by market cap
+            advdecitems.Sectors.sort((a, b) => Number(b.data?.marketCap || 0) - Number(a.data?.marketCap || 0));
+            advdecitems.Thematic.sort((a, b) => Number(b.data?.marketCap || 0) - Number(a.data?.marketCap || 0));
+
+            // Phase 4.1: Log summary of processed data
+            console.log('getADlistdata: Processed', advdecitems.Sectors.length, 'sectors and', advdecitems.Thematic.length, 'thematic indices');
+            console.log('getADlistdata: WebSocket data entries:', Object.keys(advdecitems.wsdata || {}).length);
+        } else {
+            console.warn('getADlistdata: Invalid response from getADindices API:', data);
+        }
+        // Initialize tab only if not yet chosen
+        if (advdectab.value === null || advdectab.value === undefined) {
+            advdectab.value = 'sectors';
+        }
+    } catch (error) {
+        console.error('getADlistdata: Error loading sectors/thematic data:', error);
+        console.error('getADlistdata: Error stack:', error.stack);
+    }
+}
+
+const setStatavddec = async () => {
+    // graceful handling when API is down
+    heatmapLoading.value = true;
+    heatmapError.value = false;
+
+    const chartEl = document.getElementById("avddecchart");
+    if (chartEl) {
+        echarts.dispose(chartEl);
+    }
+
+    try {
+        let serdata = [];
+        let data = await getADindice(treemaps.value);
+        if (!data || data == 500 || !Array.isArray(data) || data.length === 0) {
+            heatmapError.value = true;
+            heatmapLoading.value = false;
+            // auto retry after a short delay
+            setTimeout(() => setStatavddec(), 30000);
+            return;
+        }
+
+        for (let c = 0; c < data.length; c++) {
+            serdata.push({
+                name: data[c]["SYMBOL"].split(":")[1],
+                value: [
+                    Number(data[c].market_cap),
+                    `₹${data[c].ltp} <span class="fs-12 ${Number(data[c].change) > 0 ? "maingreen--text" : Number(data[c].change) < 0 ? "mainred--text" : "maintext--text"}" >${Number(data[c].ltp - Number(data[c].close)).toFixed(2)} (${data[c].change}%) </span>`,
+                    Number(data[c].change),
+                    0,
+                    data[c]["Company Name"],
+                    { token: data[c].Token, exch: data[c]["SYMBOL"].split(":")[0], tsym: data[c]["SYMBOL"].split(":")[1] },
+                ],
+            });
+        }
+        convertData(serdata);
+        var chartContainer = document.getElementById("avddecchart");
+        var myChart = echarts.init(chartContainer);
+        var option = {
+            title: false,
+            // {
+            //   show: true,
+            //   left: "center",
+            //   text: "NIFTY 50 Heatmap",
+            //   textStyle: {
+            //     color: this.$vuetify.theme.dark ? "white" : "black",
+            //   },
+            // },
+            tooltip: {
+                confine: true,
+                appendToBody: true,
+                extraCssText: 'width:auto;max-width:none;white-space:nowrap;',
+                formatter: function (info) {
+                    let value = info.value;
+                    return [
+                        '<div class="tooltip-title font-weight-bold black--text">' + value[4] + "</div>",
+                        // 'Market cap: &nbsp;&nbsp;' + Number(value[0]).toFixed(2) + '<br>',
+                        '<p class="mb-0 font-weight-medium black--text fs-14">' + `${value[1]}` + "</p>",
+                    ].join("");
+                },
             },
-            { immediate: false }
-        );
 
-        // Also listen for sessionStorage changes (fallback)
-        const sessionCheckInterval = setInterval(() => {
-            const loggedIn = sessionStorage.getItem('c3RhdHVz') === 'dmFsaWR1c2Vy'
-            if (loggedIn && !this.uid) {
-                initializeLoggedInData();
-            }
-        }, 500);
-        this.sessionCheckInterval = sessionCheckInterval;
-    },
-    beforeDestroy() {
-        window.removeEventListener('scroll', this.checkVisibility);
-        window.removeEventListener('websocket-quote-update', this.handleQuoteUpdate);
-        window.removeEventListener('web-scoketConn', this.handleWebSocketConnection);
-        if (this.unwatchAuth) {
-            this.unwatchAuth();
-            this.unwatchAuth = null;
-        }
-        if (this.sessionCheckInterval) {
-            clearInterval(this.sessionCheckInterval);
-            this.sessionCheckInterval = null;
-        }
-        if (this.heatmapResizeObserver) {
-            try { this.heatmapResizeObserver.disconnect(); } catch (_) { }
-            this.heatmapResizeObserver = null;
-        }
-    },
-    methods: {
-        handleQuoteUpdate(event) {
-            // Handle WebSocket quote updates
-            const data = event.detail;
-            if (data) {
-                this.optionChainDataParse(data);
-            }
-        },
-        handleWebSocketConnection(event) {
-            // Handle WebSocket connection events (similar to old eventBus web-scoketConn)
-            const detail = event.detail;
-
-            // The old implementation expects (data, page) parameters
-            if (Array.isArray(detail) && detail.length >= 2) {
-                const [data, page] = detail;
-                if (page === "stocks" && data) {
-                    this.optionChainDataParse(data);
-                }
-            } else if (detail && typeof detail === 'object') {
-                // Fallback for direct data
-                this.optionChainDataParse(detail);
-            }
-        },
-        checkVisibility() {
-            const ids = {
-                elo: document.getElementById('ttt'),
-                elt: document.getElementById('smcp'),
-                elr: document.getElementById('eve'),
-            };
-            if (this.isVisible(ids.elo) && this.tradeactionitem[0]?.length === 0) {
-                this.getToplistdata();
-            }
-
-            if (this.isVisible(ids.elt) && this.screentidata) {
-                this.screentidata = false;
-                this.getContentlistdata();
-            }
-
-            if (this.isVisible(ids.elr)) {
-                if (!this.allnews) this.getNews();
-                if (!this.allcropact) this.getCorpationaction();
-                this.elscrollview = false;
-            }
-        },
-        isVisible(el) {
-            if (!el) return false;
-            const { top, left, bottom, right } = el.getBoundingClientRect();
-            const w = window.innerWidth || document.documentElement.clientWidth;
-            const h = window.innerHeight || document.documentElement.clientHeight;
-            return top >= 0 && left >= 0 && bottom <= h && right <= w;
-        },
-        setSinglestock(tsym, item) {
-            if (this.uid) {
-                let path = [0, item.token, item.exch, item.tsym];
-                this.$router.push({ name: "stocks details", params: { val: path } });
-            } else if (item.exch == "NSE") {
-                this.$router.push(`/stocks/${tsym.toLowerCase()}`);
-            }
-        },
-        scrollToo(id, value) {
-            const element = document.getElementById(`${id}`);
-            element.scrollBy({
-                left: value,
-                behavior: "smooth",
-            });
-        },
-
-        scrollFrom(id, value) {
-            const element = document.getElementById(`${id}`);
-            element.scrollBy({
-                left: value,
-                behavior: "smooth",
-            });
-        },
-        setScrpitCH(x, i, a, l) {
-            if (a == "TA") {
-                let f = this.tradeactionitem[x].findIndex((o) => o.token == i.token);
-                this.tradeactionitem[x][f]["ch"] = Number(i.lp) && Number(i.c) ? (Number(i.lp) - Number(i.c)).toFixed(2) : 0;
-                this.tradeactionitem[x][f]["chp"] = Number(i.ch) && Number(i.lp) ? ((Number(i.ch) / Number(i.lp)) * 100).toFixed(2) : 0;
-            } else if (a == "SCR") {
-                let f = this.screentitems.findIndex((o) => o.token == i.token);
-                this.screentitems[f]["ch"] = Number(i.lp) && Number(i.c) ? (Number(i.lp) - Number(i.c)).toFixed(2) : 0;
-                this.screentitems[f]["chp"] = Number(i.ch) && Number(i.lp) ? ((Number(i.ch) / Number(i.lp)) * 100).toFixed(2) : 0;
-            } else if (a == "st" && l < 5) {
-                let g = this.sectorwapper.indexOf(`${x}|${l}`);
-                if (this.sectorwslist && this.sectorwslist.length == 20) {
-                    this.setWebsocket("sub", this.sectorwslist, a);
-                    this.sectorwslist = [];
-                } else if (g == -1) {
-                    this.sectorwslist.push({ exch: i.Symbol.split(":")[0], token: i.Token ? i.Token : "0" });
-                    this.sectorwapper.push(`${x}|${l}`);
-                }
-            }
-        },
-        async getToplistdata() {
-            this.tradeactionitem = [];
-            this.isloading = true;
-            let lsto = await getTopList([this.trader1 == "NSEALL" ? "NSE" : "NFO", this.trader1, "mostActive"]);
-            let lstt = await getTopList([this.trader1 == "NSEALL" ? "NSE" : "NFO", this.trader1, "topG_L"]);
-
-            if (lsto.stat == "Ok" && lstt.stat == "Ok") {
-                this.tradeactionitem.push(lstt.topGainers);
-                this.tradeactionitem.push(lstt.topLosers);
-                this.tradeactionitem.push(lsto.byVolume);
-                this.tradeactionitem.push(lsto.byValue);
-
-                let arr = this.tradeactionitem[0].concat(this.tradeactionitem[1].concat(this.tradeactionitem[2].concat(this.tradeactionitem[3])));
-                let wsdata = [];
-                arr.map((o) => wsdata.push({ exch: o.exch, token: o.token, tsym: o.tsym }));
-                if (this.uid) {
-                    this.setWebsocket("sub", wsdata, "ta");
-                }
-            }
-            this.isloading = false;
-        },
-        async getContentlistdata(change) {
-            if (change == "yes" && this.uid) {
-                this.setWebsocket("unsub-D", this.screentitems, "sc");
-            }
-            this.issloading = true;
-            this.screentitems = [];
-            let data = await getConTentList(["NSE", this.screent1, this.screent0]);
-            if (data && data.length > 0) {
-                this.screentitems = data.slice(0, 10);
-                if (this.uid) {
-                    this.setWebsocket("sub", data, "sc");
-                }
-            }
-            this.screentidata = false;
-            this.issloading = false;
-        },
-        async getSectorlistdata() {
-            this.isssloading = true;
-            this.sectoritems = [];
-            let data = await getSectordata();
-            if (data && data.Bank) {
-                this.sectoritems.push({ txt: "Banking", data: data.Bank });
-                this.sectoritems.push({ txt: "Finance", data: data.Finance });
-                this.sectoritems.push({ txt: "Healthcare", data: data.Healthcare });
-                this.sectoritems.push({ txt: "Realty", data: data.Realty });
-                // this.tradeactionitem['Power'] = data.Power;
-                // this.tradeactionitem['FMCG'] = data.FMCG;
-            }
-            this.isssloading = false;
-        },
-        async getMrkBreakerdata() {
-            this.mrkbreaker = [];
-            this.issssloading = true;
-            let data;
-            // data = hig
-            data = await getHLbreakers();
-            if (data) {
-                Object.entries(data).forEach(([key, value]) => {
-                    value = value.slice(-10);
-                    if (value && value.length < 10) {
-                        let l = 10 - value.length;
-                        for (let a = 0; a < l; a++) {
-                            var now = new Date(value[value.length - 1].time);
-                            now.setMinutes(now.getMinutes() + 5);
-                            const padL = (nr, len = 2, chr = `0`) => `${nr}`.padStart(2, chr);
-                            now = [padL(now.getMonth() + 1), padL(now.getDate()), now.getFullYear()].join("-") + " " + [padL(now.getHours()), padL(now.getMinutes()), padL(now.getSeconds())].join(":");
-                            value.push({ time: now, lowbreak: false, highbreak: false, points: 0.0, percentage: 0.0, Symbol: value[0].Symbol, Token: value[0].Token });
-                        }
-                    }
-                    let max = Math.max(...value.map((o) => o.points));
-                    let min = Math.min(...value.map((o) => o.points));
-                    for (let v = 0; v < value.length; v++) {
-                        value[v]["color"] = value[v].points == 0 ? "#FAFBFF" : value[v].points > 0 ? (value[v].points <= max / 3 ? "#caedc4" : value[v].points <= max / 2 ? "#a6e19d" : "#83d576") : value[v].points <= min / 3 ? "#ff4d4d" : value[v].points <= min / 2 ? "#ff8080" : "#ffb3b3";
-                    }
-                    this.mrkbreakers.push({ tsym: key, data: value });
-                });
-            }
-            // this.mrkbreaker = data;
-            this.issssloading = false;
-        },
-        async getADlistdata() {
-            try {
-                let data = await getADindices();
-                if (data && data != 500) {
-                    // Process sectors data with Vue 3 reactivity (automatic in Options API)
-                    this.advdecitems.Sectors.forEach((sector, index) => {
-                        if (data[sector.key]) {
-                            const processedData = this.setStatAD(data[sector.key], sector.key);
-                            // Vue 3 Options API: direct assignment is reactive
-                            this.advdecitems.Sectors[index].data = processedData;
-                        }
-                    });
-
-                    // Process thematic data with Vue 3 reactivity (automatic in Options API)
-                    this.advdecitems.Thematic.forEach((thematic, index) => {
-                        if (data[thematic.key]) {
-                            const processedData = this.setStatAD(data[thematic.key], thematic.key);
-                            // Vue 3 Options API: direct assignment is reactive
-                            this.advdecitems.Thematic[index].data = processedData;
-                        }
-                    });
-
-                    // Subscribe to WebSocket for real-time updates
-                    if (this.uid && Object.keys(this.advdecitems.wsdata || {}).length > 0) {
-                        this.setWebsocket("sub", Object.values(this.advdecitems.wsdata), "adv");
-                    }
-
-                    // Sort by market cap - Vue 3 Options API: direct assignment is reactive
-                    this.advdecitems.Sectors.sort((a, b) => Number(b.data?.marketCap || 0) - Number(a.data?.marketCap || 0));
-                    this.advdecitems.Thematic.sort((a, b) => Number(b.data?.marketCap || 0) - Number(a.data?.marketCap || 0));
-                }
-                // Initialize tab only if not yet chosen
-                if (this.advdectab === null || this.advdectab === undefined) {
-                    this.advdectab = 'sectors';
-                }
-            } catch (error) {
-                console.error('Error loading sectors/thematic data:', error);
-            }
-        },
-        async setStatavddec() {
-            // graceful handling when API is down
-            this.heatmapLoading = true;
-            this.heatmapError = false;
-
-            const chartEl = document.getElementById("avddecchart");
-            if (chartEl) {
-                echarts.dispose(chartEl);
-            }
-
-            try {
-                let serdata = [];
-                let data = await getADindice(this.treemaps);
-                if (!data || data == 500 || !Array.isArray(data) || data.length === 0) {
-                    this.heatmapError = true;
-                    this.heatmapLoading = false;
-                    // auto retry after a short delay
-                    setTimeout(() => this.setStatavddec(), 30000);
-                    return;
-                }
-
-                for (let c = 0; c < data.length; c++) {
-                    serdata.push({
-                        name: data[c]["SYMBOL"].split(":")[1],
-                        value: [
-                            Number(data[c].market_cap),
-                            `₹${data[c].ltp} <span class="fs-12 ${Number(data[c].change) > 0 ? "maingreen--text" : Number(data[c].change) < 0 ? "mainred--text" : "maintext--text"}" >${Number(data[c].ltp - Number(data[c].close)).toFixed(2)} (${data[c].change}%) </span>`,
-                            Number(data[c].change),
-                            0,
-                            data[c]["Company Name"],
-                            { token: data[c].Token, exch: data[c]["SYMBOL"].split(":")[0], tsym: data[c]["SYMBOL"].split(":")[1] },
-                        ],
-                    });
-                }
-                this.convertData(serdata);
-                var chartContainer = document.getElementById("avddecchart");
-                var myChart = echarts.init(chartContainer);
-                var option = {
-                    title: false,
-                    // {
-                    //   show: true,
-                    //   left: "center",
-                    //   text: "NIFTY 50 Heatmap",
-                    //   textStyle: {
-                    //     color: this.$vuetify.theme.dark ? "white" : "black",
-                    //   },
-                    // },
-                    tooltip: {
-                        confine: true,
-                        appendToBody: true,
-                        extraCssText: 'width:auto;max-width:none;white-space:nowrap;',
-                        formatter: function (info) {
-                            let value = info.value;
-                            return [
-                                '<div class="tooltip-title font-weight-bold black--text">' + value[4] + "</div>",
-                                // 'Market cap: &nbsp;&nbsp;' + Number(value[0]).toFixed(2) + '<br>',
-                                '<p class="mb-0 font-weight-medium black--text fs-14">' + `${value[1]}` + "</p>",
-                            ].join("");
-                        },
+            legend: false,
+            series: [
+                {
+                    roam: false,
+                    nodeClick: undefined,
+                    breadcrumb: false,
+                    name: "NIFTY 50",
+                    type: "treemap",
+                    visualMin: -100,
+                    visualMax: 100,
+                    visualDimension: 3,
+                    label: {
+                        show: true,
+                        formatter: "{b}",
                     },
-
-                    legend: false,
-                    series: [
+                    top: "0%", // Reduce top gap
+                    left: "0%", // Reduce left gap
+                    right: "0%", // Reduce right gap
+                    bottom: "0%", // Reduce bottom gap
+                    nodeGap: 2, // Decrease gap between nodes
+                    levels: [
                         {
-                            roam: false,
-                            nodeClick: undefined,
-                            breadcrumb: false,
-                            name: "NIFTY 50",
-                            type: "treemap",
-                            visualMin: -100,
-                            visualMax: 100,
-                            visualDimension: 3,
-                            label: {
-                                show: true,
-                                formatter: "{b}",
-                            },
-                            top: "0%", // Reduce top gap
-                            left: "0%", // Reduce left gap
-                            right: "0%", // Reduce right gap
-                            bottom: "0%", // Reduce bottom gap
-                            nodeGap: 2, // Decrease gap between nodes
-                            levels: [
-                                {
-                                    color: this.$vuetify.theme.dark ? ["#FF1717", "#999", "#1BBC00"] : ["#FF1717", "#999", "#43A833"],
-                                    colorMappingBy: "value",
-                                },
-                            ],
-                            data: serdata,
+                            color: theme.global.name.value === 'dark' ? ["#FF1717", "#999", "#1BBC00"] : ["#FF1717", "#999", "#43A833"],
+                            colorMappingBy: "value",
                         },
                     ],
-                };
-                option && myChart.setOption(option);
-                var self = this;
+                    data: serdata,
+                },
+            ],
+        };
+        option && myChart.setOption(option);
 
-                myChart.on("click", function (params) {
-                    self.setSinglestock(params.value[5].tsym.split("-")[0], params.value[5]);
-                });
+        myChart.on("click", function (params) {
+            setSinglestock(params.value[5].tsym.split("-")[0], params.value[5]);
+        });
 
-                // Ensure full-width rendering: resize on container/layout changes
-                window.addEventListener("resize", function () {
-                    myChart.resize();
-                });
-                // Resize after layout settles
-                setTimeout(() => myChart.resize(), 0);
-                setTimeout(() => myChart.resize(), 300);
-                // Observe container size changes
-                if (window.ResizeObserver && chartContainer) {
-                    this.heatmapResizeObserver = new ResizeObserver(() => {
-                        myChart.resize();
-                    });
-                    this.heatmapResizeObserver.observe(chartContainer);
-                }
-                this.heatmapLoading = false;
-                this.heatmapError = false;
-            } catch (e) {
-                this.heatmapLoading = false;
-                this.heatmapError = true;
-                setTimeout(() => this.setStatavddec(), 30000);
+        // Ensure full-width rendering: resize on container/layout changes
+        window.addEventListener("resize", function () {
+            myChart.resize();
+        });
+        // Resize after layout settles
+        setTimeout(() => myChart.resize(), 0);
+        setTimeout(() => myChart.resize(), 300);
+        // Observe container size changes
+        if (window.ResizeObserver && chartContainer) {
+            heatmapResizeObserver.value = new ResizeObserver(() => {
+                myChart.resize();
+            });
+            heatmapResizeObserver.value.observe(chartContainer);
+        }
+        heatmapLoading.value = false;
+        heatmapError.value = false;
+    } catch (e) {
+        heatmapLoading.value = false;
+        heatmapError.value = true;
+        setTimeout(() => setStatavddec(), 30000);
+    }
+}
+
+const convertData = (originList) => {
+    const visualMin = -100;
+    const visualMax = 100;
+    const visualMinBound = -40;
+    const visualMaxBound = 40;
+
+    let min = Infinity;
+    let max = -Infinity;
+    for (let i = 0; i < originList.length; i++) {
+        let node = originList[i];
+        if (node) {
+            let value = node.value;
+            value[2] != null && value[2] < min && (min = value[2]);
+            value[2] != null && value[2] > max && (max = value[2]);
+        }
+    }
+    for (let i = 0; i < originList.length; i++) {
+        let node = originList[i];
+        if (node) {
+            let value = node.value;
+            // Scale value for visual effect
+            if (value[2] != null && value[2] > 0) {
+                value[3] = echarts.number.linearMap(value[2], [0, max], [visualMaxBound, visualMax], true);
+            } else if (value[2] != null && value[2] < 0) {
+                value[3] = echarts.number.linearMap(value[2], [min, 0], [visualMin, visualMinBound], true);
+            } else {
+                value[3] = 0;
             }
-        },
-        convertData(originList) {
-            const visualMin = -100;
-            const visualMax = 100;
-            const visualMinBound = -40;
-            const visualMaxBound = 40;
-
-            let min = Infinity;
-            let max = -Infinity;
-            for (let i = 0; i < originList.length; i++) {
-                let node = originList[i];
-                if (node) {
-                    let value = node.value;
-                    value[2] != null && value[2] < min && (min = value[2]);
-                    value[2] != null && value[2] > max && (max = value[2]);
-                }
+            if (!isFinite(value[3])) {
+                value[3] = 0;
             }
-            for (let i = 0; i < originList.length; i++) {
-                let node = originList[i];
-                if (node) {
-                    let value = node.value;
-                    // Scale value for visual effect
-                    if (value[2] != null && value[2] > 0) {
-                        value[3] = echarts.number.linearMap(value[2], [0, max], [visualMaxBound, visualMax], true);
-                    } else if (value[2] != null && value[2] < 0) {
-                        value[3] = echarts.number.linearMap(value[2], [min, 0], [visualMin, visualMinBound], true);
-                    } else {
-                        value[3] = 0;
+            if (node.children) {
+                convertData(node.children);
+            }
+        }
+    }
+}
+
+const setStatAD = (data, tsym) => {
+    if (!data) {
+        return {
+            sum: 0,
+            adp: "0%",
+            adm: "0%",
+            adn: "0%",
+            token: null,
+            Positive: 0,
+            Negative: 0,
+            Neutral: 0,
+            marketCap: 0
+        };
+    }
+
+    // Create a new object to ensure Vue 3 reactivity
+    const processedData = {
+        ...data,
+        sum: (data.Negative || 0) + (data.Neutral || 0) + (data.Positive || 0),
+        Positive: data.Positive || 0,
+        Negative: data.Negative || 0,
+        Neutral: data.Neutral || 0,
+        marketCap: data.marketCap || 0
+    };
+
+    // Calculate percentages
+    processedData.adp = processedData.sum > 0 ? `${Math.round((processedData.Positive / processedData.sum) * 100)}%` : "0%";
+    processedData.adm = processedData.sum > 0 ? `${Math.round((processedData.Negative / processedData.sum) * 100)}%` : "0%";
+    processedData.adn = processedData.sum > 0 ? `${Math.round((processedData.Neutral / processedData.sum) * 100)}%` : "0%";
+
+    // Add to WebSocket data - initialize with API data if available, otherwise use defaults
+    if (processedData.token) {
+        advdecitems.wsdata[processedData.token] = {
+            exch: "NSE",
+            token: processedData.token,
+            tsym: tsym,
+            ltp: data.ltp || data.ltp_price || data.lp || '0.00',
+            ch: data.ch || data.change || data.chg || '0.00',
+            chp: data.chp || data.change_percent || data.chp || '0.00'
+        };
+    }
+
+    return processedData;
+}
+
+// Helper function to get sector color class (like watchlist)
+const getSectorColorClass = (token) => {
+    if (!token || !advdecitems.wsdata || !advdecitems.wsdata[token]) {
+        return 'subtext--text';
+    }
+    const chp = parseFloat(advdecitems.wsdata[token].chp) || 0;
+    return chp > 0 ? 'maingreen--text' : chp < 0 ? 'mainred--text' : 'subtext--text';
+}
+
+// Update sector data from WebSocket (like watchlist updateWatchlistData)
+const updateSectorData = (data) => {
+    const token = data.token || data.tk;
+    if (!token || !advdecitems.wsdata || !advdecitems.wsdata[token]) {
+        return;
+    }
+
+    // Use mergeTick to merge data (like watchlist)
+    const merged = mergeTick(token, data);
+
+    // Update wsdata
+    const current = { ...advdecitems.wsdata[token] };
+    if (typeof merged.ltp !== 'undefined') current.ltp = merged.ltp.toFixed(2);
+    if (typeof merged.ch !== 'undefined') current.ch = merged.ch.toFixed(2);
+    if (typeof merged.chp !== 'undefined') current.chp = merged.chp.toFixed(2);
+
+    // Update reactive data using spread operator (like watchlist)
+    advdecitems.wsdata[token] = { ...advdecitems.wsdata[token], ...current };
+
+    // Update DOM elements immediately (like watchlist)
+    const ltpTag = document.getElementById(`ssdad${token}ltp`);
+    if (ltpTag) {
+        ltpTag.innerHTML = current.ltp || '0.00';
+
+        const chTag = document.getElementById(`ssdad${token}ch`);
+        if (chTag) {
+            chTag.innerHTML = current.ch || '0.00';
+        }
+
+        const chpTag = document.getElementById(`ssdad${token}chp`);
+        if (chpTag) {
+            chpTag.innerHTML = ` (${current.chp ? Number(current.chp).toFixed(2) : '0.00'}%)`;
+        }
+
+        // Update color class dynamically
+        const chpclrTag = document.getElementById(`ssdad${token}chpclr`);
+        if (chpclrTag) {
+            const chp = parseFloat(current.chp) || 0;
+            chpclrTag.className = chp > 0 ? 'maingreen--text' : chp < 0 ? 'mainred--text' : 'subtext--text';
+        }
+    }
+}
+
+const newsPage = (n) => {
+    if (n) {
+        window.open(n.link, "_blank");
+    }
+}
+
+const getNews = async () => {
+    newsloading.value = true;
+    allnews.value = [];
+    totalnews.value = 0;
+    let config = await getssNews();
+    if (config.data && config.data.length > 0) {
+        let data = config.data;
+        for (let v = 0; v < data.length; v++) {
+            data[v]["isdate"] = `${new Date(data[v].pubDate).toDateString().slice(3)} ${new Date(data[v].pubDate).toLocaleString("en-US", { hour: "numeric", minute: "numeric", hour12: true })} IST`;
+            allnews.value.push(data[v]);
+        }
+        totalnews.value = config.newsCount;
+    }
+    newsloading.value = false;
+}
+
+const getCorpationaction = async () => {
+    croploading.value = true;
+    allcropact.value = [];
+    let data = await getCorporateact();
+    if (data.corporateAction && data.corporateAction.length > 0) {
+        allcropact.value = data.corporateAction;
+    }
+    croploading.value = false;
+}
+
+const setSSDtab = (type, token, exch, tsym) => {
+    // console.log('tsym', type, token, exch, tsym)
+    if (type == "alert") {
+        // eventBus.$emit("menudialog", "alert", token, exch, tsym);
+    } else if (type == "cGTT") {
+        // eventBus.$emit("menudialog", "order-GTT", token, exch, tsym, "b");
+    } else {
+        let path = window.location;
+        path["val"] = [type, token, exch, tsym];
+        if (path.pathname != "/stocks/details") {
+            router.push({ name: "stocks details", params: { val: path.val } });
+        } else {
+            // eventBus.$emit("ssd-event", type, token, exch, tsym);
+        }
+    }
+}
+
+const setWebsocket = async (flow, data, is) => {
+    if (uid.value) {
+        // User is logged in - emit WebSocket request via event bus
+        // Use "stockDASH" as page identifier for pdmwdata (like Vue 2 expects "stockDASH")
+        // Use "stocks" for sectors/thematic (adv) to match old code behavior
+        const pageId = is === 'ssd-pd' ? 'stockDASH' : (is === 'adv' ? 'stocks' : 'stocks')
+        const event = new CustomEvent('web-scoketOn', {
+            detail: { flow, data, is, page: pageId }
+        });
+        window.dispatchEvent(event);
+    } else {
+        let raw = await getLtpdata(data);
+        raw = raw.data;
+        if (is == "ssd-pd" && raw) {
+            let anyUpdated = false;
+            for (let l = 0; l < pdmwdata.value.length; l++) {
+                let v = raw[pdmwdata.value[l].token];
+                if (v) {
+                    const newLtp = Number(v.lp).toFixed(2);
+                    const newCh = Number(newLtp - Number(v.close)).toFixed(2);
+                    const newChp = Number(v.change).toFixed(2);
+
+                    // Always update - don't check if changed, just update to trigger reactivity
+                    pdmwdata.value[l]["ltp"] = newLtp;
+                    pdmwdata.value[l]["ch"] = newCh;
+                    pdmwdata.value[l]["chp"] = newChp;
+                    anyUpdated = true;
+
+                    // Update DOM elements immediately
+                    const ltpTag = document.getElementById(`ssdpd${pdmwdata.value[l].token}ltp`)
+                    if (ltpTag) {
+                        ltpTag.innerHTML = Number(pdmwdata.value[l].ltp || 0).toFixed(2)
+                        const chTag = document.getElementById(`ssdpd${pdmwdata.value[l].token}ch`)
+                        const chpTag = document.getElementById(`ssdpd${pdmwdata.value[l].token}chp`)
+                        const chpclrTag = document.getElementById(`ssdpd${pdmwdata.value[l].token}chpclr`)
+                        if (chTag) chTag.innerHTML = Number(pdmwdata.value[l].ch || 0).toFixed(2)
+                        if (chpTag) chpTag.innerHTML = ` (${Number(pdmwdata.value[l].chp || 0).toFixed(2)}%)`
+                        if (chpclrTag) {
+                            const ch = parseFloat(pdmwdata.value[l].ch) || 0
+                            chpclrTag.className = ch > 0
+                                ? 'fs-12 font-weight-medium mb-0 maingreen--text'
+                                : ch < 0
+                                    ? 'fs-12 font-weight-medium mb-0 mainred--text'
+                                    : 'fs-12 font-weight-medium mb-0 subtext--text'
+                        }
                     }
-                    if (!isFinite(value[3])) {
-                        value[3] = 0;
-                    }
-                    if (node.children) {
-                        this.convertData(node.children);
+                }
+            }
+            // Trigger Vue reactivity by updating array reference
+            if (anyUpdated) {
+                // Create new array reference to trigger reactivity
+                pdmwdata.value = [...pdmwdata.value]
+                // Save to cache after updating all prices
+                savePdmwdataCache()
+            }
+        } else if (is == "ta" && raw) {
+            for (let x = 0; x < tradeactionitem.value.length; x++) {
+                for (let x_is = 0; x_is < tradeactionitem.value[x].length; x_is++) {
+                    let data = raw[tradeactionitem.value[x][x_is].token];
+                    if (data) {
+                        tradeactionitem.value[x][x_is].ltp = Number(data.lp) ? Number(data.lp).toFixed(2) : 0;
+                        tradeactionitem.value[x][x_is]["ch"] = Number(data.lp) && Number(data.close) ? (Number(data.lp) - Number(data.close)).toFixed(2) : 0;
+                        tradeactionitem.value[x][x_is]["chp"] = Number(data.change).toFixed(2);
+                        tradeactionitem.value[x][x_is]["vol"] = Number(data.vol).toFixed(2);
+                        tradeactionitem.value[x][x_is]["op"] = Number(data.open) ? Number(data.open).toFixed(2) : 0;
+                        tradeactionitem.value[x][x_is]["cp"] = Number(data.close) ? Number(data.close).toFixed(2) : 0;
+                        tradeactionitem.value[x][x_is]["high"] = Number(data.high) ? Number(data.high).toFixed(2) : 0;
+                        tradeactionitem.value[x][x_is]["low"] = Number(data.low) ? Number(data.low).toFixed(2) : 0;
+                        tradeactionitem.value[x][x_is]["oi"] = data.oi ? Number(data.oi).toFixed(2) : 0;
                     }
                 }
             }
-        },
-        setStatAD(data, tsym) {
-            if (!data) {
-                return {
-                    sum: 0,
-                    adp: "0%",
-                    adm: "0%",
-                    adn: "0%",
-                    token: null,
-                    Positive: 0,
-                    Negative: 0,
-                    Neutral: 0,
-                    marketCap: 0
-                };
+        } else if (is == "adv" && raw) {
+            // Phase 2.2: Update sector data from non-logged-in user API response
+            var f = Object.entries(advdecitems.wsdata);
+            for (let l = 0; l < f.length; l++) {
+                let v = raw[f[l][0]];
+                if (v && f[l][0]) {
+                    const token = f[l][0];
+                    const newLtp = Number(v.lp).toFixed(2);
+                    const newCh = Number(newLtp - Number(v.close)).toFixed(2);
+                    const newChp = Number(v.change).toFixed(2);
+
+                    advdecitems.wsdata[token]["ltp"] = newLtp;
+                    advdecitems.wsdata[token]["ch"] = newCh;
+                    advdecitems.wsdata[token]["chp"] = newChp;
+
+                    // Update DOM elements immediately
+                    const ltpTag = document.getElementById(`ssdad${token}ltp`);
+                    if (ltpTag) {
+                        ltpTag.innerHTML = newLtp;
+                        const chTag = document.getElementById(`ssdad${token}ch`);
+                        const chpTag = document.getElementById(`ssdad${token}chp`);
+                        const chpclrTag = document.getElementById(`ssdad${token}chpclr`);
+                        if (chTag) chTag.innerHTML = newCh;
+                        if (chpTag) chpTag.innerHTML = ` (${newChp}%)`;
+                        if (chpclrTag) {
+                            const chp = parseFloat(newChp) || 0;
+                            chpclrTag.className = chp > 0 ? 'maingreen--text' : chp < 0 ? 'mainred--text' : 'subtext--text';
+                        }
+                    }
+                }
+            }
+        }
+
+        // else if (is == 'st' && raw) {
+        //   Object.entries(this.sectoritems).forEach(([key, value]) => {
+        //     for (let l = 0; l < value.data.length; l++) {
+        //       let v = raw[value.data[l].Token];
+        //       if (v) {
+        //         this.sectoritems[key].data[l]['ltp'] = Number(v.lp).toFixed(2);
+        //         this.sectoritems[key].data[l]['ch'] = Number(this.sectoritems[key].data[l].ltp - Number(v.close)).toFixed(2);
+        //         this.sectoritems[key].data[l]['chp'] = Number(v.change);
+        //         this.$set(this.sectoritems[key].data, l, this.sectoritems[key].data[l]);
+        //       }
+        //     }
+        //   })
+        // }
+    }
+}
+
+const optionChainDataParse = (data) => {
+    // Handle token from data.token or data.tk
+    const token = data.token || data.tk;
+    if (!token) {
+        console.warn('optionChainDataParse: No token found in data', data);
+        return;
+    }
+
+    // Convert token to string for reliable comparison (handle string/number mismatch)
+    const tokenStr = String(token);
+
+    // Check if it's a top indices token (pdmwdata)
+    // Use string comparison to handle both string and number token formats
+    let p = pdmwdata.value.findIndex((o) => String(o.token) === tokenStr);
+    if (p >= 0 && String(pdmwdata.value[p].token) === tokenStr) {
+        // Use mergeTick to merge data (like watchlist)
+        const merged = mergeTick(token, data);
+
+        // Create updated item with merged data
+        const current = { ...pdmwdata.value[p] };
+        if (typeof merged.ltp !== 'undefined') current.ltp = merged.ltp.toFixed(2);
+        if (typeof merged.ch !== 'undefined') current.ch = merged.ch.toFixed(2);
+        if (typeof merged.chp !== 'undefined') current.chp = merged.chp.toFixed(2);
+
+        // Update reactive data using spread operator (like watchlist)
+        pdmwdata.value[p] = { ...pdmwdata.value[p], ...current };
+
+        // Update DOM elements immediately (like watchlist)
+        const ltpTag = document.getElementById(`ssdpd${token}ltp`);
+        if (ltpTag) {
+            // Update ltp
+            ltpTag.innerHTML = current.ltp || "0.00";
+
+            // Update ch
+            const chTag = document.getElementById(`ssdpd${token}ch`);
+            if (chTag) {
+                chTag.innerHTML = current.ch || "0.00";
             }
 
-            // Create a new object to ensure Vue 3 reactivity
-            const processedData = {
-                ...data,
-                sum: (data.Negative || 0) + (data.Neutral || 0) + (data.Positive || 0),
-                Positive: data.Positive || 0,
-                Negative: data.Negative || 0,
-                Neutral: data.Neutral || 0,
-                marketCap: data.marketCap || 0
+            // Update chp
+            const chpTag = document.getElementById(`ssdpd${token}chp`);
+            if (chpTag) {
+                chpTag.innerHTML = ` (${current.chp || "0.00"}%)`;
+            }
+
+            // Update color class dynamically (like watchlist)
+            const chpclrTag = document.getElementById(`ssdpd${token}chpclr`);
+            if (chpclrTag) {
+                const ch = parseFloat(current.ch) || 0;
+                chpclrTag.className = ch > 0
+                    ? 'fs-12 font-weight-medium mb-0 maingreen--text'
+                    : ch < 0
+                        ? 'fs-12 font-weight-medium mb-0 mainred--text'
+                        : 'fs-12 font-weight-medium mb-0 subtext--text';
+            }
+        }
+
+        // Trigger Vue reactivity by updating array reference (like watchlist)
+        pdmwdata.value = [...pdmwdata.value];
+
+        // Save to cache after update
+        savePdmwdataCache();
+    }
+
+    // Check if it's a sector token (advdecitems.wsdata)
+    // Use string comparison for token matching
+    if (advdecitems.wsdata && advdecitems.wsdata[tokenStr]) {
+        updateSectorData(data);
+    }
+    let s = screentitems.value.findIndex((o) => o.token == token);
+    if (s >= 0 && screentitems.value[s].token == token) {
+        // Handle ltp
+        if (data.lp !== undefined && data.lp !== null) {
+            screentitems.value[s].ltp = Number(data.lp).toFixed(2);
+        } else if (data.ltp !== undefined && data.ltp !== null) {
+            screentitems.value[s].ltp = Number(data.ltp).toFixed(2);
+        } else if (data.l !== undefined && data.l !== null) {
+            screentitems.value[s].ltp = Number(data.l).toFixed(2);
+        }
+
+        // Handle ch
+        if (data.ch !== undefined && data.ch !== null) {
+            screentitems.value[s]["ch"] = Number(data.ch) > 0 || Number(data.ch) < 0 ? Number(data.ch).toFixed(2) : (0).toFixed(2);
+        } else if (data.c !== undefined && data.c !== null && data.lp !== undefined && data.lp !== null) {
+            const change = Number(data.lp) - Number(data.c);
+            screentitems.value[s]["ch"] = change > 0 || change < 0 ? change.toFixed(2) : (0).toFixed(2);
+        }
+
+        // Handle chp
+        if (data.chp !== undefined && data.chp !== null) {
+            screentitems.value[s]["chp"] = Number(data.chp).toFixed(2);
+        } else if (data.c !== undefined && data.c !== null && screentitems.value[s]["ch"]) {
+            const closePrice = Number(data.c);
+            if (closePrice > 0) {
+                const changePercent = (Number(screentitems.value[s]["ch"]) / closePrice) * 100;
+                screentitems.value[s]["chp"] = changePercent.toFixed(2);
+            }
+        }
+
+        // Handle volume
+        if (data.volume !== undefined && data.volume !== null) {
+            screentitems.value[s]["vol"] = Number(data.volume);
+        } else if (data.vol !== undefined && data.vol !== null) {
+            screentitems.value[s]["vol"] = Number(data.vol);
+        }
+
+        // Handle open price
+        if (data.open_price !== undefined && data.open_price !== null) {
+            screentitems.value[s]["op"] = Number(data.open_price) ? Number(data.open_price).toFixed(2) : (0).toFixed(2);
+        } else if (data.open !== undefined && data.open !== null) {
+            screentitems.value[s]["op"] = Number(data.open) ? Number(data.open).toFixed(2) : (0).toFixed(2);
+        }
+
+        // Handle close price
+        if (data.prev_close_price !== undefined && data.prev_close_price !== null) {
+            screentitems.value[s]["cp"] = Number(data.prev_close_price) ? Number(data.prev_close_price).toFixed(2) : (0).toFixed(2);
+        } else if (data.close !== undefined && data.close !== null) {
+            screentitems.value[s]["cp"] = Number(data.close) ? Number(data.close).toFixed(2) : (0).toFixed(2);
+        } else if (data.c !== undefined && data.c !== null) {
+            screentitems.value[s]["cp"] = Number(data.c) ? Number(data.c).toFixed(2) : (0).toFixed(2);
+        }
+
+        // Handle high price
+        if (data.high_price !== undefined && data.high_price !== null) {
+            screentitems.value[s]["high"] = Number(data.high_price) ? Number(data.high_price).toFixed(2) : (0).toFixed(2);
+        } else if (data.high !== undefined && data.high !== null) {
+            screentitems.value[s]["high"] = Number(data.high) ? Number(data.high).toFixed(2) : (0).toFixed(2);
+        }
+
+        // Handle low price
+        if (data.low_price !== undefined && data.low_price !== null) {
+            screentitems.value[s]["low"] = Number(data.low_price) ? Number(data.low_price).toFixed(2) : (0).toFixed(2);
+        } else if (data.low !== undefined && data.low !== null) {
+            screentitems.value[s]["low"] = Number(data.low) ? Number(data.low).toFixed(2) : (0).toFixed(2);
+        }
+
+        let tag = document.getElementById(`ssdsc${token}ltp`);
+        if (tag) {
+            document.getElementById(`ssdsc${token}ltp`).innerHTML = screentitems.value[s].ltp;
+            const chTag = document.getElementById(`ssdsc${token}ch`);
+            const chpTag = document.getElementById(`ssdsc${token}chp`);
+            const opTag = document.getElementById(`ssdsc${token}op`);
+            const cpTag = document.getElementById(`ssdsc${token}cp`);
+            const highTag = document.getElementById(`ssdsc${token}high`);
+            const lowTag = document.getElementById(`ssdsc${token}low`);
+            if (chTag) chTag.innerHTML = screentitems.value[s].ch;
+            if (chpTag) chpTag.innerHTML = ` (${screentitems.value[s].chp}%)`;
+            if (opTag) opTag.innerHTML = screentitems.value[s].op;
+            if (cpTag) cpTag.innerHTML = screentitems.value[s].cp;
+            if (highTag) highTag.innerHTML = screentitems.value[s].high;
+            if (lowTag) lowTag.innerHTML = screentitems.value[s].low;
+        }
+    }
+    if (tradeactionitem.value.length == 4) {
+        let o = tradeactionitem.value[0].findIndex((o) => o.token == token);
+        let t = tradeactionitem.value[1].findIndex((o) => o.token == token);
+        let r = tradeactionitem.value[2].findIndex((o) => o.token == token);
+        let f = tradeactionitem.value[3].findIndex((o) => o.token == token);
+
+        if (o >= 0 || t >= 0 || r >= 0 || f >= 0) {
+            for (let x = 0; x < tradeactionitem.value.length; x++) {
+                let x_is = x == 0 && o >= 0 ? o : x == 1 && t >= 0 ? t : x == 2 && r >= 0 ? r : x == 3 && f >= 0 ? f : null;
+                if (x_is >= 0 && tradeactionitem.value[x] && tradeactionitem.value[x][x_is] && tradeactionitem.value[x][x_is].token == token) {
+                    tradeactionitem.value[x][x_is].ltp = Number(data.lp).toFixed(2);
+                    tradeactionitem.value[x][x_is]["ch"] = Number(data.ch) > 0 || Number(data.ch) < 0 ? Number(data.ch).toFixed(2) : (0).toFixed(2);
+                    tradeactionitem.value[x][x_is]["chp"] = Number(data.chp).toFixed(2);
+                    tradeactionitem.value[x][x_is]["vol"] = Number(data.volume);
+
+                    let tag = document.getElementById(`ssdta${token}ltp`);
+                    if (tag) {
+                        document.getElementById(`ssdta${token}ltp`).innerHTML = tradeactionitem.value[x][x_is].ltp;
+                        const chTag = document.getElementById(`ssdta${token}ch`);
+                        const chpTag = document.getElementById(`ssdta${token}chp`);
+                        if (chTag) chTag.innerHTML = tradeactionitem.value[x][x_is].ch;
+                        if (chpTag) chpTag.innerHTML = ` (${tradeactionitem.value[x][x_is].chp}%)`;
+                    }
+                    let tagv = document.getElementById(`ssdta${token}vol`);
+                    if (tagv) {
+                        document.getElementById(`ssdta${token}vol`).innerHTML = `Vol. : ${tradeactionitem.value[x][x_is].vol}`;
+                    }
+                }
+            }
+        }
+    }
+    if (advdecitems && advdecitems.wsdata) {
+        var f = Object.entries(advdecitems.wsdata);
+        let a = f.findIndex((o) => o[0] == data.token);
+        if (a >= 0 && advdecitems.wsdata[f[a][0]] && advdecitems.wsdata[f[a][0]].token == data.token) {
+            // Update reactive data
+            const tokenKey = f[a][0];
+            const updatedData = {
+                ...advdecitems.wsdata[tokenKey],
+                ltp: Number(data.lp).toFixed(2),
+                ch: Number(data.ch) > 0 || Number(data.ch) < 0 ? Number(data.ch).toFixed(2) : (0).toFixed(2),
+                chp: Number(data.chp).toFixed(2)
             };
+            advdecitems.wsdata[tokenKey] = updatedData;
 
-            // Calculate percentages
-            processedData.adp = processedData.sum > 0 ? `${Math.round((processedData.Positive / processedData.sum) * 100)}%` : "0%";
-            processedData.adm = processedData.sum > 0 ? `${Math.round((processedData.Negative / processedData.sum) * 100)}%` : "0%";
-            processedData.adn = processedData.sum > 0 ? `${Math.round((processedData.Neutral / processedData.sum) * 100)}%` : "0%";
-
-            // Add to WebSocket data - Vue 3 Options API: direct assignment is reactive
-            if (processedData.token) {
-                this.advdecitems.wsdata[processedData.token] = {
-                    exch: "NSE",
-                    token: processedData.token,
-                    tsym: tsym,
-                    ltp: null,
-                    ch: null,
-                    chp: null
-                };
-            }
-
-            return processedData;
-        },
-        newsPage(n) {
-            if (n) {
-                window.open(n.link, "_blank");
-            }
-        },
-        async getNews() {
-            this.newsloading = true;
-            this.allnews = [];
-            this.totalnews = 0;
-            let config = await getssNews();
-            if (config.data && config.data.length > 0) {
-                let data = config.data;
-                for (let v = 0; v < data.length; v++) {
-                    data[v]["isdate"] = `${new Date(data[v].pubDate).toDateString().slice(3)} ${new Date(data[v].pubDate).toLocaleString("en-US", { hour: "numeric", minute: "numeric", hour12: true })} IST`;
-                    this.allnews.push(data[v]);
-                }
-                this.totalnews = config.newsCount;
-                this.pagecount = config.Totalpages;
-            }
-            this.newsloading = false;
-        },
-        async getCorpationaction() {
-            this.croploading = true;
-            this.allcropact = [];
-            let data = await getCorporateact();
-            if (data.corporateAction && data.corporateAction.length > 0) {
-                this.allcropact = data.corporateAction;
-            }
-            this.croploading = false;
-        },
-
-        setSSDtab(type, token, exch, tsym) {
-            // console.log('tsym', type, token, exch, tsym)
-            if (type == "alert") {
-                // eventBus.$emit("menudialog", "alert", token, exch, tsym);
-            } else if (type == "cGTT") {
-                // eventBus.$emit("menudialog", "order-GTT", token, exch, tsym, "b");
-            } else {
-                let path = window.location;
-                path["val"] = [type, token, exch, tsym];
-                if (path.pathname != "/stocks/details") {
-                    this.$router.push({ name: "stocks details", params: { val: path.val } });
-                } else {
-                    // eventBus.$emit("ssd-event", type, token, exch, tsym);
-                }
-            }
-        },
-
-        async setWebsocket(flow, data, is) {
-
-            if (this.uid) {
-                // User is logged in - emit WebSocket request via event bus
-                const event = new CustomEvent('web-scoketOn', {
-                    detail: { flow, data, is, page: 'stocks' }
-                });
-                window.dispatchEvent(event);
-            } else {
-                let raw = await getLtpdata(data);
-                raw = raw.data;
-                if (is == "ssd-pd" && raw) {
-                    for (let l = 0; l < this.pdmwdata.length; l++) {
-                        let v = raw[this.pdmwdata[l].token];
-                        if (v) {
-                            this.pdmwdata[l]["ltp"] = Number(v.lp).toFixed(2);
-                            this.pdmwdata[l]["ch"] = Number(this.pdmwdata[l].ltp - Number(v.close)).toFixed(2);
-                            this.pdmwdata[l]["chp"] = Number(v.change);
-                            // this.$set(this.pdmwdata, l, this.pdmwdata[l]);
-                        }
-                    }
-                } else if (is == "ta" && raw) {
-                    for (let x = 0; x < this.tradeactionitem.length; x++) {
-                        for (let x_is = 0; x_is < this.tradeactionitem[x].length; x_is++) {
-                            let data = raw[this.tradeactionitem[x][x_is].token];
-                            if (data) {
-                                this.tradeactionitem[x][x_is].ltp = Number(data.lp) ? Number(data.lp).toFixed(2) : 0;
-                                this.tradeactionitem[x][x_is]["ch"] = Number(data.lp) && Number(data.close) ? (Number(data.lp) - Number(data.close)).toFixed(2) : 0;
-                                this.tradeactionitem[x][x_is]["chp"] = Number(data.change).toFixed(2);
-                                this.tradeactionitem[x][x_is]["vol"] = Number(data.vol).toFixed(2);
-                                this.tradeactionitem[x][x_is]["op"] = Number(data.open) ? Number(data.open).toFixed(2) : 0;
-                                this.tradeactionitem[x][x_is]["cp"] = Number(data.close) ? Number(data.close).toFixed(2) : 0;
-                                this.tradeactionitem[x][x_is]["high"] = Number(data.high) ? Number(data.high).toFixed(2) : 0;
-                                this.tradeactionitem[x][x_is]["low"] = Number(data.low) ? Number(data.low).toFixed(2) : 0;
-                                this.tradeactionitem[x][x_is]["oi"] = data.oi ? Number(data.oi).toFixed(2) : 0;
-                                // this.$set(this.tradeactionitem[x], x_is, this.tradeactionitem[x][x_is]);
-                            }
-                        }
-                    }
-                } else if (is == "adv" && raw) {
-                    var f = Object.entries(this.advdecitems.wsdata);
-                    for (let l = 0; l < f.length; l++) {
-                        let v = raw[f[l][0]];
-                        if (v && f[l][0]) {
-                            this.advdecitems.wsdata[f[l][0]]["ltp"] = Number(v.lp).toFixed(2);
-                            this.advdecitems.wsdata[f[l][0]]["ch"] = Number(this.advdecitems.wsdata[f[l][0]].ltp - Number(v.close)).toFixed(2);
-                            this.advdecitems.wsdata[f[l][0]]["chp"] = Number(v.change);
-                            // this.$set(this.advdecitems.wsdata, f[l][0], this.advdecitems.wsdata[f[l][0]]);
-                        }
-                    }
-                }
-
-                // else if (is == 'st' && raw) {
-                //   Object.entries(this.sectoritems).forEach(([key, value]) => {
-                //     for (let l = 0; l < value.data.length; l++) {
-                //       let v = raw[value.data[l].Token];
-                //       if (v) {
-                //         this.sectoritems[key].data[l]['ltp'] = Number(v.lp).toFixed(2);
-                //         this.sectoritems[key].data[l]['ch'] = Number(this.sectoritems[key].data[l].ltp - Number(v.close)).toFixed(2);
-                //         this.sectoritems[key].data[l]['chp'] = Number(v.change);
-                //         this.$set(this.sectoritems[key].data, l, this.sectoritems[key].data[l]);
-                //       }
-                //     }
-                //   })
-                // }
-            }
-        },
-        optionChainDataParse(data) {
-            let p = this.pdmwdata.findIndex((o) => o.token == data.token);
-            if (p >= 0 && this.pdmwdata[p].token == data.token) {
-                this.pdmwdata[p].ltp = Number(data.lp).toFixed(2);
-                this.pdmwdata[p]["ch"] = Number(data.ch) > 0 || Number(data.ch) < 0 ? Number(data.ch).toFixed(2) : (0).toFixed(2);
-                this.pdmwdata[p]["chp"] = Number(data.chp).toFixed(2);
-                let tag = document.getElementById(`ssdpd${data.token}ltp`);
+            // DOM updates for immediate rendering (backup)
+            nextTick(() => {
+                let tag = document.getElementById(`ssdad${data.token}ltp`);
                 if (tag) {
-                    document.getElementById(`ssdpd${data.token}ltp`).innerHTML = this.pdmwdata[p].ltp;
-                    document.getElementById(`ssdpd${data.token}ch`).innerHTML = this.pdmwdata[p].ch;
-                    document.getElementById(`ssdpd${data.token}chp`).innerHTML = ` (${this.pdmwdata[p].chp}%)`;
-                    // eventBus.$emit("color-event", `ssdpd${data.token}chpclr`, this.pdmwdata[p].ch > 0 ? "maingreen--text" : this.pdmwdata[p].ch < 0 ? "mainred--text" : "subtext--text");
-                }
-                // this.$set(this.pdmwdata, p, this.pdmwdata[p]);
-            }
-            let s = this.screentitems.findIndex((o) => o.token == data.token);
-            if (s >= 0 && this.screentitems[s].token == data.token) {
-                this.screentitems[s].ltp = Number(data.lp).toFixed(2);
-                this.screentitems[s]["ch"] = Number(data.ch) > 0 || Number(data.ch) < 0 ? Number(data.ch).toFixed(2) : (0).toFixed(2);
-                this.screentitems[s]["chp"] = Number(data.chp).toFixed(2);
-                this.screentitems[s]["vol"] = Number(data.volume);
-                this.screentitems[s]["op"] = Number(data.open_price) ? Number(data.open_price).toFixed(2) : (0).toFixed(2);
-                this.screentitems[s]["cp"] = Number(data.prev_close_price) ? Number(data.prev_close_price).toFixed(2) : (0).toFixed(2);
-                this.screentitems[s]["high"] = Number(data.high_price) ? Number(data.high_price).toFixed(2) : (0).toFixed(2);
-                this.screentitems[s]["low"] = Number(data.low_price) ? Number(data.low_price).toFixed(2) : (0).toFixed(2);
+                    document.getElementById(`ssdad${data.token}ltp`).innerHTML = updatedData.ltp;
+                    document.getElementById(`ssdad${data.token}ch`).innerHTML = updatedData.ch;
+                    document.getElementById(`ssdad${data.token}chp`).innerHTML = ` (${updatedData.chp}%)`;
 
-                let tag = document.getElementById(`ssdsc${data.token}ltp`);
-                if (tag) {
-                    document.getElementById(`ssdsc${data.token}ltp`).innerHTML = this.screentitems[s].ltp;
-                    document.getElementById(`ssdsc${data.token}ch`).innerHTML = this.screentitems[s].ch;
-                    document.getElementById(`ssdsc${data.token}chp`).innerHTML = ` (${this.screentitems[s].chp}%)`;
-                    // eventBus.$emit("color-event", `ssdsc${data.token}chpclr`, this.screentitems[s].ch > 0 ? "maingreen--text" : this.screentitems[s].ch < 0 ? "mainred--text" : "subtext--text");
-                    document.getElementById(`ssdsc${data.token}op`).innerHTML = this.screentitems[s].op;
-                    document.getElementById(`ssdsc${data.token}cp`).innerHTML = this.screentitems[s].cp;
-                    document.getElementById(`ssdsc${data.token}high`).innerHTML = this.screentitems[s].high;
-                    document.getElementById(`ssdsc${data.token}low`).innerHTML = this.screentitems[s].low;
-                }
-                // this.$set(this.pdmwdata, p, this.pdmwdata[p]);
-            }
-            if (this.tradeactionitem.length == 4) {
-                let o = this.tradeactionitem[0].findIndex((o) => o.token == data.token);
-                let t = this.tradeactionitem[1].findIndex((o) => o.token == data.token);
-                let r = this.tradeactionitem[2].findIndex((o) => o.token == data.token);
-                let f = this.tradeactionitem[3].findIndex((o) => o.token == data.token);
-
-                if (o >= 0 || t >= 0 || r >= 0 || f >= 0) {
-                    for (let x = 0; x < this.tradeactionitem.length; x++) {
-                        let x_is = x == 0 && o >= 0 ? o : x == 1 && t >= 0 ? t : x == 2 && r >= 0 ? r : x == 3 && f >= 0 ? f : null;
-                        if (x_is >= 0 && this.tradeactionitem[x] && this.tradeactionitem[x][x_is] && this.tradeactionitem[x][x_is].token == data.token) {
-                            this.tradeactionitem[x][x_is].ltp = Number(data.lp).toFixed(2);
-                            this.tradeactionitem[x][x_is]["ch"] = Number(data.ch) > 0 || Number(data.ch) < 0 ? Number(data.ch).toFixed(2) : (0).toFixed(2);
-                            this.tradeactionitem[x][x_is]["chp"] = Number(data.chp).toFixed(2);
-                            this.tradeactionitem[x][x_is]["vol"] = Number(data.volume);
-
-                            let tag = document.getElementById(`ssdta${data.token}ltp`);
-                            if (tag) {
-                                document.getElementById(`ssdta${data.token}ltp`).innerHTML = this.tradeactionitem[x][x_is].ltp;
-                                document.getElementById(`ssdta${data.token}ch`).innerHTML = this.tradeactionitem[x][x_is].ch;
-                                document.getElementById(`ssdta${data.token}chp`).innerHTML = ` (${this.tradeactionitem[x][x_is].chp}%)`;
-                                // eventBus.$emit("color-event", `ssdta${data.token}chpclr`, this.tradeactionitem[x][x_is].ch > 0 ? "maingreen--text" : this.tradeactionitem[x][x_is].ch < 0 ? "mainred--text" : "subtext--text");
-                            }
-                            let tagv = document.getElementById(`ssdta${data.token}vol`);
-                            if (tagv) {
-                                document.getElementById(`ssdta${data.token}vol`).innerHTML = `Vol. : ${this.tradeactionitem[x][x_is].vol}`;
-                            }
-                            // this.$set(this.tradeactionitem[x], x_is, this.tradeactionitem[x][x_is]);
+                    // Update color class dynamically
+                    const colorTag = document.getElementById(`ssdad${data.token}chpclr`);
+                    if (colorTag) {
+                        colorTag.classList.remove('maingreen--text', 'mainred--text', 'subtext--text');
+                        if (Number(updatedData.ch) > 0) {
+                            colorTag.classList.add('maingreen--text');
+                        } else if (Number(updatedData.ch) < 0) {
+                            colorTag.classList.add('mainred--text');
+                        } else {
+                            colorTag.classList.add('subtext--text');
                         }
                     }
                 }
-            }
-            if (this.advdecitems && this.advdecitems.wsdata) {
-                var f = Object.entries(this.advdecitems.wsdata);
-                let a = f.findIndex((o) => o[0] == data.token);
-                if (a >= 0 && this.advdecitems.wsdata[f[a][0]] && this.advdecitems.wsdata[f[a][0]].token == data.token) {
-                    // Update reactive data - Vue 3 Options API: direct assignment is reactive
-                    const tokenKey = f[a][0];
-                    const updatedData = {
-                        ...this.advdecitems.wsdata[tokenKey],
-                        ltp: Number(data.lp).toFixed(2),
-                        ch: Number(data.ch) > 0 || Number(data.ch) < 0 ? Number(data.ch).toFixed(2) : (0).toFixed(2),
-                        chp: Number(data.chp).toFixed(2)
-                    };
-                    // Vue 3 Options API: direct assignment triggers reactivity automatically
-                    this.advdecitems.wsdata[tokenKey] = updatedData;
-
-                    // DOM updates for immediate rendering (backup)
-                    this.$nextTick(() => {
-                        let tag = document.getElementById(`ssdad${data.token}ltp`);
-                        if (tag) {
-                            document.getElementById(`ssdad${data.token}ltp`).innerHTML = updatedData.ltp;
-                            document.getElementById(`ssdad${data.token}ch`).innerHTML = updatedData.ch;
-                            document.getElementById(`ssdad${data.token}chp`).innerHTML = ` (${updatedData.chp}%)`;
-
-                            // Update color class dynamically
-                            const colorTag = document.getElementById(`ssdad${data.token}chpclr`);
-                            if (colorTag) {
-                                colorTag.classList.remove('maingreen--text', 'mainred--text', 'subtext--text');
-                                if (Number(updatedData.ch) > 0) {
-                                    colorTag.classList.add('maingreen--text');
-                                } else if (Number(updatedData.ch) < 0) {
-                                    colorTag.classList.add('mainred--text');
-                                } else {
-                                    colorTag.classList.add('subtext--text');
-                                }
-                            }
-                        }
-                    });
-                }
-                if (this.advdectab == null || this.advdectab === undefined) {
-                    this.advdectab = 'sectors';
-                }
-            }
-        },
-    },
-    components: { StatBoard },
-
-};
+            });
+        }
+        if (advdectab.value == null || advdectab.value === undefined) {
+            advdectab.value = 'sectors';
+        }
+    }
+}
 </script>
 
 <style>

@@ -114,8 +114,29 @@ export default {
 
     // Listen for stock selection events via custom events
     window.addEventListener('ssd-event', (event) => {
-      const { type, token, exch, tsym } = event.detail;
+      let detail = event.detail;
+      let exch, tsym;
+      
+      // Handle both array format [type, token, exch, tsym] and object format {type, token, exch, tsym}
+      if (Array.isArray(detail) && detail.length >= 4) {
+        exch = detail[2];
+        tsym = detail[3];
+      } else if (detail && typeof detail === 'object' && detail.exch && detail.tsym) {
+        exch = detail.exch;
+        tsym = detail.tsym;
+      } else {
+        return; // Invalid format, ignore
+      }
+      
+      if (!exch || !tsym) return;
+      
       const symbol = `${exch}:${tsym}`;
+      // Ensure localStorage is set for chart initialization
+      localStorage.setItem('ssdtsym', symbol);
+      if (detail.token || (Array.isArray(detail) && detail[1])) {
+        localStorage.setItem('ssdtoken', detail.token || detail[1]);
+      }
+      
       if (this.tvReady && window.tvWidget && typeof window.tvWidget.activeChart === 'function') {
         try {
           window.tvWidget.activeChart().setSymbol(symbol);
@@ -243,7 +264,10 @@ export default {
     },
     initTWChart(type) {
       let sym = localStorage.getItem("ssdtsym");
-      sym = sym ? sym : this.symbol;
+      // Validate symbol format (must contain colon, e.g., "NSE:TCS-EQ")
+      if (!sym || !sym.includes(':') || sym.toLowerCase().includes('undefined')) {
+        sym = this.symbol || 'NSE:NIFTY 50'; // Fallback to a default symbol
+      }
       const widgetOptions = {
         symbol: sym,
         datafeed: Datafeed,

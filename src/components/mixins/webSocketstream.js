@@ -192,7 +192,7 @@ function establishSocketConnection(type) {
             }
             else {
                 sessionStorage.setItem('wsstat', 'Ok');
-                console.log("✅ WebSocket status set to 'Ok'")
+                // console.log("✅ WebSocket status set to 'Ok'")
                 if (type == 'attempt') {
                     // Trigger order update via store
                     store.addWSOrderAlert('attempt');

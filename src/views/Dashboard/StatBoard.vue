@@ -308,6 +308,11 @@ const holdingsList = ref([])
 let holdingIndexByToken = {}
 const positionDataList = ref([])
 
+// Debounce/throttle variables for refreshMargins
+let refreshMarginsTimeout = null
+let isRefreshMarginsPending = false
+const REFRESH_MARGINS_DEBOUNCE_MS = 2000 // 2 seconds debounce
+
 // Handle orderbook updates (like old Vue 2 code - calls getStatboardapi which includes margins)
 const handleOrderbookUpdate = (evt) => {
     if (evt.detail === 'port-order') {
@@ -316,8 +321,59 @@ const handleOrderbookUpdate = (evt) => {
     }
 }
 
+// Refresh all stats (holdings, positions, orders, margins)
+async function reloadAllStats() {
+    try {
+        // Reload all data
+        const [holdingsData, positionData, ordersData] = await Promise.all([
+            getMHoldings(true).catch(() => null),
+            getMPosotion(true).catch(() => null),
+            getMOrderbook(true).catch(() => null)
+        ])
+
+        // Process holdings
+        if (holdingsData && holdingsData.response && Array.isArray(holdingsData.response) && holdingsData.response.length > 0) {
+            setTimeout(() => { handleTempEvent({ detail: holdingsData }) }, 100)
+        }
+
+        // Process positions
+        if (positionData && (positionData.a || positionData.o)) {
+            setTimeout(() => { handleTempEvent({ detail: positionData }) }, 150)
+        }
+
+        // Process orders
+        if (ordersData && ordersData.stat && Array.isArray(ordersData.stat)) {
+            setTimeout(() => { handleTempEvent({ detail: ordersData }) }, 200)
+        }
+
+        // NOTE: Removed automatic margin refresh - Limits API called only once on initial load
+    } catch (err) {
+        console.error('❌ Error reloading all stats:', err)
+    }
+}
+
+// Debounced version of refreshMargins to prevent excessive API calls
+const refreshMarginsDebounced = () => {
+    // Clear existing timeout
+    if (refreshMarginsTimeout) {
+        clearTimeout(refreshMarginsTimeout)
+    }
+
+    // Set new timeout
+    refreshMarginsTimeout = setTimeout(() => {
+        refreshMargins()
+    }, REFRESH_MARGINS_DEBOUNCE_MS)
+}
+
 // Refresh margins data (like old getAllmargin function)
 const refreshMargins = () => {
+    // Prevent concurrent API calls
+    if (isRefreshMarginsPending) {
+        console.log('⏸️ Margin refresh already pending, skipping...')
+        return
+    }
+
+    isRefreshMarginsPending = true
     getMLimits(false).then(data => {
         // console.log('📊 Margin API response:', data)
         if (data && data.stat === 'Ok') {
@@ -336,6 +392,8 @@ const refreshMargins = () => {
         }
     }).catch(err => {
         console.error('❌ Error refreshing margins:', err)
+    }).finally(() => {
+        isRefreshMarginsPending = false
     })
 }
 
@@ -363,13 +421,11 @@ const handleTempEvent = (evt) => {
         } else if (payload.a || payload.o) {
             // Positions payload
             updatePositionsStats(payload)
-            // Refresh margins when positions change (affects margin used) - with delay to avoid race conditions
-            setTimeout(() => refreshMargins(), 500)
+            // NOTE: Removed automatic margin refresh - Limits API called only once on initial load
         } else if (payload.stat) {
             // Orders payload (has stat array: [open, execute, rejected])
             updateOrdersStats(payload.stat)
-            // Refresh margins when orders update (affects margin used) - with delay to avoid race conditions
-            setTimeout(() => refreshMargins(), 500)
+            // NOTE: Removed automatic margin refresh - Limits API called only once on initial load
         } else if (payload.avbma !== undefined || payload.total !== undefined || payload.marginused !== undefined || payload.stat === 'Ok') {
             // Margins payload - check for marginused too or stat === 'Ok' from getMLimits
             // Also check if it has any margin-related fields
@@ -391,7 +447,13 @@ const updateText = (id, text) => {
     if (el) el.innerText = text
 }
 
-const formatMoney = (n) => toNumber(n).toFixed(2)
+const formatMoney = (amt) => {
+    const n = toNumber(amt);
+    if (n >= 1_00_00_000) return `₹${(n / 1_00_00_000).toFixed(2)}Cr`;
+    if (n >= 1_00_000) return `₹${(n / 1_00_000).toFixed(2)}L`;
+    if (n >= 1_000) return `₹${(n / 1_000).toFixed(2)}K`;
+    return `₹${n.toFixed(2)}`;
+};
 
 const updateHoldingsStats = (list) => {
     let invested = 0
@@ -496,13 +558,13 @@ const updateHoldingsStats = (list) => {
             }
         }
 
-        console.log('📊 Holdings Adv/Dec Bar updated:', {
-            totalCount,
-            posCount,
-            negCount,
-            pAdv: `${pAdv}%`,
-            nAdv: `${nAdv}%`
-        })
+        // console.log('📊 Holdings Adv/Dec Bar updated:', {
+        //     totalCount,
+        //     posCount,
+        //     negCount,
+        //     pAdv: `${pAdv}%`,
+        //     nAdv: `${nAdv}%`
+        // })
     })
 }
 
@@ -701,10 +763,10 @@ const statboardEventHandler = () => {
     reloadAllStats()
 }
 const positionUpdateHandler = () => {
-    refreshMargins()
+    // NOTE: Removed automatic margin refresh - Limits API called only once on initial load
 }
 const fundsUpdateHandler = () => {
-    refreshMargins()
+    // NOTE: Removed automatic margin refresh - Limits API called only once on initial load
 }
 
 onMounted(async () => {
@@ -727,12 +789,7 @@ onMounted(async () => {
     const tok = sessionStorage.getItem('msession')
     if (uid && tok) {
         loadAll()
-        // Set up periodic refresh for margins (every 30 seconds)
-        const marginsInterval = setInterval(() => {
-            refreshMargins()
-        }, 30000)
-        // Store interval for cleanup
-        window._marginsInterval = marginsInterval
+        // NOTE: Removed automatic 30-second interval refresh - Limits API called only once on initial load
     } else {
         let tries = 0
         sessionPoll = setInterval(() => {
@@ -743,11 +800,7 @@ onMounted(async () => {
                 clearInterval(sessionPoll)
                 sessionPoll = null
                 loadAll()
-                // Set up periodic refresh for margins
-                const marginsInterval = setInterval(() => {
-                    refreshMargins()
-                }, 30000)
-                window._marginsInterval = marginsInterval
+                // NOTE: Removed automatic 30-second interval refresh - Limits API called only once on initial load
             } else if (tries > 40) { // ~12s max
                 clearInterval(sessionPoll)
                 sessionPoll = null
@@ -764,9 +817,10 @@ onBeforeUnmount(() => {
     window.removeEventListener('position-update', positionUpdateHandler)
     window.removeEventListener('funds-update', fundsUpdateHandler)
     if (sessionPoll) clearInterval(sessionPoll)
-    if (window._marginsInterval) {
-        clearInterval(window._marginsInterval)
-        window._marginsInterval = null
+    // Clear debounce timeout
+    if (refreshMarginsTimeout) {
+        clearTimeout(refreshMarginsTimeout)
+        refreshMarginsTimeout = null
     }
 })
 

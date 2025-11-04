@@ -24,6 +24,16 @@ function getAppStore() {
     return useAppStore();
 }
 
+// Global state for Limits API - STRICT "CALL ONLY ONCE" mechanism
+let limitsApiState = {
+    hasBeenCalledOnce: false,  // Flag to ensure API is called only once
+    isPending: false,
+    pendingPromise: null,
+    cachedData: null,          // Cache the response permanently until manual refresh
+    cacheExpiry: 0,
+    cacheDurationMs: Infinity  // Cache forever until manual refresh
+};
+
 export async function seyCheckwebsocket() {
     uid = sessionStorage.getItem('userid');
     tok = sessionStorage.getItem('msession');
@@ -332,7 +342,20 @@ export async function getMPosotionCon(item) {
 }
 
 export async function getQuotesdata(item) {
-    requestMOption['body'] = `jData={"uid":"${uid}","exch":"${item.split('|')[0]}","token":"${item.split('|')[1]}"}&jKey=${tok}`
+    // Get credentials from sessionStorage before making API call
+    const currentUid = sessionStorage.getItem('userid');
+    const currentTok = sessionStorage.getItem('msession');
+    
+    // Update global variables for consistency
+    uid = currentUid || uid;
+    tok = currentTok || tok;
+    
+    if (!currentUid || !currentTok) {
+        console.error('getQuotesdata: uid or token not available from sessionStorage');
+        return { stat: 'Not Ok', emsg: 'Authentication required' };
+    }
+    
+    requestMOption['body'] = `jData={"uid":"${currentUid}","exch":"${item.split('|')[0]}","token":"${item.split('|')[1]}"}&jKey=${currentTok}`
     var response = await fetchMyntAPI(mynturl.myntapi + "GetQuotes", requestMOption)
     return response
 }
@@ -386,6 +409,11 @@ export async function getBrokerage(item) {
 }
 
 export async function getPlaceOrder(item, type) {
+    // Always refresh session tokens before placing/modifying orders
+    try {
+        uid = sessionStorage.getItem('userid') || uid
+        tok = sessionStorage.getItem('msession') || tok
+    } catch (_) {}
     if (type != 'can-ex') {
         if (item.tsym) {
             item.tsym = encodeURIComponent(item.tsym); 
@@ -400,12 +428,20 @@ export async function getPlaceOrder(item, type) {
 }
 
 export async function getSIPOrderset(item, url) {
+    try {
+        uid = sessionStorage.getItem('userid') || uid
+        tok = sessionStorage.getItem('msession') || tok
+    } catch (_) {}
     requestMOption['body'] = `jData=${JSON.stringify(item)}&jKey=${tok}`
     var response = await fetchMyntAPI(mynturl.myntapi + url, requestMOption)
     return response
 }
 
 export async function getGTTPlaceOrder(item, url) {
+    try {
+        uid = sessionStorage.getItem('userid') || uid
+        tok = sessionStorage.getItem('msession') || tok
+    } catch (_) {}
     requestMOption['body'] = `jData=${JSON.stringify(item)}&jKey=${tok}`
     var response = await fetchMyntAPI(mynturl.myntapi + url, requestMOption)
     return response
@@ -518,7 +554,7 @@ export async function getAlertAPi(url) {
     return response
 }
 
-export async function getMLimits(format) {
+export async function getMLimits(format, forceRefresh = false) {
     // Get credentials from sessionStorage
     const currentUid = sessionStorage.getItem('userid');
     const currentTok = sessionStorage.getItem('msession');
@@ -527,41 +563,91 @@ export async function getMLimits(format) {
         return { stat: 'Error' };
     }
 
-    requestMOption['body'] = `jData={"uid":"${currentUid}","actid":"${currentUid}"}&jKey=${currentTok}`
-    var response = await fetchMyntAPI(mynturl.myntapi + 'Limits', requestMOption)
+    // STRICT "CALL ONLY ONCE" LOGIC:
+    // If API has already been called once and this is not a forced refresh, return cached data
+    if (limitsApiState.hasBeenCalledOnce && !forceRefresh) {
+        console.log('🚫 Limits API already called once. Returning cached data. Use forceRefreshMLimits() for manual refresh.');
+        return limitsApiState.cachedData || { stat: 'Error', emsg: 'Limits data not yet loaded' };
+    }
+    
+    // If there's a pending call, return the same promise (prevent concurrent calls)
+    if (limitsApiState.isPending && limitsApiState.pendingPromise) {
+        console.log('🔄 Limits API call already in progress, reusing existing promise...');
+        return await limitsApiState.pendingPromise;
+    }
+    
+    // Check cache (return cached data if available and not forcing refresh)
+    if (limitsApiState.cachedData && !forceRefresh) {
+        console.log('💾 Returning cached Limits data');
+        return limitsApiState.cachedData;
+    }
+    
+    // Set pending state and mark as called
+    limitsApiState.isPending = true;
+    if (!forceRefresh) {
+        limitsApiState.hasBeenCalledOnce = true;
+    }
+    
+    const apiCallPromise = (async () => {
+        try {
+            requestMOption['body'] = `jData={"uid":"${currentUid}","actid":"${currentUid}"}&jKey=${currentTok}`
+            var response = await fetchMyntAPI(mynturl.myntapi + 'Limits', requestMOption)
     if (response && response.stat == "Ok") {
         var total = ((  (Number(response.collateral) ? Number(response.collateral) : 0) +  ((Number(response.brkcollamt)) ? (Number(response.brkcollamt)) : 0) + (Number(response.cash) ?  Number(response.cash) : 0) +  (Number(response.payin) ? Number(response.payin) : 0)) - (Math.abs(Number(response.daycash) ? Number(response.daycash) : 0)))
-        response["total"] = !format ? total : (total).toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-        });
-        
-        var sum = ((Number(response.collateral)  ? Number(response.collateral) : 0) + (Number(response.brkcollamt) ? Number(response.brkcollamt) : 0) + (Number(response.cash)  ? Number(response.cash) : 0)) - Number(response.marginused ?? 0) + (Number(response.payin) ? Number(response.payin) : 0) - (Math.abs(Number(response.daycash)) ? Math.abs(Number(response.daycash)) : 0) ;
-        response["opnbal"] = (((Number(response.cash)) ? (Number(response.cash)) : 0)  + (Number(response.payin) ? Number(response.payin) : 0) - (Math.abs(Number(response.daycash) ? Number(response.daycash) : 0)))
+                response["total"] = !format ? total : (total).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                });
+                
+                var sum = ((Number(response.collateral)  ? Number(response.collateral) : 0) + (Number(response.brkcollamt) ? Number(response.brkcollamt) : 0) + (Number(response.cash)  ? Number(response.cash) : 0)) - Number(response.marginused ?? 0) + (Number(response.payin) ? Number(response.payin) : 0) - (Math.abs(Number(response.daycash)) ? Math.abs(Number(response.daycash)) : 0) ;
+                response["opnbal"] = (((Number(response.cash)) ? (Number(response.cash)) : 0)  + (Number(response.payin) ? Number(response.payin) : 0) - (Math.abs(Number(response.daycash) ? Number(response.daycash) : 0)))
 
-        response["collateral"] = ((Number(response["collateral"]) ? Number(response["collateral"]) : 0) + (Number(response.brkcollamt) ? Number(response.brkcollamt) : 0)).toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-        });
-        response["avbma"] = (sum > 0 || sum < 0) ? !format ? sum : (sum).toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-        }) : 0;
-        if (format) {
-            for (const [key, value] of Object.entries(response)) {
-                if (key && value && Number(value)) {
-                    response[key] =
-                        Number(value) != 0
-                            ? Number(value).toLocaleString(undefined, {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                            })
-                            : null;
+                response["collateral"] = ((Number(response["collateral"]) ? Number(response["collateral"]) : 0) + (Number(response.brkcollamt) ? Number(response.brkcollamt) : 0)).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                });
+                response["avbma"] = (sum > 0 || sum < 0) ? !format ? sum : (sum).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                }) : 0;
+                if (format) {
+                    for (const [key, value] of Object.entries(response)) {
+                        if (key && value && Number(value)) {
+                            response[key] =
+                                Number(value) != 0
+                                    ? Number(value).toLocaleString(undefined, {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2,
+                                    })
+                                    : null;
+                        }
+                    }
                 }
+                
+                // Cache the response permanently
+                limitsApiState.cachedData = response;
+                limitsApiState.cacheExpiry = Date.now() + limitsApiState.cacheDurationMs;
             }
+            
+            return response;
+        } finally {
+            // Always clear pending state
+            limitsApiState.isPending = false;
+            limitsApiState.pendingPromise = null;
         }
-    }
-    return response
+    })();
+    
+    // Store promise so concurrent calls can reuse it
+    limitsApiState.pendingPromise = apiCallPromise;
+    
+    return await apiCallPromise;
+}
+
+// Force refresh Limits API (for manual refresh only)
+export async function forceRefreshMLimits(format) {
+    console.log('🔄 Force refreshing Limits API...');
+    limitsApiState.hasBeenCalledOnce = false; // Reset flag to allow refresh
+    return await getMLimits(format, true);
 }
 
 export async function getTotpreq(val) {
@@ -583,13 +669,30 @@ export async function getUserApikeyreq(time) {
 }
 
 export async function getClientDetails() {
+    // Get fresh tokens from sessionStorage before making API call
+    seyCheckwebsocket();
+    
     var response;
     if (clientdetails && clientdetails.stat == "Ok") {
         response = clientdetails
     } else {
-        requestMOption['body'] = `jData={"uid":"${uid}","actid":"${uid}"}&jKey=${tok}`
-        response = await fetchMyntAPI(mynturl.myntapi + "ClientDetails", requestMOption)
-        clientdetails = response;
+        // Ensure uid and tok are available
+        if (!uid || !tok) {
+            uid = sessionStorage.getItem('userid');
+            tok = sessionStorage.getItem('msession');
+        }
+        
+        // Only make API call if we have valid tokens
+        if (uid && tok) {
+            requestMOption['body'] = `jData={"uid":"${uid}","actid":"${uid}"}&jKey=${tok}`
+            response = await fetchMyntAPI(mynturl.myntapi + "ClientDetails", requestMOption)
+            if (response && response.stat == "Ok") {
+                clientdetails = response;
+            }
+        } else {
+            // Return error response if no valid tokens
+            response = { stat: "Not Ok", emsg: "Authentication required" };
+        }
     }
     return response
 }

@@ -177,7 +177,10 @@ export default {
       // console.log("initTWChart ::: ",this.containerId)
 
       let sym = localStorage.getItem("ssdtsym");
-      sym = sym ? sym : this.symbol;
+      // Validate symbol format (must contain colon, e.g., "NSE:TCS-EQ")
+      if (!sym || !sym.includes(':') || sym.toLowerCase().includes('undefined')) {
+        sym = this.symbol || 'NSE:NIFTY 50'; // Fallback to a default symbol
+      }
       const widgetOptions = {
         symbol: sym,
         datafeed: Datafeed,

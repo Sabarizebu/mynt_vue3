@@ -56,7 +56,8 @@ class WebSocketEventBus {
     handleWebSocketRequest(flow, data, is, page) {
 
         // For unsubscribe requests, check if the data is still needed elsewhere
-        if (flow === "unsub" && data && data.length > 0) {
+        // CRITICAL: Ensure data is an array before calling filter
+        if (flow === "unsub" && data && Array.isArray(data) && data.length > 0) {
             const filteredData = data.filter(item => {
                 if (item && item.token && item.exch) {
                     return !this.isActiveInOtherPages(page, item.token, item.exch);
@@ -103,7 +104,8 @@ class WebSocketEventBus {
         }
 
         // For subscribe requests, register and proceed
-        if (flow === "sub" && data && data.length > 0) {
+        // CRITICAL: Ensure data is an array before calling forEach
+        if (flow === "sub" && data && Array.isArray(data) && data.length > 0) {
             data.forEach(item => {
                 if (item && item.token && item.exch) {
                     // Add to appropriate collections based on the 'is' parameter
@@ -201,11 +203,11 @@ class WebSocketEventBus {
     // WebSocket data parsing callback (similar to old LayoutSrc.vue optionChainDataParse)
     optionChainDataParse(data) {
         
-        // Handle different data formats
+        // Handle different data formats (like old LayoutSrc.vue line 838-841)
         let eventData = null;
         
         if (Array.isArray(data)) {
-            // Handle array format - extract the actual quote data
+            // Handle array format - extract the actual quote data (like old code: data[0].v)
             eventData = data[0]?.v || data[0] || data;
         } else if (data?.v) {
             // Handle wrapped format
@@ -215,18 +217,34 @@ class WebSocketEventBus {
             eventData = data;
         }
         
-        
-        // Always emit to watchlist regardless of page tracking
-        if (eventData) {
+        // Emit web-scoketConn event with the current page (like old LayoutSrc.vue line 840)
+        // Old code: eventBus.$emit("web-scoketConn", data[0].v, this.wsstocksdata.raw);
+        if (eventData && this.wsstocksdata && this.wsstocksdata.tok && this.wsstocksdata.rawdata) {
+            const currentPage = this.wsstocksdata.raw;
+            const token = eventData.token || eventData.tk;
             
-            // Dispatch custom event for watchlist components
+            // Emit for the current page (like old code)
+            if (currentPage) {
+                const event = new CustomEvent('web-scoketConn', {
+                    detail: [eventData, currentPage]
+                });
+                window.dispatchEvent(event);
+                
+                // Also emit through the event bus
+                this.emit("web-scoketConn", eventData, currentPage);
+            }
+            
+            // Also emit for watchlist (backward compatibility)
+            const watchlistEvent = new CustomEvent('web-scoketConn', {
+                detail: [eventData, 'watchlist']
+            });
+            window.dispatchEvent(watchlistEvent);
+        } else if (eventData) {
+            // Fallback: emit for watchlist if no page is tracked
             const event = new CustomEvent('web-scoketConn', {
                 detail: [eventData, 'watchlist']
             });
             window.dispatchEvent(event);
-            
-            // Also emit through the event bus
-            this.emit("web-scoketConn", eventData, 'watchlist');
         }
     }
 }

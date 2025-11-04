@@ -39,9 +39,9 @@
                 <span class="font-weight-medium maintext--text">{{ timeStr(item.norentm) }}</span>
             </template>
             <template #item.trantype="{ item }">
-                <v-chip small :color="item.trantype === 'B' ? 'secgreen' : 'secred'"
+                <v-chip small :color="item.trantype === 'B' ? 'green' : 'red'"
                     :text-color="item.trantype === 'B' ? 'maingreen' : 'mainred'"
-                    :style="`border: 1px solid ${item.trantype === 'B' ? '#C1E7BA' : '#FFCDCD'}; border-radius: 5px; padding: 10px 8px !important;`">
+                    style="border-radius: 5px; padding: 10px 8px !important;">
                     <span class="font-weight-medium fs-12">{{ item.trantype === 'B' ? 'BUY' : 'SELL' }}</span>
                 </v-chip>
             </template>
@@ -199,9 +199,9 @@
                 <span class="font-weight-medium maintext--text">{{ timeStr(item.norentm) }}</span>
             </template>
             <template #item.trantype="{ item }">
-                <v-chip small :color="item.trantype === 'B' ? 'secgreen' : 'secred'"
+                <v-chip small :color="item.trantype === 'B' ? 'green' : 'red'"
                     :text-color="item.trantype === 'B' ? 'maingreen' : 'mainred'"
-                    :style="`border: 1px solid ${item.trantype === 'B' ? '#C1E7BA' : '#FFCDCD'}; border-radius: 5px; padding: 10px 8px !important;`">
+                    style="border-radius: 5px; padding: 10px 8px !important;">
                     <span class="font-weight-medium fs-12">{{ item.trantype === 'B' ? 'BUY' : 'SELL' }}</span>
                 </v-chip>
             </template>
@@ -337,7 +337,7 @@
                     </v-list-item-title>
                     <v-list-item-title class="txt-000 font-weight-medium fs-16 mb-1">₹{{ fmt(singledata.raw?.lp ||
                         singledata.ltp)
-                    }}</v-list-item-title>
+                        }}</v-list-item-title>
                     <v-list-item-title
                         :class="singledata.rpnl > 0 ? 'maingreen--text' : singledata.rpnl < 0 ? 'mainred--text' : 'subtext--text'"
                         class="font-weight-medium fs-12">

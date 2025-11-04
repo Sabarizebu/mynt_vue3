@@ -43,7 +43,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import StocksOrderBook from './StocksOrderBook.vue'
 import StocksTradeBook from './StocksTradeBook.vue'
 import StockGTTorders from './StockGTTorders.vue'
@@ -53,7 +54,40 @@ import MutualOrderbook from '@/views/Dashboard/mutualfund/MutualOrderbook.vue'
 import IpoOrderbook from '@/views/Dashboard/ipos/IpoOrderbook.vue'
 import BondsOrderbook from '@/views/Dashboard/bonds/BondsOrderbook.vue'
 
+const route = useRoute()
 const bodytab = ref(0)
+
+// Phase 8: Store security data for SIP tab integration
+let pendingSIPData = null
+
+// Phase 8: Handle route params and query for SIP tab integration
+function handleRouteParams() {
+    // Check if route has params or query (from buy/sell dialog navigation)
+    const params = route.params
+    const query = route.query
+    
+    // Combine params and query for security data
+    const securityData = { ...params, ...query }
+    
+    // Check if security data contains token or tsym
+    if (securityData && (securityData.token || securityData.tsym)) {
+        // Store security data for later use
+        pendingSIPData = {
+            token: securityData.token,
+            tsym: securityData.tsym,
+            exch: securityData.exch,
+            ls: securityData.ls || 1, // Lot size
+            ...securityData // Include any other params/query
+        }
+        
+        // Switch to SIP tab (index 4)
+        // The watch on bodytab will trigger the event once tab becomes active
+        bodytab.value = 4
+    } else if (route.path === '/orders/sip') {
+        // Direct navigation to SIP orders page
+        bodytab.value = 4
+    }
+}
 
 function onTabChange() {
     // reserved for future behaviors
@@ -64,7 +98,32 @@ function onOrderTab(e) {
     if ([0,1,2,3,4,5,6,7].includes(tab)) bodytab.value = tab
 }
 
+// Phase 8: Watch for route changes to handle SIP tab navigation
+watch(() => [route.params, route.query, route.path], () => {
+    handleRouteParams()
+}, { deep: true })
+
+// Phase 8: Watch for tab changes to trigger SIP dialog when tab becomes active
+watch(bodytab, (newTab) => {
+    // If SIP tab (4) becomes active and we have pending SIP data, trigger dialog
+    if (newTab === 4 && pendingSIPData) {
+        // Wait for component to mount and be ready
+        setTimeout(() => {
+            if (pendingSIPData) {
+                window.dispatchEvent(new CustomEvent('siporder-trigger', {
+                    detail: pendingSIPData
+                }))
+                // Clear after use to prevent duplicate events
+                pendingSIPData = null
+            }
+        }, 500)
+    }
+})
+
 onMounted(() => {
+    // Phase 8: Handle route params on mount
+    handleRouteParams()
+    
     // support external triggers similar to old EventBus
     window.addEventListener('order-tab', onOrderTab)
 })

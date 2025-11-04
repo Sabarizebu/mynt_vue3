@@ -1,19 +1,30 @@
 /* Dark theme styles */
 :root {
-  --primary: #2196F3;
-  --secondary: #424242;
+  --primary: #2E65F6;
+  --secondary: #2E65F6;
   --accent: #FF4081;
   --error: #FF5252;
   --info: #2196F3;
   --success: #4CAF50;
   --warning: #FFC107;
-  --mainbg: #121212;
-  --secbg: #1e1e1e;
-  --maintext: #ffffff;
-  --subtext: #cccccc;
-  --cardbg: #1e1e1e;
-  --btnclr: #2196F3;
-  --btntext: #ffffff;
+  --mainbg: #000;
+  --maintext: #fff;
+  --secbg: #1E1E1E;
+  --subtext: #999999;
+  --outline: #222222;
+  --subline: #EBEEF0;
+  --mainred: #FF1717;
+  --maingreen: #1BBC00;
+  --secred: #FF17173a;
+  --secgreen: #49c5333a;
+  --cardbg: #121212;
+  --btnclr: #B0BEC5;
+  --btntext: #000;
+  --statcard: #1E1E1E;
+  --appbar-elevation: 0px 1px 15px 0px rgba(230, 230, 233, 0.07), 0px 5px 22px 0px rgba(70, 70, 70, 0.05);
+  --wl-elevation: 0px 1px 15px 0px rgba(230, 230, 233, 0.04), 0px 5px 22px 0px rgba(70, 70, 70, 0.02);
+  --primhover: #2E65F61a;
+  --loaderbg: rgba(0, 0, 0, 0.12);
 }
 
 /* Tenon Font Family */
