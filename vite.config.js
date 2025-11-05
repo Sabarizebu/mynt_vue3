@@ -18,5 +18,21 @@ export default defineConfig({
   server: {
     port: 8080,
     host: true
+  },
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    sourcemap: false,
+    minify: 'terser',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vue-vendor': ['vue', 'vue-router', 'pinia'],
+          'vuetify-vendor': ['vuetify'],
+          'chart-vendor': ['echarts', 'chart.js', 'lightweight-charts']
+        }
+      }
+    },
+    chunkSizeWarningLimit: 1000
   }
 })

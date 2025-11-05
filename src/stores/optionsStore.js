@@ -146,8 +146,43 @@ export const useOptionsStore = defineStore('options', () => {
   }
   
   const updateColumnVisibility = () => {
-    // This will be implemented in Phase 3
     // Calculate table width and column count based on visible columns
+    // This is called from the component's simpleTablestyle() function
+    let columnCount = 0
+
+    // Base columns (always visible)
+    columnCount += 2 // VOL
+    columnCount += 2 // OI
+    columnCount += 2 // CH
+    columnCount += 2 // LTP
+    columnCount += 4 // STRIKES
+
+    // Optional columns
+    if (bitcheckbox.value) columnCount += 1 // BID
+    if (askcheckbox.value) columnCount += 1 // ASK
+    if (ivcheckbox.value) columnCount += 1 // IV
+
+    // Greeks (optional)
+    if (thetacheckbox.value) columnCount += 1 // THETA
+    if (vagacheckbox.value) columnCount += 1 // VEGA
+    if (gamacheckbox.value) columnCount += 1 // GAMA
+    if (deltacheckbox.value) columnCount += 1 // DELTA
+
+    // Update column count for header
+    opchtablehead.value = columnCount
+
+    // Update table width based on column count
+    const baseWidth = 400 // Base width for strike price and fixed columns
+    const columnWidth = 60 // Average column width
+    const calculatedWidth = baseWidth + (columnCount * columnWidth)
+
+    if (calculatedWidth > (typeof window !== 'undefined' ? window.innerWidth - 100 : 1200)) {
+      simtblwidth.value = '100%'
+      simtblscroll.value = 'auto'
+    } else {
+      simtblwidth.value = `${calculatedWidth}px`
+      simtblscroll.value = 'hidden'
+    }
   }
   
   const loadColumnSettings = (uid) => {
