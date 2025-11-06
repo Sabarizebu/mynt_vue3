@@ -1,0 +1,72 @@
+{
+  "id": "preset-day-trading",
+  "name": "Day Trading",
+  "description": "Fast-paced layout for day trading with large chart, level 2 order book, and quick order entry",
+  "category": "trading",
+  "widgets": [
+    {
+      "id": "chart-1",
+      "type": "chart",
+      "title": "Chart",
+      "icon": "mdi-chart-line",
+      "x": 0,
+      "y": 0,
+      "width": 896,
+      "height": 600,
+      "zIndex": 1,
+      "instrument": null,
+      "timeframe": "5",
+      "chartType": "candlestick",
+      "indicators": ["SMA", "RSI"]
+    },
+    {
+      "id": "orderbook-1",
+      "type": "orderbook",
+      "title": "Level 2 Order Book",
+      "icon": "mdi-book-open-variant",
+      "x": 896,
+      "y": 0,
+      "width": 384,
+      "height": 600,
+      "zIndex": 2,
+      "instrument": null
+    },
+    {
+      "id": "tradebook-1",
+      "type": "tradebook",
+      "title": "Recent Trades",
+      "icon": "mdi-swap-horizontal",
+      "x": 0,
+      "y": 600,
+      "width": 320,
+      "height": 300,
+      "zIndex": 3,
+      "instrument": null
+    },
+    {
+      "id": "orderwindow-1",
+      "type": "orderwindow",
+      "title": "Quick Order Entry",
+      "icon": "mdi-cart",
+      "x": 320,
+      "y": 600,
+      "width": 320,
+      "height": 300,
+      "zIndex": 4,
+      "instrument": null
+    },
+    {
+      "id": "positions-1",
+      "type": "positions",
+      "title": "Positions Summary",
+      "icon": "mdi-chart-line",
+      "x": 640,
+      "y": 600,
+      "width": 640,
+      "height": 300,
+      "zIndex": 5,
+      "instrument": null
+    }
+  ]
+}
+

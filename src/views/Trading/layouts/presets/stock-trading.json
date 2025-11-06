@@ -1,0 +1,72 @@
+{
+  "id": "preset-stock-trading",
+  "name": "Stock Trading",
+  "description": "Optimized layout for stock trading with chart, order book, and order window",
+  "category": "trading",
+  "widgets": [
+    {
+      "id": "chart-1",
+      "type": "chart",
+      "title": "Chart",
+      "icon": "mdi-chart-line",
+      "x": 0,
+      "y": 0,
+      "width": 960,
+      "height": 600,
+      "zIndex": 1,
+      "instrument": null,
+      "timeframe": "1D",
+      "chartType": "candlestick",
+      "indicators": ["SMA"]
+    },
+    {
+      "id": "orderbook-1",
+      "type": "orderbook",
+      "title": "Order Book",
+      "icon": "mdi-book-open-variant",
+      "x": 960,
+      "y": 0,
+      "width": 320,
+      "height": 300,
+      "zIndex": 2,
+      "instrument": null
+    },
+    {
+      "id": "orderwindow-1",
+      "type": "orderwindow",
+      "title": "Order Window",
+      "icon": "mdi-cart",
+      "x": 960,
+      "y": 300,
+      "width": 320,
+      "height": 300,
+      "zIndex": 3,
+      "instrument": null
+    },
+    {
+      "id": "marketwatch-1",
+      "type": "marketwatch",
+      "title": "Marketwatch",
+      "icon": "mdi-view-dashboard",
+      "x": 0,
+      "y": 600,
+      "width": 640,
+      "height": 300,
+      "zIndex": 4,
+      "activeTab": "watchlist"
+    },
+    {
+      "id": "positions-1",
+      "type": "positions",
+      "title": "Open Positions",
+      "icon": "mdi-chart-line",
+      "x": 640,
+      "y": 600,
+      "width": 640,
+      "height": 300,
+      "zIndex": 5,
+      "instrument": null
+    }
+  ]
+}
+

@@ -1,0 +1,62 @@
+{
+  "name": "Options Trading",
+  "description": "Optimized layout for options trading with options chain, Greeks calculator, and positions",
+  "widgets": [
+    {
+      "id": "options-chain-1",
+      "type": "orderbook",
+      "title": "Options Chain",
+      "icon": "mdi-view-grid",
+      "x": 0,
+      "y": 0,
+      "width": 400,
+      "height": 600,
+      "zIndex": 1
+    },
+    {
+      "id": "chart-1",
+      "type": "chart",
+      "title": "Price Chart",
+      "icon": "mdi-chart-line",
+      "x": 400,
+      "y": 0,
+      "width": 800,
+      "height": 400,
+      "zIndex": 2
+    },
+    {
+      "id": "orderwindow-1",
+      "type": "orderwindow",
+      "title": "Order Window",
+      "icon": "mdi-window-open",
+      "x": 400,
+      "y": 400,
+      "width": 400,
+      "height": 200,
+      "zIndex": 3
+    },
+    {
+      "id": "calculator-1",
+      "type": "calculator",
+      "title": "Greeks Calculator",
+      "icon": "mdi-calculator",
+      "x": 800,
+      "y": 400,
+      "width": 400,
+      "height": 200,
+      "zIndex": 4
+    },
+    {
+      "id": "positions-1",
+      "type": "positions",
+      "title": "Positions",
+      "icon": "mdi-chart-line",
+      "x": 0,
+      "y": 600,
+      "width": 1200,
+      "height": 400,
+      "zIndex": 5
+    }
+  ]
+}
+
