@@ -126,7 +126,7 @@
 
                 <v-text-field v-if="tab === 'stocks'" v-model="opensearch" prepend-inner-icon="mdi-magnify"
                     label="Search" variant="solo-filled" color="primary" density="comfortable" hide-details
-                    class="rounded-pill mr-4" style="max-width: 220px; background-color: var(--secbg);" />
+                    class="rounded-pill mr-4" style="max-width: 220px; background-color: #F1F3F8;" />
 
 
                 <v-select v-if="tab === 'stocks'" style="max-width: 160px" v-model="exchtype" hide-details
@@ -143,7 +143,7 @@
             <!-- Stocks Table -->
             <div v-if="tab === 'stocks'">
                 <v-data-table :headers="tableHeaders" :items="searchedHoldings" :loading="loading"
-                    class="mt-3 rounded-lg overflow-y-auto" style="border-radius: 4px; border: 1px solid var(--outline)"
+                    class="mt-3 rounded-lg overflow-y-auto" style="border-radius: 4px; border: 1px solid #EBEEF0"
                     height="480px" hide-default-footer fixed-header :item-value="'tokn'" :items-per-page="-1"
                     @click:row="(e, { item }) => setHoldingrowdata(item?.raw || item)">
                     <template #item.tsym="{ item }">
@@ -163,7 +163,7 @@
                                     class="px-0 font-weight-bold white--text elevation-0 mr-1" size="x-small"> S
                                 </v-btn>
                                 <v-btn @click.stop="setSSDtab('chart', item.token, item.exch, item.tsym)"
-                                    style="border: 1px solid var(--outline)" min-width="20px" color="mainbg"
+                                    style="border: 1px solid #EBEEF0" min-width="20px" color="mainbg"
                                     class="px-0 font-weight-bold elevation-0 mr-1" size="x-small">
                                     <v-icon size="18" color="maintext">mdi-chart-line-variant</v-icon>
                                 </v-btn>
@@ -172,7 +172,7 @@
                                         <div v-bind="props">
                                             <v-btn
                                                 @click.stop="setSSDtab('exit-order', item.token, item.exch, item.tsym, item.netqty < 0 ? 'b' : 's', item)"
-                                                style="border: 1px solid var(--outline)" min-width="20px" color="mainbg"
+                                                style="border: 1px solid #EBEEF0" min-width="20px" color="mainbg"
                                                 class="px-0 font-weight-bold elevation-0 mr-1" size="x-small">
                                                 <v-icon size="18" color="maintext">mdi-close</v-icon>
                                             </v-btn>
@@ -182,7 +182,7 @@
                                 </v-tooltip>
                                 <v-menu close-on-click location="bottom" offset-y class="table-menu">
                                     <template #activator="{ props }">
-                                        <v-btn v-bind="props" style="border: 1px solid var(--outline)" min-width="20px"
+                                        <v-btn v-bind="props" style="border: 1px solid #EBEEF0" min-width="20px"
                                             color="mainbg" class="px-0 font-weight-bold elevation-0 mr-1"
                                             size="x-small">
                                             <v-icon size="20" color="maintext">mdi-dots-horizontal</v-icon>
@@ -259,7 +259,7 @@
             <!-- MF Table -->
             <div v-else-if="tab === 'mutual'">
                 <v-data-table :headers="mfHeaders" :items="mfholdings" :loading="mfLoading"
-                    class="mt-3 rounded-lg overflow-y-auto" style="border-radius: 4px; border: 1px solid var(--outline)"
+                    class="mt-3 rounded-lg overflow-y-auto" style="border-radius: 4px; border: 1px solid #EBEEF0"
                     height="480px" hide-default-footer fixed-header :items-per-page="-1"
                     @click:row="(e, { item }) => setHoldingrowdata(item?.raw || item)">
                     <template #item.name="{ item }">

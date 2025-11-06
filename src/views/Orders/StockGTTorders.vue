@@ -9,7 +9,7 @@
         </v-toolbar>
 
         <v-data-table fixed-header :hide-default-footer="true" :loading="loading"
-            class="mt-3 rounded-lg overflow-y-auto" style="border-radius: 4px; border: 1px solid var(--outline)"
+            class="mt-3 rounded-lg overflow-y-auto" style="border-radius: 4px; border: 1px solid #EBEEF0"
             height="480" :headers="headers" :items="searchedItems" :items-per-page="-1">
 
             <template #item.tsym="{ item }">

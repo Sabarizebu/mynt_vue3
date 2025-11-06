@@ -25,7 +25,7 @@
         <!-- Main Order Dialog -->
         <v-card v-if="orderDialog" id="maindiv"
             :class="['pb-5 overflow-hidden rounded-lg', isStickyDialog ? 'sticky-dialog' : '']" :style="dialogStyle"
-            color="cardbg" width="540px">
+            color="cardbg" width="540px" height="auto">
             <v-card id="maindivheader" :loading="isPlacingOrder" class="elevation-0 rounded-b-0 pt-4 pb-2"
                 :color="!buyOrSellIsSell ? 'secgreen' : 'secred'">
                 <v-toolbar class="elevation-0 crd-trn px-2" density="compact">
@@ -35,7 +35,7 @@
                                 '' }}</span>
                         </v-list-item-title>
                         <v-list-item-title class="maintext--text font-weight-bold fs-14 mb-1">₹<span>{{ ltpDisplay
-                        }}</span>
+                                }}</span>
                             <span class="fs-12 ml-2" :class="chColor">{{ chDisplay }} ({{ chpDisplay }}%)</span>
                         </v-list-item-title>
                     </v-list-item>
@@ -171,13 +171,202 @@
 
                     <!-- GTT Fields -->
                     <div v-if="orderType === 3" class="mt-2">
-                        <div class="d-flex">
-                            <v-select class="mr-2" density="compact" variant="flat" bg-color="secbg" :items="['LTP']"
-                                v-model="gttAlertType" label="Alert Type" hide-details />
-                            <v-select class="mr-2" density="compact" variant="flat" bg-color="secbg" :items="['>', '<']"
-                                v-model="gttCond" label="Condition" hide-details />
-                            <v-text-field density="compact" variant="flat" bg-color="secbg" v-model.number="gttValue"
-                                type="number" label="Trigger Value" hide-details />
+                        <!-- Price Type Selection for GTT (like old app) -->
+                        <p class="subtext--text fs-14 font-weight-regular mb-2">Select order type</p>
+                        <v-chip-group v-model="priceType" @update:model-value="onOrderTypeChanged" row class="mb-3">
+                            <v-chip value="LMT" :color="priceType === 'LMT' ? 'maintext' : 'secbg'"
+                                :text-color="priceType === 'LMT' ? 'mainbg' : 'maintext'">Limit</v-chip>
+                            <v-chip value="MKT" :color="priceType === 'MKT' ? 'maintext' : 'secbg'"
+                                :text-color="priceType === 'MKT' ? 'mainbg' : 'maintext'">Market</v-chip>
+                            <v-chip value="SL-LMT" :color="priceType === 'SL-LMT' ? 'maintext' : 'secbg'"
+                                :text-color="priceType === 'SL-LMT' ? 'mainbg' : 'maintext'">SL Limit</v-chip>
+                            <v-chip value="SL-MKT" :color="priceType === 'SL-MKT' ? 'maintext' : 'secbg'"
+                                :text-color="priceType === 'SL-MKT' ? 'mainbg' : 'maintext'">SL Mkt</v-chip>
+                        </v-chip-group>
+                        <v-divider class="mb-2"></v-divider>
+                        <v-row no-gutters>
+                            <v-col cols="4" class="pb-2 pr-1">
+                                <p class="font-weight-regular fs-14 subtext--text mb-2">Alert</p>
+                                <v-select density="compact" variant="flat" bg-color="secbg" class="rounded-pill"
+                                    :items="gttCond === '>' ? gttAlertItemsSO : gttAlertItemsST" :disabled="gttOCOPanel"
+                                    @update:model-value="gttAlertType === 'VOLUME' ? (gttCond = '>') : ''"
+                                    v-model="gttAlertType" hide-details />
+                            </v-col>
+                            <v-col cols="4" class="pb-2 px-1">
+                                <p class="font-weight-regular fs-14 subtext--text mb-2">Condition</p>
+                                <v-select density="compact" variant="flat" bg-color="secbg" class="rounded-pill"
+                                    :items="gttConItems" :disabled="gttOCOPanel || gttAlertType === 'VOLUME'"
+                                    v-model="gttCond" hide-details />
+                            </v-col>
+                            <v-col cols="4" class="pb-2 pl-1">
+                                <p class="font-weight-regular fs-14 subtext--text mb-2">Value</p>
+                                <v-text-field density="compact" variant="flat" bg-color="secbg" class="rounded-pill"
+                                    v-model.number="gttValue" type="number" min="0" hide-spin-buttons hide-details />
+                            </v-col>
+                        </v-row>
+                        <v-divider class="mb-2 mt-2"></v-divider>
+                        <v-row no-gutters>
+                            <v-col cols="4" class="pb-2 pr-1">
+                                <p class="font-weight-regular fs-14 subtext--text mb-2">Quantity</p>
+                                <v-text-field density="compact" variant="flat" bg-color="secbg" class="rounded-pill"
+                                    v-model.number="gttQty" type="number" :min="menudata[0]?.ls || 1"
+                                    :step="menudata[0]?.ls || 1" hide-spin-buttons hide-details>
+                                    <template #append>
+                                        <v-btn @click="gttQty = Number(gttQty) + Number(menudata[0]?.ls || 1)" icon
+                                            class="elevation-0">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none">
+                                                <circle cx="12" cy="12" r="12" fill="white" />
+                                                <path d="M12 8V16" stroke="#999999" stroke-width="2"
+                                                    stroke-linecap="round" />
+                                                <path d="M16 12L8 12" stroke="#999999" stroke-width="2"
+                                                    stroke-linecap="round" />
+                                            </svg>
+                                        </v-btn>
+                                    </template>
+                                    <template #prepend-inner>
+                                        <v-btn
+                                            @click="gttQty == (menudata[0]?.ls || 1) ? gttQty : (gttQty = Number(gttQty) - Number(menudata[0]?.ls || 1))"
+                                            icon class="elevation-0">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none">
+                                                <circle cx="12" cy="12" r="12" fill="white" />
+                                                <path d="M16 12L8 12" stroke="#999999" stroke-width="2"
+                                                    stroke-linecap="round" />
+                                            </svg>
+                                        </v-btn>
+                                    </template>
+                                </v-text-field>
+                            </v-col>
+                            <v-col cols="4" class="pb-2 px-1">
+                                <p class="font-weight-regular fs-14 subtext--text mb-2">Price</p>
+                                <v-text-field density="compact" variant="flat" bg-color="secbg" class="rounded-pill"
+                                    :disabled="priceType === 'MKT' || priceType === 'SL-MKT'" v-model.number="gttPrice"
+                                    type="number" min="0" hide-spin-buttons hide-details
+                                    @input="computeMarginAndBrokerage">
+                                    <template #append>
+                                        <svg v-if="priceType === 'MKT' || priceType === 'SL-MKT'"
+                                            xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                            viewBox="0 0 14 14" fill="none">
+                                            <path
+                                                d="M10.0625 4.8125H9.1875V3.0625C9.1875 1.85456 8.20794 0.875 7 0.875C5.79206 0.875 4.8125 1.85456 4.8125 3.0625V4.8125H3.9375V3.0625C3.9375 1.37112 5.30862 0 7 0C8.69137 0 10.0625 1.37112 10.0625 3.0625V4.8125Z"
+                                                fill="#999999" />
+                                            <path
+                                                d="M11.5938 5.6875H2.40625C1.80206 5.6875 1.3125 6.17706 1.3125 6.78125V12.9062C1.3125 13.5104 1.80206 14 2.40625 14H11.5938C12.1979 14 12.6875 13.5104 12.6875 12.9062V6.78125C12.6875 6.17706 12.1979 5.6875 11.5938 5.6875ZM7.4375 10.8754V11.8125C7.4375 12.054 7.2415 12.25 7 12.25C6.7585 12.25 6.5625 12.054 6.5625 11.8125V10.8754C5.62669 10.6339 5.06406 9.67925 5.30556 8.74344C5.54706 7.80763 6.50169 7.245 7.4375 7.4865C8.37331 7.728 8.93594 8.68263 8.69444 9.61844C8.53519 10.2349 8.05394 10.7161 7.4375 10.8754Z"
+                                                fill="#999999" />
+                                        </svg>
+                                    </template>
+                                </v-text-field>
+                            </v-col>
+                            <v-col v-if="priceType === 'SL-LMT' || priceType === 'SL-MKT'" cols="4" class="pb-2 pl-1">
+                                <p class="font-weight-regular fs-14 subtext--text mb-2">Trigger</p>
+                                <v-text-field density="compact" variant="flat" bg-color="secbg" class="rounded-pill"
+                                    v-model.number="gttTriggerPrice" type="number" min="0" hide-spin-buttons
+                                    hide-details />
+                            </v-col>
+                        </v-row>
+                        <v-divider class="mb-2 mt-2"></v-divider>
+                        <!-- OCO Panel Toggle -->
+                        <v-btn class="font-weight-bold mb-2" :color="gttOCOPanel ? 'primary' : 'maintext'"
+                            variant="text" height="40px" block
+                            @click="gttOCOPanel = !gttOCOPanel; if (gttOCOPanel) { gttAlertType = 'LTP'; gttCond = '>'; } else { gttAlertType = 'LTP'; gttCond = '<'; }">
+                            OCO
+                            <v-icon class="ml-auto">{{ gttOCOPanel ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
+                        </v-btn>
+                        <!-- OCO Panel -->
+                        <div v-if="gttOCOPanel" class="mt-2">
+                            <p class="subtext--text fs-14 font-weight-regular mb-2">Select order type</p>
+                            <v-chip-group v-model="ocoPriceType" @update:model-value="computeMarginAndBrokerage" row
+                                class="mb-3">
+                                <v-chip value="LMT" :color="ocoPriceType === 'LMT' ? 'maintext' : 'secbg'"
+                                    :text-color="ocoPriceType === 'LMT' ? 'mainbg' : 'maintext'">Limit</v-chip>
+                                <v-chip value="MKT" :color="ocoPriceType === 'MKT' ? 'maintext' : 'secbg'"
+                                    :text-color="ocoPriceType === 'MKT' ? 'mainbg' : 'maintext'">Market</v-chip>
+                                <v-chip value="SL-LMT" :color="ocoPriceType === 'SL-LMT' ? 'maintext' : 'secbg'"
+                                    :text-color="ocoPriceType === 'SL-LMT' ? 'mainbg' : 'maintext'">SL Limit</v-chip>
+                                <v-chip value="SL-MKT" :color="ocoPriceType === 'SL-MKT' ? 'maintext' : 'secbg'"
+                                    :text-color="ocoPriceType === 'SL-MKT' ? 'mainbg' : 'maintext'">SL Mkt</v-chip>
+                            </v-chip-group>
+                            <v-row no-gutters>
+                                <v-col cols="4" class="pb-2 pr-1">
+                                    <p class="font-weight-regular fs-14 subtext--text mb-2">Alert</p>
+                                    <v-select density="compact" variant="flat" bg-color="secbg" class="rounded-pill"
+                                        :items="['LTP']" value="LTP" disabled hide-details />
+                                </v-col>
+                                <v-col cols="4" class="pb-2 px-1">
+                                    <p class="font-weight-regular fs-14 subtext--text mb-2">Condition</p>
+                                    <v-select density="compact" variant="flat" bg-color="secbg" class="rounded-pill"
+                                        :items="['<']" value="<" disabled hide-details />
+                                </v-col>
+                                <v-col cols="4" class="pb-2 pl-1">
+                                    <p class="font-weight-regular fs-14 subtext--text mb-2">Value</p>
+                                    <v-text-field density="compact" variant="flat" bg-color="secbg" class="rounded-pill"
+                                        v-model.number="ocoValue" type="number" min="0" hide-spin-buttons
+                                        hide-details />
+                                </v-col>
+                            </v-row>
+                            <v-divider class="mb-2 mt-2"></v-divider>
+                            <v-row no-gutters>
+                                <v-col cols="4" class="pb-2 pr-1">
+                                    <p class="font-weight-regular fs-14 subtext--text mb-2">Quantity</p>
+                                    <v-text-field density="compact" variant="flat" bg-color="secbg" class="rounded-pill"
+                                        v-model.number="ocoQty" type="number" :min="menudata[0]?.ls || 1"
+                                        :step="menudata[0]?.ls || 1" hide-spin-buttons hide-details>
+                                        <template #append>
+                                            <v-btn @click="ocoQty = Number(ocoQty) + Number(menudata[0]?.ls || 1)" icon
+                                                class="elevation-0">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none">
+                                                    <circle cx="12" cy="12" r="12" fill="white" />
+                                                    <path d="M12 8V16" stroke="#999999" stroke-width="2"
+                                                        stroke-linecap="round" />
+                                                    <path d="M16 12L8 12" stroke="#999999" stroke-width="2"
+                                                        stroke-linecap="round" />
+                                                </svg>
+                                            </v-btn>
+                                        </template>
+                                        <template #prepend-inner>
+                                            <v-btn
+                                                @click="ocoQty == (menudata[0]?.ls || 1) ? ocoQty : (ocoQty = Number(ocoQty) - Number(menudata[0]?.ls || 1))"
+                                                icon class="elevation-0">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none">
+                                                    <circle cx="12" cy="12" r="12" fill="white" />
+                                                    <path d="M16 12L8 12" stroke="#999999" stroke-width="2"
+                                                        stroke-linecap="round" />
+                                                </svg>
+                                            </v-btn>
+                                        </template>
+                                    </v-text-field>
+                                </v-col>
+                                <v-col cols="4" class="pb-2 px-1">
+                                    <p class="font-weight-regular fs-14 subtext--text mb-2">Price</p>
+                                    <v-text-field density="compact" variant="flat" bg-color="secbg" class="rounded-pill"
+                                        :disabled="ocoPriceType === 'MKT' || ocoPriceType === 'SL-MKT'"
+                                        v-model.number="ocoPrice" type="number" :min="menudata[1]?.lc || 0"
+                                        :max="menudata[1]?.uc || 999999" hide-spin-buttons hide-details>
+                                        <template #append>
+                                            <svg v-if="ocoPriceType === 'MKT' || ocoPriceType === 'SL-MKT'"
+                                                xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                                viewBox="0 0 14 14" fill="none">
+                                                <path
+                                                    d="M10.0625 4.8125H9.1875V3.0625C9.1875 1.85456 8.20794 0.875 7 0.875C5.79206 0.875 4.8125 1.85456 4.8125 3.0625V4.8125H3.9375V3.0625C3.9375 1.37112 5.30862 0 7 0C8.69137 0 10.0625 1.37112 10.0625 3.0625V4.8125Z"
+                                                    fill="#999999" />
+                                                <path
+                                                    d="M11.5938 5.6875H2.40625C1.80206 5.6875 1.3125 6.17706 1.3125 6.78125V12.9062C1.3125 13.5104 1.80206 14 2.40625 14H11.5938C12.1979 14 12.6875 13.5104 12.6875 12.9062V6.78125C12.6875 6.17706 12.1979 5.6875 11.5938 5.6875ZM7.4375 10.8754V11.8125C7.4375 12.054 7.2415 12.25 7 12.25C6.7585 12.25 6.5625 12.054 6.5625 11.8125V10.8754C5.62669 10.6339 5.06406 9.67925 5.30556 8.74344C5.54706 7.80763 6.50169 7.245 7.4375 7.4865C8.37331 7.728 8.93594 8.68263 8.69444 9.61844C8.53519 10.2349 8.05394 10.7161 7.4375 10.8754Z"
+                                                    fill="#999999" />
+                                            </svg>
+                                        </template>
+                                    </v-text-field>
+                                </v-col>
+                                <v-col v-if="ocoPriceType === 'SL-LMT' || ocoPriceType === 'SL-MKT'" cols="4"
+                                    class="pb-2 pl-1">
+                                    <p class="font-weight-regular fs-14 subtext--text mb-2">Trigger</p>
+                                    <v-text-field density="compact" variant="flat" bg-color="secbg" class="rounded-pill"
+                                        v-model.number="ocoTriggerPrice" type="number" min="0" hide-spin-buttons
+                                        hide-details />
+                                </v-col>
+                            </v-row>
                         </div>
                     </div>
 
@@ -227,13 +416,24 @@
                         </v-checkbox>
                     </div>
 
+                    <!-- Market Protection % (shown when price type is MKT or SL-MKT) -->
+                    <div v-if="orderType !== 3 && orderType !== 4 && (priceType === 'MKT' || priceType === 'SL-MKT')"
+                        class="mt-3">
+                        <v-divider class="mb-3"></v-divider>
+                        <p class="font-weight-regular fs-14 subtext--text mb-2">Market Protection %</p>
+                        <v-text-field density="compact" bg-color="secbg" variant="flat" class="rounded-pill"
+                            v-model.number="marketProtection" type="number" min="0" max="20" step="0.01"
+                            hide-spin-buttons hide-details="auto" persistent-hint hint="Enter a value between 1 to 20"
+                            @input="handleMarketProtectionInput" @blur="validateMarketProtectionOnBlur" />
+                    </div>
+
                     <!-- Quick Order Link -->
                     <div class="mt-3">
                         <v-btn text block color="primary" variant="text" class="rounded-pill text-none"
                             @click="isQuickOrder = !isQuickOrder">
                             {{ !isQuickOrder ? 'Quick order ' : 'Advanced order ' }}
                             <v-icon size="16">{{ isQuickOrder ? 'mdi-chevron-double-left' : 'mdi-chevron-double-right'
-                            }}</v-icon>
+                                }}</v-icon>
                         </v-btn>
                     </div>
 
@@ -267,29 +467,40 @@
             </div>
 
             <v-divider></v-divider>
-            <div class="px-6 py-3">
+            <!-- Button Section for Regular/Cover/Bracket orders -->
+            <div v-if="orderType !== 3" class="px-6 py-3">
                 <v-row no-gutters>
                     <v-col cols="6" class="pr-2">
-                        <v-btn block @click.stop.prevent="closeOrderDialog()" @mousedown.stop.prevent color="secbg"
-                            :disabled="isPlacingOrder" class="text-none rounded-pill elevation-0 subtext--text"
-                            height="40px">Cancel</v-btn>
+                        <v-btn block @click="closeOrderDialog" color="secbg" :disabled="isPlacingOrder"
+                            class="text-none rounded-pill elevation-0 subtext--text" height="40px">Cancel</v-btn>
                     </v-col>
                     <v-col cols="6" class="pl-2">
-                        <v-btn block @click.stop.prevent="placeOrder()" @mousedown.stop.prevent
-                            :loading="isPlacingOrder" :color="buyOrSellIsSell ? 'mainred' : 'maingreen'"
+                        <v-btn block @click="placeOrder" :loading="isPlacingOrder"
+                            :color="buyOrSellIsSell ? 'mainred' : 'maingreen'"
                             class="text-none rounded-pill elevation-0 white--text" height="40px">
-                            {{ buyOrSellIsSell ? 'Sell' : 'Buy' }}
+                            {{ orderContextType === 'mod-order' ? 'Modify' : buyOrSellIsSell ? 'Sell' : 'Buy' }}
                         </v-btn>
                     </v-col>
                 </v-row>
             </div>
+            <!-- Button Section for GTT orders -->
+            <v-toolbar v-else class="tool-sty elevation-0 pt-4 mb-3 px-6" color="cardbg" density="compact">
+                <v-spacer></v-spacer>
+                <v-btn @click="closeOrderDialog" color="secbg" :disabled="isPlacingOrder"
+                    class="text-none rounded-pill elevation-0 subtext--text px-6" height="40px">Cancel</v-btn>
+                <v-btn @click="placeOrder" :loading="isPlacingOrder" :disabled="false"
+                    :color="buyOrSellIsSell ? 'mainred' : 'maingreen'"
+                    class="text-none rounded-pill elevation-0 white--text px-6 ml-4" height="40px">
+                    {{ orderContextType === 'mod-GTT' ? 'Modify' : 'Create' }} {{ gttOCOPanel ? 'OCO' : 'GTT' }}
+                </v-btn>
+            </v-toolbar>
         </v-card>
     </div>
 
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAppStore } from '@/stores/appStore'
 import { getQuotesdata, getSecuritydata, getPlaceOrder, getOrderMargin, getBrokerage, setOrdprefApi, getGTTPlaceOrder } from '@/components/mixins/getAPIdata'
@@ -312,6 +523,20 @@ const isPlacingOrder = ref(false)
 const gttAlertType = ref('LTP')
 const gttCond = ref('>')
 const gttValue = ref(0)
+const gttQty = ref(1)
+const gttPrice = ref(null)
+const gttTriggerPrice = ref(null)
+const gttOCOPanel = ref(false)
+// GTT Alert Items
+const gttAlertItemsSO = ref(['LTP', 'Perc. change', 'ATP', 'OI', 'TOI', '52HIGH', 'VOLUME'])
+const gttAlertItemsST = ref(['LTP', 'Perc. change', 'ATP', 'OI', 'TOI', '52LOW'])
+const gttConItems = ref(['>', '<'])
+// OCO (One-Cancel-Other)
+const ocoPrice = ref(null)
+const ocoQty = ref(1)
+const ocoTriggerPrice = ref(null)
+const ocoPriceType = ref('LMT')
+const ocoValue = ref(0)
 const stopLossPrice = ref(0)
 const targetPrice = ref(0)
 const disclosedQty = ref(0)
@@ -325,6 +550,9 @@ const dialogStyle = ref({})
 const addValidityQty = ref(false)
 const validityType = ref('DAY')
 const charges = ref(0)
+// Guard flags to prevent duplicate dialog opening
+const isOpeningDialog = ref(false)
+let eventListenerAdded = false
 
 const appStore = useAppStore()
 
@@ -344,6 +572,62 @@ const cashAvailable = ref(0)
 const orderMarginDisplay = computed(() => Number(orderMargin.value || 0).toFixed(2))
 const cashAvailableDisplay = computed(() => Number(cashAvailable.value || 0).toFixed(2))
 const chargesDisplay = computed(() => Number(charges.value || 0).toFixed(2))
+
+function handleMarketProtectionInput() {
+    // Allow dynamic input - user can type freely (like price input)
+    // Validation will be done on blur and on order placement
+    const value = Number(marketProtection.value)
+
+    // Handle negative values - set to 0 and show warning
+    if (!isNaN(value) && value < 0) {
+        marketProtection.value = 0
+        appStore.showSnackbar(2, 'Market Protection cannot be negative. Set to 0')
+        return
+    }
+
+    // Handle values above 20 - set to 20 and show warning
+    if (!isNaN(value) && value > 20) {
+        marketProtection.value = 20
+        appStore.showSnackbar(2, 'Market Protection cannot exceed 20%. Set to maximum: 20%')
+        computeMarginAndBrokerage()
+        return
+    }
+
+    // Show warning if value is 0 (but allow typing)
+    if (!isNaN(value) && value === 0 && value !== '' && value !== null) {
+        // Don't auto-correct while typing, just show warning
+        appStore.showSnackbar(2, 'Market Protection must be above zero')
+    }
+
+    // Recalculate margin only if value is valid (0 < value <= 20)
+    if (!isNaN(value) && value > 0 && value <= 20) {
+        computeMarginAndBrokerage()
+    }
+}
+
+function validateMarketProtectionOnBlur() {
+    // Validate on blur - show warning if invalid (like price input validation)
+    const value = Number(marketProtection.value)
+
+    if (isNaN(value) || value === null || value === '' || value <= 0) {
+        // Empty, invalid, or <= 0 - set to default
+        marketProtection.value = 5
+        appStore.showSnackbar(2, 'Market Protection must be above zero.')
+        computeMarginAndBrokerage()
+        return
+    }
+
+    if (value > 20) {
+        // Value above 20 - set to maximum
+        marketProtection.value = 20
+        appStore.showSnackbar(2, 'Market Protection cannot exceed 20%.')
+        computeMarginAndBrokerage()
+        return
+    }
+
+    // Valid value (0 < value <= 20) - just recalculate
+    computeMarginAndBrokerage()
+}
 
 async function computeMarginAndBrokerage() {
     const q = menudata.value[0]
@@ -436,8 +720,25 @@ async function handleMenuDialogEvent(event) {
     const { type, token, exch, tsym, trantype, item } = event.detail || {}
     if (!type || !token || !exch || !tsym) return
 
+    // Guard 1: Prevent duplicate opening if dialog is already opening
+    if (isOpeningDialog.value) {
+        console.warn('[StockOrderWindow] Dialog is already opening, ignoring duplicate event')
+        return
+    }
+
+    // Guard 2: If dialog is already open, close it first before opening with new data
+    if (orderDialog.value) {
+        console.log('[StockOrderWindow] Dialog already open, closing first...')
+        closeOrderDialog()
+        await nextTick()
+    }
+
+    // Guard 3: Set flag to prevent concurrent openings
+    isOpeningDialog.value = true
+
     // Handle cancel order directly (no dialog needed)
     if (type === 'cancel-order' && item) {
+        isOpeningDialog.value = false
         await cancelOrder(item)
         return
     }
@@ -468,6 +769,20 @@ async function handleMenuDialogEvent(event) {
         disclosedQty.value = 0
         afterMarket.value = false
         marketProtection.value = 5
+        // Reset GTT fields
+        gttQty.value = 1
+        gttPrice.value = null
+        gttTriggerPrice.value = null
+        gttOCOPanel.value = false
+        gttAlertType.value = 'LTP'
+        gttCond.value = '>'
+        gttValue.value = 0
+        // Reset OCO fields
+        ocoQty.value = 1
+        ocoPrice.value = null
+        ocoTriggerPrice.value = null
+        ocoPriceType.value = 'LMT'
+        ocoValue.value = 0
 
         // Modify / Re-order / Exit prefill
         if (item && (type === 'mod-order' || type === 're-order' || type === 'exit-order')) {
@@ -478,19 +793,51 @@ async function handleMenuDialogEvent(event) {
             buyOrSellIsSell.value = (item.trantype || '').toUpperCase() === 'S'
         }
 
-        // GTT modify prefill
+        // GTT modify prefill (like old app line 1299-1336)
         if (item && (type === 'mod-GTT' || type === 'order-GTT')) {
             if (type === 'mod-GTT') {
-                gttAlertType.value = item.alert_type || 'LTP'
-                gttCond.value = item.cond || '>'
-                gttValue.value = Number(item.value || 0)
-                quantity.value = Number(Math.abs(item.qty) / Number(q?.ls || 1)) || Number(q?.ls || 1)
-                price.value = (item.prctyp === 'MKT' || item.prctyp === 'SL-MKT') ? 0 : Number(item.prc || q?.lp || 0)
-                priceType.value = item.prctyp || 'LMT'
+                // Parse alert type from item.res.ai_t (like old app line 1301-1317)
+                const ai_t = item.res?.ai_t || ''
+                gttAlertType.value = ai_t.includes('LTP_') ? 'LTP' :
+                    ai_t.includes('CH_PER_') ? 'Perc. change' :
+                        ai_t.includes('ATP_') ? 'ATP' :
+                            ai_t.includes('OI_') ? 'OI' :
+                                ai_t.includes('TOI_') ? 'TOI' :
+                                    ai_t.includes('_52HIGH') ? '52HIGH' :
+                                        ai_t.includes('_52LOW') ? '52LOW' :
+                                            ai_t.includes('VOLUME_') ? 'VOLUME' : 'LTP'
+                gttCond.value = ai_t.includes('A_O') ? '>' : '<'
                 buyOrSellIsSell.value = (item.trantype || '').toUpperCase() === 'S'
+
+                if (item.res?.place_order_params) {
+                    gttValue.value = Number(item.res?.oivariable?.[0]?.d || item.value || 0)
+                    priceType.value = item.res.place_order_params.prctyp || 'LMT'
+                    investType.value = item.res.place_order_params.prd || investType.value
+                    gttQty.value = Number(item.res.place_order_params.qty) / Number(q?.ls || 1) || 1
+                    gttPrice.value = (item.res.place_order_params.prctyp === 'MKT' || item.res.place_order_params.prctyp === 'SL-MKT') ? 0 : Number(item.res.place_order_params.prc || 0)
+                    gttTriggerPrice.value = Number(item.res.place_order_params.trgprc || 0)
+                }
+
+                if (item.res?.place_order_params_leg2) {
+                    gttOCOPanel.value = true
+                    ocoValue.value = Number(item.res?.oivariable?.[1]?.d || 0)
+                    ocoPriceType.value = item.res.place_order_params_leg2.prctyp || 'LMT'
+                    ocoQty.value = Number(item.res.place_order_params_leg2.qty) / Number(q?.ls || 1) || 1
+                    ocoPrice.value = (item.res.place_order_params_leg2.prctyp === 'MKT' || item.res.place_order_params_leg2.prctyp === 'SL-MKT') ? 0 : Number(item.res.place_order_params_leg2.prc || 0)
+                    ocoTriggerPrice.value = Number(item.res.place_order_params_leg2.trgprc || 0)
+                }
+
                 orderType.value = 3
             } else if (type === 'order-GTT') {
                 orderType.value = 3
+                gttCond.value = '>'
+                gttOCOPanel.value = false
+                gttValue.value = 0
+                ocoValue.value = 0
+                gttAlertType.value = 'LTP'
+                gttQty.value = 1
+                ocoQty.value = 1
+                priceType.value = 'LMT'
             }
         }
 
@@ -507,13 +854,19 @@ async function handleMenuDialogEvent(event) {
         } catch (e) { }
 
         orderDialog.value = true
-        console.log(orderDialog.value)
+        console.log('[StockOrderWindow] Dialog opened')
         await nextTick()
         restoreDialogPosition()
         setupDragFunctionality()
         computeMarginAndBrokerage()
     } catch (e) {
         appStore.showSnackbar(2, 'Failed to open order window')
+        console.error('[StockOrderWindow] Error opening dialog:', e)
+    } finally {
+        // Clear the opening flag after a short delay
+        setTimeout(() => {
+            isOpeningDialog.value = false
+        }, 500)
     }
 }
 
@@ -589,44 +942,49 @@ function decreaseQuantity() {
 }
 
 function closeOrderDialog() {
-    // Clear any active drag handlers that might interfere
-    if (document.onmouseup) {
-        document.onmouseup = null
-    }
-    if (document.onmousemove) {
-        document.onmousemove = null
-    }
-
     // Set orderDialog to false immediately (do this first to close dialog immediately)
     orderDialog.value = false
 
-    // Reset all state after dialog is closed
-    menudata.value = []
-    quantity.value = 0
-    price.value = 0
-    buyOrSellIsSell.value = false
-    orderType.value = 0
-    investType.value = 'I'
-    priceType.value = 'LMT'
-    addValidityQty.value = false
-    validityType.value = 'DAY'
-    disclosedQty.value = 0
-    afterMarket.value = false
-    triggerPrice.value = 0
-    stopLossPrice.value = 0
-    targetPrice.value = 0
-    gttAlertType.value = 'LTP'
-    gttCond.value = '>'
-    gttValue.value = 0
+    // Use nextTick to ensure the dialog closes before resetting state
+    nextTick(() => {
+        // Clear any active drag handlers that might interfere
+        if (document.onmouseup) {
+            document.onmouseup = null
+        }
+        if (document.onmousemove) {
+            document.onmousemove = null
+        }
 
-    console.log('closeOrderDialog ---------- >', orderDialog.value)
-
+        // Reset all state after dialog is closed
+        orderDialog.value = false
+        menudata.value = []
+        quantity.value = 0
+        price.value = 0
+        buyOrSellIsSell.value = false
+        orderType.value = 0
+        investType.value = 'I'
+        priceType.value = 'LMT'
+        addValidityQty.value = false
+        validityType.value = 'DAY'
+        disclosedQty.value = 0
+        afterMarket.value = false
+        triggerPrice.value = 0
+        stopLossPrice.value = 0
+        targetPrice.value = 0
+        gttAlertType.value = 'LTP'
+        gttCond.value = '>'
+        gttValue.value = 0
+        gttQty.value = 1
+        gttPrice.value = null
+        gttTriggerPrice.value = null
+        gttOCOPanel.value = false
+        ocoQty.value = 1
+        ocoPrice.value = null
+        ocoTriggerPrice.value = null
+        ocoPriceType.value = 'LMT'
+        ocoValue.value = 0
+    })
 }
-
-watch(orderDialog, (newVal) => {
-    orderDialog.value = newVal
-    console.log('orderDialog ---------- >', orderDialog.value)
-})
 
 function validateOrder() {
     const q = menudata.value[0]
@@ -634,6 +992,16 @@ function validateOrder() {
     if (!(quantity.value > 0)) return 'Quantity must be greater than zero'
     if ((priceType.value === 'LMT' || priceType.value === 'SL-LMT') && (price.value <= 0)) return 'Price must be greater than zero'
     if ((priceType.value === 'SL-LMT' || priceType.value === 'SL-MKT') && (triggerPrice.value <= 0)) return 'Trigger price must be greater than zero'
+    // Market Protection validation (must be above zero and not exceed 20)
+    if ((priceType.value === 'MKT' || priceType.value === 'SL-MKT') && marketProtection.value) {
+        const mpValue = Number(marketProtection.value)
+        if (isNaN(mpValue) || mpValue <= 0) {
+            return 'Market Protection must be above zero'
+        }
+        if (mpValue > 20) {
+            return 'Market Protection cannot exceed 20%'
+        }
+    }
     // Lot size multiple validation (except MCX where step=1)
     const ls = Number(q.ls || 1)
     if (q.exch !== 'MCX' && (quantity.value % ls !== 0)) return `Quantity must be a multiple of lot size ${ls}`
@@ -696,31 +1064,102 @@ async function placeOrder(loop) {
         isPlacingOrder.value = true
         // If GTT order, call GTT API
         if (orderType.value === 3) {
-            const gttItem = {
-                exch: q.exch,
-                tsym: q.tsym,
-                trantype: buyOrSellIsSell.value ? 'S' : 'B',
-                alert_type: gttAlertType.value,
-                cond: gttCond.value,
-                value: String(gttValue.value || 0),
-                qty: String(quantity.value * Number(q.ls || 1)),
-                prc: (priceType.value === 'MKT' || priceType.value === 'SL-MKT') ? '0' : String(price.value || 0),
-                prctyp: priceType.value,
+            let gttItem
+            const con = gttCond.value === '>' ? 'A_O' : 'B_O'
+            const aler = gttAlertType.value === 'Perc. change' ? 'CH_PER' : gttAlertType.value
+            const ait = `${aler}_${con}`
+            const uid = sessionStorage.getItem('userid')
+
+            // Handle OCO (One-Cancel-Other) orders
+            if (gttOCOPanel.value) {
+                gttItem = {
+                    uid: uid,
+                    ai_t: 'LMT_BOS_O',
+                    al_id: (orderContextType.value === 'mod-GTT' && existingOrderItem.value?.al_id) ? existingOrderItem.value.al_id : '',
+                    validity: 'GTT',
+                    tsym: q.tsym,
+                    exch: q.exch,
+                    oivariable: [
+                        { d: String(gttValue.value || 0), var_name: 'x' },
+                        { d: String(ocoValue.value || 0), var_name: 'y' },
+                    ],
+                    place_order_params: {
+                        tsym: q.tsym,
+                        exch: q.exch,
+                        trantype: buyOrSellIsSell.value ? 'S' : 'B',
+                        prctyp: priceType.value,
+                        prd: investType.value,
+                        ret: 'DAY',
+                        actid: uid,
+                        uid: uid,
+                        ordersource: 'TP',
+                        qty: String(gttQty.value * Number(q.ls || 1)),
+                        prc: (priceType.value === 'MKT' || priceType.value === 'SL-MKT') ? '0' : String(gttPrice.value || 0),
+                        trgprc: String(gttTriggerPrice.value || 0),
+                    },
+                    place_order_params_leg2: {
+                        tsym: q.tsym,
+                        exch: q.exch,
+                        trantype: buyOrSellIsSell.value ? 'S' : 'B',
+                        prctyp: ocoPriceType.value,
+                        prd: investType.value,
+                        ret: 'DAY',
+                        actid: uid,
+                        uid: uid,
+                        ordersource: 'TP',
+                        qty: String(ocoQty.value * Number(q.ls || 1)),
+                        prc: (ocoPriceType.value === 'MKT' || ocoPriceType.value === 'SL-MKT') ? '0' : String(ocoPrice.value || 0),
+                        trgprc: String(ocoTriggerPrice.value || 0),
+                    },
+                }
+            } else {
+                // Regular GTT order
+                gttItem = {
+                    uid: uid,
+                    tsym: q.tsym,
+                    exch: q.exch,
+                    ai_t: ait,
+                    al_id: (orderContextType.value === 'mod-GTT' && existingOrderItem.value?.al_id) ? existingOrderItem.value.al_id : '',
+                    validity: 'GTT',
+                    d: String(gttValue.value || 0),
+                    trantype: buyOrSellIsSell.value ? 'S' : 'B',
+                    prctyp: priceType.value,
+                    prd: investType.value,
+                    ret: 'DAY',
+                    actid: uid,
+                    qty: String(gttQty.value * Number(q.ls || 1)),
+                    prc: (priceType.value === 'MKT' || priceType.value === 'SL-MKT') ? '0' : String(gttPrice.value || 0),
+                    trgprc: String(gttTriggerPrice.value || 0),
+                }
             }
-            // Handle GTT modify
-            const gttUrl = (orderContextType.value === 'mod-GTT' && existingOrderItem.value?.norenordno)
-                ? 'ModifyGTTOrder' : 'PlaceGTTOrder'
-            if (gttUrl === 'ModifyGTTOrder') {
-                gttItem['norenordno'] = existingOrderItem.value.norenordno
+
+            // Determine GTT URL
+            let gttUrl = 'PlaceGTTOrder'
+            if (orderContextType.value === 'mod-GTT' && existingOrderItem.value?.norenordno) {
+                gttUrl = 'ModifyGTTOrder'
+            } else if (gttOCOPanel.value) {
+                gttUrl = 'PlaceOCOOrder'
             }
 
             const resGtt = await getGTTPlaceOrder(gttItem, gttUrl)
-            if (resGtt?.stat !== 'Ok') {
+            if (resGtt?.stat !== 'Ok' && resGtt?.stat !== 'OI created' && resGtt?.stat !== 'OI replaced') {
                 appStore.showSnackbar(2, resGtt?.emsg || 'GTT order failed')
             } else {
-                appStore.showSnackbar(1, gttUrl === 'ModifyGTTOrder' ? 'GTT order modified' : 'GTT order placed')
-                try { window.dispatchEvent(new CustomEvent('orderbook-update', { detail: { type: 'orders' } })) } catch (_) { }
-                if (!loop && !isStickyDialog.value) { orderDialog.value = false }
+                // Close dialog first (like old app) - close on successful order regardless of sticky setting
+                if (!loop) {
+                    orderDialog.value = false
+                    // Use nextTick to ensure dialog closes before showing snackbar
+                    await nextTick()
+                }
+
+                // Show success message in snackbar (right corner bottom like old app)
+                const successMsg = resGtt?.stat === 'OI created' ? 'GTT Order have been Placed' :
+                    resGtt?.stat === 'OI replaced' ? 'GTT Order have been Modified' :
+                        gttUrl === 'ModifyGTTOrder' ? 'GTT order modified' : 'GTT order placed'
+                appStore.showSnackbar(1, successMsg)
+
+                // Trigger orderbook update
+                try { window.dispatchEvent(new CustomEvent('orderbook-update', { detail: { type: 'gtt' } })) } catch (_) { }
             }
             return
         }
@@ -763,10 +1202,21 @@ async function placeOrder(loop) {
         if (res?.stat !== 'Ok') {
             appStore.showSnackbar(2, res?.emsg || 'Order failed')
         } else {
+            // Close dialog first (like old app) - close on successful order regardless of sticky setting
+            if (!loop) {
+                orderDialog.value = false
+                // Use nextTick to ensure dialog closes before showing snackbar
+                await nextTick()
+            }
+
+            // Show success message in snackbar (right corner bottom like old app)
             appStore.showSnackbar(1, 'Order placed successfully')
+
+            // Trigger orderbook update
             try {
                 window.dispatchEvent(new CustomEvent('orderbook-update', { detail: { type: 'orders' } }))
             } catch (_) { }
+
             // Save preferences on successful order
             if (orderContextType.value === 'order') {
                 try {
@@ -779,19 +1229,23 @@ async function placeOrder(loop) {
                     }, true)
                 } catch (e) { }
             }
-            if (!loop && !isStickyDialog.value) {
-                orderDialog.value = false
-            }
         }
     } catch (e) {
         appStore.showSnackbar(2, 'Failed to place order')
     } finally {
         isPlacingOrder.value = false
+        orderDialog.value = false
     }
 }
 
 onMounted(() => {
-    window.addEventListener('menudialog', handleMenuDialogEvent)
+    // Guard: Only add event listener if not already added (prevent duplicate registration)
+    if (!eventListenerAdded) {
+        window.addEventListener('menudialog', handleMenuDialogEvent)
+        eventListenerAdded = true
+        console.log('[StockOrderWindow] Event listener registered')
+    }
+
     window.addEventListener('web-scoketConn', (ev) => {
         const data = ev.detail
         if (!data || !menudata.value[0]) return
@@ -904,7 +1358,13 @@ function restoreDialogPosition() {
 }
 
 onBeforeUnmount(() => {
-    window.removeEventListener('menudialog', handleMenuDialogEvent)
+    // Guard: Only remove if it was added
+    if (eventListenerAdded) {
+        window.removeEventListener('menudialog', handleMenuDialogEvent)
+        eventListenerAdded = false
+        isOpeningDialog.value = false
+        console.log('[StockOrderWindow] Event listener removed')
+    }
 })
 </script>
 

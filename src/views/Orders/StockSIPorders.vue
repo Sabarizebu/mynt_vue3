@@ -13,13 +13,14 @@
 
         <v-data-table :headers="orderheader" :items="filteredSIPs" fixed-header :hide-default-footer="true"
             :loading="loading" class="mt-3 rounded-lg overflow-y-auto"
-            style="border-radius: 4px; border: 1px solid var(--outline)" height="480" :items-per-page="10"
+            style="border-radius: 4px; border: 1px solid #EBEEF0" height="480" :items-per-page="10"
             @click:row="(_, { item }) => setviewSIP(item)">
             <template #item.sip_name="{ item }">
                 <span class="font-weight-medium maintext--text ws-p">{{ item.sip_name }}</span>
             </template>
             <template #item.reg_date="{ item }">
-                <span class="font-weight-medium maintext--text ws-p">{{ item.reg_date ? setDate(item.reg_date) : '-' }}</span>
+                <span class="font-weight-medium maintext--text ws-p">{{ item.reg_date ? setDate(item.reg_date) : '-'
+                    }}</span>
             </template>
             <template #item.internal="{ item }">
                 <span class="font-weight-bold ws-p"
@@ -27,10 +28,12 @@
                         item.internal ? (item.internal.active ? 'Active' : 'Inactive') : '-' }}</span>
             </template>
             <template #item.frequency="{ item }">
-                <span class="font-weight-medium maintext--text ws-p">{{ item.frequency ? frequencylist[item.frequency] : '-' }}</span>
+                <span class="font-weight-medium maintext--text ws-p">{{ item.frequency ? frequencylist[item.frequency] :
+                    '-' }}</span>
             </template>
             <template #item.end_period="{ item }">
-                <span class="font-weight-medium maintext--text ws-p">{{ item.internal ? item.internal.period : '-' }}/{{ item.end_period ? item.end_period : 0 }}</span>
+                <span class="font-weight-medium maintext--text ws-p">{{ item.internal ? item.internal.period : '-' }}/{{
+                    item.end_period ? item.end_period : 0 }}</span>
             </template>
             <template #item.actions="{ item }">
                 <div @click.stop>
@@ -65,7 +68,8 @@
                     <v-col cols="3">
                         <p class="font-weight-regular fs-14 subtext--text mb-2">SIP name</p>
                         <v-text-field placeholder="name" @keypress="isLetter" hide-details height="40" variant="solo"
-                            :bg-color="'secbg'" density="comfortable" flat class="rounded-pill mb-0" v-model="sip_name" />
+                            :bg-color="'secbg'" density="comfortable" flat class="rounded-pill mb-0"
+                            v-model="sip_name" />
                     </v-col>
                     <v-col cols="3">
                         <p class="font-weight-regular fs-14 subtext--text mb-2">Start date</p>
@@ -77,16 +81,15 @@
                                     hide-spin-buttons v-model="sipdate" append-icon="mdi-calendar" readonly
                                     v-bind="props" />
                             </template>
-                            <v-date-picker v-model="sipdate" @update:model-value="menu2 = false"
-                                :min="maxdate" />
+                            <v-date-picker v-model="sipdate" @update:model-value="menu2 = false" :min="maxdate" />
                         </v-menu>
                     </v-col>
                     <v-col cols="3">
                         <p class="font-weight-regular fs-14 subtext--text mb-2">Frequency</p>
                         <v-select placeholder="Daily, Weekly, Monthly" hide-details v-model="frequency"
                             :items="frequencylist" height="40" append-icon="mdi-chevron-down" variant="solo"
-                            :bg-color="'secbg'" density="comfortable" flat block class="rounded-pill"
-                            item-title="title" item-value="value" />
+                            :bg-color="'secbg'" density="comfortable" flat block class="rounded-pill" item-title="title"
+                            item-value="value" />
                     </v-col>
                     <v-col cols="3">
                         <p class="font-weight-regular fs-14 subtext--text mb-2">No.of SIPs</p>
@@ -97,8 +100,8 @@
                     <v-col cols="2">
                         <v-select @update:model-value="setSearchFilter" hide-details v-model="searchexch"
                             :items="['NSE', 'BSE']" height="40" append-icon="mdi-chevron-down" variant="solo"
-                            :bg-color="'secbg'" density="comfortable" flat block class="rounded-pill"
-                            item-title="title" item-value="value" />
+                            :bg-color="'secbg'" density="comfortable" flat block class="rounded-pill" item-title="title"
+                            item-value="value" />
                     </v-col>
                     <!-- Phase 7: Add uppercase conversion on input matching old app -->
                     <v-col cols="10" class="ml-auto">
@@ -114,8 +117,8 @@
                 <!-- Phase 7: Add must-sort and sort-by to match old app -->
                 <v-data-table v-if="!model || !model.token" must-sort :sort-by="['idx']" :sort-desc="[true]"
                     fixed-header :hide-default-footer="true" :loading="loading" class="mt-0 rounded-lg overflow-y-auto"
-                    style="border: 1px solid var(--outline)" height="240" :headers="singlebskheader"
-                    :items="orderbookdata" :items-per-page="20">
+                    style="border: 1px solid #EBEEF0" height="240" :headers="singlebskheader" :items="orderbookdata"
+                    :items-per-page="20">
                     <template #item.tsym="{ item }">
                         <p class="font-weight-medium maintext--text mb-0 ws-p">
                             {{ item.tsym || '' }}
@@ -123,14 +126,13 @@
                         </p>
                     </template>
                     <template #item.qty="{ item }">
-                        <v-text-field v-if="item.invby === 'Qty'" height="30" hide-details dense
-                            class="rounded-lg" type="number" hide-spin-buttons variant="outlined"
-                            v-model="item.qty" />
+                        <v-text-field v-if="item.invby === 'Qty'" height="30" hide-details dense class="rounded-lg"
+                            type="number" hide-spin-buttons variant="outlined" v-model="item.qty" />
                         <span v-else>{{ '--' }}</span>
                     </template>
                     <template #item.prc="{ item }">
-                        <v-text-field v-if="item.invby === 'Amount'" hide-details dense class="rounded-lg"
-                            type="number" hide-spin-buttons variant="outlined" v-model="item.prc" />
+                        <v-text-field v-if="item.invby === 'Amount'" hide-details dense class="rounded-lg" type="number"
+                            hide-spin-buttons variant="outlined" v-model="item.prc" />
                         <span v-else>{{ '--' }}</span>
                     </template>
                     <template #item.invby="{ item }">
@@ -170,8 +172,9 @@
                     <v-col cols="3" class="text-right">
                         <v-btn
                             :disabled="!sip_name || !frequency || !sipdate || !sipinstall || orderbookdata.length === 0"
-                            :loading="orderloader" color="btnclr" class="elevation-0 text-capitalize rounded-pill btntext--text"
-                            @click="setPlaceorder">{{ setmode ? 'Create' : 'Modify' }} </v-btn>
+                            :loading="orderloader" color="btnclr"
+                            class="elevation-0 text-capitalize rounded-pill btntext--text" @click="setPlaceorder">{{
+                                setmode ? 'Create' : 'Modify' }} </v-btn>
                     </v-col>
                 </v-row>
             </v-card>
@@ -188,11 +191,13 @@
                 <v-row class="px-6" no-gutters>
                     <v-col cols="6">
                         <v-btn @click="canceldialog = false; singledata = null" color="outline"
-                            class="rounded-pill text-none subtext--text font-weight-bold elevation-0" block height="40">No</v-btn>
+                            class="rounded-pill text-none subtext--text font-weight-bold elevation-0" block
+                            height="40">No</v-btn>
                     </v-col>
                     <v-col cols="6">
                         <v-btn @click="setcancelBSK" color="btnclr"
-                            class="rounded-pill text-none btntext--text font-weight-bold elevation-0" block height="40">Yes</v-btn>
+                            class="rounded-pill text-none btntext--text font-weight-bold elevation-0" block
+                            height="40">Yes</v-btn>
                     </v-col>
                 </v-row>
             </v-card>
@@ -332,14 +337,14 @@ function setListinbsk() {
         const exists = orderbookdata.value.find(
             o => String(o.token) === String(model.value.token) && o.exch === model.value.exch
         )
-        
+
         if (exists) {
             appStore.showSnackbar(2, `${model.value.tsym} is already in the SIP order`)
             model.value = null
             search.value = null
             return
         }
-        
+
         // Phase 6 & 7: Add scrip with proper defaults and idx for sorting
         const scrip = {
             exch: model.value.exch,
@@ -350,11 +355,11 @@ function setListinbsk() {
             qty: Number(model.value.ls || 1), // Default quantity to lot size (as number for editing)
             idx: orderbookdata.value.length, // Phase 7: Add idx for sorting
         }
-        
+
         orderbookdata.value.push(scrip)
         // Force reactivity update
         orderbookdata.value = [...orderbookdata.value]
-        
+
         model.value = null
         search.value = null
     }
@@ -453,7 +458,7 @@ function setviewSIP(item) {
 // Phase 3: Form Field Validation
 function validateSIPForm() {
     const errors = []
-    
+
     // 1. SIP Name validation
     if (!sip_name.value || !sip_name.value.trim()) {
         errors.push('SIP name is required')
@@ -466,7 +471,7 @@ function validateSIPForm() {
             errors.push('SIP name already exists')
         }
     }
-    
+
     // 2. Start Date validation
     if (!sipdate.value) {
         errors.push('Start date is required')
@@ -475,17 +480,17 @@ function validateSIPForm() {
         today.setHours(0, 0, 0, 0)
         const startDate = new Date(sipdate.value)
         startDate.setHours(0, 0, 0, 0)
-        
+
         if (startDate < today) {
             errors.push('Start date must be today or later')
         }
-        
+
         // Validate date format (YYYY-MM-DD)
         if (!/^\d{4}-\d{2}-\d{2}$/.test(sipdate.value)) {
             errors.push('Start date must be in YYYY-MM-DD format')
         }
     }
-    
+
     // 3. Frequency validation
     if (!frequency.value) {
         errors.push('Frequency is required')
@@ -495,7 +500,7 @@ function validateSIPForm() {
             errors.push('Frequency must be one of: Daily, Weekly, Fortnightly, Monthly')
         }
     }
-    
+
     // 4. No. of SIPs validation
     if (!sipinstall.value) {
         errors.push('No. of SIPs is required')
@@ -504,7 +509,7 @@ function validateSIPForm() {
     } else if (Number(sipinstall.value) <= 0) {
         errors.push('No. of SIPs must be greater than zero')
     }
-    
+
     // 5. Scrips validation
     if (!orderbookdata.value || orderbookdata.value.length === 0) {
         errors.push('At least one scrip is required')
@@ -520,7 +525,7 @@ function validateSIPForm() {
             if (!scrip.tsym) {
                 errors.push(`Scrip ${index + 1}: Trading symbol is required`)
             }
-            
+
             // Validate quantity or amount based on investment type
             if (scrip.invby === 'Qty') {
                 if (!scrip.qty || Number(scrip.qty) <= 0) {
@@ -535,7 +540,7 @@ function validateSIPForm() {
             }
         })
     }
-    
+
     return {
         isValid: errors.length === 0,
         errors
@@ -545,20 +550,20 @@ function validateSIPForm() {
 async function setPlaceorder() {
     // Phase 3: Validate form before proceeding
     const validation = validateSIPForm()
-    
+
     if (!validation.isValid) {
         // Show first error message
         appStore.showSnackbar(2, validation.errors[0])
         return
     }
-    
+
     const ind = allbasketsdata.value.findIndex(o => o.sip_name === sip_name.value.trim())
     if ((!setmode.value || (setmode.value && ind === -1)) && sipinstall.value > 0) {
         const date = new Date()
         const formattedDate = moment(date).format('DDMMYYYY')
         let item = {}
         const freqMap = { Daily: '0', Weekly: '1', Fortnightly: '2', Monthly: '3' }
-        
+
         // Phase 4: Format Scrips array according to API requirements
         // Map orderbookdata to ensure proper format (qty/amount as strings, prd defaults to 'C')
         const formattedScrips = orderbookdata.value.map(scrip => {
@@ -568,7 +573,7 @@ async function setPlaceorder() {
                 token: scrip.token,
                 prd: scrip.prd || 'C', // Default to Delivery if not specified
             }
-            
+
             // Add qty or prc based on investment type
             if (scrip.invby === 'Qty') {
                 // Quantity-based investment
@@ -584,10 +589,10 @@ async function setPlaceorder() {
                 // Default to quantity if investment type not set
                 formattedScrip.qty = String(scrip.qty || 1)
             }
-            
+
             return formattedScrip
         })
-        
+
         if (setmode.value) {
             // Create new SIP order
             item = {
@@ -666,31 +671,31 @@ function onOrderbookUpdate() {
 // Match old code behavior: set default values and add security to orderbookdata
 function handleSIPOrderTrigger(event) {
     const securityData = event.detail
-    
+
     // Debug: Log to verify event is received
     console.log('SIP order trigger received:', securityData)
-    
+
     if (securityData && securityData.token) {
         // Initialize dialog in create mode (reset all fields)
         setSIPdialog(null)
-        
+
         // Match old code: Set default values when triggered from buy/sell dialog
         // sip_name = tsym (stock symbol)
         sip_name.value = securityData.tsym || securityData.symbol || ''
-        
+
         // frequency = "Daily" (default) - match old code
         const dailyFrequency = frequencylist.find(f => f.title === 'Daily' || f.value === 'Daily')
         frequency.value = dailyFrequency?.value || 'Daily'
-        
+
         // sipinstall = 5 (default number of SIPs)
         sipinstall.value = 5
-        
+
         // sipdate = 2 days from today (YYYY-MM-DD format)
         const today = new Date()
         const twoDaysLater = new Date(today)
         twoDaysLater.setDate(today.getDate() + 2)
         sipdate.value = twoDaysLater.toISOString().slice(0, 10)
-        
+
         // Phase 6 & 7: Add the security to orderbookdata with proper defaults and idx for sorting
         const scrip = {
             exch: securityData.exch,
@@ -701,12 +706,12 @@ function handleSIPOrderTrigger(event) {
             qty: Number(securityData.ls || 1), // Default quantity to lot size (as number for editing)
             idx: orderbookdata.value.length, // Phase 7: Add idx for sorting
         }
-        
+
         // Phase 6: Check if already exists (prevent duplicates)
         const exists = orderbookdata.value.find(
             o => String(o.token) === String(scrip.token) && o.exch === scrip.exch
         )
-        
+
         if (!exists) {
             orderbookdata.value.push(scrip)
             // Force reactivity update
@@ -715,7 +720,7 @@ function handleSIPOrderTrigger(event) {
             // Show message if duplicate
             appStore.showSnackbar(2, `${scrip.tsym} is already in the SIP order`)
         }
-        
+
         // Dialog is already opened by setSIPdialog(null)
         // Verify dialog is opened
         console.log('SIP dialog should be open. basketdialog:', basketdialog.value)

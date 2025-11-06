@@ -146,42 +146,54 @@ export const useOptionsStore = defineStore('options', () => {
   }
   
   const updateColumnVisibility = () => {
-    // Calculate table width and column count based on visible columns
-    // This is called from the component's simpleTablestyle() function
-    let columnCount = 0
-
-    // Base columns (always visible)
-    columnCount += 2 // VOL
-    columnCount += 2 // OI
-    columnCount += 2 // CH
-    columnCount += 2 // LTP
-    columnCount += 4 // STRIKES
-
-    // Optional columns
-    if (bitcheckbox.value) columnCount += 1 // BID
-    if (askcheckbox.value) columnCount += 1 // ASK
-    if (ivcheckbox.value) columnCount += 1 // IV
-
-    // Greeks (optional)
-    if (thetacheckbox.value) columnCount += 1 // THETA
-    if (vagacheckbox.value) columnCount += 1 // VEGA
-    if (gamacheckbox.value) columnCount += 1 // GAMA
-    if (deltacheckbox.value) columnCount += 1 // DELTA
-
-    // Update column count for header
-    opchtablehead.value = columnCount
-
-    // Update table width based on column count
-    const baseWidth = 400 // Base width for strike price and fixed columns
-    const columnWidth = 60 // Average column width
-    const calculatedWidth = baseWidth + (columnCount * columnWidth)
-
-    if (calculatedWidth > (typeof window !== 'undefined' ? window.innerWidth - 100 : 1200)) {
+    // Match old code: simpleTablestyle() logic exactly
+    let truecount = [
+      ivcheckbox.value,
+      vagacheckbox.value,
+      thetacheckbox.value,
+      gamacheckbox.value,
+      deltacheckbox.value,
+      bitcheckbox.value,
+      askcheckbox.value
+    ]
+    
+    let truemap = truecount.reduce((cnt, cur) => {
+      cnt[cur] = (cnt[cur] || 0) + 1
+      return cnt
+    }, {})
+    
+    // Match old code: exact width and column count logic
+    if (truemap.true === 7) {
+      opchtablehead.value = 15
+      simtblwidth.value = '1580px'
+      simtblscroll.value = 'scroll'
+    } else if (truemap.true === 6) {
+      opchtablehead.value = 14
+      simtblwidth.value = '1460px'
+      simtblscroll.value = 'scroll'
+    } else if (truemap.true === 5) {
+      opchtablehead.value = 13
+      simtblwidth.value = '1340px'
+      simtblscroll.value = 'scroll'
+    } else if (truemap.true === 4) {
+      opchtablehead.value = 12
+      simtblwidth.value = '1220px'
+      simtblscroll.value = 'scroll'
+    } else if (truemap.true === 3) {
+      opchtablehead.value = 11
+      simtblwidth.value = '1100px'
+      simtblscroll.value = 'scroll'
+    } else if (truemap.true === 1 || truemap.false === 7 || truemap.true === 2) {
       simtblwidth.value = '100%'
-      simtblscroll.value = 'auto'
-    } else {
-      simtblwidth.value = `${calculatedWidth}px`
       simtblscroll.value = 'hidden'
+      if (truemap.true === 2) {
+        opchtablehead.value = 10
+        simtblscroll.value = 'scroll'
+      } else if (truemap.true === 1) {
+        opchtablehead.value = 9
+      } else if (truemap.false === 7) {
+        opchtablehead.value = 8
+      }
     }
   }
   
@@ -200,9 +212,57 @@ export const useOptionsStore = defineStore('options', () => {
         deltacheckbox.value = opdatstrue.deltacheckbox || false
         bitcheckbox.value = opdatstrue.bitcheckbox !== undefined ? opdatstrue.bitcheckbox : true
         askcheckbox.value = opdatstrue.askcheckbox !== undefined ? opdatstrue.askcheckbox : true
+        
+        // Match old code: Call defltTablestyle() after loading settings
+        if (opvalstrue) {
+          defltTablestyle(opvalstrue)
+        }
       }
     } catch (error) {
       console.error('Error loading column settings:', error)
+    }
+  }
+  
+  // Match old code: defltTablestyle() - uses saved opvalstrue instead of calculating
+  const defltTablestyle = (opvalstrue) => {
+    if (!opvalstrue) return
+    
+    // Match old code: exact logic from defltTablestyle()
+    if (opvalstrue.true === '7' || opvalstrue.true === 7) {
+      opchtablehead.value = 15
+      simtblwidth.value = '1580px'
+      simtblscroll.value = 'scroll'
+    } else if (opvalstrue.true === '6' || opvalstrue.true === 6) {
+      opchtablehead.value = 14
+      simtblwidth.value = '1460px'
+      simtblscroll.value = 'scroll'
+    } else if (opvalstrue.true === '5' || opvalstrue.true === 5) {
+      opchtablehead.value = 13
+      simtblwidth.value = '1340px'
+      simtblscroll.value = 'scroll'
+    } else if (opvalstrue.true === '4' || opvalstrue.true === 4) {
+      opchtablehead.value = 12
+      simtblwidth.value = '1220px'
+      simtblscroll.value = 'scroll'
+    } else if (opvalstrue.true === '3' || opvalstrue.true === 3) {
+      opchtablehead.value = 11
+      simtblwidth.value = '1100px'
+      simtblscroll.value = 'scroll'
+    } else if (opvalstrue.false === '5' || opvalstrue.false === 5) {
+      opchtablehead.value = 10
+      simtblwidth.value = '100%'
+      simtblscroll.value = 'hidden'
+    } else if (opvalstrue.true === '1' || opvalstrue.true === 1 || opvalstrue.false === '7' || opvalstrue.false === 7) {
+      simtblwidth.value = '100%'
+      simtblscroll.value = 'hidden'
+      if (opvalstrue.true === '2' || opvalstrue.true === 2) {
+        opchtablehead.value = 10
+        simtblscroll.value = 'scroll'
+      } else if (opvalstrue.true === '1' || opvalstrue.true === 1) {
+        opchtablehead.value = 9
+      } else if (opvalstrue.false === '7' || opvalstrue.false === 7) {
+        opchtablehead.value = 8
+      }
     }
   }
   
@@ -210,16 +270,40 @@ export const useOptionsStore = defineStore('options', () => {
     if (!uid) return
     
     try {
-      const opdatstrue = {
+      // Match old code: Calculate truemap for saving
+      let truecount = [
+        ivcheckbox.value,
+        vagacheckbox.value,
+        thetacheckbox.value,
+        gamacheckbox.value,
+        deltacheckbox.value,
+        bitcheckbox.value,
+        askcheckbox.value
+      ]
+      
+      let truemap = truecount.reduce((cnt, cur) => {
+        cnt[cur] = (cnt[cur] || 0) + 1
+        return cnt
+      }, {})
+      
+      // Match old code: Save opdatstrue and opvalstrue
+      const opdatstrue = JSON.stringify({
         ivcheckbox: ivcheckbox.value,
         vagacheckbox: vagacheckbox.value,
         thetacheckbox: thetacheckbox.value,
         gamacheckbox: gamacheckbox.value,
         deltacheckbox: deltacheckbox.value,
-        bitcheckbox: bitcheckbox.value,
-        askcheckbox: askcheckbox.value
-      }
-      localStorage.setItem(`${uid}_opdatstrue`, JSON.stringify(opdatstrue))
+        askcheckbox: askcheckbox.value,
+        bitcheckbox: bitcheckbox.value
+      })
+      
+      const opvalstrue = JSON.stringify({
+        true: String(truemap.true || 0),
+        false: String(truemap.false || 0)
+      })
+      
+      localStorage.setItem(`${uid}_opdatstrue`, opdatstrue)
+      localStorage.setItem(`${uid}_opvalstrue`, opvalstrue)
     } catch (error) {
       console.error('Error saving column settings:', error)
     }
@@ -289,6 +373,7 @@ export const useOptionsStore = defineStore('options', () => {
     updateColumnVisibility,
     loadColumnSettings,
     saveColumnSettings,
+    defltTablestyle,
   }
 })
 

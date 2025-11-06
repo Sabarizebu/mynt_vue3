@@ -61,7 +61,7 @@
             width="100%">
             <v-card v-for="(s, l) in pdmwdata" :key="l" @click="setSSDtab('Details', s.token, s.exch, s.tsym)"
                 class="px-3 py-2 crd-trn pos-rlt table-row" :class="l != pdmwdata.length - 1 ? 'mr-4' : ''"
-                min-width="160px" style="border: 1px solid var(--outline) !important;">
+                min-width="160px" style="border: 1px solid #EBEEF0 !important;">
                 <div v-if="uid" @click.stop class="pos-abs table-hov" style="bottom: 32px; right: 4px;">
                     <v-btn :disabled="!s.too"
                         @click="$router.push({ name: 'stocks advance decline', params: { abc: s.too } })"
@@ -312,7 +312,7 @@
         <div id="market" v-dragscroll.x class="d-inline-flex overflow-x-auto no-scroll mb-12" style="width: 100%">
             <div v-for="(tabel, l) in isloading ? [[], [], [], []] : tradeactionitem" :key="l"
                 :class="l == 3 ? 'mr-1' : 'mr-4'">
-                <v-card style="border: thin solid var(--outline) !important" class="rounded-lg elevation-0"
+                <v-card style="border: thin solid #EBEEF0 !important" class="rounded-lg elevation-0"
                     color="cardbg">
                     <v-toolbar class="elevation-0 mb-0 mt-1" density="compact" color="transparent">
                         <img width="24px" :src="tradeIcons[l]" :alt="tradeLabels[l]" class="mr-2" />
@@ -376,7 +376,7 @@
             </div>
         </div>
 
-        <v-card style="border: thin solid var(--outline) !important" variant="outlined" class="rounded-lg mb-8"
+        <v-card style="border: thin solid #EBEEF0 !important" variant="outlined" class="rounded-lg mb-8"
             color="cardbg">
             <v-toolbar ref="smcp" id="smcp" class="elevation-0 my-4" density="compact" color="transparent">
                 <img width="40px" src="@/assets/stocks/srcm.svg" alt="srcm" class="mr-2" />
@@ -385,13 +385,13 @@
                 <v-select v-model="screent0" :items="screent0item" item-title="text" item-value="value"
                     label="Condition" variant="flat" density="comfortable" hide-details menu-icon="mdi-chevron-down"
                     :readonly="issloading" class="rounded-pill mr-3 d-none d-sm-flex"
-                    style="max-width: 180px; background-color: var(--secbg);"
+                    style="max-width: 180px; background-color: #F1F3F8;"
                     @update:model-value="getContentlistdata('yes')" />
 
                 <v-select v-model="screent1" :items="screent1item" item-title="text" item-value="value"
                     label="Condition" variant="flat" density="comfortable" hide-details menu-icon="mdi-chevron-down"
                     :readonly="issloading" class="rounded-pill d-none d-sm-flex"
-                    style="max-width: 140px; background-color: var(--secbg);"
+                    style="max-width: 140px; background-color: #F1F3F8;"
                     @update:model-value="getContentlistdata('yes')" />
 
             </v-toolbar>
@@ -471,7 +471,7 @@
 
         <v-row ref="eve" id="eve" no-gutters class="mb-6">
             <v-col cols="12" md="6" class="py-md-0">
-                <v-card style="border: thin solid var(--outline) !important"
+                <v-card style="border: thin solid #EBEEF0 !important"
                     class="crd-trn elevation-0 overflow-hidden rounded-lg" width="100%">
                     <div class="px-4 py-4">
                         <p class="font-weight-bold title mb-md-4 mb-6">Corporate Action ({{ allcropact &&
@@ -558,7 +558,7 @@
                 </v-card>
             </v-col>
             <v-col cols="12" md="6" class="py-md-0">
-                <v-card style="border: thin solid var(--outline) !important"
+                <v-card style="border: thin solid #EBEEF0 !important"
                     class="crd-trn elevation-0 overflow-hidden rounded-lg" width="100%">
                     <div class="px-4 py-4">
                         <p class="font-weight-bold title mb-md-4 mb-6">News ({{ allnews && allnews.length > 0 ?

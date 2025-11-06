@@ -1493,11 +1493,11 @@ watch(() => shareholdings.y, () => {
 }
 
 .txt-gre {
-    color: var(--maingreen);
+    color: #43A833;
 }
 
 .txt-red {
-    color: var(--mainred);
+    color: #F23645;
 }
 
 .txt-444 {
@@ -1517,19 +1517,19 @@ watch(() => shareholdings.y, () => {
 }
 
 .maingreen--text {
-    color: var(--maingreen) !important;
+    color: #43A833 !important;
 }
 
 .mainred--text {
-    color: var(--mainred) !important;
+    color: #F23645 !important;
 }
 
 .maintext--text {
-    color: var(--maintext) !important;
+    color: #000 !important;
 }
 
 .subtext--text {
-    color: var(--subtext) !important;
+    color: #666666 !important;
 }
 
 .no-scroll {
@@ -1541,10 +1541,10 @@ watch(() => shareholdings.y, () => {
 }
 
 .ss-cards {
-    border: thin solid var(--outline) !important;
+    border: thin solid #EBEEF0 !important;
     border-radius: 8px !important;
     box-shadow: none !important;
-    background-color: var(--cardbg) !important;
+    background-color: #ffffff !important;
 }
 
 .text-rap-l2 {
@@ -1641,7 +1641,7 @@ watch(() => shareholdings.y, () => {
 
 /* Event card styling */
 .v-card.variant--outlined {
-    border: thin solid var(--outline) !important;
+    border: thin solid #EBEEF0 !important;
 }
 
 /* Ensure proper text truncation */

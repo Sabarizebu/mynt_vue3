@@ -67,7 +67,7 @@
 
                         <!-- Basket Order Button - Match old code: tile icon -->
                         <v-btn :readonly="optionsStore.coractloader" tile icon @click="setBaskorder('create')">
-                            <img width="24px" src="/src/assets/usermenu/9opt.svg" />
+                            <img width="24px" :src="basketOrderIcon" />
                         </v-btn>
 
                         <!-- Settings Button - Match old code: v-if="drawer == false", tile icon -->
@@ -94,9 +94,9 @@
                             <v-table class="no-scroll crd-trn" fixed-header
                                 :style="`--my-simtblwidth-var:${optionsStore.simtblwidth};--my-simtblscroll-var:${optionsStore.simtblscroll};`"
                                 height="calc(100vh - 178px)" density="compact">
-                                <thead style="background-color: transparent !important;">
+                                <thead class="secbg">
                                     <!-- Header Row 1: CALLS | PUTS -->
-                                    <tr style="background-color: #F1F3F8 !important;">
+                                    <tr class="cardbg">
                                         <th :colspan="optionsStore.opchtablehead" class="px-0 text-center">
                                             <span class="font-weight-bold">CALLS</span>
                                         </th>
@@ -106,7 +106,7 @@
                                         </th>
                                     </tr>
                                     <!-- Header Row 2: Column Headers -->
-                                    <tr style="background-color: transparent !important;">
+                                    <tr>
                                         <!-- Call Side Headers -->
                                         <th width="60px" v-if="optionsStore.thetacheckbox" colspan="1">
                                             <v-card class="crd-trn elevation-0 text-center subtext--text" tile>
@@ -239,33 +239,28 @@
                                         <!-- Call Side: Greeks (optional) -->
                                         <th v-if="optionsStore.thetacheckbox" colspan="1" class="text-center pa-0"
                                             :style="optionsStore.opdatabgs">
-                                            <div width="100%" height="32px" class="optiondatasty">
-                                                {{ script.theta ? script.theta : '0.0000' }}
-                                            </div>
+                                            <div width="100%" height="32px" class="optiondatasty"
+                                                v-html="script.theta ? script.theta : '0.0000'"></div>
                                         </th>
                                         <th v-if="optionsStore.vagacheckbox" colspan="1" class="text-center pa-0"
                                             :style="optionsStore.opdatabgs">
-                                            <div width="100%" height="32px" class="optiondatasty">
-                                                {{ script.vega ? script.vega : '0.0000' }}
-                                            </div>
+                                            <div width="100%" height="32px" class="optiondatasty"
+                                                v-html="script.vega ? script.vega : '0.0000'"></div>
                                         </th>
                                         <th v-if="optionsStore.gamacheckbox" colspan="1" class="text-center pa-0"
                                             :style="optionsStore.opdatabgs">
-                                            <div width="100%" height="32px" class="optiondatasty">
-                                                {{ script.gamma ? script.gamma : '0.0000' }}
-                                            </div>
+                                            <div width="100%" height="32px" class="optiondatasty"
+                                                v-html="script.gamma ? script.gamma : '0.0000'"></div>
                                         </th>
                                         <th v-if="optionsStore.deltacheckbox" colspan="1" class="text-center pa-0"
                                             :style="optionsStore.opdatabgs">
-                                            <div width="100%" height="32px" class="optiondatasty">
-                                                {{ script.delta ? script.delta : '0.0000' }}
-                                            </div>
+                                            <div width="100%" height="32px" class="optiondatasty"
+                                                v-html="script.delta ? script.delta : '0.0000'"></div>
                                         </th>
                                         <!-- Call Side: VOL -->
                                         <th colspan="2" class="text-center opdatas" :style="optionsStore.opdatabgs">
-                                            <span class="optiondatasty" :id="`upcall${script.token}vol`">
-                                                {{ script.vol ? script.vol : '0.00' }}
-                                            </span>
+                                            <span class="optiondatasty" :id="`upcall${script.token}vol`"
+                                                v-html="script.vol ? script.vol : '0.00'"></span>
                                         </th>
                                         <!-- Call Side: OI with Progress Bar -->
                                         <th colspan="2" class="text-center opdatas opdatacalluphov"
@@ -277,7 +272,7 @@
                                                         '0.00'
                                                         }}</span>
                                                     <span :id="`upcall${script.token}oiclr`"
-                                                        :style="`color:${script.oich > 0 ? 'var(--maingreen)' : script.oich < 0 ? 'var(--mainred)' : 'none'};`"
+                                                        :style="`color:${script.oich > 0 ? '#43A833' : script.oich < 0 ? '#F23645' : 'none'};`"
                                                         class="optionchsty">
                                                         <span :id="`upcall${script.token}oich`">({{ script.oich ?
                                                             script.oich : '0.00'
@@ -289,23 +284,19 @@
                                         <!-- Call Side: BID (optional) -->
                                         <th v-if="optionsStore.bitcheckbox" colspan="1" class="text-center pa-0"
                                             :style="optionsStore.opdatabgs">
-                                            <div width="100%" height="32px" class="optiondatasty"
-                                                :id="`upcall${script.token}bid`">
-                                                {{ script.bid ? script.bid : '0.00' }}
-                                            </div>
+                                            <div width="100%" height="32px" class="optiondatasty" :id="`upcall${script.token}bid`"
+                                                v-html="script.bid ? script.bid : '0.00'"></div>
                                         </th>
                                         <!-- Call Side: ASK (optional) -->
                                         <th v-if="optionsStore.askcheckbox" colspan="1" class="text-center pa-0"
                                             :style="optionsStore.opdatabgs">
-                                            <div width="100%" height="32px" class="optiondatasty"
-                                                :id="`upcall${script.token}ask`">
-                                                {{ script.ask ? script.ask : '0.00' }}
-                                            </div>
+                                            <div width="100%" height="32px" class="optiondatasty" :id="`upcall${script.token}ask`"
+                                                v-html="script.ask ? script.ask : '0.00'"></div>
                                         </th>
                                         <!-- Call Side: CH -->
                                         <th colspan="2" class="text-center opdatas" :style="optionsStore.opdatabgs">
                                             <span
-                                                :style="`color:${script.ch > 0 ? 'var(--maingreen)' : script.ch < 0 ? 'var(--mainred)' : ''};`"
+                                                :style="`color:${script.ch > 0 ? '#43A833' : script.ch < 0 ? '#F23645' : ''};`"
                                                 :id="`upcall${script.token}chpclr`" class="optiondatasty">
                                                 <span :id="`upcall${script.token}ch`">{{ script.ch ? script.ch : '0.00'
                                                     }}</span>
@@ -317,42 +308,41 @@
                                         <!-- Call Side: LTP -->
                                         <th colspan="2" class="text-center opdatacalluphov opdatas"
                                             :style="optionsStore.opdatabgs">
-                                            <span class="optiondatasty" :id="`upcall${script.token}ltp`">
-                                                {{ script.ltp ? script.ltp : '0.00' }}
-                                            </span>
+                                            <span class="optiondatasty" :id="`upcall${script.token}ltp`"
+                                                v-html="script.ltp ? script.ltp : '0.00'"> </span>
                                             <!-- Hover Action Buttons (Left Side) -->
                                     <tr v-if="script.token" class="opdatacallupbtn lfttrbtn"
                                         style="margin-left: -192px">
                                         <th colspan="1" @click="chartOption(script)">
-                                            <div style="min-width: 32px; border-radius: 4px; border: thin solid var(--outline); padding: 1px 4px; background-color: var(--mainbg)"
+                                            <div style="min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
                                                 class="cursor-p mr-1">
                                                 <v-icon size="16" color="maintext">mdi-chart-line-variant</v-icon>
                                             </div>
                                         </th>
                                         <th colspan="1" @click="depthOption(script)">
-                                            <div style="min-width: 32px; border-radius: 4px; border: thin solid var(--outline); padding: 1px 4px; background-color: var(--mainbg)"
+                                            <div style="min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
                                                 class="cursor-p mr-1">
                                                 <v-icon size="16" color="maintext">mdi-format-align-center</v-icon>
                                             </div>
                                         </th>
                                         <th colspan="1" @click="basketOption(script)">
-                                            <div style="height: 22px; min-width: 32px; border-radius: 4px; border: thin solid var(--outline); padding: 1px 4px; background-color: var(--mainbg)"
+                                            <div style="height: 22px; min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
                                                 class="cursor-p mr-1">
                                                 <img width="16px" :src="getBasketIcon()" />
                                             </div>
                                         </th>
                                         <th colspan="1" @click="addOption(script)">
-                                            <div style="min-width: 32px; border-radius: 4px; border: thin solid var(--outline); padding: 1px 4px; background-color: var(--mainbg)"
+                                            <div style="min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
                                                 class="cursor-p mr-1">
                                                 <v-icon size="16" color="maintext">mdi-bookmark-outline</v-icon>
                                             </div>
                                         </th>
                                         <th colspan="1" @click="sellOption(script)">
-                                            <div style="background-color: red !important;color: white !important;"
+                                            <div style="background-color: #F23645"
                                                 class="newhoverbtn newhoverbtnsize white--text cursor-p">S</div>
                                         </th>
                                         <th colspan="1" @click="buyOption(script)">
-                                            <div style="background-color: green !important;color: white !important;"
+                                            <div style="background-color: #43A833"
                                                 class="newhoverbtn newhoverbtnsize white--text cursor-p">B</div>
                                         </th>
                                     </tr>
@@ -360,9 +350,8 @@
                                     <!-- Call Side: IV (optional) -->
                                     <th v-if="optionsStore.ivcheckbox" colspan="1" class="text-center pa-0"
                                         :style="optionsStore.opdatabgs">
-                                        <div width="100%" height="32px" class="optiondatasty">
-                                            {{ script.IV ? script.IV : '0.00' }}
-                                        </div>
+                                        <div width="100%" height="32px" class="optiondatasty"
+                                            v-html="script.IV ? script.IV : '0.00'"></div>
                                     </th>
                                     <!-- Strike Price (Center) -->
                                     <th colspan="4" class="text-center opstrprcborder opdatacalluphov pos-rlt"
@@ -413,47 +402,45 @@
                                     </th>
                                     <!-- Put Side: IV (optional) -->
                                     <th v-if="optionsStore.ivcheckbox" colspan="1" class="text-center pa-0">
-                                        <div width="100%" height="32px" class="optiondatasty">
-                                            {{ optionsStore.upputSO[k]?.IV ? optionsStore.upputSO[k].IV : '0.00' }}
-                                        </div>
+                                        <div width="100%" height="32px" class="optiondatasty"
+                                            v-html="optionsStore.upputSO[k]?.IV ? optionsStore.upputSO[k].IV : '0.00'"></div>
                                     </th>
                                     <!-- Put Side: LTP -->
                                     <th colspan="2" class="text-center opdatacalluphov opdatas">
                                         <span class="optiondatasty"
-                                            :id="`upput${optionsStore.upputSO[k]?.token || ''}ltp`">
-                                            {{ optionsStore.upputSO[k]?.ltp ? optionsStore.upputSO[k].ltp : '0.00' }}
-                                        </span>
+                                            :id="`upput${optionsStore.upputSO[k]?.token || ''}ltp`"
+                                            v-html="optionsStore.upputSO[k]?.ltp ? optionsStore.upputSO[k].ltp : '0.00'"> </span>
                                         <!-- Hover Action Buttons (Right Side - Upper) -->
                                         <tr v-if="optionsStore.upputSO[k] && optionsStore.upputSO[k].token"
                                             class="opdatacallupbtn uprghtrbtn">
                                             <th colspan="1" @click="buyOption(script, optionsStore.upputSO)">
-                                                <div style="background-color: green !important;color: white !important;"
+                                                <div style="background-color: #43A833"
                                                     class="newhoverbtn newhoverbtnsize white--text cursor-p">B</div>
                                             </th>
                                             <th colspan="1" @click="sellOption(script, optionsStore.upputSO)">
-                                                <div style="background-color: red !important;color: white !important;"
+                                                <div style="background-color: #F23645"
                                                     class="newhoverbtn newhoverbtnsize white--text cursor-p">S</div>
                                             </th>
                                             <th colspan="1" @click="addOption(script, optionsStore.upputSO)">
-                                                <div style="min-width: 32px; border-radius: 4px; border: thin solid var(--outline); padding: 1px 4px; background-color: var(--mainbg)"
+                                                <div style="min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
                                                     class="cursor-p">
                                                     <v-icon size="16" color="maintext">mdi-bookmark-outline</v-icon>
                                                 </div>
                                             </th>
                                             <th colspan="1" @click="basketOption(script, optionsStore.upputSO)">
-                                                <div style="height: 22px; min-width: 32px; border-radius: 4px; border: thin solid var(--outline); padding: 1px 4px; background-color: var(--mainbg)"
+                                                <div style="height: 22px; min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
                                                     class="cursor-p ml-1">
                                                     <img width="16px" :src="getBasketIcon()" />
                                                 </div>
                                             </th>
                                             <th colspan="1" @click="depthOption(script, optionsStore.upputSO)">
-                                                <div style="min-width: 32px; border-radius: 4px; border: thin solid var(--outline); padding: 1px 4px; background-color: var(--mainbg)"
+                                                <div style="min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
                                                     class="cursor-p ml-1">
                                                     <v-icon size="16" color="maintext">mdi-format-align-center</v-icon>
                                                 </div>
                                             </th>
                                             <th colspan="1" @click="chartOption(script, optionsStore.upputSO)">
-                                                <div style="min-width: 32px; border-radius: 4px; border: thin solid var(--outline); padding: 1px 4px; background-color: var(--mainbg)"
+                                                <div style="min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
                                                     class="cursor-p ml-1">
                                                     <v-icon size="16" color="maintext">mdi-chart-line-variant</v-icon>
                                                 </div>
@@ -463,7 +450,7 @@
                                     <!-- Put Side: CH -->
                                     <th colspan="2" class="text-center opdatas">
                                         <span
-                                            :style="`color:${optionsStore.upputSO[k]?.ch > 0 ? 'var(--maingreen)' : optionsStore.upputSO[k]?.ch < 0 ? 'var(--mainred)' : ''};`"
+                                            :style="`color:${optionsStore.upputSO[k]?.ch > 0 ? '#43A833' : optionsStore.upputSO[k]?.ch < 0 ? '#F23645' : ''};`"
                                             :id="`upput${optionsStore.upputSO[k]?.token || ''}chpclr`"
                                             class="optiondatasty">
                                             <span :id="`upput${optionsStore.upputSO[k]?.token || ''}ch`">
@@ -479,16 +466,14 @@
                                     <!-- Put Side: BID (optional) -->
                                     <th v-if="optionsStore.bitcheckbox" colspan="1" class="text-center opdatas">
                                         <span class="optiondatasty"
-                                            :id="`upput${optionsStore.upputSO[k]?.token || ''}bid`">
-                                            {{ optionsStore.upputSO[k]?.bid ? optionsStore.upputSO[k].bid : '0.00' }}
-                                        </span>
+                                            :id="`upput${optionsStore.upputSO[k]?.token || ''}bid`"
+                                            v-html="optionsStore.upputSO[k]?.bid ? optionsStore.upputSO[k].bid : '0.00'"></span>
                                     </th>
                                     <!-- Put Side: ASK (optional) -->
                                     <th v-if="optionsStore.askcheckbox" colspan="1" class="text-center opdatas">
                                         <span class="optiondatasty"
-                                            :id="`upput${optionsStore.upputSO[k]?.token || ''}ask`">
-                                            {{ optionsStore.upputSO[k]?.ask ? optionsStore.upputSO[k].ask : '0.00' }}
-                                        </span>
+                                            :id="`upput${optionsStore.upputSO[k]?.token || ''}ask`"
+                                            v-html="optionsStore.upputSO[k]?.ask ? optionsStore.upputSO[k].ask : '0.00'"></span>
                                     </th>
                                     <!-- Put Side: OI with Progress Bar -->
                                     <th colspan="2" class="text-center opdatas opdatacalluphov">
@@ -501,7 +486,7 @@
                                                     }}
                                                 </span>
                                                 <span :id="`upput${optionsStore.upputSO[k]?.token || ''}oiclr`"
-                                                    :style="`color:${optionsStore.upputSO[k]?.oich > 0 ? 'var(--maingreen)' : optionsStore.upputSO[k]?.oich < 0 ? 'var(--mainred)' : 'none'};`"
+                                                    :style="`color:${optionsStore.upputSO[k]?.oich > 0 ? '#43A833' : optionsStore.upputSO[k]?.oich < 0 ? '#F23645' : 'none'};`"
                                                     class="optionchsty">
                                                     <span :id="`upput${optionsStore.upputSO[k]?.token || ''}oich`">
                                                         ({{ optionsStore.upputSO[k]?.oich ? optionsStore.upputSO[k].oich
@@ -514,33 +499,28 @@
                                     <!-- Put Side: VOL -->
                                     <th colspan="2" class="text-center opdatas">
                                         <span class="optiondatasty"
-                                            :id="`upput${optionsStore.upputSO[k]?.token || ''}vol`">
-                                            {{ optionsStore.upputSO[k]?.vol ? optionsStore.upputSO[k].vol : '0.00' }}
-                                        </span>
+                                            :id="`upput${optionsStore.upputSO[k]?.token || ''}vol`"
+                                            v-html="optionsStore.upputSO[k]?.vol ? optionsStore.upputSO[k].vol : '0.00'"></span>
                                     </th>
                                     <!-- Put Side: Greeks (optional) -->
                                     <th v-if="optionsStore.deltacheckbox" colspan="1" class="text-center pa-0">
-                                        <div width="100%" height="32px" class="optiondatasty">
-                                            {{ optionsStore.upputSO[k]?.delta ? optionsStore.upputSO[k].delta : '0.0000'
-                                            }}
+                                        <div width="100%" height="32px" class="optiondatasty"
+                                            v-html="optionsStore.upputSO[k]?.delta ? optionsStore.upputSO[k].delta : '0.0000'">
                                         </div>
                                     </th>
                                     <th v-if="optionsStore.gamacheckbox" colspan="1" class="text-center pa-0">
-                                        <div width="100%" height="32px" class="optiondatasty">
-                                            {{ optionsStore.upputSO[k]?.gamma ? optionsStore.upputSO[k].gamma : '0.0000'
-                                            }}
+                                        <div width="100%" height="32px" class="optiondatasty"
+                                            v-html="optionsStore.upputSO[k]?.gamma ? optionsStore.upputSO[k].gamma : '0.0000'">
                                         </div>
                                     </th>
                                     <th v-if="optionsStore.vagacheckbox" colspan="1" class="text-center pa-0">
-                                        <div width="100%" height="32px" class="optiondatasty">
-                                            {{ optionsStore.upputSO[k]?.vega ? optionsStore.upputSO[k].vega : '0.0000'
-                                            }}
+                                        <div width="100%" height="32px" class="optiondatasty"
+                                            v-html="optionsStore.upputSO[k]?.vega ? optionsStore.upputSO[k].vega : '0.0000'">
                                         </div>
                                     </th>
                                     <th v-if="optionsStore.thetacheckbox" colspan="1" class="text-center pa-0">
-                                        <div width="100%" height="32px" class="optiondatasty">
-                                            {{ optionsStore.upputSO[k]?.theta ? optionsStore.upputSO[k].theta : '0.0000'
-                                            }}
+                                        <div width="100%" height="32px" class="optiondatasty"
+                                            v-html="optionsStore.upputSO[k]?.theta ? optionsStore.upputSO[k].theta : '0.0000'">
                                         </div>
                                     </th>
                                     </tr>
@@ -570,33 +550,28 @@
                                         <!-- Call Side: Greeks (optional) -->
                                         <th v-if="optionsStore.thetacheckbox" colspan="1" class="text-center pa-0"
                                             :style="optionsStore.opdatabgs">
-                                            <div width="100%" height="32px" class="optiondatasty">
-                                                {{ script.theta ? script.theta : '0.0000' }}
-                                            </div>
+                                            <div width="100%" height="32px" class="optiondatasty"
+                                                v-html="script.theta ? script.theta : '0.0000'"></div>
                                         </th>
                                         <th v-if="optionsStore.vagacheckbox" colspan="1" class="text-center pa-0"
                                             :style="optionsStore.opdatabgs">
-                                            <div width="100%" height="32px" class="optiondatasty">
-                                                {{ script.vega ? script.vega : '0.0000' }}
-                                            </div>
+                                            <div width="100%" height="32px" class="optiondatasty"
+                                                v-html="script.vega ? script.vega : '0.0000'"></div>
                                         </th>
                                         <th v-if="optionsStore.gamacheckbox" colspan="1" class="text-center pa-0"
                                             :style="optionsStore.opdatabgs">
-                                            <div width="100%" height="32px" class="optiondatasty">
-                                                {{ script.gamma ? script.gamma : '0.0000' }}
-                                            </div>
+                                            <div width="100%" height="32px" class="optiondatasty"
+                                                v-html="script.gamma ? script.gamma : '0.0000'"></div>
                                         </th>
                                         <th v-if="optionsStore.deltacheckbox" colspan="1" class="text-center pa-0"
                                             :style="optionsStore.opdatabgs">
-                                            <div width="100%" height="32px" class="optiondatasty">
-                                                {{ script.delta ? script.delta : '0.0000' }}
-                                            </div>
+                                            <div width="100%" height="32px" class="optiondatasty"
+                                                v-html="script.delta ? script.delta : '0.0000'"></div>
                                         </th>
                                         <!-- Call Side: VOL -->
                                         <th colspan="2" class="text-center opdatas" :style="optionsStore.opdatabgs">
-                                            <span class="optiondatasty" :id="`dwncall${script.token}vol`">
-                                                {{ script.vol ? script.vol : '0.00' }}
-                                            </span>
+                                            <span class="optiondatasty" :id="`dwncall${script.token}vol`"
+                                                v-html="script.vol ? script.vol : '0.00'"></span>
                                         </th>
                                         <!-- Call Side: OI with Progress Bar -->
                                         <th colspan="2" class="text-center opdatas opdatacalluphov"
@@ -608,7 +583,7 @@
                                                         '0.00'
                                                         }}</span>
                                                     <span :id="`dwncall${script.token}oiclr`"
-                                                        :style="`color:${script.oich > 0 ? 'var(--maingreen)' : script.oich < 0 ? 'var(--mainred)' : 'none'};`"
+                                                        :style="`color:${script.oich > 0 ? '#43A833' : script.oich < 0 ? '#F23645' : 'none'};`"
                                                         class="optionchsty">
                                                         <span :id="`dwncall${script.token}oich`">({{ script.oich ?
                                                             script.oich : '0.00'
@@ -620,21 +595,19 @@
                                         <!-- Call Side: BID (optional) -->
                                         <th v-if="optionsStore.bitcheckbox" colspan="1" class="text-center opdatas"
                                             :style="optionsStore.opdatabgs">
-                                            <span class="optiondatasty" :id="`dwncall${script.token}bid`">
-                                                {{ script.bid ? script.bid : '0.00' }}
-                                            </span>
+                                            <span class="optiondatasty" :id="`dwncall${script.token}bid`"
+                                                v-html="script.bid ? script.bid : '0.00'"></span>
                                         </th>
                                         <!-- Call Side: ASK (optional) -->
                                         <th v-if="optionsStore.askcheckbox" colspan="1" class="text-center opdatas"
                                             :style="optionsStore.opdatabgs">
-                                            <span class="optiondatasty" :id="`dwncall${script.token}ask`">
-                                                {{ script.ask ? script.ask : '0.00' }}
-                                            </span>
+                                            <span class="optiondatasty" :id="`dwncall${script.token}ask`"
+                                                v-html="script.ask ? script.ask : '0.00'"></span>
                                         </th>
                                         <!-- Call Side: CH -->
                                         <th colspan="2" class="text-center opdatas" :style="optionsStore.opdatabgs">
                                             <span
-                                                :style="`color:${script.ch > 0 ? 'var(--maingreen)' : script.ch < 0 ? 'var(--mainred)' : ''};`"
+                                                :style="`color:${script.ch > 0 ? '#43A833' : script.ch < 0 ? '#F23645' : ''};`"
                                                 :id="`dwncall${script.token}chpclr`" class="optiondatasty">
                                                 <span :id="`dwncall${script.token}ch`">{{ script.ch ? script.ch :
                                                     '0.00'
@@ -647,42 +620,41 @@
                                         <!-- Call Side: LTP -->
                                         <th colspan="2" class="text-center opdatacalluphov opdatas"
                                             :style="optionsStore.opdatabgs">
-                                            <span class="optiondatasty" :id="`dwncall${script.token}ltp`">
-                                                {{ Number(script.ltp) ? script.ltp : '0.00' }}
-                                            </span>
+                                            <span class="optiondatasty" :id="`dwncall${script.token}ltp`"
+                                                v-html="Number(script.ltp) ? script.ltp : '0.00'"></span>
                                             <!-- Hover Action Buttons (Left Side) -->
                                     <tr v-if="script.token" class="opdatacallupbtn lfttrbtn"
                                         style="margin-left: -192px">
                                         <th colspan="1" @click="chartOption(script)">
-                                            <div style="min-width: 32px; border-radius: 4px; border: thin solid var(--outline); padding: 1px 4px; background-color: var(--mainbg)"
+                                            <div style="min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
                                                 class="cursor-p mr-1">
                                                 <v-icon size="16" color="maintext">mdi-chart-line-variant</v-icon>
                                             </div>
                                         </th>
                                         <th colspan="1" @click="depthOption(script)">
-                                            <div style="min-width: 32px; border-radius: 4px; border: thin solid var(--outline); padding: 1px 4px; background-color: var(--mainbg)"
+                                            <div style="min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
                                                 class="cursor-p mr-1">
                                                 <v-icon size="16" color="maintext">mdi-format-align-center</v-icon>
                                             </div>
                                         </th>
                                         <th colspan="1" @click="basketOption(script)">
-                                            <div style="height: 22px; min-width: 32px; border-radius: 4px; border: thin solid var(--outline); padding: 1px 4px; background-color: var(--mainbg)"
+                                            <div style="height: 22px; min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
                                                 class="cursor-p mr-1">
                                                 <img width="16px" :src="getBasketIcon()" />
                                             </div>
                                         </th>
                                         <th colspan="1" @click="addOption(script)">
-                                            <div style="min-width: 32px; border-radius: 4px; border: thin solid var(--outline); padding: 1px 4px; background-color: var(--mainbg)"
+                                            <div style="min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
                                                 class="cursor-p mr-1">
                                                 <v-icon size="16" color="maintext">mdi-bookmark-outline</v-icon>
                                             </div>
                                         </th>
                                         <th colspan="1" @click="sellOption(script)">
-                                            <div style="background-color: red !important;color: white !important;"
+                                            <div style="background-color: #F23645"
                                                 class="newhoverbtn newhoverbtnsize white--text cursor-p">S</div>
                                         </th>
                                         <th colspan="1" @click="buyOption(script)">
-                                            <div style="background-color: green !important;color: white !important;"
+                                            <div style="background-color: #43A833"
                                                 class="newhoverbtn newhoverbtnsize white--text cursor-p">B</div>
                                         </th>
                                     </tr>
@@ -690,9 +662,8 @@
                                     <!-- Call Side: IV (optional) -->
                                     <th v-if="optionsStore.ivcheckbox" colspan="1" class="text-center pa-0"
                                         :style="optionsStore.opdatabgs">
-                                        <div width="100%" height="32px" class="optiondatasty">
-                                            {{ script.IV ? script.IV : '0.00' }}
-                                        </div>
+                                        <div width="100%" height="32px" class="optiondatasty"
+                                            v-html="script.IV ? script.IV : '0.00'"></div>
                                     </th>
                                     <!-- Strike Price (Center) -->
                                     <th colspan="4" class="text-center opstrprcborder opdatacalluphov pos-rlt"
@@ -743,48 +714,45 @@
                                     </th>
                                     <!-- Put Side: IV (optional) -->
                                     <th v-if="optionsStore.ivcheckbox" colspan="1" class="text-center pa-0">
-                                        <div width="100%" height="32px" class="optiondatasty">
-                                            {{ optionsStore.dwnputSO[k]?.IV ? optionsStore.dwnputSO[k].IV : '0.00' }}
-                                        </div>
+                                        <div width="100%" height="32px" class="optiondatasty"
+                                            v-html="optionsStore.dwnputSO[k]?.IV ? optionsStore.dwnputSO[k].IV : '0.00'"></div>
                                     </th>
                                     <!-- Put Side: LTP -->
                                     <th colspan="2" class="text-center opdatacalluphov opdatas">
                                         <span class="optiondatasty"
-                                            :id="`dwnput${optionsStore.dwnputSO[k]?.token || ''}ltp`">
-                                            {{ Number(optionsStore.dwnputSO[k]?.ltp) ? optionsStore.dwnputSO[k].ltp :
-                                                '0.00' }}
-                                        </span>
+                                            :id="`dwnput${optionsStore.dwnputSO[k]?.token || ''}ltp`"
+                                            v-html="Number(optionsStore.dwnputSO[k]?.ltp) ? optionsStore.dwnputSO[k].ltp : '0.00'"></span>
                                         <!-- Hover Action Buttons (Right Side - Lower) -->
                                         <tr v-if="optionsStore.dwnputSO[k] && optionsStore.dwnputSO[k].token"
                                             class="opdatacallupbtn dwnrghtrbtn">
                                             <th colspan="1" @click="buyOption(script, optionsStore.dwnputSO)">
-                                                <div style="background-color: green !important;color: white !important;"
+                                                <div style="background-color: #43A833"
                                                     class="newhoverbtn newhoverbtnsize white--text cursor-p">B</div>
                                             </th>
                                             <th colspan="1" @click="sellOption(script, optionsStore.dwnputSO)">
-                                                <div style="background-color: red !important;color: white !important;"
+                                                <div style="background-color: #F23645"
                                                     class="newhoverbtn newhoverbtnsize white--text cursor-p">S</div>
                                             </th>
                                             <th colspan="1" @click="addOption(script, optionsStore.dwnputSO)">
-                                                <div style="min-width: 32px; border-radius: 4px; border: thin solid var(--outline); padding: 1px 4px; background-color: var(--mainbg)"
+                                                <div style="min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
                                                     class="cursor-p">
                                                     <v-icon size="16" color="maintext">mdi-bookmark-outline</v-icon>
                                                 </div>
                                             </th>
                                             <th colspan="1" @click="basketOption(script, optionsStore.dwnputSO)">
-                                                <div style="height: 22px; min-width: 32px; border-radius: 4px; border: thin solid var(--outline); padding: 1px 4px; background-color: var(--mainbg)"
+                                                <div style="height: 22px; min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
                                                     class="cursor-p ml-1">
                                                     <img width="16px" :src="getBasketIcon()" />
                                                 </div>
                                             </th>
                                             <th colspan="1" @click="depthOption(script, optionsStore.dwnputSO)">
-                                                <div style="min-width: 32px; border-radius: 4px; border: thin solid var(--outline); padding: 1px 4px; background-color: var(--mainbg)"
+                                                <div style="min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
                                                     class="cursor-p ml-1">
                                                     <v-icon size="16" color="maintext">mdi-format-align-center</v-icon>
                                                 </div>
                                             </th>
                                             <th colspan="1" @click="chartOption(script, optionsStore.dwnputSO)">
-                                                <div style="min-width: 32px; border-radius: 4px; border: thin solid var(--outline); padding: 1px 4px; background-color: var(--mainbg)"
+                                                <div style="min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
                                                     class="cursor-p ml-1">
                                                     <v-icon size="16" color="maintext">mdi-chart-line-variant</v-icon>
                                                 </div>
@@ -794,7 +762,7 @@
                                     <!-- Put Side: CH -->
                                     <th colspan="2" class="text-center opdatas">
                                         <span
-                                            :style="`color:${optionsStore.dwnputSO[k]?.ch > 0 ? 'var(--maingreen)' : optionsStore.dwnputSO[k]?.ch < 0 ? 'var(--mainred)' : ''};`"
+                                            :style="`color:${optionsStore.dwnputSO[k]?.ch > 0 ? '#43A833' : optionsStore.dwnputSO[k]?.ch < 0 ? '#F23645' : ''};`"
                                             :id="`dwnput${optionsStore.dwnputSO[k]?.token || ''}chpclr`"
                                             class="optiondatasty">
                                             <span :id="`dwnput${optionsStore.dwnputSO[k]?.token || ''}ch`">
@@ -812,16 +780,14 @@
                                     <!-- Put Side: BID (optional) -->
                                     <th v-if="optionsStore.bitcheckbox" colspan="1" class="text-center pa-0">
                                         <div width="100%" height="32px" class="optiondatasty"
-                                            :id="`dwnput${optionsStore.dwnputSO[k]?.token || ''}bid`">
-                                            {{ optionsStore.dwnputSO[k]?.bid ? optionsStore.dwnputSO[k].bid : '0.00' }}
-                                        </div>
+                                            :id="`dwnput${optionsStore.dwnputSO[k]?.token || ''}bid`"
+                                            v-html="optionsStore.dwnputSO[k]?.bid ? optionsStore.dwnputSO[k].bid : '0.00'"></div>
                                     </th>
                                     <!-- Put Side: ASK (optional) -->
                                     <th v-if="optionsStore.askcheckbox" colspan="1" class="text-center pa-0">
                                         <div width="100%" height="32px" class="optiondatasty"
-                                            :id="`dwnput${optionsStore.dwnputSO[k]?.token || ''}ask`">
-                                            {{ optionsStore.dwnputSO[k]?.ask ? optionsStore.dwnputSO[k].ask : '0.00' }}
-                                        </div>
+                                            :id="`dwnput${optionsStore.dwnputSO[k]?.token || ''}ask`"
+                                            v-html="optionsStore.dwnputSO[k]?.ask ? optionsStore.dwnputSO[k].ask : '0.00'"></div>
                                     </th>
                                     <!-- Put Side: OI with Progress Bar -->
                                     <th colspan="2" class="text-center opdatas opdatacalluphov">
@@ -835,7 +801,7 @@
                                                     }}
                                                 </span>
                                                 <span :id="`dwnput${optionsStore.dwnputSO[k]?.token || ''}oiclr`"
-                                                    :style="`color:${optionsStore.dwnputSO[k]?.oich > 0 ? 'var(--maingreen)' : optionsStore.dwnputSO[k]?.oich < 0 ? 'var(--mainred)' : 'none'};`"
+                                                    :style="`color:${optionsStore.dwnputSO[k]?.oich > 0 ? '#43A833' : optionsStore.dwnputSO[k]?.oich < 0 ? '#F23645' : 'none'};`"
                                                     class="optionchsty">
                                                     <span :id="`dwnput${optionsStore.dwnputSO[k]?.token || ''}oich`">
                                                         ({{ optionsStore.dwnputSO[k]?.oich ?
@@ -849,37 +815,28 @@
                                     <!-- Put Side: VOL -->
                                     <th colspan="2" class="text-center opdatas">
                                         <span class="optiondatasty"
-                                            :id="`dwnput${optionsStore.dwnputSO[k]?.token || ''}vol`">
-                                            {{ optionsStore.dwnputSO[k]?.vol ? optionsStore.dwnputSO[k].vol : '0.00' }}
-                                        </span>
+                                            :id="`dwnput${optionsStore.dwnputSO[k]?.token || ''}vol`"
+                                            v-html="optionsStore.dwnputSO[k]?.vol ? optionsStore.dwnputSO[k].vol : '0.00'"></span>
                                     </th>
                                     <!-- Put Side: Greeks (optional) -->
                                     <th v-if="optionsStore.deltacheckbox" colspan="1" class="text-center pa-0">
-                                        <div width="100%" height="32px" class="optiondatasty">
-                                            {{ optionsStore.dwnputSO[k]?.delta ? optionsStore.dwnputSO[k].delta :
-                                                '0.0000'
-                                            }}
+                                        <div width="100%" height="32px" class="optiondatasty"
+                                            v-html="optionsStore.dwnputSO[k]?.delta ? optionsStore.dwnputSO[k].delta : '0.0000'">
                                         </div>
                                     </th>
                                     <th v-if="optionsStore.gamacheckbox" colspan="1" class="text-center pa-0">
-                                        <div width="100%" height="32px" class="optiondatasty">
-                                            {{ optionsStore.dwnputSO[k]?.gamma ? optionsStore.dwnputSO[k].gamma :
-                                                '0.0000'
-                                            }}
+                                        <div width="100%" height="32px" class="optiondatasty"
+                                            v-html="optionsStore.dwnputSO[k]?.gamma ? optionsStore.dwnputSO[k].gamma : '0.0000'">
                                         </div>
                                     </th>
                                     <th v-if="optionsStore.vagacheckbox" colspan="1" class="text-center pa-0">
-                                        <div width="100%" height="32px" class="optiondatasty">
-                                            {{ optionsStore.dwnputSO[k]?.vega ? optionsStore.dwnputSO[k].vega :
-                                                '0.0000'
-                                            }}
+                                        <div width="100%" height="32px" class="optiondatasty"
+                                            v-html="optionsStore.dwnputSO[k]?.vega ? optionsStore.dwnputSO[k].vega : '0.0000'">
                                         </div>
                                     </th>
                                     <th v-if="optionsStore.thetacheckbox" colspan="1" class="text-center pa-0">
-                                        <div width="100%" height="32px" class="optiondatasty">
-                                            {{ optionsStore.dwnputSO[k]?.theta ? optionsStore.dwnputSO[k].theta :
-                                                '0.0000'
-                                            }}
+                                        <div width="100%" height="32px" class="optiondatasty"
+                                            v-html="optionsStore.dwnputSO[k]?.theta ? optionsStore.dwnputSO[k].theta : '0.0000'">
                                         </div>
                                     </th>
                                     </tr>
@@ -1052,14 +1009,14 @@
                             <div class="pa-3">
                                 <p class="mt-0 mb-1">Bullish</p>
                                 <div class="d-flex align-center mb-2">
-                                    <div style="background-color: var(--maingreen)" class="infobarstatus"></div>
+                                    <div style="background-color: #43A833" class="infobarstatus"></div>
                                     <div class="ml-2">
                                         <p class="mb-0 font-weight-medium">Up trend (Long build-up)</p>
                                         <p class="text-caption mb-0">More traders are buying</p>
                                     </div>
                                 </div>
                                 <div class="d-flex align-center">
-                                    <div style="background-color: var(--secgreen)" class="infobarstatus"></div>
+                                    <div style="background-color: #ECF8F1" class="infobarstatus"></div>
                                     <div class="ml-2">
                                         <p class="mb-0 font-weight-medium">Down trend (Short covering)</p>
                                         <p class="text-caption mb-0">Buyers are squaring</p>
@@ -1073,14 +1030,14 @@
                             <div class="pa-3">
                                 <p class="mt-0 mb-1">Bearish</p>
                                 <div class="d-flex align-center mb-2">
-                                    <div style="background-color: var(--mainred)" class="infobarstatus"></div>
+                                    <div style="background-color: #F23645" class="infobarstatus"></div>
                                     <div class="ml-2">
                                         <p class="mb-0 font-weight-medium">Down trend (Short build-up)</p>
                                         <p class="text-caption mb-0">More traders are selling</p>
                                     </div>
                                 </div>
                                 <div class="d-flex align-center">
-                                    <div style="background-color: var(--secred)" class="infobarstatus"></div>
+                                    <div style="background-color: #ffcdcd90" class="infobarstatus"></div>
                                     <div class="ml-2">
                                         <p class="mb-0 font-weight-medium">Down trend (Long unwinding)</p>
                                         <p class="text-caption mb-0">Profit booking</p>
@@ -1130,13 +1087,18 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useTheme } from 'vuetify'
 import { useOptionsStore } from '@/stores/optionsStore'
 import { useAuthStore } from '@/stores/authStore'
 import { useAppStore } from '@/stores/appStore'
 import { getMasters, getOptionschain, getQuotesdata, getGreekoptions, getMPosotion } from '@/components/mixins/getAPIdata'
+import basketIconLight from '@/assets/usermenu/9.svg'
+import basketIconDark from '@/assets/usermenu/9d.svg'
+import basketOrderIcon from '@/assets/usermenu/9opt.svg'
 
 const route = useRoute()
 const router = useRouter()
+const theme = useTheme()
 const optionsStore = useOptionsStore()
 const authStore = useAuthStore()
 const appStore = useAppStore()
@@ -1827,10 +1789,10 @@ function optionChainDataParse(data) {
         // Update bar color based on price change and OI change
         const ch = typeof merged.ch !== 'undefined' ? merged.ch : parseFloat(option.ch) || 0
         const oich = typeof option.oich !== 'undefined' ? parseFloat(option.oich) : 0
-        option.bar = ch > 0 && oich > 0 ? 'var(--maingreen)'
-            : ch < 0 && oich > 0 ? 'var(--mainred)'
-                : ch > 0 && oich < 0 ? 'var(--secgreen)'
-                    : ch < 0 && oich < 0 ? 'var(--secred)'
+        option.bar = ch > 0 && oich > 0 ? '#43A833'
+            : ch < 0 && oich > 0 ? '#F23645'
+                : ch > 0 && oich < 0 ? '#ECF8F1'
+                    : ch < 0 && oich < 0 ? '#ffcdcd90'
                         : 'rgba(0, 0, 0, 0.12)'
 
         // Update position data if exists
@@ -1883,10 +1845,10 @@ function optionChainDataParse(data) {
         // Update bar color
         const ch = typeof merged.ch !== 'undefined' ? merged.ch : parseFloat(option.ch) || 0
         const oich = typeof option.oich !== 'undefined' ? parseFloat(option.oich) : 0
-        option.bar = ch > 0 && oich > 0 ? 'var(--maingreen)'
-            : ch < 0 && oich > 0 ? 'var(--mainred)'
-                : ch > 0 && oich < 0 ? 'var(--secgreen)'
-                    : ch < 0 && oich < 0 ? 'var(--secred)'
+        option.bar = ch > 0 && oich > 0 ? '#43A833'
+            : ch < 0 && oich > 0 ? '#F23645'
+                : ch > 0 && oich < 0 ? '#ECF8F1'
+                    : ch < 0 && oich < 0 ? '#ffcdcd90'
                         : 'rgba(0, 0, 0, 0.12)'
 
         // Update position data if exists
@@ -1939,10 +1901,10 @@ function optionChainDataParse(data) {
         // Update bar color
         const ch = typeof merged.ch !== 'undefined' ? merged.ch : parseFloat(option.ch) || 0
         const oich = typeof option.oich !== 'undefined' ? parseFloat(option.oich) : 0
-        option.bar = ch > 0 && oich > 0 ? 'var(--maingreen)'
-            : ch < 0 && oich > 0 ? 'var(--mainred)'
-                : ch > 0 && oich < 0 ? 'var(--secgreen)'
-                    : ch < 0 && oich < 0 ? 'var(--secred)'
+        option.bar = ch > 0 && oich > 0 ? '#43A833'
+            : ch < 0 && oich > 0 ? '#F23645'
+                : ch > 0 && oich < 0 ? '#ECF8F1'
+                    : ch < 0 && oich < 0 ? '#ffcdcd90'
                         : 'rgba(0, 0, 0, 0.12)'
 
         // Update position data if exists
@@ -1995,10 +1957,10 @@ function optionChainDataParse(data) {
         // Update bar color
         const ch = typeof merged.ch !== 'undefined' ? merged.ch : parseFloat(option.ch) || 0
         const oich = typeof option.oich !== 'undefined' ? parseFloat(option.oich) : 0
-        option.bar = ch > 0 && oich > 0 ? 'var(--maingreen)'
-            : ch < 0 && oich > 0 ? 'var(--mainred)'
-                : ch > 0 && oich < 0 ? 'var(--secgreen)'
-                    : ch < 0 && oich < 0 ? 'var(--secred)'
+        option.bar = ch > 0 && oich > 0 ? '#43A833'
+            : ch < 0 && oich > 0 ? '#F23645'
+                : ch > 0 && oich < 0 ? '#ECF8F1'
+                    : ch < 0 && oich < 0 ? '#ffcdcd90'
                         : 'rgba(0, 0, 0, 0.12)'
 
         // Update position data if exists
@@ -2099,7 +2061,7 @@ function setOptionchainvalue(k, t, d) {
         if (chpclrTag) {
             const ch = parseFloat(d.ch) || 0
             chpclrTag.className = ch > 0 ? 'optiondatasty maingreen--text' : ch < 0 ? 'optiondatasty mainred--text' : 'optiondatasty'
-            chpclrTag.style.color = ch > 0 ? 'var(--maingreen)' : ch < 0 ? 'var(--mainred)' : ''
+            chpclrTag.style.color = ch > 0 ? '#43A833' : ch < 0 ? '#F23645' : ''
         }
 
         // Update OI
@@ -2118,7 +2080,7 @@ function setOptionchainvalue(k, t, d) {
         const oiclrTag = document.getElementById(`${k}${token}oiclr`)
         if (oiclrTag) {
             const oich = parseFloat(d.oich) || 0
-            oiclrTag.style.color = oich > 0 ? 'var(--maingreen)' : oich < 0 ? 'var(--mainred)' : 'none'
+            oiclrTag.style.color = oich > 0 ? '#43A833' : oich < 0 ? '#F23645' : 'none'
         }
 
         // Update VOL
@@ -2299,99 +2261,135 @@ async function getPositionbook() {
 
 // Phase 2: Helper functions for hover actions
 function getBasketIcon() {
-    // Check if dark mode is active
-    const isDark = document.documentElement.classList.contains('v-theme--dark') ||
-        window.matchMedia('(prefers-color-scheme: dark)').matches
-    return isDark ? '/src/assets/usermenu/9d.svg' : '/src/assets/usermenu/9.svg'
+    // Match old code: $vuetify.theme.dark - use Vuetify 3 theme
+    // Match old code: require(`@/assets/usermenu/${$vuetify.theme.dark ? '9d' : '9'}.svg`)
+    return theme.current.value.dark ? basketIconDark : basketIconLight
 }
 
 function chartOption(script, putArray) {
-    const optionScript = putArray ? putArray.find(p => p.token === script.token) : script
-    if (optionScript && optionScript.token) {
-        router.push({
-            name: 'stocks details',
-            params: {
-                val: ['chart', optionScript.token, optionScript.exch, optionScript.tsym]
-            }
-        })
+    // Match old code: chartOption logic exactly
+    let chart
+    if (typeof putArray === 'object' && putArray) {
+        chart = putArray.find((item) => item.strprc === script.strprc)
+    } else {
+        chart = script
+    }
+
+    // Match old code: eventBus.$emit('ssd-event', 'chart', chart.token, chart.exch, chart.tsym)
+    // StocksDetails expects both array and object formats - send as array for compatibility
+    if (chart && chart.token) {
+        window.dispatchEvent(new CustomEvent('ssd-event', {
+            detail: ['chart', chart.token, chart.exch, chart.tsym]
+        }))
     }
 }
 
 function depthOption(script, putArray) {
-    const optionScript = putArray ? putArray.find(p => p.token === script.token) : script
-    if (optionScript && optionScript.token) {
-        router.push({
-            name: 'stocks details',
-            params: {
-                val: ['depth', optionScript.token, optionScript.exch, optionScript.tsym]
-            }
-        })
+    // Match old code: depthOption logic exactly
+    let chart
+    if (typeof putArray === 'object' && putArray) {
+        chart = putArray.find((item) => item.strprc === script.strprc)
+    } else {
+        chart = script
     }
 
+    // Match old code: eventBus.$emit('ssd-event', 'depth', chart.token, chart.exch, chart.tsym)
+    // StocksDetails expects both array and object formats - send as array for compatibility
+    if (chart && chart.token) {
+        window.dispatchEvent(new CustomEvent('ssd-event', {
+            detail: ['depth', chart.token, chart.exch, chart.tsym]
+        }))
+    }
 }
 
 function basketOption(script, putArray) {
-    const optionScript = putArray ? putArray.find(p => p.token === script.token) : script
-    if (optionScript && optionScript.token) {
+    // Match old code: basketOption logic exactly
+    let bak
+    if (typeof putArray === 'object' && putArray) {
+        bak = putArray.find((item) => item.strprc === script.strprc)
+    } else {
+        bak = script
+    }
+
+    if (bak) {
+        bak.buySell = 'BUY'
+        bak.expdate = optionsStore.lsexd
+        bak.ordvai = 'MKT'
+        bak.ordlot = 1
+        bak.ordprc = Number(bak.ltp || 0)
+        bak.checkbox = true
+
+        // Match old code: eventBus.$emit('bskwatch-event', 'add', bak, this.optionchain)
         window.dispatchEvent(new CustomEvent('bskwatch-event', {
             detail: {
                 type: 'add',
-                data: {
-                    token: optionScript.token,
-                    exch: optionScript.exch,
-                    tsym: optionScript.tsym,
-                    ltp: optionScript.ltp || 0,
-                    ls: optionScript.ls || 1,
-                }
+                data: bak,
+                optionchain: optionsStore.optionchain
             }
         }))
     }
 }
 
 function addOption(script, putArray) {
-    const optionScript = putArray ? putArray.find(p => p.token === script.token) : script
-    if (optionScript && optionScript.token) {
+    // Match old code: addOption logic exactly
+    let Add
+    if (typeof putArray === 'object' && putArray) {
+        Add = putArray.find((item) => item.strprc === script.strprc)
+    } else {
+        Add = script
+    }
+
+    // Match old code: eventBus.$emit('addscript-wl', Add)
+    if (Add) {
         window.dispatchEvent(new CustomEvent('addscript-wl', {
-            detail: {
-                token: optionScript.token,
-                exch: optionScript.exch,
-                tsym: optionScript.tsym,
-                instname: optionScript.optt || 'OPT',
-                ls: optionScript.ls || 1,
-            }
+            detail: Add
         }))
     }
 }
 
 function buyOption(script, putArray) {
-    const optionScript = putArray ? putArray.find(p => p.token === script.token) : script
-    if (optionScript && optionScript.token) {
+    // Match old code: buyOption logic exactly
+    let buy
+    if (typeof putArray === 'object' && putArray) {
+        buy = putArray.find((item) => item.strprc === script.strprc)
+    } else {
+        buy = script
+    }
+
+    // Match old code: eventBus.$emit('menudialog', 'order', buy.token, buy.exch, buy.tsym, 'b')
+    // StockOrderWindow expects object format: { type, token, exch, tsym, trantype }
+    if (buy && buy.token) {
         window.dispatchEvent(new CustomEvent('menudialog', {
             detail: {
                 type: 'order',
-                token: optionScript.token,
-                exch: optionScript.exch,
-                tsym: optionScript.tsym,
-                side: 'b',
-                ltp: optionScript.ltp || 0,
-                ls: optionScript.ls || 1,
+                token: buy.token,
+                exch: buy.exch,
+                tsym: buy.tsym,
+                trantype: 'b'
             }
         }))
     }
 }
 
 function sellOption(script, putArray) {
-    const optionScript = putArray ? putArray.find(p => p.token === script.token) : script
-    if (optionScript && optionScript.token) {
+    // Match old code: sellOption logic exactly
+    let sell
+    if (typeof putArray === 'object' && putArray) {
+        sell = putArray.find((item) => item.strprc === script.strprc)
+    } else {
+        sell = script
+    }
+
+    // Match old code: eventBus.$emit('menudialog', 'order', sell.token, sell.exch, sell.tsym, 's')
+    // StockOrderWindow expects object format: { type, token, exch, tsym, trantype }
+    if (sell && sell.token) {
         window.dispatchEvent(new CustomEvent('menudialog', {
             detail: {
                 type: 'order',
-                token: optionScript.token,
-                exch: optionScript.exch,
-                tsym: optionScript.tsym,
-                side: 's',
-                ltp: optionScript.ltp || 0,
-                ls: optionScript.ls || 1,
+                token: sell.token,
+                exch: sell.exch,
+                tsym: sell.tsym,
+                trantype: 's'
             }
         }))
     }
@@ -2503,11 +2501,11 @@ onUnmounted(() => {
 }
 
 .maintext--text {
-    color: var(--maintext) !important;
+    color: #000 !important;
 }
 
 .subtext--text {
-    color: var(--subtext) !important;
+    color: #666666 !important;
 }
 
 .tvcharts .v-table>.v-table__wrapper>table {

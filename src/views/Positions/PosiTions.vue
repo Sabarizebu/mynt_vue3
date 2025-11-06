@@ -86,13 +86,13 @@
                 </v-tabs>
 
                 <v-spacer></v-spacer>
-                <v-text-field v-if="ordertab !== 'group'" style="max-width: 220px;background-color: var(--secbg);"
+                <v-text-field v-if="ordertab !== 'group'" style="max-width: 220px;background-color: #F1F3F8;"
                     v-model="opensearch" hide-details prepend-inner-icon="mdi-magnify" elevation="0" label="Search"
                     class="rounded-pill mr-4" density="comfortable" :bg-color="'secbg'" />
 
                 <v-select v-if="ordertab !== 'group'" v-model="exchtype" :items="dashitems" item-title="txt"
                     item-value="val" density="comfortable" class="rounded-pill"
-                    style="max-width: 150px;background-color: var(--secbg);" :bg-color="'secbg'"
+                    style="max-width: 150px;background-color: #F1F3F8;" :bg-color="'secbg'"
                     prepend-inner-icon="mdi-format-list-bulleted" hide-details label="Filter" />
 
 
@@ -109,7 +109,7 @@
                     <v-data-table show-select v-model="posdselected" must-sort :item-value="'tokn'" :sort-by="['way']"
                         :sort-desc="[true]" :loading="loading" density="compact" mobile-breakpoint="900" fixed-header
                         height="480px" class="rounded-lg overflow-y-auto"
-                        style="border-radius: 4px; border: 1px solid var(--outline); min-width:660px;"
+                        style="border-radius: 4px; border: 1px solid #EBEEF0; min-width:660px;"
                         :headers="positionHeaders" :hide-default-footer="true" :search="opensearch"
                         :items="filteredPositions" :items-per-page="-1"
                         @click:row="(event, { item }) => setPositionrowdata(item?.raw || item)">
@@ -159,7 +159,7 @@
                     <v-data-table must-sort :item-value="'tokn'" :sort-by="['way']" :sort-desc="[true]"
                         :loading="exloading" :hide-default-footer="true" density="compact" mobile-breakpoint="900"
                         fixed-header height="480px" class="rounded-lg overflow-y-auto"
-                        style="border-radius: 4px; border: 1px solid var(--outline); min-width:660px;"
+                        style="border-radius: 4px; border: 1px solid #EBEEF0; min-width:660px;"
                         :headers="expositionHeaders" :search="opensearch" :items="expositiondata" :items-per-page="-1">
                         <template v-slot:no-data>
                             <v-row justify="center" align="center" class="py-10">
