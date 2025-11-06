@@ -100,7 +100,7 @@
                         <template v-slot:activator="{ on: tooltipOn, attrs: tooltipAttrs }">
                             <div v-bind="tooltipAttrs" v-on="tooltipOn">
                                 <v-btn v-bind="attrs" v-on="on" @click="handleUserIdClick" color="secbg"
-                                    style="background-color: var(--secbg) !important;color: black !important;" small
+                                    style="background-color: #F1F3F8 !important;color: black !important;" small
                                     class="mx-1 elevation-0">
                                     <span class="font-weight-medium fs-14">
                                         {{ authStore.clientdata?.CLIENT_ID || authStore.uid || "-" }}
@@ -611,7 +611,7 @@ watch(
 .menu-text-sty {
     font-size: 12px;
     font-weight: 500 !important;
-    color: var(--maintext) !important;
+    color: #000 !important;
     opacity: 1 !important;
 }
 
@@ -620,7 +620,7 @@ watch(
 .menu-btn-active.menu-btn .v-btn__content,
 .menu-btn-active.menu-btn .menu-text-sty,
 .menu-btn-active .menu-text-sty {
-    color: var(--v-primary-base, var(--primary)) !important;
+    color: var(--v-primary-base, #0037B7) !important;
     /* font-weight: 700 !important; */
     background-color: transparent !important;
 }
@@ -628,7 +628,7 @@ watch(
 /* Override Vuetify's default active state for router links - only allow exact match */
 .menu-btn.router-link-exact-active:not(.router-link-active) .menu-text-sty,
 .menu-btn.router-link-exact-active:not(.router-link-active) .v-btn__content {
-    color: var(--v-primary-base, var(--primary)) !important;
+    color: var(--v-primary-base, #0037B7) !important;
     /* font-weight: 700 !important; */
     background-color: transparent !important;
 }
@@ -637,7 +637,7 @@ watch(
 .menu-btn:not(.menu-btn-active).v-btn--active .menu-text-sty,
 .menu-btn:not(.menu-btn-active).router-link-active:not(.router-link-exact-active) .menu-text-sty,
 .menu-btn:not(.menu-btn-active).v-btn--active .v-btn__content {
-    color: var(--maintext) !important;
+    color: #000 !important;
     font-weight: 500 !important;
 }
 

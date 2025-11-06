@@ -11,7 +11,7 @@
                 <v-icon>mdi-chevron-right</v-icon>
             </template>
         </v-breadcrumbs>
-        <v-card style="border: thin solid var(--outline) !important" variant="outlined" class="rounded-lg mt-4 mb-8 crd-trn">
+        <v-card style="border: thin solid #EBEEF0 !important" variant="outlined" class="rounded-lg mt-4 mb-8 crd-trn">
             <v-toolbar class="elevation-0 mb-4 mb-sm-2 my-4" density="compact" color="transparent">
                 <img width="40px" :src="getTradeActionIcon(tradeaction)" :alt="getTradeActionIconAlt(tradeaction)"
                     class="mr-2" />

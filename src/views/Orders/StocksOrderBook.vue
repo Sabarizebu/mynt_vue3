@@ -33,7 +33,7 @@
 
         <v-data-table v-if="ordertab === 'orders'" v-model="orddselected" :headers="orderheader"
             :items="filteredOpenSorted" :loading="loading" fixed-header :hide-default-footer="true" :items-per-page="-1"
-            class="mt-3 rounded-lg overflow-y-auto" style="border-radius: 4px; border: 1px solid var(--outline)"
+            class="mt-3 rounded-lg overflow-y-auto" style="border-radius: 4px; border: 1px solid #EBEEF0"
             height="480" item-key="norenordno" show-select @click:row="(_, { item }) => setOrderrowdata(item)">
             <template #item.norentm="{ item }">
                 <span class="font-weight-medium maintext--text">{{ timeStr(item.norentm) }}</span>
@@ -54,30 +54,30 @@
                     <div @click.stop class="pos-abs table-hov" style="top: 15px; right: 0">
                         <v-btn
                             v-if="item.status !== 'COMPLETE' && item.status !== 'CANCELED' && item.status !== 'REJECTED'"
-                            @click="onModify(item)" style="border: 1px solid var(--outline)" min-width="20px"
+                            @click="onModify(item)" style="border: 1px solid #EBEEF0" min-width="20px"
                             color="mainbg" class="px-0 font-weight-bold white--text elevation-0 mr-1" size="x-small">
                             <v-icon size="18" color="maintext">mdi-pen</v-icon>
                         </v-btn>
                         <v-btn
                             v-if="item.status !== 'COMPLETE' && item.status !== 'CANCELED' && item.status !== 'REJECTED'"
-                            @click="openCancelDialog(item)" style="border: 1px solid var(--outline)" min-width="20px"
+                            @click="openCancelDialog(item)" style="border: 1px solid #EBEEF0" min-width="20px"
                             color="mainbg" class="px-0 font-weight-bold white--text elevation-0 mr-1" size="x-small">
                             <v-icon size="18" color="maintext">mdi-close-circle-outline</v-icon>
                         </v-btn>
                         <v-btn @click="setSSDtab('chart', item.token, item.exch, item.tsym, null, item)"
-                            style="border: 1px solid var(--outline)" min-width="20px" color="mainbg"
+                            style="border: 1px solid #EBEEF0" min-width="20px" color="mainbg"
                             class="px-0 font-weight-bold white--text elevation-0 mr-1" size="x-small">
                             <v-icon size="18" color="maintext">mdi-chart-line-variant</v-icon>
                         </v-btn>
                         <v-btn
                             @click="setSSDtab('order', item.token, item.exch, item.tsym, item.trantype.toLowerCase(), item)"
-                            style="border: 1px solid var(--outline)" min-width="20px" color="mainbg"
+                            style="border: 1px solid #EBEEF0" min-width="20px" color="mainbg"
                             class="px-0 font-weight-bold white--text elevation-0 mr-1" size="x-small">
                             <v-icon size="18" color="maintext">mdi-autorenew</v-icon>
                         </v-btn>
                         <v-menu close-on-click :location="'bottom'" class="table-menu">
                             <template #activator="{ props }">
-                                <v-btn v-bind="props" style="border: 1px solid var(--outline)" min-width="20px"
+                                <v-btn v-bind="props" style="border: 1px solid #EBEEF0" min-width="20px"
                                     color="mainbg" class="px-0 font-weight-bold white--text elevation-0 mr-1"
                                     size="x-small">
                                     <v-icon size="20" color="maintext">mdi-dots-horizontal</v-icon>
@@ -193,7 +193,7 @@
 
         <v-data-table v-else :headers="orderheader" :items="filteredExecSorted" :loading="loading" fixed-header
             :hide-default-footer="true" :items-per-page="-1" class="mt-3 rounded-lg overflow-y-auto"
-            style="border-radius: 4px; border: 1px solid var(--outline)" height="480"
+            style="border-radius: 4px; border: 1px solid #EBEEF0" height="480"
             @click:row="(_, { item }) => setOrderrowdata(item)">
             <template #item.norentm="{ item }">
                 <span class="font-weight-medium maintext--text">{{ timeStr(item.norentm) }}</span>
@@ -219,19 +219,19 @@
                             color="mainred" class="px-0 font-weight-bold white--text elevation-0 mr-1" size="x-small"> S
                         </v-btn>
                         <v-btn @click="setSSDtab('chart', item.token, item.exch, item.tsym, null, item)"
-                            style="border: 1px solid var(--outline)" min-width="20px" color="mainbg"
+                            style="border: 1px solid #EBEEF0" min-width="20px" color="mainbg"
                             class="px-0 font-weight-bold white--text elevation-0 mr-1" size="x-small">
                             <v-icon size="18" color="maintext">mdi-chart-line-variant</v-icon>
                         </v-btn>
                         <v-btn
                             @click="setSSDtab('order', item.token, item.exch, item.tsym, item.trantype?.toLowerCase(), item)"
-                            style="border: 1px solid var(--outline)" min-width="20px" color="mainbg"
+                            style="border: 1px solid #EBEEF0" min-width="20px" color="mainbg"
                             class="px-0 font-weight-bold white--text elevation-0 mr-1" size="x-small">
                             <v-icon size="18" color="maintext">mdi-autorenew</v-icon>
                         </v-btn>
                         <v-menu close-on-click :location="'bottom'" class="table-menu">
                             <template #activator="{ props }">
-                                <v-btn v-bind="props" style="border: 1px solid var(--outline)" min-width="20px"
+                                <v-btn v-bind="props" style="border: 1px solid #EBEEF0" min-width="20px"
                                     color="mainbg" class="px-0 font-weight-bold white--text elevation-0 mr-1"
                                     size="x-small">
                                     <v-icon size="20" color="maintext">mdi-dots-horizontal</v-icon>

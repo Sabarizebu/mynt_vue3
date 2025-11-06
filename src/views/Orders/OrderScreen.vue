@@ -28,7 +28,7 @@
         <div v-if="ordertab === 'orders'" style="z-index:0">
             <v-data-table :headers="openHeaders" :items="searchedOpen" :loading="loading" :hide-default-footer="true"
                 fixed-header class="rounded-lg overflow-y-auto"
-                style="border-radius:4px; border:1px solid var(--outline)" height="520" :items-per-page="-1">
+                style="border-radius:4px; border:1px solid #EBEEF0" height="520" :items-per-page="-1">
                 <template #item.tsym="{ item }">
                     <p class="font-weight-medium maintext--text mb-0 table-hov-text ws-p">
                         {{ item.tsym || '' }}
@@ -63,7 +63,7 @@
         <div v-else-if="ordertab === 'executed'">
             <v-data-table :headers="execHeaders" :items="execItems" :loading="loading" :hide-default-footer="true"
                 fixed-header class="rounded-lg overflow-y-auto"
-                style="border-radius:4px; border:1px solid var(--outline)" height="520" :items-per-page="-1">
+                style="border-radius:4px; border:1px solid #EBEEF0" height="520" :items-per-page="-1">
                 <template #item.tsym="{ item }">
                     <p class="font-weight-medium maintext--text mb-0 table-hov-text ws-p">
                         {{ item.tsym || '' }}

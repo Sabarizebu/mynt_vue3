@@ -16,7 +16,7 @@
                 <v-icon class="ml-3 cursor-p" :disabled="loading" @click="getOrderbook" color="maintext" size="24">mdi-reload</v-icon>
             </v-toolbar>
             <v-data-table :headers="orderheadersip" :items="filteredSip" fixed-header :hide-default-footer="true" :loading="loading"
-                class="mt-3 rounded-lg overflow-y-auto" style="border-radius:4px; border:1px solid var(--outline)" height="480" :items-per-page="-1">
+                class="mt-3 rounded-lg overflow-y-auto" style="border-radius:4px; border:1px solid #EBEEF0" height="480" :items-per-page="-1">
                 <template #item.name="{ item }">
                     <p class="font-weight-medium maintext--text mb-0 table-hov-text ws-p">{{ item.name || '' }}</p>
                 </template>
@@ -55,7 +55,7 @@
                 <v-icon class="ml-3 cursor-p" :disabled="loading" @click="getOrderbook" color="maintext" size="24">mdi-reload</v-icon>
             </v-toolbar>
             <v-data-table :headers="orderheader" :items="filteredOrders" fixed-header :hide-default-footer="true" :loading="loading"
-                class="mt-3 rounded-lg overflow-y-auto" style="border-radius:4px; border:1px solid var(--outline)" height="480" :items-per-page="-1">
+                class="mt-3 rounded-lg overflow-y-auto" style="border-radius:4px; border:1px solid #EBEEF0" height="480" :items-per-page="-1">
                 <template #item.name="{ item }">
                     <div>
                         <p class="font-weight-medium maintext--text mb-0 table-hov-text ws-p">{{ item.name || '' }}</p>
@@ -108,7 +108,7 @@
                 <v-icon class="ml-3 cursor-p" :disabled="loading" @click="getOrderbook" color="maintext" size="24">mdi-reload</v-icon>
             </v-toolbar>
             <v-data-table :headers="orderheadersiphis" :items="filteredSipHis" fixed-header :hide-default-footer="true" :loading="loading"
-                class="mt-3 rounded-lg overflow-y-auto" style="border-radius:4px; border:1px solid var(--outline)" height="480" :items-per-page="-1">
+                class="mt-3 rounded-lg overflow-y-auto" style="border-radius:4px; border:1px solid #EBEEF0" height="480" :items-per-page="-1">
                 <template #item.name="{ item }">
                     <p class="font-weight-medium maintext--text mb-0 table-hov-text ws-p">{{ item.name || '' }}</p>
                 </template>

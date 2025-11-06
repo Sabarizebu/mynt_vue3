@@ -400,7 +400,7 @@
                         <td class="pl-4">
                             <span class="font-weight-medium maintext--text text-capitalize"> {{
                                 item.mutual_fund.split("-") ? item.mutual_fund.split("-")[0] : item.mutual_fund
-                            }}</span>
+                                }}</span>
                         </td>
                     </template>
                     <template v-slot:[`item.market_cap_Held`]="{ item }">
@@ -411,7 +411,7 @@
                     <template v-slot:[`item.mf_holding_percent`]="{ item }">
                         <td class="pr-4 text-right d-none d-md-table-cell">
                             <span>{{ item.mf_holding_percent ? `${item.mf_holding_percent.toFixed(2)}` : "0.00"
-                            }}%</span>
+                                }}%</span>
                         </td>
                     </template>
                     <template v-slot:[`item.mf_aum`]="{ item }">
@@ -459,7 +459,7 @@
                                     finKeyname(h) }}</v-list-item-subtitle>
                                 <v-list-item-title class="txt-000 font-weight-medium fs-14 text-capitalize">
                                     <span v-if="h.includes('date')"> {{ new Date(g).toISOString().slice(0, 10)
-                                    }}</span>
+                                        }}</span>
                                     <span v-else>{{ g }}</span>
                                 </v-list-item-title>
                             </v-list-item>
@@ -514,7 +514,7 @@
                                                     {{ n.title }}
                                                 </v-list-item-title>
                                                 <v-list-item-subtitle class="fs-12 font-weight-regular">{{ n.isdate
-                                                }}</v-list-item-subtitle>
+                                                    }}</v-list-item-subtitle>
                                             </v-list-item>
                                         </v-col>
                                     </v-row>
@@ -1493,11 +1493,11 @@ watch(() => shareholdings.y, () => {
 }
 
 .txt-gre {
-    color: var(--maingreen);
+    color: #43A833;
 }
 
 .txt-red {
-    color: var(--mainred);
+    color: #F23645;
 }
 
 .txt-444 {
@@ -1517,19 +1517,19 @@ watch(() => shareholdings.y, () => {
 }
 
 .maingreen--text {
-    color: var(--maingreen) !important;
+    color: #43A833 !important;
 }
 
 .mainred--text {
-    color: var(--mainred) !important;
+    color: #F23645 !important;
 }
 
 .maintext--text {
-    color: var(--maintext) !important;
+    color: #000 !important;
 }
 
 .subtext--text {
-    color: var(--subtext) !important;
+    color: #666666 !important;
 }
 
 .no-scroll {
@@ -1541,10 +1541,10 @@ watch(() => shareholdings.y, () => {
 }
 
 .ss-cards {
-    border: thin solid var(--outline) !important;
+    border: thin solid #EBEEF0 !important;
     border-radius: 8px !important;
     box-shadow: none !important;
-    background-color: var(--cardbg) !important;
+    background-color: #ffffff !important;
 }
 
 .text-rap-l2 {
@@ -1641,7 +1641,7 @@ watch(() => shareholdings.y, () => {
 
 /* Event card styling */
 .v-card.variant--outlined {
-    border: thin solid var(--outline) !important;
+    border: thin solid #EBEEF0 !important;
 }
 
 /* Ensure proper text truncation */

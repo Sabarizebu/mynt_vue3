@@ -161,20 +161,20 @@
                             <div class="pos-abs futtable-hov"
                                 style="bottom: 12px; left: 50%; transform: translate(-50%, 0)">
                                 <div @click="handleMenuDialog('order', item.token, item.exch, item.tsym, 'b')"
-                                    style="min-width: 24px; background-color: var(--maingreen); border-radius: 4px"
+                                    style="min-width: 24px; background-color: #43A833; border-radius: 4px"
                                     class="px-2 pt-1 font-weight-bold white--text elevation-0 mr-1 fs-10 text-center cursor-p">
                                     B</div>
                                 <div @click="handleMenuDialog('order', item.token, item.exch, item.tsym, 's')"
-                                    style="min-width: 24px; background-color: var(--mainred); border-radius: 4px"
+                                    style="min-width: 24px; background-color: #F23645; border-radius: 4px"
                                     class="px-2 pt-1 font-weight-bold white--text elevation-0 mr-1 fs-10 text-center cursor-p">
                                     S</div>
-                                <v-btn @click="handleAddToWatchlist(item)" style="border: 1px solid var(--outline)"
+                                <v-btn @click="handleAddToWatchlist(item)" style="border: 1px solid #EBEEF0"
                                     min-width="20px" color="mainbg"
                                     class="px-0 font-weight-bold white--text elevation-0 mr-1" size="x-small" icon>
                                     <v-icon size="18" color="maintext">mdi-bookmark-outline</v-icon>
                                 </v-btn>
                                 <v-btn @click="handleSSDEvent('chart', item.token, item.exch, item.tsym)"
-                                    style="border: 1px solid var(--outline)" min-width="20px" color="mainbg"
+                                    style="border: 1px solid #EBEEF0" min-width="20px" color="mainbg"
                                     class="px-0 font-weight-bold white--text elevation-0 mr-1" size="x-small" icon>
                                     <v-icon size="18" color="maintext">mdi-chart-line-variant</v-icon>
                                 </v-btn>
@@ -1151,19 +1151,19 @@ function resolveCurrentSymbol() {
 }
 
 .maingreen--text {
-    color: var(--maingreen) !important;
+    color: #43A833 !important;
 }
 
 .mainred--text {
-    color: var(--mainred) !important;
+    color: #F23645 !important;
 }
 
 .maintext--text {
-    color: var(--maintext) !important;
+    color: #000 !important;
 }
 
 .subtext--text {
-    color: var(--subtext) !important;
+    color: #666666 !important;
 }
 
 .no-scroll {

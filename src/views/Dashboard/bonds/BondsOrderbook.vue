@@ -23,7 +23,7 @@
 
         <v-data-table :headers="orderheader" :items="filteredRows" fixed-header :hide-default-footer="true"
             :loading="tableloader" class="mt-3 rounded-lg overflow-y-auto"
-            style="border-radius: 4px; border:1px solid var(--outline)" height="480" :items-per-page="-1"
+            style="border-radius: 4px; border:1px solid #EBEEF0" height="480" :items-per-page="-1"
             @click:row="(_, { item }) => setOrderrowdata(item)">
             <template #item.symbol="{ item }">
                 <div class="pos-rlt">
@@ -32,7 +32,7 @@
                     <div @click.stop class="pos-abs table-hov" style="top: 15px; right: 0">
                         <v-menu close-on-click :location="'bottom'" class="table-menu">
                             <template #activator="{ props }">
-                                <v-btn v-bind="props" style="border: 1px solid var(--outline)" min-width="20px"
+                                <v-btn v-bind="props" style="border: 1px solid #EBEEF0" min-width="20px"
                                     color="mainbg" class="px-0 font-weight-bold white--text elevation-0 mr-1"
                                     size="x-small">
                                     <v-icon size="20" color="maintext">mdi-dots-horizontal</v-icon>

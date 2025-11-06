@@ -13,7 +13,7 @@
                 <v-icon>mdi-chevron-right</v-icon>
             </template>
         </v-breadcrumbs>
-        <v-card style="border: thin solid var(--outline) !important" variant="outlined"
+        <v-card style="border: thin solid #EBEEF0 !important" variant="outlined"
             class="rounded-lg mt-4 mb-8 crd-trn">
             <v-toolbar class="elevation-0 my-4" density="compact" color="transparent">
                 <div>

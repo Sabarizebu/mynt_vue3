@@ -346,7 +346,7 @@ const setLWchart = async (init) => {
     const toolTip = document.createElement("div")
     toolTip.style = `position: absolute; display: none; box-sizing: border-box; z-index: 1000; top: 12px; left: 12px; pointer-events: none; border: 1px solid; border-radius: 6px;`
     toolTip.style.background = isDark ? "#000" : "#fff"
-    toolTip.style.borderColor = "var(--outline)"
+    toolTip.style.borderColor = "#EBEEF0"
     container.appendChild(toolTip)
 
     chart.value.subscribeCrosshairMove((param) => {

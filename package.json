@@ -7,9 +7,11 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
-    "firebase:deploy": "firebase deploy",
+    "firebase:deploy": "firebase deploy --only hosting",
     "firebase:serve": "firebase serve",
-    "firebase:init": "firebase init"
+    "firebase:init": "firebase init",
+    "deploy": "npm run build && npm run firebase:deploy",
+    "deploy:preview": "npm run build && firebase hosting:channel:deploy preview"
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
@@ -17,7 +19,7 @@
     "chart.js": "^4.4.0",
     "crypto-js": "^4.2.0",
     "echarts": "^5.4.3",
-    "firebase": "^10.13.0",
+    "firebase": "^10.14.1",
     "gsap": "^3.12.5",
     "lightweight-charts": "^4.1.1",
     "mo-js": "^0.288.2",

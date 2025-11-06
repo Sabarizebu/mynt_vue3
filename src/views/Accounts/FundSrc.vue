@@ -11,7 +11,7 @@
 
         <v-row class="py-6">
             <v-col class="pa-10" cols="12" md="6"
-                style="border: 1px solid var(--outline) !important ; border-radius: 10px;" outlined>
+                style="border: 1px solid #EBEEF0 !important ; border-radius: 10px;" outlined>
                 <v-row>
                     <v-col cols="12" md="6" class="pb-2">
                         <p class="fs-14 subtext--text font-weight-medium mb-0 lh-16">Total credits</p>

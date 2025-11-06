@@ -61,7 +61,7 @@
             width="100%">
             <v-card v-for="(s, l) in pdmwdata" :key="l" @click="setSSDtab('Details', s.token, s.exch, s.tsym)"
                 class="px-3 py-2 crd-trn pos-rlt table-row" :class="l != pdmwdata.length - 1 ? 'mr-4' : ''"
-                min-width="160px" style="border: 1px solid var(--outline) !important;">
+                min-width="160px" style="border: 1px solid #EBEEF0 !important;">
                 <div v-if="uid" @click.stop class="pos-abs table-hov" style="bottom: 32px; right: 4px;">
                     <v-btn :disabled="!s.too"
                         @click="$router.push({ name: 'stocks advance decline', params: { abc: s.too } })"
@@ -215,11 +215,11 @@
                                             :class="getSectorColorClass(i.data.token)"
                                             :id="`ssdad${i.data.token}chpclr`"><span :id="`ssdad${i.data.token}ch`">{{
                                                 advdecitems.wsdata[i.data.token].ch || "0.00"
-                                                }}</span>
+                                            }}</span>
                                             <span :id="`ssdad${i.data.token}chp`"> ({{
                                                 advdecitems.wsdata[i.data.token].chp ?
-                                                    `${Number(advdecitems.wsdata[i.data.token].chp).toFixed(2)}` : "0.00"
-                                            }}%)</span></span>
+                                                `${Number(advdecitems.wsdata[i.data.token].chp).toFixed(2)}` : "0.00"
+                                                }}%)</span></span>
                                     </span>
                                     <span v-else class="fs-12">₹0.00 <span class="fs-9"> 0.00 (0.00%)</span></span>
                                 </p>
@@ -312,7 +312,7 @@
         <div id="market" v-dragscroll.x class="d-inline-flex overflow-x-auto no-scroll mb-12" style="width: 100%">
             <div v-for="(tabel, l) in isloading ? [[], [], [], []] : tradeactionitem" :key="l"
                 :class="l == 3 ? 'mr-1' : 'mr-4'">
-                <v-card style="border: thin solid var(--outline) !important" class="rounded-lg elevation-0"
+                <v-card style="border: thin solid #EBEEF0 !important" class="rounded-lg elevation-0"
                     color="cardbg">
                     <v-toolbar class="elevation-0 mb-0 mt-1" density="compact" color="transparent">
                         <img width="24px" :src="tradeIcons[l]" :alt="tradeLabels[l]" class="mr-2" />
@@ -376,7 +376,7 @@
             </div>
         </div>
 
-        <v-card style="border: thin solid var(--outline) !important" variant="outlined" class="rounded-lg mb-8"
+        <v-card style="border: thin solid #EBEEF0 !important" variant="outlined" class="rounded-lg mb-8"
             color="cardbg">
             <v-toolbar ref="smcp" id="smcp" class="elevation-0 my-4" density="compact" color="transparent">
                 <img width="40px" src="@/assets/stocks/srcm.svg" alt="srcm" class="mr-2" />
@@ -385,13 +385,13 @@
                 <v-select v-model="screent0" :items="screent0item" item-title="text" item-value="value"
                     label="Condition" variant="flat" density="comfortable" hide-details menu-icon="mdi-chevron-down"
                     :readonly="issloading" class="rounded-pill mr-3 d-none d-sm-flex"
-                    style="max-width: 180px; background-color: var(--secbg);"
+                    style="max-width: 180px; background-color: #F1F3F8;"
                     @update:model-value="getContentlistdata('yes')" />
 
                 <v-select v-model="screent1" :items="screent1item" item-title="text" item-value="value"
                     label="Condition" variant="flat" density="comfortable" hide-details menu-icon="mdi-chevron-down"
                     :readonly="issloading" class="rounded-pill d-none d-sm-flex"
-                    style="max-width: 140px; background-color: var(--secbg);"
+                    style="max-width: 140px; background-color: #F1F3F8;"
                     @update:model-value="getContentlistdata('yes')" />
 
             </v-toolbar>
@@ -424,22 +424,22 @@
                 <template v-slot:[`item.op`]="{ item }">
                     <span class="font-weight-medium maintext--text" :id="`ssdsc${item.token}op`">{{ item.ap ? item.ap :
                         "0.00"
-                        }}</span>
+                    }}</span>
                 </template>
                 <template v-slot:[`item.cp`]="{ item }">
                     <span class="font-weight-medium maintext--text" :id="`ssdsc${item.token}cp`">{{ item.c ? item.c :
                         "0.00"
-                        }}</span>
+                    }}</span>
                 </template>
                 <template v-slot:[`item.high`]="{ item }">
                     <span class="font-weight-medium maintext--text" :id="`ssdsc${item.token}high`">{{ item.h ? item.h :
                         "0.00"
-                        }}</span>
+                    }}</span>
                 </template>
                 <template v-slot:[`item.low`]="{ item }">
                     <span class="font-weight-medium maintext--text" :id="`ssdsc${item.token}low`">{{ item.l ? item.l :
                         "0.00"
-                        }}</span>
+                    }}</span>
                 </template>
 
                 <template v-slot:no-data>
@@ -471,7 +471,7 @@
 
         <v-row ref="eve" id="eve" no-gutters class="mb-6">
             <v-col cols="12" md="6" class="py-md-0">
-                <v-card style="border: thin solid var(--outline) !important"
+                <v-card style="border: thin solid #EBEEF0 !important"
                     class="crd-trn elevation-0 overflow-hidden rounded-lg" width="100%">
                     <div class="px-4 py-4">
                         <p class="font-weight-bold title mb-md-4 mb-6">Corporate Action ({{ allcropact &&
@@ -497,7 +497,7 @@
                                         <v-list-item-subtitle
                                             class="maintext--text mb-0 font-weight-medium fs-13 text-capitalize">{{
                                                 d.registrar }} <span class="fs-10">({{ d.issueType
-                                                }})</span></v-list-item-subtitle>
+                                            }})</span></v-list-item-subtitle>
                                     </v-list-item-content>
 
                                     <v-list-item-content>
@@ -558,13 +558,13 @@
                 </v-card>
             </v-col>
             <v-col cols="12" md="6" class="py-md-0">
-                <v-card style="border: thin solid var(--outline) !important"
+                <v-card style="border: thin solid #EBEEF0 !important"
                     class="crd-trn elevation-0 overflow-hidden rounded-lg" width="100%">
                     <div class="px-4 py-4">
                         <p class="font-weight-bold title mb-md-4 mb-6">News ({{ allnews && allnews.length > 0 ?
                             allnews.length :
                             ".."
-                            }})</p>
+                        }})</p>
                         <div v-if="newsloading">
                             <v-container fill-height>
                                 <v-card class="crd-trn elevation-0 mx-auto py-16">
@@ -589,7 +589,7 @@
                                                     {{ n.title }}
                                                 </p>
                                                 <v-list-item-subtitle class="fs-12 font-weight-regular">{{ n.isdate
-                                                    }}</v-list-item-subtitle>
+                                                }}</v-list-item-subtitle>
                                             </v-list-item-content>
                                         </v-list-item>
                                     </v-col>
@@ -1241,7 +1241,7 @@ const handleQuoteUpdate = (event) => {
             if (pIndex >= 0) {
                 // This is a pdmwdata token, process the update
                 // Use mergeTick to handle data merging (like watchlist)
-                optionChainDataParse(data);
+        optionChainDataParse(data);
             }
         } else {
             // If no token, try to parse anyway (might be for other data)
@@ -1279,17 +1279,17 @@ const handleWebSocketConnection = (event) => {
         if ((page === "stockDASH" || page === "stocks" || page === "stockINC") && data) {
             // Handle pdmwdata updates (top indices)
             if (pdmwdata.value && Array.isArray(pdmwdata.value)) {
-                // Handle both single data object and array of data
-                if (Array.isArray(data)) {
-                    // If data is array, process each item
-                    for (let i = 0; i < data.length; i++) {
-                        if (data[i] && (data[i].token || data[i].tk)) {
-                            optionChainDataParse(data[i]);
-                        }
+            // Handle both single data object and array of data
+            if (Array.isArray(data)) {
+                // If data is array, process each item
+                for (let i = 0; i < data.length; i++) {
+                    if (data[i] && (data[i].token || data[i].tk)) {
+                        optionChainDataParse(data[i]);
                     }
-                } else if (data.token || data.tk) {
-                    // Single data object
-                    optionChainDataParse(data);
+                }
+            } else if (data.token || data.tk) {
+                // Single data object
+                optionChainDataParse(data);
                 }
             }
 
@@ -1306,7 +1306,7 @@ const handleWebSocketConnection = (event) => {
         // Check if detail has page property
         if (detail.page === "stockDASH" || detail.page === "stocks" || detail.page === "stockINC") {
             // This is a page-specific event
-            if (detail.token || detail.tk) {
+        if (detail.token || detail.tk) {
                 optionChainDataParse(detail);
             }
         } else if (detail.token || detail.tk) {
@@ -1360,7 +1360,7 @@ const handleWebSocketConnection = (event) => {
             // If no token, try to parse anyway (might be for other data)
             // But only if it's not a page-specific event that we're not handling
             if (!detail.page || detail.page === "stockDASH" || detail.page === "stocks" || detail.page === "stockINC") {
-                optionChainDataParse(detail);
+            optionChainDataParse(detail);
             }
         }
     }
@@ -1633,7 +1633,7 @@ const getADlistdata = async () => {
             // Always call setStatAD for all sectors, even if API doesn't return data (handles missing data gracefully)
             advdecitems.Sectors.forEach((sector, index) => {
                 const processedData = setStatAD(data[sector.key] || null, sector.key);
-                advdecitems.Sectors[index].data = processedData;
+                    advdecitems.Sectors[index].data = processedData;
 
                 // Log missing data for debugging
                 if (!data[sector.key]) {
@@ -1645,7 +1645,7 @@ const getADlistdata = async () => {
             // Always call setStatAD for all thematic, even if API doesn't return data
             advdecitems.Thematic.forEach((thematic, index) => {
                 const processedData = setStatAD(data[thematic.key] || null, thematic.key);
-                advdecitems.Thematic[index].data = processedData;
+                    advdecitems.Thematic[index].data = processedData;
 
                 // Log missing data for debugging
                 if (!data[thematic.key]) {
@@ -1712,8 +1712,8 @@ const getADlistdata = async () => {
                 }
 
                 // Subscribe to WebSocket for real-time updates (for all sectors)
-                if (uid.value && Object.keys(advdecitems.wsdata || {}).length > 0) {
-                    setWebsocket("sub", Object.values(advdecitems.wsdata), "adv");
+            if (uid.value && Object.keys(advdecitems.wsdata || {}).length > 0) {
+                setWebsocket("sub", Object.values(advdecitems.wsdata), "adv");
                     // Re-subscribe after delay to ensure connection is ready
                     setTimeout(() => {
                         setWebsocket("sub", Object.values(advdecitems.wsdata), "adv");
@@ -2068,10 +2068,10 @@ const setWebsocket = async (flow, data, is) => {
                     const newChp = Number(v.change).toFixed(2);
 
                     // Always update - don't check if changed, just update to trigger reactivity
-                    pdmwdata.value[l]["ltp"] = newLtp;
-                    pdmwdata.value[l]["ch"] = newCh;
-                    pdmwdata.value[l]["chp"] = newChp;
-                    anyUpdated = true;
+                        pdmwdata.value[l]["ltp"] = newLtp;
+                        pdmwdata.value[l]["ch"] = newCh;
+                        pdmwdata.value[l]["chp"] = newChp;
+                        anyUpdated = true;
 
                     // Update DOM elements immediately
                     const ltpTag = document.getElementById(`ssdpd${pdmwdata.value[l].token}ltp`)
@@ -2239,7 +2239,7 @@ const optionChainDataParse = (data) => {
     if (s >= 0 && screentitems.value[s].token == token) {
         // Handle ltp
         if (data.lp !== undefined && data.lp !== null) {
-            screentitems.value[s].ltp = Number(data.lp).toFixed(2);
+        screentitems.value[s].ltp = Number(data.lp).toFixed(2);
         } else if (data.ltp !== undefined && data.ltp !== null) {
             screentitems.value[s].ltp = Number(data.ltp).toFixed(2);
         } else if (data.l !== undefined && data.l !== null) {
@@ -2248,7 +2248,7 @@ const optionChainDataParse = (data) => {
 
         // Handle ch
         if (data.ch !== undefined && data.ch !== null) {
-            screentitems.value[s]["ch"] = Number(data.ch) > 0 || Number(data.ch) < 0 ? Number(data.ch).toFixed(2) : (0).toFixed(2);
+        screentitems.value[s]["ch"] = Number(data.ch) > 0 || Number(data.ch) < 0 ? Number(data.ch).toFixed(2) : (0).toFixed(2);
         } else if (data.c !== undefined && data.c !== null && data.lp !== undefined && data.lp !== null) {
             const change = Number(data.lp) - Number(data.c);
             screentitems.value[s]["ch"] = change > 0 || change < 0 ? change.toFixed(2) : (0).toFixed(2);
@@ -2256,7 +2256,7 @@ const optionChainDataParse = (data) => {
 
         // Handle chp
         if (data.chp !== undefined && data.chp !== null) {
-            screentitems.value[s]["chp"] = Number(data.chp).toFixed(2);
+        screentitems.value[s]["chp"] = Number(data.chp).toFixed(2);
         } else if (data.c !== undefined && data.c !== null && screentitems.value[s]["ch"]) {
             const closePrice = Number(data.c);
             if (closePrice > 0) {
@@ -2267,21 +2267,21 @@ const optionChainDataParse = (data) => {
 
         // Handle volume
         if (data.volume !== undefined && data.volume !== null) {
-            screentitems.value[s]["vol"] = Number(data.volume);
+        screentitems.value[s]["vol"] = Number(data.volume);
         } else if (data.vol !== undefined && data.vol !== null) {
             screentitems.value[s]["vol"] = Number(data.vol);
         }
 
         // Handle open price
         if (data.open_price !== undefined && data.open_price !== null) {
-            screentitems.value[s]["op"] = Number(data.open_price) ? Number(data.open_price).toFixed(2) : (0).toFixed(2);
+        screentitems.value[s]["op"] = Number(data.open_price) ? Number(data.open_price).toFixed(2) : (0).toFixed(2);
         } else if (data.open !== undefined && data.open !== null) {
             screentitems.value[s]["op"] = Number(data.open) ? Number(data.open).toFixed(2) : (0).toFixed(2);
         }
 
         // Handle close price
         if (data.prev_close_price !== undefined && data.prev_close_price !== null) {
-            screentitems.value[s]["cp"] = Number(data.prev_close_price) ? Number(data.prev_close_price).toFixed(2) : (0).toFixed(2);
+        screentitems.value[s]["cp"] = Number(data.prev_close_price) ? Number(data.prev_close_price).toFixed(2) : (0).toFixed(2);
         } else if (data.close !== undefined && data.close !== null) {
             screentitems.value[s]["cp"] = Number(data.close) ? Number(data.close).toFixed(2) : (0).toFixed(2);
         } else if (data.c !== undefined && data.c !== null) {
@@ -2290,14 +2290,14 @@ const optionChainDataParse = (data) => {
 
         // Handle high price
         if (data.high_price !== undefined && data.high_price !== null) {
-            screentitems.value[s]["high"] = Number(data.high_price) ? Number(data.high_price).toFixed(2) : (0).toFixed(2);
+        screentitems.value[s]["high"] = Number(data.high_price) ? Number(data.high_price).toFixed(2) : (0).toFixed(2);
         } else if (data.high !== undefined && data.high !== null) {
             screentitems.value[s]["high"] = Number(data.high) ? Number(data.high).toFixed(2) : (0).toFixed(2);
         }
 
         // Handle low price
         if (data.low_price !== undefined && data.low_price !== null) {
-            screentitems.value[s]["low"] = Number(data.low_price) ? Number(data.low_price).toFixed(2) : (0).toFixed(2);
+        screentitems.value[s]["low"] = Number(data.low_price) ? Number(data.low_price).toFixed(2) : (0).toFixed(2);
         } else if (data.low !== undefined && data.low !== null) {
             screentitems.value[s]["low"] = Number(data.low) ? Number(data.low).toFixed(2) : (0).toFixed(2);
         }

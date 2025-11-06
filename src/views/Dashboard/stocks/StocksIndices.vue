@@ -59,7 +59,7 @@
                     class="rounded-pill d-none d-sm-flex" density="compact" variant="solo" bg-color="secbg"></v-text-field>
             </v-toolbar>
             <v-data-table must-sort disable-sort fixed-header mobile :loading="isloading"
-                class="rounded-lg overflow-y-auto mb-6" style="border-radius: 4px; border: 1px solid var(--outline)"
+                class="rounded-lg overflow-y-auto mb-6" style="border-radius: 4px; border: 1px solid #EBEEF0"
                 :headers="indiceheader" :search="opensearch" :items="filteredTablesecdata" :items-per-page="10">
                 <template v-slot:[`item.tsym`]="{ item }">
                     <span @click="setSinglestock(item.tsym.split('-')[0], item)"

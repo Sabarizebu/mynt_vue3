@@ -17,8 +17,8 @@
                                 <span class="font-weight-bold fs-14" v-html="message"></span>
                             </template>
                         </v-snackbars>
-                        <v-snackbar class="d-none d-md-flex snakbar-sty rounded-pill mt-16"
-                            transition="slide-x-reverse-transition" top right v-model="appStore.snackbar" timeout="4000"
+                        <v-snackbar class="d-none d-md-flex snakbar-sty rounded-pill mb-4"
+                            transition="slide-x-reverse-transition" bottom right v-model="appStore.snackbar" timeout="4000"
                             :value="true" :color="appStore.snackcolor" absolute text-color="white">
                             <v-icon class="mr-2" color="#fff">mdi-alert-outline</v-icon>
                             {{ appStore.snacktxt }}
@@ -26,8 +26,8 @@
                                 color="#fff">mdi-close-circle</v-icon>
                         </v-snackbar>
 
-                        <v-snackbar class="d-md-none snakbar-sty rounded-pill" transition="slide-x-reverse-transition"
-                            v-model="appStore.snackbar" timeout="4000" :value="true" :color="appStore.snackcolor"
+                        <v-snackbar class="d-md-none snakbar-sty rounded-pill mb-4" transition="slide-x-reverse-transition"
+                            bottom right v-model="appStore.snackbar" timeout="4000" :value="true" :color="appStore.snackcolor"
                             absolute text-color="white">
                             <v-icon class="mr-2" color="#fff">mdi-alert-outline</v-icon>
                             {{ appStore.snacktxt }}
@@ -98,7 +98,7 @@
                             </v-col>
                         </v-row>
                         <AlertSrceen />
-                        <StockOrderWindow />
+                        <!-- StockOrderWindow moved to App.vue to prevent duplicate instances -->
                         <MutualFundOrderWindow />
                         <BondOrderWindow />
                         <IpoOrderWindow />
@@ -159,7 +159,7 @@
 
                                     <p class="caption mb-0">
                                         Source:
-                                        <a target="_blank" style="text-decoration: none; color: var(--primary)"
+                                        <a target="_blank" style="text-decoration: none; color: #0037B7"
                                             href="https://www.sebi.gov.in/reports-and-statistics/research/jan-2023/study-analysis-of-profit-and-loss-of-individual-traders-dealing-in-equity-fando-segment_67525.html">
                                             SEBI study</a> dated January 25,
                                         2023, on "Analysis of Profit and Loss of Individual Traders dealing in equity
@@ -174,7 +174,7 @@
                                 <v-divider class="mx-4"></v-divider>
                                 <v-card-actions class="mt-3">
                                     <v-spacer></v-spacer>
-                                    <v-btn color="var(--primary)" dark
+                                    <v-btn color="#0037B7" dark
                                         class="elevation-0 text-none font-weight-bold rounded-pill px-4"
                                         @click="closeRisk()"> I Understand </v-btn>
                                 </v-card-actions>
@@ -327,7 +327,7 @@ import VSnackbars from "v-snackbars"
 import AppBar from "../AppBar.vue"
 import WatchList from "../../views/Watchlist/WatchList.vue"
 import AlertSrceen from "../Popups/AlertSrceen.vue"
-import StockOrderWindow from "../Popups/StockOrderWindow.vue"
+// StockOrderWindow moved to App.vue to prevent duplicate instances
 import MutualFundOrderWindow from "../Popups/MutualFundOrderWindow.vue"
 import BondOrderWindow from "../Popups/BondOrderWindow.vue"
 import IpoOrderWindow from "../Popups/IpoOrderWindow.vue"

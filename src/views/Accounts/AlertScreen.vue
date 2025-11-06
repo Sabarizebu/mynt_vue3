@@ -16,7 +16,7 @@
         </div>
 
         <!-- Tab contents -->
-        <div v-if="bodytab === 'notification'" style="border-top: 1px solid var(--outline);">
+        <div v-if="bodytab === 'notification'" style="border-top: 1px solid #EBEEF0;">
             <div v-if="allalert.b && allalert.b.length">
                 <v-card v-for="(n, e) in allalert.b" :key="e" class="crd-trn rounded-lg elevation-0 mb-0">
                     <v-list-item two-line class="px-2 pr-sm-3">
@@ -89,7 +89,7 @@
             <!-- Pending alerts table -->
             <v-data-table :loading="loader" must-sort :sort-by="[{ key: 'norentm', order: 'desc' }]" hide-default-footer
                 fixed-header class="mt-3 rounded-lg overflow-y-auto"
-                style="border-radius: 4px; border: 1px solid var(--outline);" height="480px" :headers="orderheader"
+                style="border-radius: 4px; border: 1px solid #EBEEF0;" height="480px" :headers="orderheader"
                 :items="searchedPendingItems" :items-per-page="-1" :search="opensearch">
                 <template #item.tsym="{ item }">
                     <div class="pos-rlt">
@@ -105,7 +105,7 @@
                                 min-width="20px" color="mainred"
                                 class="px-0 font-weight-bold white--text elevation-0 mr-1" size="x-small">S</v-btn>
                             <v-btn @click="setSSDtab('chart', item.token, item.exch, item.tsym, null, item)"
-                                style="border: 1px solid var(--outline)" min-width="20px" color="mainbg"
+                                style="border: 1px solid #EBEEF0" min-width="20px" color="mainbg"
                                 class="px-0 font-weight-bold elevation-0 mr-1" size="x-small">
                                 <v-icon size="18" color="maintext">mdi-chart-line-variant</v-icon>
                             </v-btn>
@@ -113,7 +113,7 @@
                                 <template #activator="{ props }">
                                     <div v-bind="props">
                                         <v-btn @click="setSSDtab('c-alert', item.token, item.exch, item.tsym, '', item)"
-                                            style="border: 1px solid var(--outline)" min-width="20px" color="mainbg"
+                                            style="border: 1px solid #EBEEF0" min-width="20px" color="mainbg"
                                             class="px-0 font-weight-bold elevation-0 mr-1" size="x-small">
                                             <v-icon size="18" color="maintext">mdi-close</v-icon>
                                         </v-btn>
@@ -125,7 +125,7 @@
                                 <template #activator="{ props }">
                                     <div v-bind="props">
                                         <v-btn @click="setSSDtab('m-alert', item.token, item.exch, item.tsym, '', item)"
-                                            style="border: 1px solid var(--outline)" min-width="20px" color="mainbg"
+                                            style="border: 1px solid #EBEEF0" min-width="20px" color="mainbg"
                                             class="px-0 font-weight-bold elevation-0 mr-1" size="x-small">
                                             <v-icon size="16" color="maintext">mdi-pen</v-icon>
                                         </v-btn>
@@ -135,7 +135,7 @@
                             </v-tooltip>
                             <v-menu close-on-click :location="'bottom'" class="table-menu">
                                 <template #activator="{ props }">
-                                    <v-btn v-bind="props" style="border: 1px solid var(--outline)" min-width="20px"
+                                    <v-btn v-bind="props" style="border: 1px solid #EBEEF0" min-width="20px"
                                         color="mainbg" class="px-0 font-weight-bold elevation-0 mr-1" size="x-small">
                                         <v-icon size="20" color="maintext">mdi-dots-horizontal</v-icon>
                                     </v-btn>

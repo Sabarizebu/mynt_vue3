@@ -57,14 +57,14 @@
                     <!-- Adv/Dec bar for Holdings (migrated from Vue 2) -->
                     <div class="px-4">
                         <v-card :disabled="holdingsList.length === 0" class="elevation-0 d-inline-flex"
-                            style="width: 100%; background-color: var(--secbg);">
+                            style="width: 100%; background-color: #F1F3F8;">
                             <v-card class="elevation-0 rounded-0 crd-trn overflow-hidden d-inline-flex"
                                 id="holdstatavdp" style="width: 0%">
                                 <div v-for="n in 250" :key="`ph-${n}`">
                                     <v-card v-if="n % 2 === 0" class="elevation-0 rounded-0 py-4"
-                                        :style="`width: 4px; min-width: 4px; background-color: ${holdingsList.length === 0 ? 'var(--secbg)' : 'var(--secgreen)'};`"></v-card>
+                                        :style="`width: 4px; min-width: 4px; background-color: ${holdingsList.length === 0 ? '#F1F3F8' : '#ECF8F1'};`"></v-card>
                                     <v-card v-else class="elevation-0 rounded-0 py-4"
-                                        :style="`width: 4px; min-width: 4px; background-color: ${holdingsList.length === 0 ? 'var(--cardbg)' : 'var(--maingreen)'};`"></v-card>
+                                        :style="`width: 4px; min-width: 4px; background-color: ${holdingsList.length === 0 ? '#ffffff' : '#43A833'};`"></v-card>
                                 </div>
                             </v-card>
                             <v-card class="elevation-0 rounded-0 crd-trn" style="width: 4px; min-width: 4px;">
@@ -73,9 +73,9 @@
                                 id="holdstatavdn" style="width: 0%">
                                 <div v-for="n in 250" :key="`nh-${n}`">
                                     <v-card v-if="n % 2 === 0" class="elevation-0 rounded-0 py-4"
-                                        :style="`width: 4px; min-width: 4px; background-color: ${holdingsList.length === 0 ? 'var(--secbg)' : 'var(--secred)'};`"></v-card>
+                                        :style="`width: 4px; min-width: 4px; background-color: ${holdingsList.length === 0 ? '#F1F3F8' : '#ffcdcd90'};`"></v-card>
                                     <v-card v-else class="elevation-0 rounded-0 py-4"
-                                        :style="`width: 4px; min-width: 4px; background-color: ${holdingsList.length === 0 ? 'var(--cardbg)' : 'var(--mainred)'};`"></v-card>
+                                        :style="`width: 4px; min-width: 4px; background-color: ${holdingsList.length === 0 ? '#ffffff' : '#F23645'};`"></v-card>
                                 </div>
                             </v-card>
                         </v-card>
@@ -148,14 +148,14 @@
                     <!-- Adv/Dec bar for Positions (migrated from Vue 2) -->
                     <div class="px-4">
                         <v-card :disabled="positionDataList.length === 0" class="elevation-0 d-inline-flex"
-                            style="width: 100%; background-color: var(--secbg);">
+                            style="width: 100%; background-color: #F1F3F8;">
                             <v-card class="elevation-0 rounded-0 crd-trn overflow-hidden d-inline-flex"
                                 id="poststatavdp" style="width: 0%">
                                 <div v-for="n in 250" :key="`pp-${n}`">
                                     <v-card v-if="n % 2 === 0" class="elevation-0 rounded-0 py-4"
-                                        :style="`width: 4px; min-width: 4px; background-color: ${positionDataList.length === 0 ? 'var(--secbg)' : 'var(--secgreen)'};`"></v-card>
+                                        :style="`width: 4px; min-width: 4px; background-color: ${positionDataList.length === 0 ? '#F1F3F8' : '#ECF8F1'};`"></v-card>
                                     <v-card v-else class="elevation-0 rounded-0 py-4"
-                                        :style="`width: 4px; min-width: 4px; background-color: ${positionDataList.length === 0 ? 'var(--cardbg)' : 'var(--maingreen)'};`"></v-card>
+                                        :style="`width: 4px; min-width: 4px; background-color: ${positionDataList.length === 0 ? '#ffffff' : '#43A833'};`"></v-card>
                                 </div>
                             </v-card>
                             <v-card class="elevation-0 rounded-0 crd-trn" style="width: 4px; min-width: 4px;">
@@ -164,9 +164,9 @@
                                 id="poststatavdn" style="width: 0%">
                                 <div v-for="n in 250" :key="`np-${n}`">
                                     <v-card v-if="n % 2 === 0" class="elevation-0 rounded-0 py-4"
-                                        :style="`width: 4px; min-width: 4px; background-color: ${positionDataList.length === 0 ? 'var(--secbg)' : 'var(--secred)'};`"></v-card>
+                                        :style="`width: 4px; min-width: 4px; background-color: ${positionDataList.length === 0 ? '#F1F3F8' : '#ffcdcd90'};`"></v-card>
                                     <v-card v-else class="elevation-0 rounded-0 py-4"
-                                        :style="`width: 4px; min-width: 4px; background-color: ${positionDataList.length === 0 ? 'var(--cardbg)' : 'var(--mainred)'};`"></v-card>
+                                        :style="`width: 4px; min-width: 4px; background-color: ${positionDataList.length === 0 ? '#ffffff' : '#F23645'};`"></v-card>
                                 </div>
                             </v-card>
                         </v-card>
@@ -198,7 +198,7 @@
                         </div>
                         <v-list-item-content>
                             <v-btn class="ml-auto" to="/orders" icon
-                                style="background-color: transparent !important; box-shadow: none !important;color: var(--primary) !important;">
+                                style="background-color: transparent !important; box-shadow: none !important;color: #0037B7 !important;">
                                 <v-icon size="26">mdi-arrow-right</v-icon>
                             </v-btn>
                         </v-list-item-content>
@@ -246,7 +246,7 @@
                         </div>
                         <v-list-item-content>
                             <v-btn class="ml-auto" to="/funds" icon
-                                style="background-color: transparent !important; box-shadow: none !important;color: var(--primary) !important;">
+                                style="background-color: transparent !important; box-shadow: none !important;color: #0037B7 !important;">
                                 <v-icon>mdi-arrow-right</v-icon>
                             </v-btn>
                         </v-list-item-content>
@@ -524,9 +524,9 @@ const updateHoldingsStats = (list) => {
             if (posBarCards) {
                 posBarCards.forEach((card, idx) => {
                     if (idx % 2 === 0) {
-                        card.style.backgroundColor = 'var(--secgreen)'
+                        card.style.backgroundColor = '#ECF8F1'
                     } else {
-                        card.style.backgroundColor = 'var(--maingreen)'
+                        card.style.backgroundColor = '#43A833'
                     }
                 })
             }
@@ -536,9 +536,9 @@ const updateHoldingsStats = (list) => {
             if (negBarCards) {
                 negBarCards.forEach((card, idx) => {
                     if (idx % 2 === 0) {
-                        card.style.backgroundColor = 'var(--secred)'
+                        card.style.backgroundColor = '#ffcdcd90'
                     } else {
-                        card.style.backgroundColor = 'var(--mainred)'
+                        card.style.backgroundColor = '#F23645'
                     }
                 })
             }
@@ -548,12 +548,12 @@ const updateHoldingsStats = (list) => {
             const negBarCards = negBar?.querySelectorAll('.v-card')
             if (posBarCards) {
                 posBarCards.forEach((card, idx) => {
-                    card.style.backgroundColor = idx % 2 === 0 ? 'var(--secbg)' : 'var(--cardbg)'
+                    card.style.backgroundColor = idx % 2 === 0 ? '#F1F3F8' : '#ffffff'
                 })
             }
             if (negBarCards) {
                 negBarCards.forEach((card, idx) => {
-                    card.style.backgroundColor = idx % 2 === 0 ? 'var(--secbg)' : 'var(--cardbg)'
+                    card.style.backgroundColor = idx % 2 === 0 ? '#F1F3F8' : '#ffffff'
                 })
             }
         }

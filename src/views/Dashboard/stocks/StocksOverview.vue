@@ -771,11 +771,11 @@ onBeforeUnmount(() => {
 }
 
 .depthrow-b:hover {
-    border: 1px solid var(--maingreen) !important;
+    border: 1px solid #43A833 !important;
 }
 
 .depthrow-a:hover {
-    border: 1px solid var(--mainred) !important;
+    border: 1px solid #F23645 !important;
 }
 
 .pivot .v-slider--horizontal .v-slider__track-container {
