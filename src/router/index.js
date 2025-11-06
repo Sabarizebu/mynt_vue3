@@ -172,8 +172,7 @@ const routes = [
             component: MuturalNfoSrc
           },
           {
-            path: '/mutualfund/single',
-            alias: '/mutualfund/*',
+            path: '/mutualfund/single/:ISIN?',
             name: 'mutual fund single',
             component: MutualSingle
           },
