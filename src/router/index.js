@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { getAnalytics, logEvent } from "firebase/analytics"
+import { logEvent } from "firebase/analytics"
+import { analytics } from '../firebase'
 import { useAuthStore } from '../stores/authStore'
 import { useSessionStore } from '../stores/sessionStore'
 import { useAppStore } from '../stores/appStore'
@@ -74,13 +75,7 @@ import StartCheck from '../views/StartCheck.vue'
 // Trading page
 import TradingPage from '../views/Trading/TradingPage.vue'
 
-// Initialize Firebase Analytics with error handling
-let analytics = null
-try {
-  analytics = getAnalytics()
-} catch (error) {
-  console.error('Failed to initialize Firebase Analytics:', error)
-}
+// Use Firebase Analytics instance from firebase.js
 
 const routes = [
   {

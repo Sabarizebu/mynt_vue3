@@ -19,7 +19,21 @@ const firebaseConfig = {
 
 const firebaseApp = initializeApp(firebaseConfig);
 const db = getDatabase(firebaseApp);
-const analytics = getAnalytics(firebaseApp);
+let analytics = null;
+
+// Initialize Analytics - make it non-blocking and handle errors gracefully
+// Only initialize if we're in a browser environment
+if (typeof window !== 'undefined') {
+  try {
+    analytics = getAnalytics(firebaseApp);
+  } catch (error) {
+    // Analytics initialization failed - log warning but don't block app
+    console.warn('Firebase Analytics initialization failed (non-critical):', error);
+    // Set to null so router can check for it
+    analytics = null;
+  }
+}
+
 export { firebaseApp, analytics };
 // set(ref(db, 'users/' + 'ze1a40'), {
 //     username: 'name',

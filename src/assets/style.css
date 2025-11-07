@@ -1,4 +1,6 @@
-/* Tenon Font Face Declaration - Ready for when font files are available */
+/* Tenon Font Face Declaration - Commented out until font files are available */
+/* Font files are not present in the project, so these declarations are disabled to prevent 404 errors */
+/*
 @font-face {
   font-family: 'Tenon';
   src: url('/fonts/tenon/tenon-regular.woff2') format('woff2'),
@@ -38,6 +40,7 @@
   font-style: normal;
   font-display: swap;
 }
+*/
 
 html {
   scroll-behavior: smooth !important;
