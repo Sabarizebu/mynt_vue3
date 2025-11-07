@@ -3,6 +3,8 @@ import apiurl from '../../apiurl'
 import { mynturl } from "../../apiurl";
 import fire from '../../firebase';
 import { useAppStore } from '../../stores/appStore'
+import { useAuthStore } from '../../stores/authStore'
+import { useSessionStore } from '../../stores/sessionStore'
 import CryptoJS from 'crypto-js'
 
 let firebase = null
@@ -1120,9 +1122,48 @@ export async function getInvHoldings(item) {
 }
 
 export async function getLtpdata(item) {
-    requestOptions['body'] = `{ "data": ${JSON.stringify(item)} }`
-    var response = await fetchMyntAPI(apiurl.asvrapi + "GetLtp", requestOptions)
-    return response
+    // Validate input
+    if (!item || !Array.isArray(item) || item.length === 0) {
+        console.warn('getLtpdata: Invalid input - item must be a non-empty array')
+        return { data: null, error: 'Invalid input: item must be a non-empty array' }
+    }
+
+    // Validate each item in the array has required fields
+    const invalidItems = item.filter(i => !i || !i.exch || !i.token || !i.tsym)
+    if (invalidItems.length > 0) {
+        console.warn('getLtpdata: Invalid items in array - missing exch, token, or tsym', invalidItems)
+        return { data: null, error: 'Invalid items: missing exch, token, or tsym' }
+    }
+
+    try {
+        // Set authentication headers before making the API call
+        setHeaderauth()
+        requestOptions['body'] = `{ "data": ${JSON.stringify(item)} }`
+        var response = await fetchMyntAPI(apiurl.asvrapi + "GetLtp", requestOptions)
+        
+        // Handle error response (500 indicates API error from fetchMyntAPI)
+        if (response === 500) {
+            console.error('Error in getLtpdata: API returned 500 error')
+            return { data: null, error: 'API Error: Server returned 500' }
+        }
+        
+        // Handle error message in response
+        if (response && response.emsg) {
+            console.error('Error in getLtpdata:', response.emsg)
+            return { data: null, error: response.emsg }
+        }
+        
+        // Handle empty or invalid response
+        if (!response || (Array.isArray(response) && response.length === 0)) {
+            console.warn('getLtpdata: Empty or invalid response')
+            return { data: null, error: 'No data returned from API' }
+        }
+        
+        return response
+    } catch (error) {
+        console.error('Error in getLtpdata:', error)
+        return { data: null, error: error.message || 'Unknown error occurred' }
+    }
 }
 
 export async function getGreekoptions(item) {
@@ -1207,11 +1248,34 @@ export async function fetchMyntAPI(path, reqopt, way) {
             }
         }
 
-        if (data && data.emsg && data.emsg === 'Session Expired :  Invalid Session Key') {
-            store.showSnackbar(2, data.emsg);
-        } else {
-            return data;
+        // Check for session errors (exact same as old app logic)
+        if (data && data.emsg) {
+            // Check if it's "another system" error or session expired
+            const errorMsg = data.emsg;
+            const isSessionError = typeof errorMsg === 'string' && 
+                (errorMsg.includes('another system') || 
+                 errorMsg.includes('already logged in') ||
+                 errorMsg.includes('logged in on') ||
+                 errorMsg.includes('Session Expired') ||
+                 errorMsg.includes('Invalid Session Key'));
+            
+            if (isSessionError) {
+                // Immediate logout when session ends or logged in on another system
+                console.error("❌ Session error detected:", errorMsg);
+                
+                // Get stores
+                const authStore = useAuthStore();
+                const sessionStore = useSessionStore();
+                
+                // Handle session error immediately (logout and navigate)
+                sessionStore.handleSessionError(data, authStore, store);
+                
+                // Return error to prevent further processing
+                return data;
+            }
         }
+        
+        return data;
 
     } catch (error) {
         if (uid && tok) {
@@ -1221,9 +1285,30 @@ export async function fetchMyntAPI(path, reqopt, way) {
             const log = `${status} || t: ${reqt} - ${rest} || ${path.split('.in')[1]} || m: ${msg}`;
             saveApiLog(log, reqt);
         }
+        
+        // Check for 401 errors (unauthorized - likely session expired or another system login)
         if (error.status === 401) {
-            store.showSnackbar(2, error);
+            console.error("❌ 401 Unauthorized error detected");
+            
+            // Get stores
+            const authStore = useAuthStore();
+            const sessionStore = useSessionStore();
+            
+            // Check if user is logged in, if so, handle as session error
+            if (authStore.uid && authStore.token) {
+                // Create error object similar to API response
+                const sessionError = {
+                    emsg: "Session has expired. Please log in again."
+                };
+                
+                // Handle session error immediately (logout and navigate)
+                sessionStore.handleSessionError(sessionError, authStore, store);
+            } else {
+                // Just show snackbar if no auth
+                store.showSnackbar(2, error);
+            }
         }
+        
         if (way) {
             if (requestMOption.body) {
                 delete requestMOption.body;

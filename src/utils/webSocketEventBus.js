@@ -260,6 +260,11 @@ window.addEventListener('web-scoketOn', (event) => {
 
 export default webSocketEventBus;
 
+// Export setWebsocket as a named export for convenience
+export const setWebsocket = (flow, data, is) => {
+    webSocketEventBus.setWebsocket(flow, data, is);
+};
+
 // Legacy Event Bus Adapter — support eventBus.$emit for 'web-scoketOn'
 if (typeof window !== 'undefined') {
   window.eventBus = window.eventBus || {};

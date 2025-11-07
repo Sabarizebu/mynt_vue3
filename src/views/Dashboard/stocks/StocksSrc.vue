@@ -6,7 +6,7 @@
         <!-- <img src="@/assets/stat.svg" width="100%" alt=""> -->
         <v-card v-else class="elevation-0 mb-6 mb-sm-16 px-6 py-4 pa-sm-6 rounded-lg" color="#51FFB6">
             <v-row no-gutters>
-                <v-col cols="3">
+                <v-col cols="12" sm="4">
                     <p class="fs-36 font-weight-bold black--text lh-40 mb-0 d-none d-sm-flex">
                         Simple. <br />
                         Insightful. <br />
@@ -17,33 +17,33 @@
                         Insightful. <br />
                         Incremental.
                     </p>
-
                 </v-col>
-                <v-col cols="8" class="pos-rlt mr-4 ml-auto d-none d-sm-flex">
-                    <div style="width: 100%;" no-gutters class="pos-abs d-inline-flex flex-row-reverse">
-                        <v-card width="170px" class="pb-4 mr-3 stk-land-crds rounded-xl">
-                            <img src="@/assets/stocks/main-card-3.svg" class="px-2" alt="main-card-3" width="100%" />
+                <v-col cols="7" class="pos-rlt ml-auto mr-4 d-none d-sm-flex">
+                    <div style="width: 100%" no-gutters class="d-inline-flex flex-row-reverse">
+                        <v-card width="170px" class="pb-4 mr-3 stk-land-crds rounded-xl elevation-1">
+                            <img :src="`/src/assets/stocks/main-card-3${$vuetify.theme.dark ? 'd' : ''}.svg`"
+                                class="px-2" alt="main-card-3" width="100%" />
                             <p class="fs-16 font-weight-bold lh-16 px-4 mb-0">
                                 Discover IPO <br />
                                 early winners.
                             </p>
                         </v-card>
-
-                        <v-card width="170px" class="pb-4 mr-3 stk-land-crds rounded-xl">
-                            <img src="@/assets/stocks/main-card-2.svg" class="px-2" alt="main-card-2" width="100%" />
+                        <v-card width="170px" class="pb-4 mr-3 stk-land-crds rounded-xl elevation-1">
+                            <img :src="`/src/assets/stocks/main-card-2${$vuetify.theme.dark ? 'd' : ''}.svg`"
+                                class="px-2" alt="main-card-2" width="100%" />
                             <p class="fs-16 font-weight-bold lh-16 px-4 mb-0">
                                 Invest safely <br />
                                 in bonds.
                             </p>
                         </v-card>
-                        <v-card width="170px" class="pb-4 mr-3 stk-land-crds rounded-xl">
-                            <img src="@/assets/stocks/main-card-1.svg" class="px-2" alt="main-card-1" width="100%" />
+                        <v-card width="170px" class="pb-4 mr-3 stk-land-crds rounded-xl elevation-1">
+                            <img :src="`/src/assets/stocks/main-card-1${$vuetify.theme.dark ? 'd' : ''}.svg`"
+                                class="px-2" alt="main-card-1" width="100%" />
                             <p class="fs-16 font-weight-bold lh-16 px-4 mb-0">
                                 Buy stocks <br />
                                 with a click.
                             </p>
                         </v-card>
-                        <!-- </v-col> -->
                     </div>
                 </v-col>
             </v-row>
@@ -218,8 +218,8 @@
                                             }}</span>
                                             <span :id="`ssdad${i.data.token}chp`"> ({{
                                                 advdecitems.wsdata[i.data.token].chp ?
-                                                `${Number(advdecitems.wsdata[i.data.token].chp).toFixed(2)}` : "0.00"
-                                                }}%)</span></span>
+                                                    `${Number(advdecitems.wsdata[i.data.token].chp).toFixed(2)}` : "0.00"
+                                            }}%)</span></span>
                                     </span>
                                     <span v-else class="fs-12">₹0.00 <span class="fs-9"> 0.00 (0.00%)</span></span>
                                 </p>
@@ -312,9 +312,8 @@
         <div id="market" v-dragscroll.x class="d-inline-flex overflow-x-auto no-scroll mb-12" style="width: 100%">
             <div v-for="(tabel, l) in isloading ? [[], [], [], []] : tradeactionitem" :key="l"
                 :class="l == 3 ? 'mr-1' : 'mr-4'">
-                <v-card style="border: thin solid #EBEEF0 !important" class="rounded-lg elevation-0"
-                    color="cardbg">
-                    <v-toolbar class="elevation-0 mb-0 mt-1" density="compact" color="transparent">
+                <v-card style="border: thin solid #EBEEF0 !important" class="rounded-lg elevation-0" color="cardbg">
+                    <v-toolbar class="elevation-0 mb-0 mt-1 px-3" density="compact" color="transparent">
                         <img width="24px" :src="tradeIcons[l]" :alt="tradeLabels[l]" class="mr-2" />
                         <p class="font-weight-bold subtitle-2 mb-0 text-none">
                             {{ l == 3 ? "Most active" : l == 0
@@ -376,93 +375,100 @@
             </div>
         </div>
 
-        <v-card style="border: thin solid #EBEEF0 !important" variant="outlined" class="rounded-lg mb-8"
-            color="cardbg">
-            <v-toolbar ref="smcp" id="smcp" class="elevation-0 my-4" density="compact" color="transparent">
+        <v-card style="border: thin solid #EBEEF0 !important" variant="outlined" class="rounded-lg mb-8" color="cardbg">
+            <v-toolbar ref="smcp" id="smcp" class="elevation-0 my-4 px-4" density="compact" color="transparent">
                 <img width="40px" src="@/assets/stocks/srcm.svg" alt="srcm" class="mr-2" />
-                <p class="title font-weight-bold mb-0">Stock monitor</p>
+                <p class="title font-weight-bold mb-0" style="color: black;">Stock monitor</p>
                 <v-spacer></v-spacer>
                 <v-select v-model="screent0" :items="screent0item" item-title="text" item-value="value"
                     label="Condition" variant="flat" density="comfortable" hide-details menu-icon="mdi-chevron-down"
                     :readonly="issloading" class="rounded-pill mr-3 d-none d-sm-flex"
-                    style="max-width: 180px; background-color: #F1F3F8;"
+                    style="max-width: 180px; background-color: #F1F3F8;color: black;"
                     @update:model-value="getContentlistdata('yes')" />
 
                 <v-select v-model="screent1" :items="screent1item" item-title="text" item-value="value"
                     label="Condition" variant="flat" density="comfortable" hide-details menu-icon="mdi-chevron-down"
                     :readonly="issloading" class="rounded-pill d-none d-sm-flex"
-                    style="max-width: 140px; background-color: #F1F3F8;"
+                    style="max-width: 140px; background-color: #F1F3F8;color: black;"
                     @update:model-value="getContentlistdata('yes')" />
 
             </v-toolbar>
 
-            <v-data-table must-sort :sort-by="['chp']" mobile :sort-desc="[true]" hide-default-footer fixed-header
-                :loading="issloading" class="rounded-lg overflow-y-auto" :headers="screenheader" :search="opensearch"
-                :items="screentitems" :items-per-page="10">
-                <template v-slot:[`item.tsym`]="{ item }">
-                    <span @click="setSinglestock(item.tsym.split('-')[0], item)"
-                        class="font-weight-medium text-capitalize txt-dec-cust ws-p" v-text="item.tsym"></span>
-                </template>
+            <div style="overflow-x:auto;">
+                <v-data-table must-sort :sort-by="['chp']" :sort-desc="[true]" :loading="issloading" density="compact"
+                    mobile-breakpoint="900" fixed-header height="480px" class="rounded-lg overflow-y-auto"
+                    style="border-radius: 4px; border: 1px solid #EBEEF0; min-width:660px;" :headers="screenheader"
+                    :search="opensearch" :items="screentitems" :items-per-page="10" :hide-default-footer="true">
+                    <template v-slot:[`item.tsym`]="{ item }">
+                        <span @click="setSinglestock(item.tsym.split('-')[0], item)"
+                            class="font-weight-medium text-capitalize txt-dec-cust ws-p" v-text="item.tsym"></span>
+                    </template>
 
-                <template v-slot:[`item.ltp`]="{ item }">
-                    <p class="mb-0 lh-18">
-                        <span class="d-none" v-if="!uid">{{ setScrpitCH("", item, "SCR") }}</span>
+                    <template v-slot:[`item.ltp`]="{ item }">
+                        <p class="mb-0 lh-18">
+                            <span class="d-none" v-if="!uid">{{ setScrpitCH("", item, "SCR") }}</span>
 
-                        <span class="font-weight-medium maintext--text">₹<span :id="`ssdsc${item.token}ltp`"
-                                v-text="item.lp ? Number(item.lp).toFixed(2) : '0.00'"></span></span> <br />
-                        <span class="font-weight-medium fs-12 ws-p" :id="`ssdsc${item.token}chpclr`"
-                            :class="item.ch > 0 ? 'maingreen--text' : item.ch < 0 ? 'mainred--text' : 'subtext--text'">
-                            <span :id="`ssdsc${item.token}ch`" v-text="item.ch ? item.ch : '0.00'"> </span>
-                            <span :id="`ssdsc${item.token}chp`"
-                                v-text="` (${item.chp ? item.chp : item.pc}%)`"></span></span>
-                    </p>
-                </template>
+                            <span class="font-weight-medium maintext--text">₹<span :id="`ssdsc${item.token}ltp`"
+                                    v-text="item.lp ? Number(item.lp).toFixed(2) : '0.00'"></span></span> <br />
+                            <span class="font-weight-medium fs-12 ws-p" :id="`ssdsc${item.token}chpclr`"
+                                :class="item.ch > 0 ? 'maingreen--text' : item.ch < 0 ? 'mainred--text' : 'subtext--text'">
+                                <span :id="`ssdsc${item.token}ch`" v-text="item.ch ? item.ch : '0.00'"> </span>
+                                <span :id="`ssdsc${item.token}chp`"
+                                    v-text="` (${item.chp ? item.chp : item.pc}%)`"></span></span>
+                        </p>
+                    </template>
 
-                <template v-slot:[`item.vol`]="{ item }">
-                    <span class="font-weight-medium maintext--text">{{ item.v ? item.v : "0.00" }}</span>
-                </template>
-                <template v-slot:[`item.op`]="{ item }">
-                    <span class="font-weight-medium maintext--text" :id="`ssdsc${item.token}op`">{{ item.ap ? item.ap :
-                        "0.00"
-                    }}</span>
-                </template>
-                <template v-slot:[`item.cp`]="{ item }">
-                    <span class="font-weight-medium maintext--text" :id="`ssdsc${item.token}cp`">{{ item.c ? item.c :
-                        "0.00"
-                    }}</span>
-                </template>
-                <template v-slot:[`item.high`]="{ item }">
-                    <span class="font-weight-medium maintext--text" :id="`ssdsc${item.token}high`">{{ item.h ? item.h :
-                        "0.00"
-                    }}</span>
-                </template>
-                <template v-slot:[`item.low`]="{ item }">
-                    <span class="font-weight-medium maintext--text" :id="`ssdsc${item.token}low`">{{ item.l ? item.l :
-                        "0.00"
-                    }}</span>
-                </template>
+                    <template v-slot:[`item.vol`]="{ item }">
+                        <span class="font-weight-medium maintext--text">{{ item.v ? item.v : "0.00" }}</span>
+                    </template>
+                    <template v-slot:[`item.op`]="{ item }">
+                        <span class="font-weight-medium maintext--text" :id="`ssdsc${item.token}op`">{{ item.ap ?
+                            item.ap :
+                            "0.00"
+                            }}</span>
+                    </template>
+                    <template v-slot:[`item.cp`]="{ item }">
+                        <span class="font-weight-medium maintext--text" :id="`ssdsc${item.token}cp`">{{ item.c ? item.c
+                            :
+                            "0.00"
+                            }}</span>
+                    </template>
+                    <template v-slot:[`item.high`]="{ item }">
+                        <span class="font-weight-medium maintext--text" :id="`ssdsc${item.token}high`">{{ item.h ?
+                            item.h :
+                            "0.00"
+                            }}</span>
+                    </template>
+                    <template v-slot:[`item.low`]="{ item }">
+                        <span class="font-weight-medium maintext--text" :id="`ssdsc${item.token}low`">{{ item.l ? item.l
+                            :
+                            "0.00"
+                            }}</span>
+                    </template>
 
-                <template v-slot:no-data>
-                    <v-col v-if="screentidata" cols="12" class="text-center pa-0">
-                        <v-container fill-height>
-                            <v-btn block class="elevation-0 text-center rounded-xl" height="300px" text
-                                color="transparent" @click="getContentlistdata">
-                                <div class="mx-auto py-16">
-                                    <img width="60px" src="@/assets/sm_icon.svg" class="mb-3">
-                                    <h3 class="primary--text font-weight-medium mb-2 text-none">Stock monitor</h3>
-                                    <p class="subtext--text mb-0 text-none">Click to load the Market monitor data</p>
-                                </div>
-                            </v-btn>
-                        </v-container>
-                    </v-col>
-                    <v-col v-else cols="12" class="text-center pa-16">
-                        <div>
-                            <img width="80px" src="@/assets/no data folder.svg" alt="no data" />
-                            <h5 class="txt-999 font-weight-regular">There is no data here yet!</h5>
-                        </div>
-                    </v-col>
-                </template>
-            </v-data-table>
+                    <template v-slot:no-data>
+                        <v-col v-if="screentidata" cols="12" class="text-center pa-0">
+                            <v-container fill-height>
+                                <v-btn block class="elevation-0 text-center rounded-xl" height="300px" text
+                                    color="transparent" @click="getContentlistdata">
+                                    <div class="mx-auto py-16">
+                                        <img width="60px" src="@/assets/sm_icon.svg" class="mb-3">
+                                        <h3 class="primary--text font-weight-medium mb-2 text-none">Stock monitor</h3>
+                                        <p class="subtext--text mb-0 text-none">Click to load the Market monitor data
+                                        </p>
+                                    </div>
+                                </v-btn>
+                            </v-container>
+                        </v-col>
+                        <v-col v-else cols="12" class="text-center pa-16">
+                            <div>
+                                <img width="80px" src="@/assets/no data folder.svg" alt="no data" />
+                                <h5 class="txt-999 font-weight-regular">There is no data here yet!</h5>
+                            </div>
+                        </v-col>
+                    </template>
+                </v-data-table>
+            </div>
             <v-divider></v-divider>
             <v-btn v-if="screentitems && screentitems.length > 0" :disabled="issloading" to="/stocks/screener" block
                 text class="text-none primary--text" height="48px">See
@@ -1241,7 +1247,7 @@ const handleQuoteUpdate = (event) => {
             if (pIndex >= 0) {
                 // This is a pdmwdata token, process the update
                 // Use mergeTick to handle data merging (like watchlist)
-        optionChainDataParse(data);
+                optionChainDataParse(data);
             }
         } else {
             // If no token, try to parse anyway (might be for other data)
@@ -1279,17 +1285,17 @@ const handleWebSocketConnection = (event) => {
         if ((page === "stockDASH" || page === "stocks" || page === "stockINC") && data) {
             // Handle pdmwdata updates (top indices)
             if (pdmwdata.value && Array.isArray(pdmwdata.value)) {
-            // Handle both single data object and array of data
-            if (Array.isArray(data)) {
-                // If data is array, process each item
-                for (let i = 0; i < data.length; i++) {
-                    if (data[i] && (data[i].token || data[i].tk)) {
-                        optionChainDataParse(data[i]);
+                // Handle both single data object and array of data
+                if (Array.isArray(data)) {
+                    // If data is array, process each item
+                    for (let i = 0; i < data.length; i++) {
+                        if (data[i] && (data[i].token || data[i].tk)) {
+                            optionChainDataParse(data[i]);
+                        }
                     }
-                }
-            } else if (data.token || data.tk) {
-                // Single data object
-                optionChainDataParse(data);
+                } else if (data.token || data.tk) {
+                    // Single data object
+                    optionChainDataParse(data);
                 }
             }
 
@@ -1306,7 +1312,7 @@ const handleWebSocketConnection = (event) => {
         // Check if detail has page property
         if (detail.page === "stockDASH" || detail.page === "stocks" || detail.page === "stockINC") {
             // This is a page-specific event
-        if (detail.token || detail.tk) {
+            if (detail.token || detail.tk) {
                 optionChainDataParse(detail);
             }
         } else if (detail.token || detail.tk) {
@@ -1360,7 +1366,7 @@ const handleWebSocketConnection = (event) => {
             // If no token, try to parse anyway (might be for other data)
             // But only if it's not a page-specific event that we're not handling
             if (!detail.page || detail.page === "stockDASH" || detail.page === "stocks" || detail.page === "stockINC") {
-            optionChainDataParse(detail);
+                optionChainDataParse(detail);
             }
         }
     }
@@ -1424,12 +1430,20 @@ const scrollFrom = (id, value) => {
 const setScrpitCH = (x, i, a, l) => {
     if (a == "TA") {
         let f = tradeactionitem.value[x].findIndex((o) => o.token == i.token);
-        tradeactionitem.value[x][f]["ch"] = Number(i.lp) && Number(i.c) ? (Number(i.lp) - Number(i.c)).toFixed(2) : 0;
-        tradeactionitem.value[x][f]["chp"] = Number(i.ch) && Number(i.lp) ? ((Number(i.ch) / Number(i.lp)) * 100).toFixed(2) : 0;
+        if (f >= 0) {
+            tradeactionitem.value[x][f]["ch"] = Number(i.lp) && Number(i.c) ? (Number(i.lp) - Number(i.c)).toFixed(2) : 0;
+            tradeactionitem.value[x][f]["chp"] = Number(i.ch) && Number(i.lp) ? ((Number(i.ch) / Number(i.lp)) * 100).toFixed(2) : 0;
+            // Force reactivity
+            tradeactionitem.value[x] = [...tradeactionitem.value[x]];
+        }
     } else if (a == "SCR") {
         let f = screentitems.value.findIndex((o) => o.token == i.token);
-        screentitems.value[f]["ch"] = Number(i.lp) && Number(i.c) ? (Number(i.lp) - Number(i.c)).toFixed(2) : 0;
-        screentitems.value[f]["chp"] = Number(i.ch) && Number(i.lp) ? ((Number(i.ch) / Number(i.lp)) * 100).toFixed(2) : 0;
+        if (f >= 0) {
+            screentitems.value[f]["ch"] = Number(i.lp) && Number(i.c) ? (Number(i.lp) - Number(i.c)).toFixed(2) : 0;
+            screentitems.value[f]["chp"] = Number(i.ch) && Number(i.lp) ? ((Number(i.ch) / Number(i.lp)) * 100).toFixed(2) : 0;
+            // Force reactivity
+            screentitems.value = [...screentitems.value];
+        }
     } else if (a == "st" && l < 5) {
         let g = sectorwapper.value.indexOf(`${x}|${l}`);
         if (sectorwslist.value && sectorwslist.value.length == 20) {
@@ -1561,20 +1575,33 @@ const getToplistdata = async () => {
 }
 
 const getContentlistdata = async (change) => {
-    if (change == "yes" && uid.value) {
-        setWebsocket("unsub-D", screentitems.value, "sc");
-    }
-    issloading.value = true;
-    screentitems.value = [];
-    let data = await getConTentList(["NSE", screent1.value, screent0.value]);
-    if (data && data.length > 0) {
-        screentitems.value = data.slice(0, 10);
-        if (uid.value) {
-            setWebsocket("sub", data, "sc");
+    try {
+        if (change == "yes" && uid.value) {
+            // Unsubscribe from old data
+            setWebsocket("unsub-D", screentitems.value, "sc");
         }
+
+        issloading.value = true;
+        screentitems.value = [];
+
+        let data = await getConTentList(["NSE", screent1.value, screent0.value]);
+
+        if (data && data.length > 0) {
+            screentitems.value = data.slice(0, 10);
+
+            // Subscribe to WebSocket for real-time updates
+            if (uid.value) {
+                setWebsocket("sub", data, "sc");
+            }
+        }
+
+        screentidata.value = false;
+    } catch (error) {
+        console.error("Error loading stock monitor data:", error);
+        screentidata.value = false;
+    } finally {
+        issloading.value = false;
     }
-    screentidata.value = false;
-    issloading.value = false;
 }
 
 const getSectorlistdata = async () => {
@@ -1633,7 +1660,7 @@ const getADlistdata = async () => {
             // Always call setStatAD for all sectors, even if API doesn't return data (handles missing data gracefully)
             advdecitems.Sectors.forEach((sector, index) => {
                 const processedData = setStatAD(data[sector.key] || null, sector.key);
-                    advdecitems.Sectors[index].data = processedData;
+                advdecitems.Sectors[index].data = processedData;
 
                 // Log missing data for debugging
                 if (!data[sector.key]) {
@@ -1645,7 +1672,7 @@ const getADlistdata = async () => {
             // Always call setStatAD for all thematic, even if API doesn't return data
             advdecitems.Thematic.forEach((thematic, index) => {
                 const processedData = setStatAD(data[thematic.key] || null, thematic.key);
-                    advdecitems.Thematic[index].data = processedData;
+                advdecitems.Thematic[index].data = processedData;
 
                 // Log missing data for debugging
                 if (!data[thematic.key]) {
@@ -1712,8 +1739,8 @@ const getADlistdata = async () => {
                 }
 
                 // Subscribe to WebSocket for real-time updates (for all sectors)
-            if (uid.value && Object.keys(advdecitems.wsdata || {}).length > 0) {
-                setWebsocket("sub", Object.values(advdecitems.wsdata), "adv");
+                if (uid.value && Object.keys(advdecitems.wsdata || {}).length > 0) {
+                    setWebsocket("sub", Object.values(advdecitems.wsdata), "adv");
                     // Re-subscribe after delay to ensure connection is ready
                     setTimeout(() => {
                         setWebsocket("sub", Object.values(advdecitems.wsdata), "adv");
@@ -2068,10 +2095,10 @@ const setWebsocket = async (flow, data, is) => {
                     const newChp = Number(v.change).toFixed(2);
 
                     // Always update - don't check if changed, just update to trigger reactivity
-                        pdmwdata.value[l]["ltp"] = newLtp;
-                        pdmwdata.value[l]["ch"] = newCh;
-                        pdmwdata.value[l]["chp"] = newChp;
-                        anyUpdated = true;
+                    pdmwdata.value[l]["ltp"] = newLtp;
+                    pdmwdata.value[l]["ch"] = newCh;
+                    pdmwdata.value[l]["chp"] = newChp;
+                    anyUpdated = true;
 
                     // Update DOM elements immediately
                     const ltpTag = document.getElementById(`ssdpd${pdmwdata.value[l].token}ltp`)
@@ -2235,28 +2262,31 @@ const optionChainDataParse = (data) => {
     if (advdecitems.wsdata && advdecitems.wsdata[tokenStr]) {
         updateSectorData(data);
     }
+    // Handle stock monitor (screentitems) updates
     let s = screentitems.value.findIndex((o) => o.token == token);
     if (s >= 0 && screentitems.value[s].token == token) {
-        // Handle ltp
+        // Handle lp (last price) - template uses item.lp
         if (data.lp !== undefined && data.lp !== null) {
-        screentitems.value[s].ltp = Number(data.lp).toFixed(2);
+            screentitems.value[s].lp = Number(data.lp).toFixed(2);
         } else if (data.ltp !== undefined && data.ltp !== null) {
-            screentitems.value[s].ltp = Number(data.ltp).toFixed(2);
+            screentitems.value[s].lp = Number(data.ltp).toFixed(2);
         } else if (data.l !== undefined && data.l !== null) {
-            screentitems.value[s].ltp = Number(data.l).toFixed(2);
+            screentitems.value[s].lp = Number(data.l).toFixed(2);
         }
 
-        // Handle ch
+        // Handle ch (change)
         if (data.ch !== undefined && data.ch !== null) {
-        screentitems.value[s]["ch"] = Number(data.ch) > 0 || Number(data.ch) < 0 ? Number(data.ch).toFixed(2) : (0).toFixed(2);
+            screentitems.value[s]["ch"] = Number(data.ch) > 0 || Number(data.ch) < 0 ? Number(data.ch).toFixed(2) : (0).toFixed(2);
         } else if (data.c !== undefined && data.c !== null && data.lp !== undefined && data.lp !== null) {
             const change = Number(data.lp) - Number(data.c);
             screentitems.value[s]["ch"] = change > 0 || change < 0 ? change.toFixed(2) : (0).toFixed(2);
         }
 
-        // Handle chp
+        // Handle chp (change percentage)
         if (data.chp !== undefined && data.chp !== null) {
-        screentitems.value[s]["chp"] = Number(data.chp).toFixed(2);
+            screentitems.value[s]["chp"] = Number(data.chp).toFixed(2);
+        } else if (data.pc !== undefined && data.pc !== null) {
+            screentitems.value[s]["chp"] = Number(data.pc).toFixed(2);
         } else if (data.c !== undefined && data.c !== null && screentitems.value[s]["ch"]) {
             const closePrice = Number(data.c);
             if (closePrice > 0) {
@@ -2265,59 +2295,86 @@ const optionChainDataParse = (data) => {
             }
         }
 
-        // Handle volume
-        if (data.volume !== undefined && data.volume !== null) {
-        screentitems.value[s]["vol"] = Number(data.volume);
+        // Handle volume (v)
+        if (data.v !== undefined && data.v !== null) {
+            screentitems.value[s]["v"] = Number(data.v).toFixed(2);
+        } else if (data.volume !== undefined && data.volume !== null) {
+            screentitems.value[s]["v"] = Number(data.volume).toFixed(2);
         } else if (data.vol !== undefined && data.vol !== null) {
-            screentitems.value[s]["vol"] = Number(data.vol);
+            screentitems.value[s]["v"] = Number(data.vol).toFixed(2);
         }
 
-        // Handle open price
-        if (data.open_price !== undefined && data.open_price !== null) {
-        screentitems.value[s]["op"] = Number(data.open_price) ? Number(data.open_price).toFixed(2) : (0).toFixed(2);
+        // Handle open price (ap -> op field)
+        if (data.ap !== undefined && data.ap !== null) {
+            screentitems.value[s]["ap"] = Number(data.ap).toFixed(2);
+        } else if (data.open_price !== undefined && data.open_price !== null) {
+            screentitems.value[s]["ap"] = Number(data.open_price).toFixed(2);
         } else if (data.open !== undefined && data.open !== null) {
-            screentitems.value[s]["op"] = Number(data.open) ? Number(data.open).toFixed(2) : (0).toFixed(2);
+            screentitems.value[s]["ap"] = Number(data.open).toFixed(2);
         }
 
-        // Handle close price
-        if (data.prev_close_price !== undefined && data.prev_close_price !== null) {
-        screentitems.value[s]["cp"] = Number(data.prev_close_price) ? Number(data.prev_close_price).toFixed(2) : (0).toFixed(2);
+        // Handle close price (c -> cp field)
+        if (data.c !== undefined && data.c !== null) {
+            screentitems.value[s]["c"] = Number(data.c).toFixed(2);
+        } else if (data.prev_close_price !== undefined && data.prev_close_price !== null) {
+            screentitems.value[s]["c"] = Number(data.prev_close_price).toFixed(2);
         } else if (data.close !== undefined && data.close !== null) {
-            screentitems.value[s]["cp"] = Number(data.close) ? Number(data.close).toFixed(2) : (0).toFixed(2);
-        } else if (data.c !== undefined && data.c !== null) {
-            screentitems.value[s]["cp"] = Number(data.c) ? Number(data.c).toFixed(2) : (0).toFixed(2);
+            screentitems.value[s]["c"] = Number(data.close).toFixed(2);
         }
 
-        // Handle high price
-        if (data.high_price !== undefined && data.high_price !== null) {
-        screentitems.value[s]["high"] = Number(data.high_price) ? Number(data.high_price).toFixed(2) : (0).toFixed(2);
+        // Handle high price (h)
+        if (data.h !== undefined && data.h !== null) {
+            screentitems.value[s]["h"] = Number(data.h).toFixed(2);
+        } else if (data.high_price !== undefined && data.high_price !== null) {
+            screentitems.value[s]["h"] = Number(data.high_price).toFixed(2);
         } else if (data.high !== undefined && data.high !== null) {
-            screentitems.value[s]["high"] = Number(data.high) ? Number(data.high).toFixed(2) : (0).toFixed(2);
+            screentitems.value[s]["h"] = Number(data.high).toFixed(2);
         }
 
-        // Handle low price
-        if (data.low_price !== undefined && data.low_price !== null) {
-        screentitems.value[s]["low"] = Number(data.low_price) ? Number(data.low_price).toFixed(2) : (0).toFixed(2);
+        // Handle low price (l)
+        if (data.l !== undefined && data.l !== null && data.lp === undefined) {
+            // Only use data.l for low if it's not being used for ltp
+            screentitems.value[s]["l"] = Number(data.l).toFixed(2);
+        } else if (data.low_price !== undefined && data.low_price !== null) {
+            screentitems.value[s]["l"] = Number(data.low_price).toFixed(2);
         } else if (data.low !== undefined && data.low !== null) {
-            screentitems.value[s]["low"] = Number(data.low) ? Number(data.low).toFixed(2) : (0).toFixed(2);
+            screentitems.value[s]["l"] = Number(data.low).toFixed(2);
         }
 
-        let tag = document.getElementById(`ssdsc${token}ltp`);
-        if (tag) {
-            document.getElementById(`ssdsc${token}ltp`).innerHTML = screentitems.value[s].ltp;
-            const chTag = document.getElementById(`ssdsc${token}ch`);
-            const chpTag = document.getElementById(`ssdsc${token}chp`);
-            const opTag = document.getElementById(`ssdsc${token}op`);
-            const cpTag = document.getElementById(`ssdsc${token}cp`);
-            const highTag = document.getElementById(`ssdsc${token}high`);
-            const lowTag = document.getElementById(`ssdsc${token}low`);
-            if (chTag) chTag.innerHTML = screentitems.value[s].ch;
-            if (chpTag) chpTag.innerHTML = ` (${screentitems.value[s].chp}%)`;
-            if (opTag) opTag.innerHTML = screentitems.value[s].op;
-            if (cpTag) cpTag.innerHTML = screentitems.value[s].cp;
-            if (highTag) highTag.innerHTML = screentitems.value[s].high;
-            if (lowTag) lowTag.innerHTML = screentitems.value[s].low;
-        }
+        // Force reactivity
+        screentitems.value = [...screentitems.value];
+
+        // Update DOM elements immediately
+        nextTick(() => {
+            const ltpTag = document.getElementById(`ssdsc${token}ltp`);
+            if (ltpTag) {
+                ltpTag.innerHTML = screentitems.value[s].lp ? Number(screentitems.value[s].lp).toFixed(2) : '0.00';
+
+                const chTag = document.getElementById(`ssdsc${token}ch`);
+                const chpTag = document.getElementById(`ssdsc${token}chp`);
+                const chpclrTag = document.getElementById(`ssdsc${token}chpclr`);
+                const opTag = document.getElementById(`ssdsc${token}op`);
+                const cpTag = document.getElementById(`ssdsc${token}cp`);
+                const highTag = document.getElementById(`ssdsc${token}high`);
+                const lowTag = document.getElementById(`ssdsc${token}low`);
+
+                if (chTag) chTag.innerHTML = screentitems.value[s].ch ? screentitems.value[s].ch : '0.00';
+                if (chpTag) chpTag.innerHTML = ` (${screentitems.value[s].chp || screentitems.value[s].pc || '0.00'}%)`;
+
+                // Update color class based on ch value
+                if (chpclrTag) {
+                    const ch = parseFloat(screentitems.value[s].ch) || 0;
+                    const baseClasses = 'font-weight-medium fs-12 ws-p';
+                    const colorClass = ch > 0 ? 'maingreen--text' : ch < 0 ? 'mainred--text' : 'subtext--text';
+                    chpclrTag.className = `${baseClasses} ${colorClass}`;
+                }
+
+                if (opTag) opTag.innerHTML = screentitems.value[s].ap ? screentitems.value[s].ap : "0.00";
+                if (cpTag) cpTag.innerHTML = screentitems.value[s].c ? screentitems.value[s].c : "0.00";
+                if (highTag) highTag.innerHTML = screentitems.value[s].h ? screentitems.value[s].h : "0.00";
+                if (lowTag) lowTag.innerHTML = screentitems.value[s].l ? screentitems.value[s].l : "0.00";
+            }
+        });
     }
     if (tradeactionitem.value.length == 4) {
         let o = tradeactionitem.value[0].findIndex((o) => o.token == token);

@@ -23,7 +23,7 @@
                                         {{ optionsStore.lsexdval || '' }}
                                         <span class="ml-4 font-weight-bold fs-12">
                                             {{ optionsStore.lsexdval && optionsStore.daydiff ? optionsStore.daydiff +
-                                            '(D)' : '' }}
+                                                '(D)' : '' }}
                                         </span>
                                         <v-icon>mdi-chevron-down</v-icon>
                                     </v-btn>
@@ -284,13 +284,15 @@
                                         <!-- Call Side: BID (optional) -->
                                         <th v-if="optionsStore.bitcheckbox" colspan="1" class="text-center pa-0"
                                             :style="optionsStore.opdatabgs">
-                                            <div width="100%" height="32px" class="optiondatasty" :id="`upcall${script.token}bid`"
+                                            <div width="100%" height="32px" class="optiondatasty"
+                                                :id="`upcall${script.token}bid`"
                                                 v-html="script.bid ? script.bid : '0.00'"></div>
                                         </th>
                                         <!-- Call Side: ASK (optional) -->
                                         <th v-if="optionsStore.askcheckbox" colspan="1" class="text-center pa-0"
                                             :style="optionsStore.opdatabgs">
-                                            <div width="100%" height="32px" class="optiondatasty" :id="`upcall${script.token}ask`"
+                                            <div width="100%" height="32px" class="optiondatasty"
+                                                :id="`upcall${script.token}ask`"
                                                 v-html="script.ask ? script.ask : '0.00'"></div>
                                         </th>
                                         <!-- Call Side: CH -->
@@ -338,12 +340,13 @@
                                             </div>
                                         </th>
                                         <th colspan="1" @click="sellOption(script)">
-                                            <div style="background-color: #F23645"
+                                            <div style="background-color: #F23645 !important;color: #fff !important;"
                                                 class="newhoverbtn newhoverbtnsize white--text cursor-p">S</div>
                                         </th>
                                         <th colspan="1" @click="buyOption(script)">
-                                            <div style="background-color: #43A833"
-                                                class="newhoverbtn newhoverbtnsize white--text cursor-p">B</div>
+                                            <div style="background-color: #43A833 !important;color: #fff !important;"
+                                                class="newhoverbtn newhoverbtnsize white--text cursor-p">
+                                                B</div>
                                         </th>
                                     </tr>
                                     </th>
@@ -403,22 +406,24 @@
                                     <!-- Put Side: IV (optional) -->
                                     <th v-if="optionsStore.ivcheckbox" colspan="1" class="text-center pa-0">
                                         <div width="100%" height="32px" class="optiondatasty"
-                                            v-html="optionsStore.upputSO[k]?.IV ? optionsStore.upputSO[k].IV : '0.00'"></div>
+                                            v-html="optionsStore.upputSO[k]?.IV ? optionsStore.upputSO[k].IV : '0.00'">
+                                        </div>
                                     </th>
                                     <!-- Put Side: LTP -->
                                     <th colspan="2" class="text-center opdatacalluphov opdatas">
                                         <span class="optiondatasty"
                                             :id="`upput${optionsStore.upputSO[k]?.token || ''}ltp`"
-                                            v-html="optionsStore.upputSO[k]?.ltp ? optionsStore.upputSO[k].ltp : '0.00'"> </span>
+                                            v-html="optionsStore.upputSO[k]?.ltp ? optionsStore.upputSO[k].ltp : '0.00'">
+                                        </span>
                                         <!-- Hover Action Buttons (Right Side - Upper) -->
                                         <tr v-if="optionsStore.upputSO[k] && optionsStore.upputSO[k].token"
                                             class="opdatacallupbtn uprghtrbtn">
                                             <th colspan="1" @click="buyOption(script, optionsStore.upputSO)">
-                                                <div style="background-color: #43A833"
+                                                <div style="background-color: #43A833 !important;color: #fff !important;"
                                                     class="newhoverbtn newhoverbtnsize white--text cursor-p">B</div>
                                             </th>
                                             <th colspan="1" @click="sellOption(script, optionsStore.upputSO)">
-                                                <div style="background-color: #F23645"
+                                                <div style="background-color: #F23645 !important;color: #fff !important;"
                                                     class="newhoverbtn newhoverbtnsize white--text cursor-p">S</div>
                                             </th>
                                             <th colspan="1" @click="addOption(script, optionsStore.upputSO)">
@@ -651,11 +656,13 @@
                                         </th>
                                         <th colspan="1" @click="sellOption(script)">
                                             <div style="background-color: #F23645"
-                                                class="newhoverbtn newhoverbtnsize white--text cursor-p">S</div>
+                                                class="newhoverbtn newhoverbtnsize white--text cursor-p">
+                                                S</div>
                                         </th>
                                         <th colspan="1" @click="buyOption(script)">
                                             <div style="background-color: #43A833"
-                                                class="newhoverbtn newhoverbtnsize white--text cursor-p">B</div>
+                                                class="newhoverbtn newhoverbtnsize white--text cursor-p">
+                                                B</div>
                                         </th>
                                     </tr>
                                     </th>
@@ -715,7 +722,8 @@
                                     <!-- Put Side: IV (optional) -->
                                     <th v-if="optionsStore.ivcheckbox" colspan="1" class="text-center pa-0">
                                         <div width="100%" height="32px" class="optiondatasty"
-                                            v-html="optionsStore.dwnputSO[k]?.IV ? optionsStore.dwnputSO[k].IV : '0.00'"></div>
+                                            v-html="optionsStore.dwnputSO[k]?.IV ? optionsStore.dwnputSO[k].IV : '0.00'">
+                                        </div>
                                     </th>
                                     <!-- Put Side: LTP -->
                                     <th colspan="2" class="text-center opdatacalluphov opdatas">
@@ -781,13 +789,15 @@
                                     <th v-if="optionsStore.bitcheckbox" colspan="1" class="text-center pa-0">
                                         <div width="100%" height="32px" class="optiondatasty"
                                             :id="`dwnput${optionsStore.dwnputSO[k]?.token || ''}bid`"
-                                            v-html="optionsStore.dwnputSO[k]?.bid ? optionsStore.dwnputSO[k].bid : '0.00'"></div>
+                                            v-html="optionsStore.dwnputSO[k]?.bid ? optionsStore.dwnputSO[k].bid : '0.00'">
+                                        </div>
                                     </th>
                                     <!-- Put Side: ASK (optional) -->
                                     <th v-if="optionsStore.askcheckbox" colspan="1" class="text-center pa-0">
                                         <div width="100%" height="32px" class="optiondatasty"
                                             :id="`dwnput${optionsStore.dwnputSO[k]?.token || ''}ask`"
-                                            v-html="optionsStore.dwnputSO[k]?.ask ? optionsStore.dwnputSO[k].ask : '0.00'"></div>
+                                            v-html="optionsStore.dwnputSO[k]?.ask ? optionsStore.dwnputSO[k].ask : '0.00'">
+                                        </div>
                                     </th>
                                     <!-- Put Side: OI with Progress Bar -->
                                     <th colspan="2" class="text-center opdatas opdatacalluphov">

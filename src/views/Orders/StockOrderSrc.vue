@@ -43,7 +43,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import StocksOrderBook from './StocksOrderBook.vue'
 import StocksTradeBook from './StocksTradeBook.vue'
@@ -83,7 +83,7 @@ function handleRouteParams() {
         // Switch to SIP tab (index 4)
         // The watch on bodytab will trigger the event once tab becomes active
         bodytab.value = 4
-    } else if (route.path === '/orders/sip') {
+    } else if (route.path === '/orders/sip' || route.path.startsWith('/orders/sip')) {
         // Direct navigation to SIP orders page
         bodytab.value = 4
     }
@@ -104,10 +104,12 @@ watch(() => [route.params, route.query, route.path], () => {
 }, { deep: true })
 
 // Phase 8: Watch for tab changes to trigger SIP dialog when tab becomes active
-watch(bodytab, (newTab) => {
+watch(bodytab, async (newTab, oldTab) => {
     // If SIP tab (4) becomes active and we have pending SIP data, trigger dialog
     if (newTab === 4 && pendingSIPData) {
-        // Wait for component to mount and be ready
+        // Wait for component to mount and be ready using nextTick
+        await nextTick()
+        // Additional delay to ensure SIP component is fully mounted and event listener is ready
         setTimeout(() => {
             if (pendingSIPData) {
                 window.dispatchEvent(new CustomEvent('siporder-trigger', {
@@ -118,7 +120,7 @@ watch(bodytab, (newTab) => {
             }
         }, 500)
     }
-})
+}, { immediate: false })
 
 onMounted(() => {
     // Phase 8: Handle route params on mount

@@ -14,7 +14,7 @@
         </div>
 
         <!-- Watchlist Toolbar with Tabs -->
-        <v-toolbar v-if="!panel && !optchainbasket" flat dense class="tool-sty crd-trn">
+        <v-toolbar v-if="!panel && !optchainbasket && !search" flat dense class="tool-sty crd-trn">
             <div ref="watchlistTabsContainer" v-dragscroll.x @mousedown="handleTabsMouseDown"
                 @mouseup="handleTabsMouseUp" @mouseleave="handleTabsMouseUp" @mousemove="handleTabsMouseMove"
                 style="width: calc(100% - 60px); cursor: grab; user-select: none;"
@@ -32,7 +32,8 @@
                     </div>
                 </div>
                 <!-- Predefined Watchlists -->
-                <div v-if="PreMWlist && PreMWlist.length > 0" class="d-inline-flex" style="white-space: nowrap;">
+                <div v-if="PreMWlist && PreMWlist.length > 0 && !search" class="d-inline-flex"
+                    style="white-space: nowrap;">
                     <div v-for="(p, s) in PreMWlist" :key="s" class="pr-2">
                         <v-chip @click.stop="watchlistis = p.key; selectWatchlist(p.key)" :class="[
                             'font-weight-medium px-3 watchlisttab',
@@ -485,31 +486,35 @@
                     <v-col v-for="(s, l) in pdmwdata" :key="l" cols="6" class="pa-1 pdmwlists">
                         <v-card class="elevation-0 crd-trn pos-rlt cursor-p"
                             :color="watchlistis == s.key ? 'primary' : 'secbg'"
-                            style="border: 1px solid #EBEEF0;background-color: #EBEEF0 !important;border-radius: 5px !important;"
+                            style="border: 1px solid #EBEEF0;background-color: #F1F3F8 !important;border-radius: 5px !important;"
                             @click="uid ? setSSDtab(l, s.token, s.exch, s.tsym) : null">
-                            <div style="display: flex;justify-content: space-between;align-content: center !important;"
-                                class="pa-2">
-                                <v-list-item-title class="maintext--text font-weight-medium fs-13">
+                            <div
+                                style="display: flex;justify-content: space-between;align-content: center !important;padding: 0px !important;">
+                                <v-list-item-title class="maintext--text font-weight-medium fs-12 pa-1">
                                     {{ s.tsym ? s.tsym : '' }}
                                 </v-list-item-title>
 
                                 <span class="text-right">
-                                    <span class="maintext--text font-weight-medium fs-13">
+                                    <span class="maintext--text font-weight-medium fs-12">
                                         ₹<span :id="`p${s.token}ltp`">{{ s.ltp ? s.ltp : "0.00" }}</span>
                                     </span>
                                 </span>
                             </div>
-                            <div style="display: flex;justify-content: flex-end;width: 100% !important;color: #676767 !important;"
-                                :class="[
-                                    'd-inline-flex font-weight-medium fs-12 px-2',
-                                    s.ch > 0 ? 'maingreen--text' : s.ch < 0 ? 'mainred--text' : 'subtext--text'
-                                ]" :id="`p${s.token}chpclr`">
+                            <div :style="{
+                                display: 'flex',
+                                justifyContent: 'flex-end',
+                                width: '100% !important',
+                                color: (s.ch && parseFloat(s.ch) > 0) ? '#35d05d' : (s.ch && parseFloat(s.ch) < 0) ? '#ff5252' : '#676767'
+                            }" :class="[
+                                'd-inline-flex font-weight-medium fs-12 px-2',
+                                (s.ch && parseFloat(s.ch) > 0) ? 'maingreen--text' : (s.ch && parseFloat(s.ch) < 0) ? 'mainred--text' : 'subtext--text'
+                            ]" :id="`p${s.token}chpclr`">
                                 <span :id="`p${s.token}ch`">{{ s.ch ? s.ch : "0.00" }}</span>
                                 <span :id="`p${s.token}chp`">({{ s.chp ? s.chp : "0.00" }})</span>
                             </div>
                             <div class="pos-abs pdmwlist z-i1 mt-n6 ml-0">
-                                <v-btn @click.stop @click="getAllindicedata(s, l == 0 ? 1 : 0)" class="elevation-1"
-                                    variant="flat" size="x-small" color="cardbg"
+                                <v-btn @click.stop @click="getAllindicedata(s, l)" class="elevation-1" variant="flat"
+                                    size="x-small" color="cardbg"
                                     style="width: 22px; height: 22px; min-width: 22px; padding: 0;">
                                     <v-icon color="maintext" size="14">mdi-pencil</v-icon>
                                 </v-btn>
@@ -522,13 +527,24 @@
 
         <!-- Exchange Filter Chips (when addscript and not panel) -->
         <div v-if="!panel && addscript && !watchsecti" class="exchange-filter-section">
-            <v-chip-group mandatory v-model="stocksexch" @update:model-value="searchFilter" class="mb-0 watchlist" row>
-                <v-chip v-for="(e, x) in exchfilter" :key="x" :value="x" class="font-weight-medium px-3"
-                    :color="stocksexch == x ? 'maintext' : 'secbg'"
-                    :text-color="stocksexch == x ? 'mainbg' : 'maintext'" size="medium">
-                    {{ e }}
-                </v-chip>
-            </v-chip-group>
+            <v-toolbar flat dense class="tool-sty crd-trn">
+                <div ref="exchangeFilterContainer" v-dragscroll.x @mousedown="handleExchangeFilterMouseDown"
+                    @mouseup="handleExchangeFilterMouseUp" @mouseleave="handleExchangeFilterMouseUp"
+                    @mousemove="handleExchangeFilterMouseMove" style="width: 100%; cursor: grab; user-select: none;"
+                    class="overflow-x-auto d-inline-flex no-scroll rounded-xl watchlist-tabs-scrollable"
+                    :class="{ 'dragging': isDraggingExchangeFilter }">
+                    <div class="d-inline-flex" style="white-space: nowrap;">
+                        <div v-for="(e, x) in exchfilter" :key="x" class="pr-2">
+                            <v-chip @click.stop="stocksexch = x; searchFilter()" :class="[
+                                'font-weight-medium px-3 watchlisttab',
+                                stocksexch === x ? 'watchlisttab-active' : ''
+                            ]" size="medium">
+                                {{ e }}
+                            </v-chip>
+                        </div>
+                    </div>
+                </div>
+            </v-toolbar>
             <v-divider></v-divider>
             <div v-if="items && items.length > 0">
                 <p class="subtext--text fs-14 mt-2 mb-1">{{ items.length }} search result by you</p>
@@ -576,13 +592,13 @@
                             @click="uid ? setSSDtab('detail', item.token, item.exch, item.tsym || item.tsyms) : null">
                             <p class="maintext--text mb-1 fs-13 px-1">
                                 <span class="table-hov-text">{{ item.tsyms ? item.tsyms : item.tsym ? item.tsym : ''
-                                    }}</span>
+                                }}</span>
                                 <span class="subtext--text">{{ item.exp ? item.exp : '' }}</span>
                                 <span v-if="item.weekly"
                                     style="border-radius: 4px; padding: 0px 4px; background-color: #F1F3F8 !important"
                                     class="ml-1">
                                     <span class="font-weight-medium fs-10 lh-16">{{ item.weekly ? item.weekly : ''
-                                        }}</span>
+                                    }}</span>
                                 </span>
                                 <span class="float-right maintext--text fs-13">
                                     ₹<span :id="`${item.token}ltp`">{{ item.ltp ? item.ltp : '0.00' }}</span>
@@ -602,8 +618,7 @@
                                 </span>
                             </p>
                             <!-- Phase 2: Add key to force re-render when uid or PreDefinedMW.is changes -->
-                            <div v-if="uid" @click.stop @mouseenter.stop @mouseleave.stop
-                                class="pos-abs table-hov watchlist-hover-options"
+                            <div v-if="uid" @click.stop class="pos-abs table-hov watchlist-hover-options"
                                 :key="`hover-${uid}-${PreDefinedMW.is}`"
                                 style="bottom: 8px; left: 50%; transform: translate(-50%, 0); z-index: 100;">
                                 <div v-if="item.instname != 'UNDIND' && item.instname != 'COM'"
@@ -642,7 +657,7 @@
                                             <div v-for="(m, k) in menulist" :key="k">
                                                 <v-list-item
                                                     v-if="m.type == 'depth' || m.type == 'Funda' ? item.instname != 'UNDIND' && item.instname != 'COM' : m.type == 'delete' ? (!PreDefinedMW.is ? true : false) : true"
-                                                    @click="m.type != 'delete' ? setSSDtab(m.type, item.token, item.exch, item.tsym) : deleteScript(item, index)"
+                                                    @click="m.type != 'delete' ? setSSDtab(m.type, item.token, item.exch, item.tsym || item.tsyms) : deleteScript(item, index)"
                                                     class="pl-3 pr-6">
                                                     <template v-slot:prepend>
                                                         <img v-if="typeof m.icon === 'number' && m.icon > 2"
@@ -662,8 +677,7 @@
                                     </v-card>
                                 </v-menu>
                             </div>
-                            <div v-else @click.stop @mouseenter.stop @mouseleave.stop
-                                class="pos-abs table-hov watchlist-hover-options"
+                            <div v-else @click.stop class="pos-abs table-hov watchlist-hover-options"
                                 style="bottom: 8px; left: 50%; transform: translate(-50%, 0); z-index: 100;">
                                 <div @click.stop="uid ? (item.instname != 'UNDIND' && item.instname != 'COM' ? handleMenuDialog('order', item.token, item.exch, item.tsym, 'b') : null) : router.push('/login')"
                                     style="min-width: 24px; background-color: #43A833; border-radius: 4px; cursor: pointer;"
@@ -718,7 +732,8 @@
                         </v-col>
                         <!-- Bookmark icon on the right -->
                         <v-col cols="2" class="d-flex justify-end align-center">
-                            <v-icon v-if="!optsearch" :color="w.watchlist ? 'primary' : 'maintext'" size="24">
+                            <v-icon v-if="!optsearch" :color="w.watchlist ? 'primary' : 'maintext'" size="24"
+                                @click.stop="addToWatchlist(w, l)" class="cursor-pointer">
                                 {{ w.watchlist ? "mdi-bookmark" : "mdi-bookmark-outline" }}
                             </v-icon>
                         </v-col>
@@ -783,7 +798,7 @@
                 </p>
                 <span class="body-2 mb-5 grey--text"> {{ nodata == null ? "Eg. for Nifty Type: Nif" :
                     "Search for another name."
-                    }}</span>
+                }}</span>
             </v-card>
         </div>
 
@@ -822,8 +837,8 @@
         </v-dialog>
 
         <!-- Index Selection Dialog -->
-        <v-dialog v-model="indexdialog" hide-overlay width="420">
-            <v-card class="pt-2 overflow-hidden elevation-0 rounded-xl" color="cardbg">
+        <v-dialog v-model="indexdialog" :scrim="false" width="420">
+            <v-card class="pt-2 overflow-hidden elevation-6 rounded-xl" color="cardbg">
                 <v-list-item-title class="font-weight-bold title maintext--text my-2 px-4">
                     Select a Index
                     <v-icon @click="indexdialog = false" class="float-right" color="maintext">mdi-close</v-icon>
@@ -838,16 +853,18 @@
                         <v-expansion-panel-text class="fs-13">
                             <v-card class="elevation-0 rounded-0 overflow-y-auto" height="378px" color="transparent">
                                 <template v-for="(a, s) in q" :key="`index-item-${w}-${s}`">
-                                    <v-list-item v-if="singleindex.n != a.token" class="px-6 cursor-pointer"
+                                    <v-list-item v-if="!singleindex.n || singleindex.n != a.token"
+                                        class="px-6 cursor-pointer"
                                         @click="singleindex.token != a.token ? setChangeindex(a, w) : null">
                                         <v-list-item-title
-                                            :class="singleindex.token == a.token ? 'primary--text' : 'maintext--text'"
+                                            :style="singleindex.token == a.token ? 'color: #2b38b7 !important;' : 'color: black !important;'"
                                             class="mb-1 table-hov-text font-weight-medium">
                                             {{ a.idxname ? a.idxname : "" }}
                                         </v-list-item-title>
                                         <template v-slot:append>
-                                            <v-icon :color="singleindex.token == a.token ? 'primary' : 'maintext'"
-                                                size="20">
+                                            <v-icon
+                                                :style="singleindex.token == a.token && 'color: #2b38b7 !important;'"
+                                                size="26">
                                                 {{ singleindex.token == a.token ?
                                                     "mdi-checkbox-marked-circle-outline" :
                                                     "mdi-plus-circle-outline" }}
@@ -922,6 +939,12 @@ const watchlistTabsContainer = ref(null)
 const isDraggingTabs = ref(false)
 let tabsStartX = 0
 let tabsScrollLeft = 0
+
+// Exchange filter drag scroll
+const exchangeFilterContainer = ref(null)
+const isDraggingExchangeFilter = ref(false)
+let exchangeFilterStartX = 0
+let exchangeFilterScrollLeft = 0
 
 // Watchlist data
 const watchlist = ref(['Millionaire'])
@@ -1303,45 +1326,50 @@ const addToWatchlist = async (item, index) => {
         return
     }
 
+    // Check if item is already in watchlist - allow deselection
+    if (item.watchlist) {
+        // Remove from watchlist (deselection)
+        await removeFromWatchlist(item, -1)
+        item.watchlist = false
+        return
+    }
+
+    // Item is not in watchlist - check if we can add it
     // Check if watchlist is full (max 50 items)
     if (Array.isArray(watchlistdata.value) && watchlistdata.value.length >= 50) {
         appStore.showSnackbar(0, 'Maximum 50 symbols you can add in single watchlists.')
         return
     }
 
-    // Check if item already exists in watchlist
+    // Check if item already exists in watchlist (by token comparison)
     if (Array.isArray(watchlistdata.value)) {
         const exists = watchlistdata.value.findIndex(o => o.token === item.token)
         if (exists >= 0) {
+            // Item exists in watchlist but watchlist flag is false - update the flag
+            item.watchlist = true
             appStore.showSnackbar(0, `${item.tsym || item.tsyms}, script is already exists.`)
             return
         }
     }
 
-    if (item.watchlist) {
-        // Remove from watchlist
-        await removeFromWatchlist(item, -1)
-        item.watchlist = false
-    } else {
-        // Add to watchlist
-        try {
-            const res = await getMwatchlistset(
-                `jData={"uid":"${uid.value}","wlname":"${watchlistis.value}","scrips":"${item.exch}|${item.token}"}&jKey=${mtoken.value}`,
-                "AddMultiScripsToMW"
-            )
+    // Add to watchlist
+    try {
+        const res = await getMwatchlistset(
+            `jData={"uid":"${uid.value}","wlname":"${watchlistis.value}","scrips":"${item.exch}|${item.token}"}&jKey=${mtoken.value}`,
+            "AddMultiScripsToMW"
+        )
 
-            if (res.stat === "Ok") {
-                appStore.showSnackbar(1, `${item.tsym || item.tsyms} added to watchlist`)
-                item.watchlist = true
-                model.value = item
-                await getMWlistdata() // Refresh watchlist data
-            } else {
-                appStore.showSnackbar(0, res.emsg || 'Failed to add to watchlist')
-            }
-        } catch (error) {
-            console.error('Add to watchlist error:', error)
-            appStore.showSnackbar(0, 'Failed to add to watchlist')
+        if (res.stat === "Ok") {
+            appStore.showSnackbar(1, `${item.tsym || item.tsyms} added to watchlist`)
+            item.watchlist = true
+            model.value = item
+            await getMWlistdata() // Refresh watchlist data
+        } else {
+            appStore.showSnackbar(0, res.emsg || 'Failed to add to watchlist')
         }
+    } catch (error) {
+        console.error('Add to watchlist error:', error)
+        appStore.showSnackbar(0, 'Failed to add to watchlist')
     }
 }
 
@@ -2171,27 +2199,96 @@ const handleWebSocketUpdate = (event) => {
 
     // Handle pdmwdata updates (top indices like NIFTY50, NIFTYBANK)
     // Like Vue 2 line 1719-1734 (optionChainDataParse)
-    if (detail && (detail.token || detail.tk)) {
-        const data = detail
-        const token = data.token || data.tk
+    // Check for both direct data format and array format
+    let data = null
+    let token = null
 
-        // Update pdmwdata if token matches (like Vue 2 line 1720-1734)
-        if (pdmwdata.value && Array.isArray(pdmwdata.value)) {
-            const pIndex = pdmwdata.value.findIndex((o) => o.token == token)
-            if (pIndex >= 0 && pdmwdata.value[pIndex].token == token) {
-                // Update pdmwdata prices (like Vue 2 line 1722-1724)
-                if (data.lp !== undefined) pdmwdata.value[pIndex].ltp = Number(data.lp).toFixed(2)
-                if (data.ch !== undefined) {
-                    pdmwdata.value[pIndex].ch = Number(data.ch) > 0 || Number(data.ch) < 0
-                        ? Number(data.ch).toFixed(2)
-                        : (0).toFixed(2)
+    // Handle array format: [data, page] or { flow, data, is, page }
+    // Note: pdmwdata is subscribed with is: 'pd', watchlistdata with is: 'wl'
+    if (Array.isArray(detail) && detail.length >= 2) {
+        const [wsData, page] = detail
+        // Check if this is for pdmwdata (page will be 'pd' or 'watchlist' for pd)
+        // We need to check the data format to determine if it's pdmwdata
+        if (wsData && (wsData.token || wsData.tk || wsData.t)) {
+            // Check if this token matches any pdmwdata token
+            const testToken = wsData.token || wsData.tk || wsData.t
+            if (pdmwdata.value && pdmwdata.value.some(p => p.token == testToken)) {
+                data = wsData
+                token = testToken
+            }
+        }
+    }
+    // Handle object format with flow property
+    else if (detail && typeof detail === 'object' && detail.flow === 'data' && detail.is === 'pd') {
+        data = detail.data || detail
+        token = data.token || data.tk || data.t
+    }
+    // Handle direct data format - check if token matches pdmwdata
+    else if (detail && (detail.token || detail.tk || detail.t)) {
+        const testToken = detail.token || detail.tk || detail.t
+        // Only process if this token matches a pdmwdata token
+        if (pdmwdata.value && pdmwdata.value.some(p => p.token == testToken)) {
+            data = detail
+            token = testToken
+        }
+    }
+
+    // Update pdmwdata if token matches (like Vue 2 line 1720-1734)
+    if (token && data && pdmwdata.value && Array.isArray(pdmwdata.value)) {
+        const pIndex = pdmwdata.value.findIndex((o) => o.token == token)
+        if (pIndex >= 0 && pdmwdata.value[pIndex].token == token) {
+            // Extract price data from different WebSocket formats
+            // Handle WebSocket feed format (dk/df): data.l or data.lp
+            // Handle processed format: data.lp, data.ch, data.chp
+            const ltp = data.l || data.lp || data.ltp
+            const ch = data.ch
+            const chp = data.chp || data.chpct
+
+            // Calculate change if we have ltp and previous close
+            let newCh = ch
+            let newChp = chp
+            const prevClose = pdmwdata.value[pIndex].prevClose || parseFloat(pdmwdata.value[pIndex].ltp) - parseFloat(pdmwdata.value[pIndex].ch || 0)
+
+            // Update pdmwdata prices reactively (Vue 3)
+            if (ltp !== undefined && ltp !== null) {
+                pdmwdata.value[pIndex].ltp = Number(ltp).toFixed(2)
+
+                // Calculate change if not provided
+                if (newCh === undefined && prevClose > 0) {
+                    newCh = Number(ltp) - prevClose
                 }
-                if (data.chp !== undefined) pdmwdata.value[pIndex].chp = Number(data.chp).toFixed(2)
+            }
 
-                // Update DOM elements (like Vue 2 line 1726-1731)
+            if (newCh !== undefined && newCh !== null) {
+                pdmwdata.value[pIndex].ch = Number(newCh) > 0 || Number(newCh) < 0
+                    ? Number(newCh).toFixed(2)
+                    : (0).toFixed(2)
+
+                // Calculate percentage change if not provided
+                if (newChp === undefined && prevClose > 0) {
+                    newChp = (newCh / prevClose) * 100
+                }
+            }
+
+            if (newChp !== undefined && newChp !== null) {
+                pdmwdata.value[pIndex].chp = Number(newChp).toFixed(2)
+            }
+
+            // Store previous close for future calculations
+            if (ltp !== undefined && ltp !== null) {
+                pdmwdata.value[pIndex].prevClose = prevClose || Number(ltp)
+            }
+
+            // Force Vue 3 reactivity update by reassigning the array
+            // This ensures the template updates immediately
+            pdmwdata.value = [...pdmwdata.value]
+
+            // Update DOM elements for immediate visual feedback (performance optimization)
+            // Vue's reactivity will also update, but DOM updates ensure instant feedback
+            // Use nextTick to ensure DOM is ready and Vue reactivity is processed
+            nextTick(() => {
                 const ltpTag = document.getElementById(`p${token}ltp`)
                 if (ltpTag) {
-                    // CRITICAL: Update LTP innerHTML (was missing!)
                     ltpTag.innerHTML = pdmwdata.value[pIndex].ltp || "0.00"
 
                     const chTag = document.getElementById(`p${token}ch`)
@@ -2199,19 +2296,28 @@ const handleWebSocketUpdate = (event) => {
                     const chpclrTag = document.getElementById(`p${token}chpclr`)
 
                     if (chTag) chTag.innerHTML = pdmwdata.value[pIndex].ch || "0.00"
-                    if (chpTag) chpTag.innerHTML = ` (${pdmwdata.value[pIndex].chp || "0.00"}%)`
+                    if (chpTag) chpTag.innerHTML = `(${pdmwdata.value[pIndex].chp || "0.00"})`
 
                     // Update color class (like Vue 2 line 1731)
+                    // Match exactly with template's :class binding
                     if (chpclrTag) {
-                        const ch = pdmwdata.value[pIndex].ch
-                        chpclrTag.className = ch > 0
-                            ? 'd-inline-flex font-weight-medium fs-12 px-2 maingreen--text'
+                        const ch = parseFloat(pdmwdata.value[pIndex].ch) || 0
+                        // Build class string to match template exactly
+                        const baseClasses = 'd-inline-flex font-weight-medium fs-12 px-2'
+                        const colorClass = ch > 0
+                            ? 'maingreen--text'
                             : ch < 0
-                                ? 'd-inline-flex font-weight-medium fs-12 px-2 mainred--text'
-                                : 'd-inline-flex font-weight-medium fs-12 px-2 subtext--text'
+                                ? 'mainred--text'
+                                : 'subtext--text'
+
+                        // Set className to match Vue's reactive binding
+                        chpclrTag.className = `${baseClasses} ${colorClass}`
+
+                        // Also ensure the style binding works (for immediate visual feedback)
+                        // The :class binding will handle the color, but we ensure it's correct
                     }
                 }
-            }
+            })
         }
     }
 
@@ -2934,8 +3040,15 @@ const getAllindicedata = async (item, callback) => {
         singleindex.value = { ...item }
         // Set the token of the card being edited for comparison (like old app: this.singleindex["n"] = this.pdmwdata[callback].token)
         if (pdmwdata.value && pdmwdata.value[callback] !== undefined) {
-            singleindex.value.n = pdmwdata.value[callback].token
-            // Also set token to find the card when updating (like old app uses singleindex.token in setChangeindex)
+            // Set n to the OTHER card's token (to hide it from the list), not the current card's token
+            // If editing card 0, hide card 1's token. If editing card 1, hide card 0's token.
+            const otherCardIndex = callback === 0 ? 1 : 0
+            if (pdmwdata.value[otherCardIndex] && pdmwdata.value[otherCardIndex].token) {
+                singleindex.value.n = pdmwdata.value[otherCardIndex].token
+            } else {
+                singleindex.value.n = null // No other card to hide
+            }
+            // Set token to the current card's token (to show it as selected in the dialog)
             singleindex.value.token = pdmwdata.value[callback].token
         }
 
@@ -3015,11 +3128,16 @@ const setChangeindex = async (item, exch) => {
         const i = pdmwdata.value.findIndex((o) => o.token === singleindex.value.token)
 
         if (i >= 0) {
+            // Store old token for unsubscribing
+            const oldToken = pdmwdata.value[i].token
+
             // Update the card with new index data (like old app line 1777)
             // Match old app exactly: only update exch, token, tsym (don't preserve price data)
             // Regenerate key based on new index
             const newKey = `${item.idxname || item.tsym || 'Unknown'}:${exch}`
-            pdmwdata.value[i] = {
+
+            // Create new object to ensure Vue 3 reactivity
+            const updatedItem = {
                 key: newKey,
                 exch: exch,
                 token: item.token,
@@ -3027,8 +3145,16 @@ const setChangeindex = async (item, exch) => {
                 // Clear price data to force refresh (like old app doesn't preserve ltp/ch/chp)
                 ltp: null,
                 ch: null,
-                chp: null
+                chp: null,
+                prevClose: null // Clear previous close for new index
             }
+
+            // Update the array item (Vue 3 reactivity)
+            pdmwdata.value[i] = updatedItem
+
+            // Force Vue 3 reactivity update by reassigning the array
+            // This ensures the template updates immediately with new index name
+            pdmwdata.value = [...pdmwdata.value]
 
             // Update singleindex for dialog state (like old app line 1778)
             singleindex.value = item
@@ -3042,8 +3168,9 @@ const setChangeindex = async (item, exch) => {
             }
 
             // Unsubscribe from old WebSocket data first (best practice)
+            // Unsubscribe using old token before re-subscribing with new token
             const oldPdEvent = new CustomEvent('web-scoketOn', {
-                detail: { flow: 'unsub', data: pdmwdata.value, is: 'pd', page: 'watchlist' }
+                detail: { flow: 'unsub', data: [{ token: oldToken }], is: 'pd', page: 'watchlist' }
             })
             window.dispatchEvent(oldPdEvent)
 
@@ -3051,16 +3178,30 @@ const setChangeindex = async (item, exch) => {
             // Old app uses setWebsocket("sub", this.pdmwdata, "pd", "watchlist")
             // Which emits: eventBus.$emit("web-scoketOn", "sub", this.pdmwdata, "pd", "watchlist")
             if (pdmwdata.value && pdmwdata.value.length > 0) {
+                // Wait a bit before re-subscribing to ensure unsub completes
+                await nextTick()
+
                 const pdEvent = new CustomEvent('web-scoketOn', {
                     detail: { flow: 'sub', data: pdmwdata.value, is: 'pd', page: 'watchlist' }
                 })
                 window.dispatchEvent(pdEvent)
+
+                // Also re-subscribe after a short delay to ensure connection is ready
+                setTimeout(() => {
+                    const pdEvent2 = new CustomEvent('web-scoketOn', {
+                        detail: { flow: 'sub', data: pdmwdata.value, is: 'pd', page: 'watchlist' }
+                    })
+                    window.dispatchEvent(pdEvent2)
+                }, 100)
             }
 
             // Fetch initial LTP data for updated card (new requirement to show data immediately)
             // Reset flag to allow fetching again
             initialIndicesDataCalled.value = false
             await fetchInitialIndicesData()
+
+            // Force template update to show new index name immediately
+            await nextTick()
         }
     } catch (error) {
         console.error('Change index error:', error)
@@ -3229,6 +3370,58 @@ const handleTabsMouseUp = () => {
     handleTabsMouseUpGlobal()
 }
 
+// Exchange filter drag scroll handlers
+const handleExchangeFilterMouseDown = (e) => {
+    if (!exchangeFilterContainer.value) return
+    // Only start dragging on left mouse button
+    if (e.button !== 0) return
+
+    isDraggingExchangeFilter.value = true
+    exchangeFilterStartX = e.pageX - exchangeFilterContainer.value.offsetLeft
+    exchangeFilterScrollLeft = exchangeFilterContainer.value.scrollLeft
+    exchangeFilterContainer.value.style.cursor = 'grabbing'
+
+    // Add global mouse move and mouse up listeners
+    document.addEventListener('mousemove', handleExchangeFilterMouseMoveGlobal)
+    document.addEventListener('mouseup', handleExchangeFilterMouseUpGlobal)
+
+    e.preventDefault()
+    e.stopPropagation()
+}
+
+const handleExchangeFilterMouseMove = (e) => {
+    if (!isDraggingExchangeFilter.value || !exchangeFilterContainer.value) return
+    e.preventDefault()
+    e.stopPropagation()
+    const x = e.pageX - exchangeFilterContainer.value.offsetLeft
+    const walk = (x - exchangeFilterStartX) * 2 // Scroll speed multiplier
+    exchangeFilterContainer.value.scrollLeft = exchangeFilterScrollLeft - walk
+}
+
+// Global mouse move handler for exchange filter drag scrolling
+const handleExchangeFilterMouseMoveGlobal = (e) => {
+    if (!isDraggingExchangeFilter.value || !exchangeFilterContainer.value) return
+    e.preventDefault()
+    const x = e.pageX - exchangeFilterContainer.value.offsetLeft
+    const walk = (x - exchangeFilterStartX) * 2 // Scroll speed multiplier
+    exchangeFilterContainer.value.scrollLeft = exchangeFilterScrollLeft - walk
+}
+
+// Global mouse up handler for exchange filter drag scrolling
+const handleExchangeFilterMouseUpGlobal = () => {
+    isDraggingExchangeFilter.value = false
+    if (exchangeFilterContainer.value) {
+        exchangeFilterContainer.value.style.cursor = 'grab'
+    }
+    // Remove global listeners
+    document.removeEventListener('mousemove', handleExchangeFilterMouseMoveGlobal)
+    document.removeEventListener('mouseup', handleExchangeFilterMouseUpGlobal)
+}
+
+const handleExchangeFilterMouseUp = () => {
+    handleExchangeFilterMouseUpGlobal()
+}
+
 // Utility Methods
 const setEscape = () => {
     if (watchsecti.value) {
@@ -3265,11 +3458,10 @@ const setSSDtab = (type, token, exch, tsym) => {
         window.dispatchEvent(event)
     } else if (type === "cGTT") {
         const event = new CustomEvent('menudialog', {
-            detail: { type: "order-GTT", token, exch, tsym, trans: "b" }
+            detail: { type: "order-GTT", token, exch, tsym, trantype: "b" }
         })
         window.dispatchEvent(event)
     } else {
-        const path = window.location
         const val = [type, token, exch, tsym]
 
         // Store params in localStorage before navigation (Vue Router doesn't preserve params for static routes)
@@ -3279,7 +3471,10 @@ const setSSDtab = (type, token, exch, tsym) => {
 
         console.log('Navigating to stocks details with params:', val)
 
-        if (path.pathname !== "/stocks/details") {
+        // Use router.currentRoute to check current path instead of window.location
+        const currentPath = router.currentRoute.value.path
+
+        if (currentPath !== "/stocks/details") {
             // Use query params for persistence (works on refresh)
             router.push({
                 name: "stocks details",
@@ -3292,6 +3487,7 @@ const setSSDtab = (type, token, exch, tsym) => {
                 }
             })
         } else {
+            // If already on stocks details page, dispatch ssd-event to update the page
             const event = new CustomEvent('ssd-event', {
                 detail: { type, token, exch, tsym }
             })
@@ -3638,6 +3834,11 @@ onUnmounted(() => {
     isDraggingTabs.value = false
     document.removeEventListener('mousemove', handleTabsMouseMoveGlobal)
     document.removeEventListener('mouseup', handleTabsMouseUpGlobal)
+
+    // Clean up exchange filter drag scroll
+    isDraggingExchangeFilter.value = false
+    document.removeEventListener('mousemove', handleExchangeFilterMouseMoveGlobal)
+    document.removeEventListener('mouseup', handleExchangeFilterMouseUpGlobal)
 })
 
 // Start WS and load watchlist immediately after login without refresh
@@ -4118,6 +4319,27 @@ div.table-row:hover div.pos-abs.watchlist-hover-options {
     visibility: visible !important;
     opacity: 1 !important;
     pointer-events: auto !important;
+}
+
+/* Ensure all buttons inside hover options are visible */
+div.table-row:hover div.watchlist-hover-options v-btn,
+div.table-row:hover div.watchlist-hover-options button,
+div.table-row:hover div.watchlist-hover-options .v-btn,
+div.table-row:hover .watchlist-hover-options v-btn,
+div.table-row:hover .watchlist-hover-options button,
+div.table-row:hover .watchlist-hover-options .v-btn {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+/* Ensure delete button specifically is visible */
+div.table-row:hover .watchlist-hover-options .v-btn[class*="mdi-close"],
+div.table-row:hover .watchlist-hover-options button .mdi-close {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 /* No scroll styling */

@@ -1,5 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { getAnalytics, logEvent } from "firebase/analytics"
+import { useAuthStore } from '../stores/authStore'
+import { useSessionStore } from '../stores/sessionStore'
+import { useAppStore } from '../stores/appStore'
 
 // Layout components
 import LayoutSrc from '../components/Layout/LayoutSrc.vue'
@@ -68,6 +71,9 @@ import ViewsLayout from '../views/ViewsLayout.vue'
 import NotFoundPage from '../views/NotFoundPage.vue'
 import StartCheck from '../views/StartCheck.vue'
 
+// Trading page
+import TradingPage from '../views/Trading/TradingPage.vue'
+
 // Initialize Firebase Analytics with error handling
 let analytics = null
 try {
@@ -96,6 +102,11 @@ const routes = [
     path: '/lwc',
     name: 'lwc',
     component: LightweightChart
+  },
+  {
+    path: '/trading',
+    name: 'trading',
+    component: TradingPage
   },
   {
     path: '/',
@@ -309,7 +320,7 @@ const router = createRouter({
 })
 
 // Redirect certain pages to /stocks on hard refresh (initial load)
-router.beforeEach((to, from) => {
+router.beforeEach(async (to, from) => {
   // If this is the very first navigation (page refresh or direct entry)
   const isInitialLoad = from.name === undefined
 
@@ -324,6 +335,33 @@ router.beforeEach((to, from) => {
 
     if (shouldRedirectToStocks) {
       return { path: '/stocks', replace: true }
+    }
+  }
+
+  // Check session status on every route change if user appears to be logged in
+  // This ensures immediate logout if session has ended, even when navigating via navbar
+  const authStore = useAuthStore()
+  const sessionStore = useSessionStore()
+  const appStore = useAppStore()
+  
+  // Only check if user appears to be logged in
+  if (authStore.uid && authStore.token) {
+    const sessionStatus = sessionStorage.getItem("c3RhdHVz")
+    
+    // If session status is missing but user has credentials, session might have ended
+    if (!sessionStatus || sessionStatus !== "dmFsaWR1c2Vy") {
+      console.log("⚠️ Session status missing on route change, checking session...")
+      
+      // Check session immediately
+      const result = await sessionStore.checkSession(authStore.uid)
+      
+      if (!result || !result.valid) {
+        console.error("❌ Session invalid on route change, logging out immediately")
+        // Handle session error immediately (logout and navigate)
+        sessionStore.handleSessionError(result?.data || { emsg: "Session has expired. Please log in again." }, authStore, appStore)
+        // Prevent navigation to the target route
+        return false
+      }
     }
   }
 })

@@ -572,15 +572,20 @@ const getUserSession = async (k) => {
                 clearTimeout(window.__loaderTimeout)
                 delete window.__loaderTimeout
             }
+
+            // Note: Old app does NOT have periodic session monitoring
+            // It only checks session on login, not periodically
         } else if (authStore.uid && authStore.token && sessvalid && sessvalid.emsg) {
+            // Handle error case (exactly like old app: lines 712-717)
             console.error("❌ Session validation failed:", sessvalid.emsg)
-            appStore.showSnackbar(2, sessvalid.emsg ? sessvalid.emsg : sessvalid)
-            // Only clear session status for genuine auth failures, not network issues
-            if (sessvalid.emsg && (sessvalid.emsg.includes("Invalid") || sessvalid.emsg.includes("Expired"))) {
-                sessionStorage.removeItem("c3RhdHVz")
-                appStore.resetStorage()
-                authStore.clearAuth()
-            }
+            
+            // Use sessionStore to handle error (exact old app behavior)
+            // Old app: this.snackAlert(2, sessvalid.emsg ? sessvalid.emsg : sessvalid);
+            //         eventBus.$emit("storage-reset");
+            //         this.mtoken = null; this.token = null; this.uid = null;
+            sessionStore.handleSessionError(sessvalid, authStore, appStore)
+            
+            // Old app also sets mainloader = false (line 734)
             appStore.setMainLoader(false)
             appStore.hideLoader()
 
@@ -790,6 +795,10 @@ onMounted(async () => {
             }
             console.log("✅ Order preferences loaded")
 
+            // Note: Old app does NOT check session on page refresh
+            // It only checks session on login, not when loading from sessionStorage
+            // So we don't verify session here - just load the data
+
             appStore.setMainLoader(false)
 
             // Clear timeout
@@ -855,6 +864,13 @@ watch(
     },
     { deep: true }
 )
+
+// Cleanup on unmount
+onUnmounted(() => {
+    console.log("🧹 LayoutSrc unmounting, stopping session monitoring...")
+    // Stop session monitoring
+    sessionStore.stopSessionMonitoring()
+})
 </script>
 
 <style>

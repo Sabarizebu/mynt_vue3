@@ -363,6 +363,9 @@ const isIpoActive = computed(() => route.path === '/ipo' || route.path.startsWit
 const isBondsActive = computed(() => route.path === '/bonds' || route.path.startsWith('/bonds/'))
 const isCollectionActive = computed(() => route.path === '/collection' || route.path.startsWith('/collection/'))
 
+// Computed property for Trading route
+const isTradingActive = computed(() => route.path === '/trading' || route.path.startsWith('/trading/'))
+
 // Helper function to check if a route is active
 const isRouteActive = (path) => {
     if (path === '/stocks') return isStocksActive.value
@@ -370,6 +373,7 @@ const isRouteActive = (path) => {
     if (path === '/ipo') return isIpoActive.value
     if (path === '/bonds') return isBondsActive.value
     if (path === '/collection') return isCollectionActive.value
+    if (path === '/trading') return isTradingActive.value
     return false
 }
 
@@ -380,6 +384,7 @@ const dashitems = ref([
     { txt: "Bonds", path: "/bonds", idx: 3 },
     { txt: "Collection", path: "/collection", idx: 4, type: "Beta" },
     { txt: "OptionZ", path: "/optionz", idx: 5 },
+    // { txt: "Trading", path: "/trading", idx: 6 },
 ])
 
 const encryptionFunction = (payld) => {

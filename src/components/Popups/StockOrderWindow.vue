@@ -486,9 +486,9 @@
             <!-- Button Section for GTT orders -->
             <v-toolbar v-else class="tool-sty elevation-0 pt-4 mb-3 px-6" color="cardbg" density="compact">
                 <v-spacer></v-spacer>
-                <v-btn @click="closeOrderDialog" color="secbg" :disabled="isPlacingOrder"
+                <v-btn @click="closeOrderDialog" color="gray" variant="tonal" :disabled="isPlacingOrder"
                     class="text-none rounded-pill elevation-0 subtext--text px-6" height="40px">Cancel</v-btn>
-                <v-btn @click="placeOrder" :loading="isPlacingOrder" :disabled="false"
+                <v-btn @click="placeOrder" :loading="isPlacingOrder" :disabled="false" variant="elevated"
                     :color="buyOrSellIsSell ? 'mainred' : 'maingreen'"
                     class="text-none rounded-pill elevation-0 white--text px-6 ml-4" height="40px">
                     {{ orderContextType === 'mod-GTT' ? 'Modify' : 'Create' }} {{ gttOCOPanel ? 'OCO' : 'GTT' }}
@@ -666,7 +666,20 @@ function onOrderTypeChanged() {
         // SIP tab clicked - redirect to orders page or trigger SIP dialog
         const currentPath = router.currentRoute.value.path
 
-        // Phase 8: Navigate to orders page with security data (menudata[1])
+        // Get security data - use menudata[0] (quote) as primary, menudata[1] (security) as fallback
+        const quoteData = menudata.value[0] || {}
+        const securityData = menudata.value[1] || {}
+
+        // Prepare SIP security data with proper fallbacks
+        const sipSecurityData = {
+            token: quoteData.token || securityData.token,
+            tsym: quoteData.tsym || securityData.tsym,
+            exch: quoteData.exch || securityData.exch,
+            ls: securityData.ls || quoteData.ls || 1,
+            symbol: quoteData.tsym || securityData.tsym || quoteData.symbol || securityData.symbol,
+        }
+
+        // Phase 8: Navigate to orders page with security data
         // Use /orders/sip route to ensure SIP tab is shown
         if (currentPath !== '/orders' && !currentPath.startsWith('/orders/')) {
             // Navigate to SIP orders page with security data
@@ -674,29 +687,30 @@ function onOrderTypeChanged() {
                 path: '/orders/sip',
                 query: {
                     // Pass security data as query params for better compatibility
-                    token: menudata.value[1]?.token,
-                    tsym: menudata.value[1]?.tsym,
-                    exch: menudata.value[1]?.exch,
-                    ls: menudata.value[1]?.ls || 1,
+                    token: sipSecurityData.token,
+                    tsym: sipSecurityData.tsym,
+                    exch: sipSecurityData.exch,
+                    ls: sipSecurityData.ls,
                 }
             }).then(() => {
                 // Navigation will trigger handleRouteParams in StockOrderSrc
                 // which will switch to SIP tab and trigger the event
-                // No need to emit event here as it will be handled by route params
+                // The watch on bodytab will trigger siporder-trigger event
             })
         } else {
             // Already on orders page - switch to SIP tab and emit event
-            // Emit event to switch to SIP tab (index 4)
+            // First, set the tab to SIP (index 4) using the order-tab event
             window.dispatchEvent(new CustomEvent('order-tab', {
                 detail: 4
             }))
 
-            // Trigger SIP order dialog with security data
+            // Trigger SIP order dialog with security data after a delay
+            // to ensure the SIP tab component is mounted and ready
             setTimeout(() => {
                 window.dispatchEvent(new CustomEvent('siporder-trigger', {
-                    detail: menudata.value[1] || {}
+                    detail: sipSecurityData
                 }))
-            }, 100)
+            }, 500)
         }
 
         // Close order dialog
@@ -719,6 +733,11 @@ function onOrderTypeChanged() {
 async function handleMenuDialogEvent(event) {
     const { type, token, exch, tsym, trantype, item } = event.detail || {}
     if (!type || !token || !exch || !tsym) return
+
+    // Guard 0: Ignore alert types - these are handled by AlertSrceen component
+    if (type === 'alert' || type === 'm-alert') {
+        return
+    }
 
     // Guard 1: Prevent duplicate opening if dialog is already opening
     if (isOpeningDialog.value) {
@@ -794,51 +813,50 @@ async function handleMenuDialogEvent(event) {
         }
 
         // GTT modify prefill (like old app line 1299-1336)
-        if (item && (type === 'mod-GTT' || type === 'order-GTT')) {
-            if (type === 'mod-GTT') {
-                // Parse alert type from item.res.ai_t (like old app line 1301-1317)
-                const ai_t = item.res?.ai_t || ''
-                gttAlertType.value = ai_t.includes('LTP_') ? 'LTP' :
-                    ai_t.includes('CH_PER_') ? 'Perc. change' :
-                        ai_t.includes('ATP_') ? 'ATP' :
-                            ai_t.includes('OI_') ? 'OI' :
-                                ai_t.includes('TOI_') ? 'TOI' :
-                                    ai_t.includes('_52HIGH') ? '52HIGH' :
-                                        ai_t.includes('_52LOW') ? '52LOW' :
-                                            ai_t.includes('VOLUME_') ? 'VOLUME' : 'LTP'
-                gttCond.value = ai_t.includes('A_O') ? '>' : '<'
-                buyOrSellIsSell.value = (item.trantype || '').toUpperCase() === 'S'
+        // Handle order-GTT separately (doesn't require item)
+        if (type === 'order-GTT') {
+            orderType.value = 3
+            gttCond.value = '>'
+            gttOCOPanel.value = false
+            gttValue.value = 0
+            ocoValue.value = 0
+            gttAlertType.value = 'LTP'
+            gttQty.value = 1
+            ocoQty.value = 1
+            priceType.value = 'LMT'
+        } else if (item && type === 'mod-GTT') {
+            // Parse alert type from item.res.ai_t (like old app line 1301-1317)
+            const ai_t = item.res?.ai_t || ''
+            gttAlertType.value = ai_t.includes('LTP_') ? 'LTP' :
+                ai_t.includes('CH_PER_') ? 'Perc. change' :
+                    ai_t.includes('ATP_') ? 'ATP' :
+                        ai_t.includes('OI_') ? 'OI' :
+                            ai_t.includes('TOI_') ? 'TOI' :
+                                ai_t.includes('_52HIGH') ? '52HIGH' :
+                                    ai_t.includes('_52LOW') ? '52LOW' :
+                                        ai_t.includes('VOLUME_') ? 'VOLUME' : 'LTP'
+            gttCond.value = ai_t.includes('A_O') ? '>' : '<'
+            buyOrSellIsSell.value = (item.trantype || '').toUpperCase() === 'S'
 
-                if (item.res?.place_order_params) {
-                    gttValue.value = Number(item.res?.oivariable?.[0]?.d || item.value || 0)
-                    priceType.value = item.res.place_order_params.prctyp || 'LMT'
-                    investType.value = item.res.place_order_params.prd || investType.value
-                    gttQty.value = Number(item.res.place_order_params.qty) / Number(q?.ls || 1) || 1
-                    gttPrice.value = (item.res.place_order_params.prctyp === 'MKT' || item.res.place_order_params.prctyp === 'SL-MKT') ? 0 : Number(item.res.place_order_params.prc || 0)
-                    gttTriggerPrice.value = Number(item.res.place_order_params.trgprc || 0)
-                }
-
-                if (item.res?.place_order_params_leg2) {
-                    gttOCOPanel.value = true
-                    ocoValue.value = Number(item.res?.oivariable?.[1]?.d || 0)
-                    ocoPriceType.value = item.res.place_order_params_leg2.prctyp || 'LMT'
-                    ocoQty.value = Number(item.res.place_order_params_leg2.qty) / Number(q?.ls || 1) || 1
-                    ocoPrice.value = (item.res.place_order_params_leg2.prctyp === 'MKT' || item.res.place_order_params_leg2.prctyp === 'SL-MKT') ? 0 : Number(item.res.place_order_params_leg2.prc || 0)
-                    ocoTriggerPrice.value = Number(item.res.place_order_params_leg2.trgprc || 0)
-                }
-
-                orderType.value = 3
-            } else if (type === 'order-GTT') {
-                orderType.value = 3
-                gttCond.value = '>'
-                gttOCOPanel.value = false
-                gttValue.value = 0
-                ocoValue.value = 0
-                gttAlertType.value = 'LTP'
-                gttQty.value = 1
-                ocoQty.value = 1
-                priceType.value = 'LMT'
+            if (item.res?.place_order_params) {
+                gttValue.value = Number(item.res?.oivariable?.[0]?.d || item.value || 0)
+                priceType.value = item.res.place_order_params.prctyp || 'LMT'
+                investType.value = item.res.place_order_params.prd || investType.value
+                gttQty.value = Number(item.res.place_order_params.qty) / Number(q?.ls || 1) || 1
+                gttPrice.value = (item.res.place_order_params.prctyp === 'MKT' || item.res.place_order_params.prctyp === 'SL-MKT') ? 0 : Number(item.res.place_order_params.prc || 0)
+                gttTriggerPrice.value = Number(item.res.place_order_params.trgprc || 0)
             }
+
+            if (item.res?.place_order_params_leg2) {
+                gttOCOPanel.value = true
+                ocoValue.value = Number(item.res?.oivariable?.[1]?.d || 0)
+                ocoPriceType.value = item.res.place_order_params_leg2.prctyp || 'LMT'
+                ocoQty.value = Number(item.res.place_order_params_leg2.qty) / Number(q?.ls || 1) || 1
+                ocoPrice.value = (item.res.place_order_params_leg2.prctyp === 'MKT' || item.res.place_order_params_leg2.prctyp === 'SL-MKT') ? 0 : Number(item.res.place_order_params_leg2.prc || 0)
+                ocoTriggerPrice.value = Number(item.res.place_order_params_leg2.trgprc || 0)
+            }
+
+            orderType.value = 3
         }
 
         // Load preferences (best-effort)
