@@ -2,7 +2,8 @@
     <div>
     <!-- Main Basket List Section -->
     <div class="mb-6">
-      <v-toolbar flat dense class="tool-sty crd-trn">
+      <!-- Toolbar -->
+      <v-toolbar flat dense class="tool-sty my-6 pl-4 crd-trn">
         <v-btn
           :disabled="!basketStore.canCreateBasket"
           class="elevation-0 rounded-pill font-weight-bold text-none"
@@ -12,35 +13,40 @@
         >
           + Create Basket
         </v-btn>
-            <v-spacer></v-spacer>
+        <v-spacer></v-spacer>
         <v-text-field
-          style="max-width: 220px"
+          elevation="0"
+          rounded
           v-model="openSearch"
-          hide-details
           prepend-inner-icon="mdi-magnify"
-          label="Search"
-          class="rounded-pill"
-          density="compact"
-          flat
+          placeholder="Search"
           variant="solo"
-          bg-color="#F1F3F8"
+          density="compact"
+          hide-details
+          class="rounded mr-4"
+          style="max-width: 220px"
+          flat
+          bg-color="secbg"
         ></v-text-field>
-        <v-icon class="ml-3 cursor-p" @click="loadBaskets()" color="#000" size="24">mdi-reload</v-icon>
-        </v-toolbar>
+        <v-icon :disabled="basketStore.loading" :class="['ml-3 cursor-p', { 'reload-rotating': basketStore.loading }]"
+          @click="loadBaskets()" color="maintext" size="24">mdi-reload</v-icon>
+      </v-toolbar>
 
+      <!-- Basket Orders Table -->
       <v-data-table
         @click:row="(event, { item }) => basketStore.openBasket(item)"
         :sort-by="[{ key: 'date', order: 'desc' }]"
         hide-default-footer
         fixed-header
         :loading="basketStore.loading"
-        class="mt-3 rounded-lg overflow-y-auto"
-        style="border-radius: 4px; border: 1px solid #EBEEF0"
+        class="holdings-table mt-3 rounded-lg overflow-y-auto"
+        style="border-radius: 8px; border: 1px solid #EBEEF0; background-color: #ffffff !important;"
         height="480px"
         :headers="orderHeaders"
         :search="openSearch"
         :items="basketStore.allBaskets"
         :items-per-page="10"
+        :item-class="() => 'table-row'" :row-props="() => ({ class: 'table-row' })"
       >
             <template #item.name="{ item }">
                 <span class="font-weight-medium maintext--text ws-p">{{ item.name }}</span>
@@ -973,5 +979,19 @@ watch(() => basketStore.basketDialog, (newVal) => {
 
 .table-hov-prd {
   cursor: pointer;
+}
+
+/* Reload icon rotation animation */
+.reload-rotating {
+    animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
 </style>

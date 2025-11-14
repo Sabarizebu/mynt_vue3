@@ -1,511 +1,661 @@
 <template>
     <div>
-        <div class="mt-6 mb-6">
+        <div class="my-6">
+            <!-- Stats Cards -->
             <v-row>
                 <v-col cols="12">
-                    <v-card class="px-2 stat-card rounded-md d-inline-flex pt-2 pb-1 overflow-hidden" width="100%">
-                        <v-list-item v-if="ordertab !== 'all'">
-                            <v-list-item-content class="pt-0">
-                                <v-list-item-subtitle class="txt-5E6 mb-2 font-weight-medium">MTM</v-list-item-subtitle>
-                                <v-list-item-title class="maintext--text font-weight-medium">
-                                    <span
-                                        :class="Number(statposition.mtm) > 0 ? 'maingreen--text' : Number(statposition.mtm) < 0 ? 'mainred--text' : 'subtext--text'">
-                                        <span id="poststatmtm">{{ statposition.mtm || '0.00' }}</span>
-                                    </span>
-                                </v-list-item-title>
-                            </v-list-item-content>
-                        </v-list-item>
+                    <v-card class="stat-card rounded-lg pa-4" elevation="0">
+                        <div class="d-flex justify-space-between align-center flex-wrap" style="gap: 16px;">
+                            <!-- MTM -->
+                            <div v-if="ordertab !== 'all'" class="stat-item flex-grow-1" style="min-width: 120px;">
+                                <div class="stat-label txt-5E6 fs-14 mb-1">MTM</div>
+                                <div class="stat-value fs-16 font-weight-bold"
+                                    :class="Number(statposition.mtm) > 0 ? 'txt-gre' : Number(statposition.mtm) < 0 ? 'txt-red' : 'subtext--text'">
+                                    <span id="poststatmtm">{{ statposition.mtm || '0.00' }}</span>
+                                </div>
+                            </div>
 
-                        <v-list-item>
-                            <v-list-item-content class="pt-0">
-                                <v-list-item-subtitle
-                                    class="txt-5E6 mb-2 font-weight-medium">Profit/Loss</v-list-item-subtitle>
-                                <v-list-item-title class="maintext--text font-weight-medium">
-                                    <span
-                                        :class="Number(statposition.pnl) > 0 ? 'maingreen--text' : Number(statposition.pnl) < 0 ? 'mainred--text' : 'subtext--text'">
-                                        <span id="poststatpnl">{{ statposition.pnl || '0.00' }}</span>
-                                    </span>
-                                </v-list-item-title>
-                            </v-list-item-content>
-                        </v-list-item>
+                            <!-- Profit/Loss -->
+                            <div class="stat-item flex-grow-1" style="min-width: 120px;">
+                                <div class="stat-label txt-5E6 fs-14 mb-1">Profit/Loss</div>
+                                <div class="stat-value fs-16 font-weight-bold"
+                                    :class="Number(statposition.pnl) > 0 ? 'txt-gre' : Number(statposition.pnl) < 0 ? 'txt-red' : 'subtext--text'">
+                                    <span id="poststatpnl">{{ statposition.pnl || '0.00' }}</span>
+                                </div>
+                            </div>
 
-                        <v-list-item>
-                            <v-list-item-content class="pt-0">
-                                <v-list-item-subtitle class="txt-5E6 mb-2 font-weight-medium">Trade
-                                    Value</v-list-item-subtitle>
-                                <v-list-item-title class="maintext--text font-weight-medium">
+                            <!-- Trade Value -->
+                            <div class="stat-item flex-grow-1" style="min-width: 120px;">
+                                <div class="stat-label txt-5E6 fs-14 mb-1">Trade Value</div>
+                                <div class="stat-value maintext--text fs-16 font-weight-bold">
                                     <span id="poststatval">{{ statposition.tradeval || '0.00' }}</span>
-                                </v-list-item-title>
-                            </v-list-item-content>
-                        </v-list-item>
+                                </div>
+                            </div>
 
-                        <v-list-item>
-                            <v-list-item-content class="pt-0">
-                                <v-list-item-subtitle class="txt-5E6 mb-2 font-weight-medium">Open
-                                    Position</v-list-item-subtitle>
-                                <v-list-item-title class="maintext--text font-weight-medium">
-                                    <span
-                                        :class="Number(statposition.oppnl) > 0 ? 'maingreen--text' : Number(statposition.oppnl) < 0 ? 'mainred--text' : 'subtext--text'">
-                                        <span id="poststatopnl">{{ statposition.oppnl || '0.00' }}</span>
-                                    </span>
-                                </v-list-item-title>
-                            </v-list-item-content>
-                        </v-list-item>
+                            <!-- Open Position -->
+                            <div class="stat-item flex-grow-1" style="min-width: 120px;">
+                                <div class="stat-label txt-5E6 fs-14 mb-1">Open Position</div>
+                                <div class="stat-value fs-16 font-weight-bold"
+                                    :class="Number(statposition.oppnl) > 0 ? 'txt-gre' : Number(statposition.oppnl) < 0 ? 'txt-red' : 'subtext--text'">
+                                    <span id="poststatopnl">{{ statposition.oppnl || '0.00' }}</span>
+                                </div>
+                            </div>
 
-                        <v-list-item>
-                            <v-list-item-content class="pb-0">
-                                <v-list-item-subtitle class="txt-5E6 mb-0 font-weight-medium">Trade
-                                    Positions</v-list-item-subtitle>
-                                <v-chip-group row>
-                                    <v-chip class="mr-2 rounded-lg" color="secgreen" text-color="maingreen">
-                                        <span class="caption" id="poststatP">{{ statposition.positive?.length || 0
-                                        }}</span>&nbsp;Positive
+                            <!-- Trade Positions -->
+                            <div class="stat-item " style="min-width: 140px;">
+                                <div class="stat-label txt-5E6 fs-14 mb-1">Trade Positions</div>
+                                <div class="d-flex align-center" style="gap: 8px;">
+                                    <v-chip size="large" class="rounded-lg txt-gre">
+                                        <span class="fs-14 font-weight-medium" id="poststatP">{{
+                                            statposition.positive?.length || 0 }} Positive</span>
                                     </v-chip>
-                                    <v-chip height="16" class="mr-2 rounded-lg" color="secred" text-color="mainred">
-                                        <span class="caption" id="poststatN">{{ statposition.negative?.length || 0
-                                        }}</span>&nbsp;Negative
+                                    <v-chip size="large" class="rounded-lg txt-red">
+                                        <span class="fs-14 font-weight-medium" id="poststatN">{{
+                                            statposition.negative?.length || 0 }} Negative</span>
                                     </v-chip>
-                                    <v-chip height="16" class="rounded-lg" color="card-bg" text-color="subtext">
-                                        <span class="caption" id="poststatC">{{ statposition.close?.length || 0
-                                        }}</span>&nbsp;Closed
+                                    <v-chip size="large" class="rounded-lg" color="card-bg" text-color="subtext">
+                                        <span class="fs-14 font-weight-medium" id="poststatC">{{
+                                            statposition.close?.length || 0 }} Closed</span>
                                     </v-chip>
-                                </v-chip-group>
-                            </v-list-item-content>
-                        </v-list-item>
+                                </div>
+                            </div>
+                        </div>
                     </v-card>
                 </v-col>
             </v-row>
 
-            <v-toolbar flat dense class="tool-sty pl-4 crd-trn my-6">
+            <!-- Toolbar -->
+            <v-toolbar flat density="compact" class="tool-sty my-2 pl-4 crd-trn">
                 <v-tabs v-model="ordertab" color="primary" fixed show-arrows density="compact" @change="onTabChange">
                     <v-tab value="positions" class="font-weight-bold subtitle-1 mb-0 text-none">Positions ({{
                         positiondata.length || 0 }})</v-tab>
                     <v-tab value="all" class="font-weight-bold subtitle-1 mb-0 text-none">All Positions ({{
                         expositiondata.length || 0 }})</v-tab>
-                    <!-- <v-tab value="group" class="font-weight-bold subtitle-1 mb-0 text-none">Group Positions</v-tab> -->
                 </v-tabs>
-
                 <v-spacer></v-spacer>
-                <v-text-field v-if="ordertab !== 'group'" style="max-width: 220px;background-color: #F1F3F8;"
-                    v-model="opensearch" hide-details prepend-inner-icon="mdi-magnify" elevation="0" label="Search"
-                    class="rounded-pill mr-4" density="comfortable" :bg-color="'secbg'" />
 
-                <v-select v-if="ordertab !== 'group'" v-model="exchtype" :items="dashitems" item-title="txt"
-                    item-value="val" density="comfortable" class="rounded-pill"
-                    style="max-width: 150px;background-color: #F1F3F8;" :bg-color="'secbg'"
-                    prepend-inner-icon="mdi-format-list-bulleted" hide-details label="Filter" />
+                <v-text-field elevation="0" rounded v-if="ordertab !== 'group'" v-model="opensearch"
+                    prepend-inner-icon="mdi-magnify" placeholder="Search" variant="flat" density="compact" hide-details
+                    class="rounded mr-4" style="max-width: 220px" flat bg-color="secbg" />
 
+                <v-select v-if="ordertab !== 'group'" style="max-width: 160px" v-model="exchtype" rounded hide-details
+                    item-title="txt" item-value="val" prepend-inner-icon="mdi-format-list-bulleted"
+                    class="rounded-pill ml-4" variant="solo" density="compact" flat bg-color="secbg" elevation="0"
+                    :items="dashitems" />
 
                 <v-btn v-if="ordertab === 'positions'" :disabled="!hasOpenPositions" @click="exitdialog = true"
-                    class="elevation-0 rounded-pill font-weight-bold text-none ml-4" color="primary">Exit {{
+                    class="elevation-0 rounded-pill font-weight-bold text-none ml-4" variant="elevated"
+                    color="secondary">Exit {{
                         posdselected.length === positiondata.length ? 'all' : posdselected.length > 0 ? posdselected.length
                             : 'all' }}</v-btn>
-                <v-icon :disabled="loading || exloading" class="ml-3 cursor-p" @click="refresh" color="maintext"
-                    size="24">mdi-reload</v-icon>
+                <v-icon :disabled="loading || exloading"
+                    :class="['ml-3 cursor-p', { 'reload-rotating': loading || exloading }]" @click="refresh"
+                    color="maintext" size="24">mdi-reload</v-icon>
             </v-toolbar>
 
-            <div v-if="ordertab === 'positions'" style="z-index: 0">
-                <div style="overflow-x:auto;">
+            <!-- Positions Table -->
+            <v-window v-model="ordertab" style="z-index:0">
+                <v-window-item value="positions">
                     <v-data-table show-select v-model="posdselected" must-sort :item-value="'tokn'" :sort-by="['way']"
                         :sort-desc="[true]" :loading="loading" density="compact" mobile-breakpoint="900" fixed-header
-                        height="480px" class="rounded-lg overflow-y-auto"
-                        style="border-radius: 4px; border: 1px solid #EBEEF0; min-width:660px;"
+                        height="480px" class="holdings-table mt-3 rounded-lg overflow-y-auto"
+                        style="border-radius: 8px; border: 1px solid #EBEEF0; background-color: #ffffff !important; min-width:660px;"
                         :headers="positionHeaders" :hide-default-footer="true" :search="opensearch"
-                        :items="filteredPositions" :items-per-page="-1"
+                        :items="filteredPositions" :items-per-page="-1" :item-class="() => 'table-row'"
+                        :row-props="() => ({ class: 'table-row' })"
                         @click:row="(event, { item }) => setPositionrowdata(item?.raw || item)">
                         <template v-slot:no-data>
-                            <v-row justify="center" align="center" class="py-10">
-                                <v-icon color="grey lighten-1" size="45">mdi-database-off</v-icon>
-                                <div class="ml-4 caption txt-999">There are no positions here yet.</div>
-                            </v-row>
+                            <div class="text-center mx-auto py-16 mt-16">
+                                <img class="mx-auto" width="80px" :src="noDataImg" alt="no data" />
+                                <h4 class="txt-999 font-weight-regular caption mt-4">There is no trading data here yet!
+                                </h4>
+                            </div>
                         </template>
-                        <template v-slot:loading>
-                            <v-skeleton-loader type="table" :loading="loading" class="mx-auto my-6"
-                                style="max-width:90vw;" :height="44" />
+                        <template #item.s_prdt_ali="{ item }">
+                            <v-chip v-if="item && item.s_prdt_ali" small
+                                :color="item.way != 'open' ? 'mainbg' : 'secbg'" text-color="subtext"
+                                style="border-radius: 5px; padding: 10px 8px !important;background-color: #F1F3F8 !important;">
+                                <span class="font-weight-medium subtext--text fs-12">{{ item.s_prdt_ali }}</span>
+                            </v-chip>
                         </template>
                         <template #item.tsym="{ item }">
-                            <template v-if="item && item.tsym">
-                                <v-tooltip open-delay="250" location="bottom">
-                                    <template #activator="{ props }">
-                                        <span class="ellipsis" v-bind="props"
-                                            style="display:inline-block; max-width:140px;">
-                                            {{ item.tsym }} <span class="subtext--text fs-10">{{ item.exch }}</span>
-                                        </span>
-                                    </template>
-                                    <span>{{ item.tsym }}<span v-if="item.exch"> ({{ item.exch }})</span></span>
-                                </v-tooltip>
-                            </template>
-                            <span v-else class="ellipsis" style="display:inline-block; max-width:140px;">-</span>
+                            <div class="pos-rlt" style="min-height: 40px; padding-right: 40px;">
+                                <p class="font-weight-medium maintext--text mb-0 table-hov-text ws-p">
+                                    {{ item.tsym ? item.tsym : "" }}
+                                    <span class="ml-1 subtext--text fs-10">{{ item.exch ? item.exch : "" }}</span>
+                                </p>
+                                <div @click.stop class="pos-abs table-hov" style="top: 15px; right: 0">
+                                    <v-btn
+                                        @click.stop="handleMenuDialog('order', item.token, item.exch, item.tsym, 'b')"
+                                        min-width="20px" height="20px"
+                                        style="background-color: #43A833; color: #ffffff; border-radius: 4px; min-width: 20px; padding: 0 4px;"
+                                        class="font-weight-bold elevation-0 mr-1" size="x-small"> B
+                                    </v-btn>
+                                    <v-btn
+                                        @click.stop="handleMenuDialog('order', item.token, item.exch, item.tsym, 's')"
+                                        min-width="20px" height="20px"
+                                        style="background-color: #F23645; color: #ffffff; border-radius: 4px; min-width: 20px; padding: 0 4px;"
+                                        class="font-weight-bold elevation-0 mr-1" size="x-small"> S
+                                    </v-btn>
+                                    <v-btn @click.stop="setSSDtab('chart', item.token, item.exch, item.tsym)"
+                                        style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
+                                        min-width="20px" color="mainbg" class="font-weight-bold elevation-0 mr-1"
+                                        size="x-small">
+                                        <v-icon size="14" color="#666666">mdi-chart-line-variant</v-icon>
+                                    </v-btn>
+                                    <v-tooltip location="bottom">
+                                        <template #activator="{ props }">
+                                            <div v-bind="props">
+                                                <v-btn v-if="item.way == 'open'"
+                                                    @click.stop="setSSDtab('exit-order', item.token, item.exch, item.tsym, item.netqty < 0 ? 'b' : 's', item)"
+                                                    style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
+                                                    min-width="20px" color="mainbg"
+                                                    class="font-weight-bold elevation-0 mr-1" size="x-small">
+                                                    <v-icon size="14" color="#666666">mdi-close</v-icon>
+                                                </v-btn>
+                                            </div>
+                                        </template>
+                                        <span>Exit</span>
+                                    </v-tooltip>
+                                    <v-tooltip location="bottom">
+                                        <template #activator="{ props }">
+                                            <div v-bind="props">
+                                                <v-btn v-if="item.way == 'open'" @click.stop="setPosConvert(item)"
+                                                    style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
+                                                    min-width="20px" color="mainbg"
+                                                    class="font-weight-bold elevation-0 mr-1" size="x-small">
+                                                    <v-icon size="14" color="#666666">mdi-autorenew</v-icon>
+                                                </v-btn>
+                                            </div>
+                                        </template>
+                                        <span>Conversion</span>
+                                    </v-tooltip>
+                                    <v-menu close-on-click location="bottom" offset-y class="table-menu">
+                                        <template #activator="{ props }">
+                                            <v-btn v-bind="props"
+                                                style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
+                                                min-width="20px" color="mainbg"
+                                                class="font-weight-bold elevation-0 mr-1" size="x-small">
+                                                <v-icon size="14" color="#666666">mdi-dots-horizontal</v-icon>
+                                            </v-btn>
+                                        </template>
+                                        <v-card class="table-menu-list">
+                                            <v-list density="compact">
+                                                <template v-for="(m, k) in item.way == 'open' ? menulist.o : menulist.c"
+                                                    :key="k">
+                                                    <v-list-item
+                                                        @click="m.type == 'convert' ? setPosConvert(item) : m.type != '' ? setSSDtab(m.type, item.token, item.exch, item.tsym, (m.name == 'Exit' ? item.netqty < 0 ? 'b' : 's' : item.netqty < 0 ? 's' : 'b'), item) : setPositionrowdata(item)"
+                                                        class="pl-3 pr-6">
+                                                        <template #prepend>
+                                                            <img v-if="typeof m.icon === 'number' && m.icon > 2"
+                                                                width="20px" class="pl-1"
+                                                                :src="`/src/assets/orderbook/${m.icon}.svg`" />
+                                                            <v-icon v-else color="#506D84">{{ m.icon }}</v-icon>
+                                                        </template>
+                                                        <v-list-item-title
+                                                            class="subline--text font-weight-medium pl-2 fs-14">{{
+                                                                m.name }}</v-list-item-title>
+                                                    </v-list-item>
+                                                    <v-divider v-if="m.hr" class="mx-3"></v-divider>
+                                                </template>
+                                            </v-list>
+                                        </v-card>
+                                    </v-menu>
+                                </div>
+                            </div>
                         </template>
-                        <template #item.actions="{ item }">
-                            <div v-if="item" class="d-flex" style="gap:6px; justify-content:flex-end;">
-                                <v-btn v-if="item && item.way === 'open'"
-                                    @click.stop="setSSDtab('exit-order', item.token, item.exch, item.tsym, item.netqty < 0 ? 'b' : 's', item)"
-                                    size="x-small" variant="tonal" icon>
-                                    <v-icon size="18">mdi-close</v-icon>
-                                </v-btn>
-                                <v-btn v-if="item && item.way === 'open'" @click.stop="setPosConvert(item)"
-                                    size="x-small" variant="tonal" icon>
-                                    <v-icon size="18">mdi-autorenew</v-icon>
-                                </v-btn>
+                        <template #item.netqty="{ item }">
+                            <v-chip v-if="item && item.plgqty > 0" small class="table-hov-prd maingreen--text"
+                                style="border-radius: 4px; padding: 4px 8px !important;background-color: #43A833; margin-right: 4px;">
+                                <v-icon color="#ffffff" size="12">mdi-lock</v-icon>
+                                <span class="font-weight-medium fs-12" style="color: #ffffff;">{{ item.plgqty }}</span>
+                            </v-chip>
+                            <v-chip v-if="item && item.btstqty > 0" small color="#FFD8B4" text-color="#E8862A"
+                                :style="`border-radius: 4px; padding: 4px 8px !important; margin-left: 4px;`">
+                                <span class="font-weight-medium fs-12">{{ `T1 ${item.btstqty}` }}</span>
+                            </v-chip>
+                            <v-chip size="small"
+                                :style="`background-color: ${item && item.netqty > 0 ? '#E6F5EA' : item && item.netqty < 0 ? '#FFEBEE' : '#F5F5F5'}; color: ${item && item.netqty > 0 ? '#43A833' : item && item.netqty < 0 ? '#F23645' : '#666666'}; border-radius: 4px; padding: 4px 8px; font-weight: 500;`"
+                                class="netqty-chip">
+                                <span class="font-weight-medium fs-12"
+                                    :style="`color: ${item && item.netqty > 0 ? '#43A833' : item && item.netqty < 0 ? '#F23645' : '#666666'};`">{{
+                                        item && item.netqty >
+                                            0 ?
+                                            `+${item.netqty / (item.exch == "MCX" ? item.ls : 1)}` : item
+                                                && item.netqty < 0 ? `${item.netqty / (item.exch == "MCX" ? item.ls : 1)}` : '0'
+                                    }}</span>
+                            </v-chip>
+                        </template>
+                        <template #item.netupldprc="{ item }">
+                            <span class="font-weight-medium maintext--text"
+                                style="text-align: right; display: block;">{{ item.netupldprc ? item.netupldprc : ""
+                                }}</span>
+                        </template>
+                        <template #item.ltp="{ item }">
+                            <span class="font-weight-medium maintext--text" style="text-align: right; display: block;">
+                                <span :id="`post${item.tokn}ltp`"> {{ item.ltp ? item.ltp : "0.00" }}</span>
+                            </span>
+                        </template>
+                        <template #item.rpnl="{ item }">
+                            <span class="font-weight-medium mb-0" :id="`post${item.tokn}pnlclr`"
+                                :class="item.rpnl > 0 ? 'maingreen--text' : item.rpnl < 0 ? 'mainred--text' : 'subtext--text'"
+                                style="text-align: right; display: block;">
+                                <span :id="`post${item.tokn}rpnl`">{{ item.rpnl ? item.rpnl : "0.00" }}</span>
+                            </span>
+                        </template>
+                        <template #item.avgprc="{ item }">
+                            <span class="font-weight-medium maintext--text"
+                                style="text-align: right; display: block;">{{ item.avgprc ?
+                                    Math.abs(item.avgprc).toFixed(2)
+                                    : "" }}</span>
+                        </template>
+                        <template #item.mtm="{ item }">
+                            <span class="font-weight-medium mb-0" :id="`post${item.tokn}mtmclr`"
+                                :class="item.mtm > 0 ? 'maingreen--text' : item.mtm < 0 ? 'mainred--text' : 'subtext--text'"
+                                style="text-align: right; display: block;">
+                                <span :id="`post${item.tokn}mtm`"> {{ item.mtm ? item.mtm : "0.00" }}</span>
+                            </span>
+                        </template>
+                        <template #item.daybuyqty="{ item }">
+                            <v-chip small :color="item.way != 'open' ? 'mainbg' : 'secbg'"
+                                style="border: none; border-radius: 5px; padding: 8px !important;background-color: #F1F3F8 !important;">
+                                <span class="font-weight-medium fs-12 subtext--text">{{ item.daybuyqty != 0 &&
+                                    item.daysellqty != 0 ?
+                                    (item.daybuyqty / (item.exch == "MCX" ? item.ls : 1)) : item.netqty
+                                        > 0 ? (item.netqty / (item.exch == "MCX" ? item.ls : 1)) : "0" }}</span>
+                            </v-chip>
+                        </template>
+                        <template #item.daysellqty="{ item }">
+                            <v-chip small :color="item.way != 'open' ? 'mainbg' : 'secbg'"
+                                style="border: none; border-radius: 5px; padding: 8px !important;background-color: #F1F3F8 !important;">
+                                <span class="font-weight-medium fs-12 subtext--text">{{ item.daysellqty != 0 &&
+                                    item.daybuyqty != 0 ?
+                                    (item.daysellqty / (item.exch == "MCX" ? item.ls : 1)) :
+                                    item.netqty < 0 ? (item.netqty / (item.exch == "MCX" ? item.ls : 1)) : "0" }}</span>
+                            </v-chip>
+                        </template>
+                        <template #item.totbuyavgprc="{ item }">
+                            <span class="font-weight-medium maintext--text"
+                                style="text-align: right; display: block;">{{ item.totbuyavgprc ? item.totbuyavgprc : ""
+                                }}
+                            </span>
+                        </template>
+                        <template #item.totsellavgprc="{ item }">
+                            <span class="font-weight-medium maintext--text"
+                                style="text-align: right; display: block;">{{ item.totsellavgprc ? item.totsellavgprc :
+                                    "" }}
+                            </span>
+                        </template>
+                    </v-data-table>
+                </v-window-item>
+
+                <!-- All Positions Table -->
+                <v-window-item value="all">
+                    <v-data-table must-sort :item-value="'tokn'" :sort-by="['way']" :sort-desc="[true]"
+                        :loading="exloading" :hide-default-footer="true" density="compact" mobile-breakpoint="900"
+                        fixed-header height="480px" class="holdings-table mt-3 rounded-lg overflow-y-auto"
+                        style="border-radius: 8px; border: 1px solid #EBEEF0; background-color: #ffffff !important; min-width:660px;"
+                        :headers="expositionHeaders" :search="opensearch" :items="expositiondata" :items-per-page="-1"
+                        :item-class="() => 'table-row'" :row-props="() => ({ class: 'table-row' })">
+                        <template v-slot:no-data>
+                            <div class="text-center mx-auto py-16 mt-16">
+                                <img class="mx-auto" width="80px" :src="noDataImg" alt="no data" />
+                                <h4 class="txt-999 font-weight-regular caption mt-4">There is no trading data here yet!
+                                </h4>
                             </div>
                         </template>
                     </v-data-table>
-                </div>
-            </div>
-
-            <div v-else-if="ordertab === 'all'">
-                <div style="overflow-x:auto;">
-                    <v-data-table must-sort :item-value="'tokn'" :sort-by="['way']" :sort-desc="[true]"
-                        :loading="exloading" :hide-default-footer="true" density="compact" mobile-breakpoint="900"
-                        fixed-header height="480px" class="rounded-lg overflow-y-auto"
-                        style="border-radius: 4px; border: 1px solid #EBEEF0; min-width:660px;"
-                        :headers="expositionHeaders" :search="opensearch" :items="expositiondata" :items-per-page="-1">
-                        <template v-slot:no-data>
-                            <v-row justify="center" align="center" class="py-10">
-                                <v-icon color="grey lighten-1" size="45">mdi-database-off</v-icon>
-                                <div class="ml-4 caption txt-999">There are no exposures yet.</div>
-                            </v-row>
-                        </template>
-                        <template v-slot:loading>
-                            <v-skeleton-loader type="table" :loading="exloading" class="mx-auto my-6"
-                                style="max-width:90vw;" :height="44" />
-                        </template>
-                    </v-data-table>
-                </div>
-            </div>
-            <v-dialog v-model="exitdialog" max-width="400">
-                <v-card class="rounded-xl elevation-0 text-center pt-8 pb-6 overflow-hidden">
-                    <img :src="noDataImg" alt="icon" />
-                    <p class="font-weight-medium mt-3 fs-22 lh-24 mb-8">
-                        Do you want to <b>Square Off</b><br />
-                        {{ posdselected.length === positiondata.length ? 'all' : posdselected.length > 0 ?
-                            posdselected.length :
-                            'all' }}
-                        open Positions?
+                </v-window-item>
+            </v-window>
+        </div>
+        <v-dialog v-model="exitdialog" max-width="430">
+            <v-card style="border-radius: 18px !important;">
+                <!-- <div class="d-flex justify-space-between align-center pa-4" style="border-bottom: 1px solid #EBEEF0;">
+                    <div class="font-weight-bold fs-16 maintext--text">Confirmation</div>
+                    <v-btn icon variant="text" density="comfortable" @click="exitdialog = false"
+                        style="min-width: 32px; width: 32px; height: 32px; background-color: #F23645; border-radius: 50%;">
+                        <v-icon color="#FFFFFF" size="18">mdi-close</v-icon>
+                    </v-btn>
+                </div> -->
+                <div class="pa-6 text-center">
+                    <img src="@/assets/orderbook/cancel-icon.svg" alt="cancel icon" />
+                    <p class="font-weight-medium mb-6 maintext--text mt-2" style="font-size: 22px !important;">
+                        Do you want to <strong>Square Off</strong> <br /> {{ posdselected.length === positiondata.length
+                            ?
+                            'all' :
+                            posdselected.length > 0 ?
+                                posdselected.length :
+                                'all' }} open Positions?
                     </p>
-                    <v-row class="px-6" no-gluttters>
-                        <v-col cols="6">
-                            <v-btn :disabled="orderloader" @click="exitdialog = false" color="#F1F3F8"
-                                class="rounded-pill text-none txt-666 font-weight-bold elevation-0" block
-                                height="40px">Close</v-btn>
-                        </v-col>
-                        <v-col cols="6">
-                            <v-btn :loading="orderloader" @click="setColseposition(0)" color="#000"
-                                class="rounded-pill text-none white--text font-weight-bold elevation-0" block
-                                height="40px">Exit
-                                Order</v-btn>
-                        </v-col>
-                    </v-row>
-                </v-card>
-            </v-dialog>
-
-            <v-dialog v-model="convertdialog" max-width="480px">
-                <v-card class="pb-6 overflow-hidden" color="cardbg">
-                    <v-card class="elevation-0 py-4" color="secbg">
-                        <v-toolbar class="nav-drawer elevation-0 px-2 crd-trn" dense>
-                            <v-list-item class="px-0">
-                                <v-list-item-content>
-                                    <v-list-item-title class="font-weight-bold fs-16 maintext--text mb-2">{{
-                                        singledata?.tsym || ''
-                                    }}<span class="ml-1 subtext--text fs-10">{{ singledata?.exch || ''
-                                        }}</span></v-list-item-title>
-                                    <v-list-item-title class="maintext--text font-weight-bold fs-14 mb-1">{{
-                                        singledata?.ltp ||
-                                        '0.00' }}</v-list-item-title>
-                                </v-list-item-content>
-                            </v-list-item>
-                            <v-spacer></v-spacer>
-                            <v-btn :disabled="convertloader" @click="convertdialog = false; singledata = {}" small icon>
-                                <v-icon color="maintext">mdi-close</v-icon>
-                            </v-btn>
-                        </v-toolbar>
-                        <v-progress-linear v-if="convertloader" indeterminate></v-progress-linear>
-                    </v-card>
-                    <div class="px-6 pt-4 pb-2">
-                        <p class="font-weight-bold fs-16">Position Conversion</p>
-                        <v-row no-glutters>
-                            <v-col cols="5" class="pb-0">
-                                <p class="font-weight-bold fs-14 mb-2">Convert from</p>
-                                <v-text-field readonly dense v-model="singledata.s_prdt_ali" background-color="secbg"
-                                    flat class="rounded-pill" solo></v-text-field>
-                            </v-col>
-                            <v-col cols="2" class="pa-0"></v-col>
-                            <v-col cols="5" class="pb-0">
-                                <p class="font-weight-bold fs-14 mb-2">Converting to</p>
-                                <v-select dense v-model="convtype"
-                                    :items="[singledata.s_prdt_ali !== 'MIS' || singledata.s_prdt_ali === 'NRML' ? 'MIS' : (singledata.exch === 'NSE' || singledata.exch === 'BSE') ? 'CNC' : 'NRML']"
-                                    append-icon="mdi-chevron-down" background-color="secbg" flat class="rounded-pill"
-                                    solo></v-select>
-                            </v-col>
-                            <v-col cols="5" class="py-0">
-                                <p class="font-weight-bold fs-14 mb-2">Total Qty</p>
-                                <v-text-field readonly dense background-color="secbg" :value="singledata.defaultqty"
-                                    flat class="rounded-pill" solo></v-text-field>
-                            </v-col>
-                            <v-col cols="2" class="pa-0"></v-col>
-                            <v-col cols="5" class="py-0">
-                                <p class="font-weight-bold fs-14 mb-2">Converting Qty</p>
-                                <v-text-field dense background-color="secbg" v-model.number="convqty"
-                                    :placeholder="singledata.netqty" flat class="rounded-pill" solo type="number"
-                                    min="1" :max="singledata.defaultqty"></v-text-field>
-                            </v-col>
-                        </v-row>
-                        <v-btn @click="setPosConvert()"
-                            :disabled="!(convqty > 0 && convqty <= singledata.defaultqty && convtype)"
-                            :loading="convertloader" color="btnclr"
-                            class="text-none rounded-pill elevation-0 btntext--text px-10 mt-4 float-right"
-                            height="40px">Convert</v-btn>
-                    </div>
-                </v-card>
-            </v-dialog>
-            <v-navigation-drawer v-model="positiondrawer" temporary location="right" :scrim="true" width="360"
-                color="cardbg" class="pt-2">
-                <!-- Header -->
-                <template v-slot:prepend>
-                    <v-toolbar dense class="nav-drawer crd-trn">
-                        <v-btn icon variant="text" density="comfortable" @click="closeDrawer" aria-label="Close drawer">
-                            <v-icon color="maintext" size="20">mdi-close</v-icon>
-                        </v-btn>
-                        <p class="maintext--text font-weight-bold mb-0 ml-2">Position Details</p>
-                        <v-spacer></v-spacer>
-                    </v-toolbar>
-                </template>
-                <v-list-item class="py-3">
-                    <v-list-item-content>
-                        <v-list-item-title class="font-weight-medium maintext--text mb-3">
-                            {{ singledata.tsym || '' }}<span class="ml-1 subtext--text fs-10">{{ singledata.exch || ''
-                            }}</span>
-                        </v-list-item-title>
-                        <v-list-item-title class="maintext--text font-weight-medium fs-16 mb-1">
-                            {{ singledata.ltp || '0.00' }}
-                            <span
-                                :class="Number(singledata.rpnl) > 0 ? 'maingreen--text' : Number(singledata.rpnl) < 0 ? 'mainred--text' : 'subtext--text'"
-                                class="font-weight-medium fs-12">
-                                {{ singledata.rpnl || '0.00' }} ({{ singledata.pnlc || '0.00' }}%)
-                            </span>
-                        </v-list-item-title>
-                    </v-list-item-content>
-                </v-list-item>
-                <div class="px-4">
-                    <div v-if="singledata.way === 'open'" class="pb-6">
-                        <v-row>
-                            <v-col cols="6">
-                                <v-btn :disabled="orderloader"
-                                    @click="setSSDtab('exit-order', singledata.token, singledata.exch, singledata.tsym, singledata.netqty < 0 ? 'b' : 's', singledata)"
-                                    class="rounded-pill text-none font-weight-bold" block height="40px" outlined>
-                                    <v-icon size="20">mdi-close</v-icon> Exit
-                                </v-btn>
-                            </v-col>
-                            <v-col cols="6">
-                                <v-btn :disabled="convertloader" @click="setPosConvert(singledata)"
-                                    class="rounded-pill text-none font-weight-bold" block height="40px" outlined>
-                                    <v-icon size="20">mdi-autorenew</v-icon> Conversion
-                                </v-btn>
-                            </v-col>
-                        </v-row>
-                    </div>
-                    <v-divider></v-divider>
-                    <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">Quantity <p
-                            class="float-right mb-0">
-                            <v-chip small
-                                :color="singledata.netqty > 0 ? 'secgreen' : singledata.netqty < 0 ? 'secred' : 'secbg'"
-                                :text-color="singledata.netqty > 0 ? 'maingreen' : singledata.netqty < 0 ? 'mainred' : 'subtext'"
-                                :style="`border: 1px solid ${singledata.netqty > 0 ? '#C1E7BA' : singledata.netqty < 0 ? '#FFCDCD' : '#DDD'}; border-radius: 5px; padding: 10px 8px !important;`">
-                                <span class="font-weight-medium fs-12">{{ singledata.netqty > 0 ? `+${singledata.netqty
-                                    /
-                                    (singledata.exch === 'MCX' ? singledata.ls : 1)}` : singledata.netqty < 0 ?
-                                    `${singledata.netqty / (singledata.exch === 'MCX' ? singledata.ls : 1)}` : '0'
-                                        }}</span>
-                            </v-chip>
-                        </p></v-list-item-title>
-                    <v-divider></v-divider>
-                    <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">Avg price <p
-                            class="float-right mb-0">{{
-                                singledata.avgprc ? singledata.avgprc.toLocaleString() : '0.00' }}</p></v-list-item-title>
-                    <v-divider></v-divider>
-                    <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">Net Avg price <p
-                            class="float-right mb-0">
-                            {{ (singledata.NetAvgPrc ?? singledata.netavgprc) ? (singledata.NetAvgPrc ??
-                                singledata.netavgprc).toLocaleString() : '0.00' }}</p>
-                    </v-list-item-title>
-                    <v-divider></v-divider>
-                    <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">Upload price <p
-                            class="float-right mb-0">
-                            {{ singledata.upldprc ? singledata.upldprc.toLocaleString() : '0.00' }}</p>
-                    </v-list-item-title>
-                    <v-divider></v-divider>
-                    <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">Netupload price <p
-                            class="float-right mb-0">{{ singledata.netupldprc ? singledata.netupldprc.toLocaleString() :
-                                '0.00' }}
-                        </p></v-list-item-title>
-                    <v-divider></v-divider>
-                    <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">Last trade price <p
-                            class="float-right mb-0">{{ singledata.ltp || '0.00' }}</p></v-list-item-title>
-                    <v-divider></v-divider>
-                    <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">Product <p
-                            class="float-right mb-0">
-                            {{ singledata.prd ? (singledata.prd === 'I' ? 'INTRADAY'
-                                : singledata.prd === 'C' ?
-                                    'DELIVERY'
-                                    : 'CARRY FORWARD') : ''
-                            }}</p>
-                    </v-list-item-title>
-                    <v-divider></v-divider>
-                    <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">Order type <p
-                            class="float-right mb-0">{{
-                                singledata.s_prdt_ali || '-' }}</p>
-                    </v-list-item-title>
-                    <v-divider></v-divider>
-                    <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">Day buy Qty <p
-                            class="float-right mb-0">{{
-                                singledata.daybuyqty ? (singledata.daybuyqty / (singledata.exch === 'MCX' ? singledata.ls :
-                                    1)) : '0' }}
-                        </p>
-                    </v-list-item-title>
-                    <v-divider></v-divider>
-                    <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">Day sell Qty <p
-                            class="float-right mb-0">
-                            {{ singledata.daysellqty ? (singledata.daysellqty / (singledata.exch === 'MCX' ?
-                                singledata.ls : 1)) :
-                                '0' }}</p>
-                    </v-list-item-title>
-                    <v-divider></v-divider>
-                    <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">Day buy Avg <p
-                            class="float-right mb-0">{{
-                                singledata.daybuyavgprc || '0.00' }}</p>
-                    </v-list-item-title>
-                    <v-divider></v-divider>
-                    <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">Day sell Avg <p
-                            class="float-right mb-0">
-                            {{ singledata.daysellavgprc || '0.00' }}</p>
-                    </v-list-item-title>
-                    <v-divider></v-divider>
-                    <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">Day Avg price <p
-                            class="float-right mb-0">
-                            {{ singledata.dayavgprc || '0.00' }}</p>
-                    </v-list-item-title>
-                    <v-divider></v-divider>
-                    <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">Day buy Amt <p
-                            class="float-right mb-0">{{
-                                singledata.daybuyamt || '0.00' }}</p>
-                    </v-list-item-title>
-                    <v-divider></v-divider>
-                    <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">Day sell Amt <p
-                            class="float-right mb-0">
-                            {{ singledata.daysellamt || '0.00' }}</p>
-                    </v-list-item-title>
-                    <v-divider></v-divider>
-                    <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">CF buy Qty <p
-                            class="float-right mb-0">{{
-                                singledata.cfbuyqty ? (singledata.cfbuyqty / (singledata.exch === 'MCX' ? singledata.ls :
-                                    1)) : '0' }}
-                        </p>
-                    </v-list-item-title>
-                    <v-divider></v-divider>
-                    <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">CF sell Qty <p
-                            class="float-right mb-0">{{
-                                singledata.cfsellqty ? (singledata.cfsellqty / (singledata.exch === 'MCX' ? singledata.ls :
-                                    1)) : '0' }}
-                        </p>
-                    </v-list-item-title>
-                    <v-divider></v-divider>
-                    <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">CF buy Avg <p
-                            class="float-right mb-0">{{
-                                singledata.cfbuyavgprc || '0.00' }}</p>
-                    </v-list-item-title>
-                    <v-divider></v-divider>
-                    <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">CF sell Avg <p
-                            class="float-right mb-0">{{
-                                singledata.cfsellavgprc || '0.00' }}</p>
-                    </v-list-item-title>
-                    <v-divider></v-divider>
-                    <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">CF buy Amt <p
-                            class="float-right mb-0">{{
-                                singledata.cfbuyamt || '0.00' }}</p>
-                    </v-list-item-title>
-                    <v-divider></v-divider>
-                    <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">CF sell Amt <p
-                            class="float-right mb-0">{{
-                                singledata.cfsellamt || '0.00' }}</p>
-                    </v-list-item-title>
-                    <v-divider></v-divider>
-                    <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">Open buy Qty <p
-                            class="float-right mb-0">
-                            {{ singledata.openbuyqty ? (singledata.openbuyqty / (singledata.exch === 'MCX' ?
-                                singledata.ls : 1)) :
-                                '0' }}</p>
-                    </v-list-item-title>
-                    <v-divider></v-divider>
-                    <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">Open sell Qty <p
-                            class="float-right mb-0">
-                            {{ singledata.opensellqty ? (singledata.opensellqty / (singledata.exch === 'MCX' ?
-                                singledata.ls : 1)) :
-                                '0' }}</p>
-                    </v-list-item-title>
-                    <v-divider></v-divider>
-                    <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">Open buy Avg <p
-                            class="float-right mb-0">
-                            {{ singledata.openbuyavgprc || '0.00' }}</p>
-                    </v-list-item-title>
-                    <v-divider></v-divider>
-                    <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">Open sell Avg <p
-                            class="float-right mb-0">
-                            {{ singledata.opensellavgprc || '0.00' }}</p>
-                    </v-list-item-title>
-                    <v-divider></v-divider>
-                    <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">Open buy Amt <p
-                            class="float-right mb-0">
-                            {{ singledata.openbuyamt || '0.00' }}</p>
-                    </v-list-item-title>
-                    <v-divider></v-divider>
-                    <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">Open sell Amt <p
-                            class="float-right mb-0">
-                            {{ singledata.opensellamt || '0.00' }}</p>
-                    </v-list-item-title>
-                    <v-divider></v-divider>
-                    <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">Total buy Avg <p
-                            class="float-right mb-0">
-                            {{ singledata.totbuyavgprc || '0.00' }}</p>
-                    </v-list-item-title>
-                    <v-divider></v-divider>
-                    <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">Total sell Avg <p
-                            class="float-right mb-0">{{ singledata.totsellavgprc || '0.00' }}</p>
-                    </v-list-item-title>
-                    <v-divider></v-divider>
-                    <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">Total buy Amt <p
-                            class="float-right mb-0">
-                            {{ singledata.totbuyamt || '0.00' }}</p>
-                    </v-list-item-title>
-                    <v-divider></v-divider>
-                    <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">Total sell Amt <p
-                            class="float-right mb-0">{{ singledata.totsellamt || '0.00' }}</p>
-                    </v-list-item-title>
-                    <v-divider></v-divider>
-                </div>
-                <template v-slot:append>
-                    <v-divider></v-divider>
-                    <div class="pa-4">
-                        <v-btn block color="primary" variant="tonal" class="text-none" @click="positiondrawer = false">
+                    <div class="d-flex justify-space-between px-5" style="gap: 12px;">
+                        <v-btn :disabled="orderloader" @click="exitdialog = false"
+                            class="rounded-pill text-none w-50 font-weight-bold elevation-0"
+                            style="background-color: #F1F3F8; color: #000000;" height="40px">
                             Close
                         </v-btn>
+                        <v-btn :loading="orderloader" @click="setColseposition(0)"
+                            class="rounded-pill text-none font-weight-bold elevation-0 w-50"
+                            style="background-color: #000000; color: #FFFFFF;" height="40px">
+                            Exit Order
+                        </v-btn>
                     </div>
-                </template>
-            </v-navigation-drawer>
+                </div>
+            </v-card>
+        </v-dialog>
 
-
-        </div>
+        <v-dialog v-model="convertdialog" max-width="480px">
+            <v-card class="pb-6 overflow-hidden" color="cardbg">
+                <v-card class="elevation-0 py-4" color="secbg">
+                    <v-toolbar class="nav-drawer elevation-0 px-2 crd-trn" dense>
+                        <v-list-item class="px-0">
+                            <v-list-item-content>
+                                <v-list-item-title class="font-weight-bold fs-16 maintext--text mb-2">{{
+                                    singledata?.tsym || ''
+                                    }}<span class="ml-1 subtext--text fs-10">{{ singledata?.exch || ''
+                                        }}</span></v-list-item-title>
+                                <v-list-item-title class="maintext--text font-weight-bold fs-14 mb-1">{{
+                                    singledata?.ltp ||
+                                    '0.00' }}</v-list-item-title>
+                            </v-list-item-content>
+                        </v-list-item>
+                        <v-spacer></v-spacer>
+                        <v-btn :disabled="convertloader" @click="convertdialog = false; singledata = {}" small icon>
+                            <v-icon color="maintext">mdi-close</v-icon>
+                        </v-btn>
+                    </v-toolbar>
+                    <v-progress-linear v-if="convertloader" indeterminate></v-progress-linear>
+                </v-card>
+                <div class="px-6 pt-4 pb-2">
+                    <p class="font-weight-bold fs-16">Position Conversion</p>
+                    <v-row no-glutters>
+                        <v-col cols="5" class="pb-0">
+                            <p class="font-weight-bold fs-14 mb-2">Convert from</p>
+                            <v-text-field readonly dense v-model="singledata.s_prdt_ali" background-color="secbg" flat
+                                class="rounded-pill" solo></v-text-field>
+                        </v-col>
+                        <v-col cols="2" class="pa-0"></v-col>
+                        <v-col cols="5" class="pb-0">
+                            <p class="font-weight-bold fs-14 mb-2">Converting to</p>
+                            <v-select dense v-model="convtype"
+                                :items="[singledata.s_prdt_ali !== 'MIS' || singledata.s_prdt_ali === 'NRML' ? 'MIS' : (singledata.exch === 'NSE' || singledata.exch === 'BSE') ? 'CNC' : 'NRML']"
+                                append-icon="mdi-chevron-down" background-color="secbg" flat class="rounded-pill"
+                                solo></v-select>
+                        </v-col>
+                        <v-col cols="5" class="py-0">
+                            <p class="font-weight-bold fs-14 mb-2">Total Qty</p>
+                            <v-text-field readonly dense background-color="secbg" :value="singledata.defaultqty" flat
+                                class="rounded-pill" solo></v-text-field>
+                        </v-col>
+                        <v-col cols="2" class="pa-0"></v-col>
+                        <v-col cols="5" class="py-0">
+                            <p class="font-weight-bold fs-14 mb-2">Converting Qty</p>
+                            <v-text-field dense background-color="secbg" v-model.number="convqty"
+                                :placeholder="singledata.netqty" flat class="rounded-pill" solo type="number" min="1"
+                                :max="singledata.defaultqty"></v-text-field>
+                        </v-col>
+                    </v-row>
+                    <v-btn @click="setPosConvert()"
+                        :disabled="!(convqty > 0 && convqty <= singledata.defaultqty && convtype)"
+                        :loading="convertloader" color="btnclr"
+                        class="text-none rounded-pill elevation-0 btntext--text px-10 mt-4 float-right"
+                        height="40px">Convert</v-btn>
+                </div>
+            </v-card>
+        </v-dialog>
+        <v-navigation-drawer v-model="positiondrawer" temporary location="right" :scrim="false" width="360"
+            color="cardbg" class="pt-2">
+            <!-- Header -->
+            <template v-slot:prepend>
+                <v-toolbar dense class="nav-drawer crd-trn">
+                    <v-btn icon variant="text" density="comfortable" @click="closeDrawer" aria-label="Close drawer">
+                        <v-icon color="maintext" size="20">mdi-close</v-icon>
+                    </v-btn>
+                    <p class="maintext--text font-weight-bold mb-0 ml-2">Position Details</p>
+                    <v-spacer></v-spacer>
+                </v-toolbar>
+            </template>
+            <v-list-item class="py-3">
+                <v-list-item-content>
+                    <v-list-item-title class="font-weight-medium maintext--text mb-3">
+                        {{ singledata.tsym || '' }}<span class="ml-1 subtext--text fs-10">{{ singledata.exch || ''
+                            }}</span>
+                    </v-list-item-title>
+                    <v-list-item-title class="maintext--text font-weight-medium fs-16 mb-1">
+                        {{ singledata.ltp || '0.00' }}
+                        <span
+                            :class="Number(singledata.rpnl) > 0 ? 'maingreen--text' : Number(singledata.rpnl) < 0 ? 'mainred--text' : 'subtext--text'"
+                            class="font-weight-medium fs-12">
+                            {{ singledata.rpnl || '0.00' }} ({{ singledata.pnlc || '0.00' }}%)
+                        </span>
+                    </v-list-item-title>
+                </v-list-item-content>
+            </v-list-item>
+            <div class="px-4">
+                <div v-if="singledata.way === 'open'" class="pb-6">
+                    <v-row>
+                        <v-col cols="6">
+                            <v-btn :disabled="orderloader" variant="outlined"
+                                @click="setSSDtab('exit-order', singledata.token, singledata.exch, singledata.tsym, singledata.netqty < 0 ? 'b' : 's', singledata)"
+                                class="rounded-pill text-none font-weight-bold" block height="40px" outlined>
+                                <v-icon size="20">mdi-close</v-icon> Exit
+                            </v-btn>
+                        </v-col>
+                        <v-col cols="6">
+                            <v-btn :disabled="convertloader" variant="outlined" @click="setPosConvert(singledata)"
+                                class="rounded-pill text-none font-weight-bold" block height="40px" outlined>
+                                <v-icon size="20">mdi-autorenew</v-icon> Conversion
+                            </v-btn>
+                        </v-col>
+                    </v-row>
+                </div>
+                <v-divider></v-divider>
+                <v-list-item-title class="maintext--text font-weight-bold fs-14"
+                    style="border-bottom: 1px solid #EBEEF0; border-top: 1px solid #EBEEF0;padding: 12px 0;">Quantity <p
+                        class="float-right mb-0">
+                        <v-chip v-if="singledata && singledata.plgqty > 0" small class="table-hov-prd maingreen--text"
+                            style="border-radius: 4px; padding: 4px 8px !important;background-color: #43A833; margin-right: 4px;">
+                            <v-icon color="#ffffff" size="12">mdi-lock</v-icon>
+                            <span class="font-weight-medium fs-12" style="color: #ffffff;">{{ singledata.plgqty
+                                }}</span>
+                        </v-chip>
+                        <v-chip v-if="singledata && singledata.btstqty > 0" small color="#FFD8B4" text-color="#E8862A"
+                            :style="`border-radius: 4px; padding: 4px 8px !important; margin-left: 4px;`">
+                            <span class="font-weight-medium fs-12">{{ `T1 ${singledata.btstqty}` }}</span>
+                        </v-chip>
+                        <v-chip size="small"
+                            :style="`background-color: ${singledata && singledata.netqty > 0 ? '#E6F5EA' : singledata && singledata.netqty < 0 ? '#FFEBEE' : '#F5F5F5'}; color: ${singledata && singledata.netqty > 0 ? '#43A833' : singledata && singledata.netqty < 0 ? '#F23645' : '#666666'}; border-radius: 4px; padding: 4px 8px; font-weight: 500;`"
+                            class="netqty-chip">
+                            <span class="font-weight-medium fs-12"
+                                :style="`color: ${singledata && singledata.netqty > 0 ? '#43A833' : singledata && singledata.netqty < 0 ? '#F23645' : '#666666'};`">{{
+                                    singledata && singledata.netqty >
+                                        0 ?
+                                        `+${singledata.netqty / (singledata.exch === 'MCX' ? singledata.ls : 1)}` : singledata
+                                            && singledata.netqty < 0 ? `${singledata.netqty / (singledata.exch === 'MCX' ?
+                                                singledata.ls : 1)}` : '0' }}</span>
+                        </v-chip>
+                    </p></v-list-item-title>
+                <v-list-item-title class="maintext--text font-weight-bold fs-14"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 0;">Avg price <p class="float-right mb-0">{{
+                        singledata.avgprc ? singledata.avgprc.toLocaleString() : '0.00' }}</p></v-list-item-title>
+                <v-list-item-title class="maintext--text font-weight-bold fs-14"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 0;">Net Avg price <p
+                        class="float-right mb-0">
+                        {{ (singledata.NetAvgPrc ?? singledata.netavgprc) ? (singledata.NetAvgPrc ??
+                            singledata.netavgprc).toLocaleString() : '0.00' }}</p>
+                </v-list-item-title>
+                <v-list-item-title class="maintext--text font-weight-bold fs-14"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 0;">Upload price <p class="float-right mb-0">
+                        {{ singledata.upldprc ? singledata.upldprc.toLocaleString() : '0.00' }}</p>
+                </v-list-item-title>
+                <v-list-item-title class="maintext--text font-weight-bold fs-14"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 0;">Netupload price <p
+                        class="float-right mb-0">{{
+                            singledata.netupldprc ? singledata.netupldprc.toLocaleString() :
+                                '0.00' }}
+                    </p></v-list-item-title>
+                <v-list-item-title class="maintext--text font-weight-bold fs-14"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 0;">Last trade price <p
+                        class="float-right mb-0">{{
+                            singledata.ltp || '0.00' }}</p></v-list-item-title>
+                <v-list-item-title class="maintext--text font-weight-bold fs-14"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 0;">Product <p class="float-right mb-0">
+                        {{ singledata.prd ? (singledata.prd === 'I' ? 'INTRADAY'
+                            : singledata.prd === 'C' ?
+                                'DELIVERY'
+                                : 'CARRY FORWARD') : ''
+                        }}</p>
+                </v-list-item-title>
+                <v-list-item-title class="maintext--text font-weight-bold fs-14"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 0;">Order type <p class="float-right mb-0">{{
+                        singledata.s_prdt_ali || '-' }}</p>
+                </v-list-item-title>
+                <v-list-item-title class="maintext--text font-weight-bold fs-14"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 0;">Day buy Qty <p class="float-right mb-0">
+                        {{
+                            singledata.daybuyqty ? (singledata.daybuyqty / (singledata.exch === 'MCX' ? singledata.ls :
+                                1)) : '0' }}
+                    </p>
+                </v-list-item-title>
+                <v-list-item-title class="maintext--text font-weight-bold fs-14"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 0;">Day sell Qty <p class="float-right mb-0">
+                        {{ singledata.daysellqty ? (singledata.daysellqty / (singledata.exch === 'MCX' ?
+                            singledata.ls : 1)) :
+                            '0' }}</p>
+                </v-list-item-title>
+                <v-list-item-title class="maintext--text font-weight-bold fs-14"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 0;">Day buy Avg <p class="float-right mb-0">
+                        {{
+                            singledata.daybuyavgprc || '0.00' }}</p>
+                </v-list-item-title>
+                <v-list-item-title class="maintext--text font-weight-bold fs-14"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 0;">Day sell Avg <p class="float-right mb-0">
+                        {{ singledata.daysellavgprc || '0.00' }}</p>
+                </v-list-item-title>
+                <v-list-item-title class="maintext--text font-weight-bold fs-14"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 0;">Day Avg price <p
+                        class="float-right mb-0">
+                        {{ singledata.dayavgprc || '0.00' }}</p>
+                </v-list-item-title>
+                <v-list-item-title class="maintext--text font-weight-bold fs-14"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 0;">Day buy Amt <p class="float-right mb-0">
+                        {{
+                            singledata.daybuyamt || '0.00' }}</p>
+                </v-list-item-title>
+                <v-list-item-title class="maintext--text font-weight-bold fs-14"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 0;">Day sell Amt <p class="float-right mb-0">
+                        {{ singledata.daysellamt || '0.00' }}</p>
+                </v-list-item-title>
+                <v-list-item-title class="maintext--text font-weight-bold fs-14"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 0;">CF buy Qty <p class="float-right mb-0">{{
+                        singledata.cfbuyqty ? (singledata.cfbuyqty / (singledata.exch === 'MCX' ? singledata.ls :
+                            1)) : '0' }}
+                    </p>
+                </v-list-item-title>
+                <v-list-item-title class="maintext--text font-weight-bold fs-14"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 0;">CF sell Qty <p class="float-right mb-0">
+                        {{
+                            singledata.cfsellqty ? (singledata.cfsellqty / (singledata.exch === 'MCX' ? singledata.ls :
+                                1)) : '0' }}
+                    </p>
+                </v-list-item-title>
+                <v-list-item-title class="maintext--text font-weight-bold fs-14"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 0;">CF buy Avg <p class="float-right mb-0">{{
+                        singledata.cfbuyavgprc || '0.00' }}</p>
+                </v-list-item-title>
+                <v-list-item-title class="maintext--text font-weight-bold fs-14"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 0;">CF sell Avg <p class="float-right mb-0">
+                        {{
+                            singledata.cfsellavgprc || '0.00' }}</p>
+                </v-list-item-title>
+                <v-list-item-title class="maintext--text font-weight-bold fs-14"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 0;">CF buy Amt <p class="float-right mb-0">{{
+                        singledata.cfbuyamt || '0.00' }}</p>
+                </v-list-item-title>
+                <v-list-item-title class="maintext--text font-weight-bold fs-14"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 0;">CF sell Amt <p class="float-right mb-0">
+                        {{
+                            singledata.cfsellamt || '0.00' }}</p>
+                </v-list-item-title>
+                <v-list-item-title class="maintext--text font-weight-bold fs-14"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 0;">Open buy Qty <p class="float-right mb-0">
+                        {{ singledata.openbuyqty ? (singledata.openbuyqty / (singledata.exch === 'MCX' ?
+                            singledata.ls : 1)) :
+                            '0' }}</p>
+                </v-list-item-title>
+                <v-list-item-title class="maintext--text font-weight-bold fs-14"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 0;">Open sell Qty <p
+                        class="float-right mb-0">
+                        {{ singledata.opensellqty ? (singledata.opensellqty / (singledata.exch === 'MCX' ?
+                            singledata.ls : 1)) :
+                            '0' }}</p>
+                </v-list-item-title>
+                <v-list-item-title class="maintext--text font-weight-bold fs-14"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 0;">Open buy Avg <p class="float-right mb-0">
+                        {{ singledata.openbuyavgprc || '0.00' }}</p>
+                </v-list-item-title>
+                <v-list-item-title class="maintext--text font-weight-bold fs-14"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 0;">Open sell Avg <p
+                        class="float-right mb-0">
+                        {{ singledata.opensellavgprc || '0.00' }}</p>
+                </v-list-item-title>
+                <v-list-item-title class="maintext--text font-weight-bold fs-14"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 0;">Open buy Amt <p class="float-right mb-0">
+                        {{ singledata.openbuyamt || '0.00' }}</p>
+                </v-list-item-title>
+                <v-list-item-title class="maintext--text font-weight-bold fs-14"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 0;">Open sell Amt <p
+                        class="float-right mb-0">
+                        {{ singledata.opensellamt || '0.00' }}</p>
+                </v-list-item-title>
+                <v-list-item-title class="maintext--text font-weight-bold fs-14"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 0;">Total buy Avg <p
+                        class="float-right mb-0">
+                        {{ singledata.totbuyavgprc || '0.00' }}</p>
+                </v-list-item-title>
+                <v-list-item-title class="maintext--text font-weight-bold fs-14"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 0;">Total sell Avg <p
+                        class="float-right mb-0">{{
+                            singledata.totsellavgprc || '0.00' }}</p>
+                </v-list-item-title>
+                <v-list-item-title class="maintext--text font-weight-bold fs-14"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 0;">Total buy Amt <p
+                        class="float-right mb-0">
+                        {{ singledata.totbuyamt || '0.00' }}</p>
+                </v-list-item-title>
+                <v-list-item-title class="maintext--text font-weight-bold fs-14"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 0;">Total sell Amt <p
+                        class="float-right mb-0">{{
+                            singledata.totsellamt || '0.00' }}</p>
+                </v-list-item-title>
+            </div>
+            <template v-slot:append>
+                <v-divider></v-divider>
+                <div class="pa-4">
+                    <v-btn
+                        @click="handleMenuDialog('order', singledata.token, singledata.exch, singledata.tsym, singledata.netqty < 0 ? 's' : 'b', singledata)"
+                        class="rounded-pill text-none font-weight-bold elevation-0"
+                        :color="singledata.netqty > 0 ? 'secgreen' : singledata.netqty < 0 ? 'secred' : 'secbg'" block
+                        :text-color="singledata.netqty > 0 ? 'maingreen' : singledata.netqty < 0 ? 'mainred' : 'subtext'"
+                        height="40px">
+                        <v-icon size="20">mdi-plus</v-icon> Add
+                    </v-btn>
+                </div>
+            </template>
+        </v-navigation-drawer>
     </div>
 
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
 import { useAppStore } from '@/stores/appStore'
-import { getMPosotion, getEXPosition, getMPosotionCon, getPlaceOrder, getQuotesdata, getPostPnL } from '@/components/mixins/getAPIdata'
+import { getMPosotion, getEXPosition, getMPosotionCon, getPlaceOrder, getQuotesdata } from '@/components/mixins/getAPIdata'
 import noDataImg from '@/assets/no data folder.svg'
 import * as echarts from 'echarts'
+
+const router = useRouter()
 
 const authStore = useAuthStore()
 const appStore = useAppStore()
@@ -609,16 +759,13 @@ function loadCacheExposures() {
 }
 
 // Watch for group change, fetch & render chart data
+// Removed getPostPnL API call - it was causing 401 errors
 watch(liveposgrp, async (newVal) => {
     if (!newVal || !postgroups.value[newVal]) return
     try {
-        const tysms = postgroups.value[newVal].tysm
-        const result = await getPostPnL(tysms)
-        if (result && Array.isArray(result.mtm)) {
-            chartData.value.x = result.mtm.map(d => new Date(d.name).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }))
-            chartData.value.y = result.mtm.map(d => d.value)
-            renderEChart()
-        }
+        // Chart data is now empty - API call removed due to 401 errors
+        chartData.value = { x: [], y: [] }
+        if (chartInstance.value) chartInstance.value.clear()
     } catch (e) {
         chartData.value = { x: [], y: [] }
         if (chartInstance.value) chartInstance.value.clear()
@@ -730,13 +877,11 @@ const filteredPositions = computed(() => {
     return positiondata.value
 })
 
-// Enable Exit button iff there is at least one open row in the current dataset
+// Enable Exit button iff there is at least one open position (matching old code logic)
 const hasOpenPositions = computed(() => {
     try {
-        // Enable if user selected at least one row (even if later filtered to open-only in the flow)
-        if (posdselected.value && posdselected.value.length > 0) return true
-        // Or if there is any open position in the current dataset
-        return (positiondata.value || []).some(p => p && p.way === 'open' && Number(p.netqty) !== 0)
+        // Check if there are any open positions (matching old code: openposition && openposition.length == 0)
+        return openposition.value && openposition.value.length > 0
     } catch (_) { return false }
 })
 
@@ -778,11 +923,69 @@ function computeStats() {
     }
 }
 
+const menulist = ref({
+    o: [
+        { name: 'Add', icon: 'mdi-plus', type: 'order' },
+        { name: 'Conversion', icon: 'mdi-autorenew', type: 'convert' },
+        { name: 'Exit', icon: 'mdi-close', type: 'exit-order', hr: true },
+        { name: 'Create GTT / GTC', icon: 4, type: 'cGTT' },
+        { name: 'Create Alert', icon: 5, type: 'alert' },
+        { name: 'Market Depth', icon: 6, type: 'depth' },
+        { name: 'Chart', icon: 7, type: 'chart', hr: true },
+        { name: 'Fundamentals', icon: 9, type: 'Funda' },
+        { name: 'Details', icon: 10, type: '' }
+    ],
+    c: [
+        { name: 'Create GTT / GTC', icon: 4, type: 'cGTT' },
+        { name: 'Create Alert', icon: 5, type: 'alert' },
+        { name: 'Market Depth', icon: 6, type: 'depth' },
+        { name: 'Chart', icon: 7, type: 'chart', hr: true },
+        { name: 'Fundamentals', icon: 9, type: 'Funda' },
+        { name: 'Details', icon: 10, type: '' }
+    ]
+})
+
+function handleMenuDialog(type, token, exch, tsym, trans, item) {
+    if (type === 'order') {
+        window.dispatchEvent(new CustomEvent('menudialog', {
+            detail: { type, token, exch, tsym, trantype: trans, item }
+        }))
+    }
+}
+
 function setSSDtab(type, token, exch, tsym, trans, item) {
     if (type === 'exit-order') {
-        // placeholder hook for future order dialog integration
-        // open confirm dialog prefilled with selection
-        exitdialog.value = true
+        // Open exit dialog for single position or batch exit
+        if (item) {
+            // Single position exit - open dialog
+            exitdialog.value = true
+            // Store the item for exit processing
+            if (!posdselected.value.includes(item)) {
+                posdselected.value = [item]
+            }
+        } else {
+            // Batch exit - dialog already opened from button
+            exitdialog.value = true
+        }
+    } else if (type === 'alert') {
+        window.dispatchEvent(new CustomEvent('menudialog', {
+            detail: { type: 'alert', token, exch, tsym }
+        }))
+    } else if (type === 'cGTT') {
+        positiondrawer.value = false
+        window.dispatchEvent(new CustomEvent('menudialog', {
+            detail: { type: 'order-GTT', token, exch, tsym, trantype: 'b' }
+        }))
+    } else if (type === 'order') {
+        window.dispatchEvent(new CustomEvent('menudialog', {
+            detail: { type, token, exch, tsym, trantype: item?.netqty < 0 ? 's' : 'b', item }
+        }))
+    } else if (type === 'chart' || type === 'depth' || type === 'Funda') {
+        // Navigate to stock details page
+        if (token && exch && tsym) {
+            const path = [type, token, exch, tsym]
+            router.push({ name: 'stocks details', params: { val: path } })
+        }
     }
 }
 
@@ -843,39 +1046,81 @@ function settempDatas(data) {
 
 async function getPositionbook() {
     loading.value = true
-    const data = await getMPosotion(true)
-    if (data && (data.a?.length || data.o?.length || data.c?.length)) {
-        settempDatas(data)
-    } else {
-        appStore.showSnackbar(2, data && data.emsg ? data.emsg : data)
+    try {
+        const data = await getMPosotion(true)
+        // Check if data is valid (not an error code)
+        if (data !== 500 && data !== null && data !== undefined) {
+            // Valid response - always update data (even if empty arrays)
+            // Empty arrays are valid - user might have no positions
+            if (data.a !== undefined || data.o !== undefined || data.c !== undefined) {
+                settempDatas(data)
+            } else if (data.emsg) {
+                // API returned an error message
+                appStore.showSnackbar(2, data.emsg)
+            }
+            // If data has no a/o/c properties and no emsg, keep existing data silently
+        } else if (data === 500) {
+            // Network error - keep existing data, show error
+            appStore.showSnackbar(2, 'Network error. Please check your connection.')
+        }
+        // Keep existing data visible if API call fails
+    } catch (error) {
+        console.error('Error loading positions:', error)
+        appStore.showSnackbar(2, 'Failed to load positions')
+        // Keep existing data on error
+    } finally {
+        loading.value = false
     }
-    loading.value = false
 }
 
 async function getexPositionbook() {
     exloading.value = true
-    const data = await getEXPosition()
-    expositiondata.value = []
-    if (data && data.length > 0) {
-        for (let q = 0; q < data.length; q++) {
-            const d = data[q]
-            d.idx = q
-            d.way = Number(d.netqty) === 0 ? 'close' : 'open'
-            d.disabled = d.way === 'open' ? false : null
-            d.avgprc = d.NetAvgPrc
-            d.tokn = `${d.token}_${q}`
+    try {
+        const data = await getEXPosition()
+        // Check if data is valid (not an error code)
+        if (data !== 500 && data !== null && data !== undefined) {
+            // Check if it's an array (valid response - empty array is valid)
+            if (Array.isArray(data)) {
+                // Process data first before updating - prevents empty flash
+                const processedData = []
+                for (let q = 0; q < data.length; q++) {
+                    const d = { ...data[q] } // Create a copy to avoid mutating original
+                    d.idx = q
+                    d.way = Number(d.netqty) === 0 ? 'close' : 'open'
+                    d.disabled = d.way === 'open' ? false : null
+                    d.avgprc = d.NetAvgPrc
+                    d.tokn = `${d.token}_${q}`
+                    processedData.push(d)
+                }
+                // Only update after processing is complete - prevents empty flash
+                // Empty array is valid - user might have no exposures
+                expositiondata.value = processedData
+                updateExpoHeaders()
+                if (processedData.length > 0) {
+                    const event = new CustomEvent('web-scoketOn', { detail: { flow: 'sub', data: expositiondata.value, is: 'pos', page: 'position' } })
+                    window.dispatchEvent(event)
+                }
+                // Only recompute stats if the "All Positions" tab is active
+                if (ordertab.value === 'all') computeStats()
+                saveCacheExposures()
+            } else if (data && typeof data === 'object' && data.emsg) {
+                // API returned an error message (not an array)
+                appStore.showSnackbar(2, data.emsg)
+                // Keep existing data on error
+            }
+            // If data is not an array and has no emsg, keep existing data silently
+        } else if (data === 500) {
+            // Network error - keep existing data, show error
+            appStore.showSnackbar(2, 'Network error. Please check your connection.')
         }
-        expositiondata.value = [...data]
-        updateExpoHeaders()
-        const event = new CustomEvent('web-scoketOn', { detail: { flow: 'sub', data: expositiondata.value, is: 'pos', page: 'position' } })
-        window.dispatchEvent(event)
-    } else if (data !== 500) {
-        appStore.showSnackbar(2, data && data.emsg ? data.emsg : data)
+        // Keep existing data visible if API call fails
+    } catch (error) {
+        console.error('Error loading exposures:', error)
+        appStore.showSnackbar(2, 'Failed to load exposures')
+        // Keep existing data on error
+    } finally {
+        exloading.value = false
     }
-    // Only recompute stats if the "All Positions" tab is active
-    if (ordertab.value === 'all') computeStats()
-    saveCacheExposures()
-    exloading.value = false
 }
 
 function selectAllToggle() {
@@ -885,18 +1130,27 @@ function selectAllToggle() {
 
 function setColseposition(i) {
     orderloader.value = true
-    const open = positiondata.value.filter(p => p.way === 'open')
-    // prioritize explicit selection from table
-    const selected = (posdselected.value || []).filter(p => p.way === 'open')
-    const queue = selected.length ? selected : open
-    if (i <= queue.length - 1) {
-        setPlaceorder(i, queue[i])
+    // Filter selected positions that are open (matching old code's posselected logic)
+    const posselected = positiondata.value.filter((p) => {
+        if (p.way === 'open' && p.disabled) {
+            return true
+        }
+    })
+    const open = openposition.value || []
+
+    // Prioritize selected positions, then fall back to all open positions if nothing selected
+    if (i <= posselected.length - 1) {
+        setPlaceorder(i, posselected[i])
+    } else if (posselected.length === 0 && posdselected.value.length === 0 && i <= open.length - 1) {
+        setPlaceorder(i, open[i])
     } else {
         appStore.showSnackbar(1, 'All your open positions have been Squared off.')
+        // Emit orderbook-update event to refresh order book (matching old code)
+        window.dispatchEvent(new CustomEvent('orderbook-update', { detail: 'port-order' }))
         orderloader.value = false
         exitdialog.value = false
-        positiondata.value.forEach(p => (p.disabled = false))
         posdselected.value = []
+        positiondata.value.forEach(p => (p.disabled = false))
     }
 }
 
@@ -1071,7 +1325,7 @@ function setPositionrowdata(item) {
     } else {
         singledata.value = { ...itemData }
     }
-    positiondrawer.value = true
+    positiondrawer.value = !positiondrawer.value
 }
 
 function groupPositions() {
@@ -1186,5 +1440,79 @@ onBeforeUnmount(() => {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+/* Reload icon rotation animation */
+.reload-rotating {
+    animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.fs-14 {
+    font-size: 14px !important;
+}
+
+/* Position relative/absolute for action buttons */
+.pos-rlt {
+    position: relative;
+}
+
+.pos-abs {
+    position: absolute;
+}
+
+/* Table hover effects */
+.table-hov {
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.table-row:hover .table-hov {
+    opacity: 1;
+}
+
+.table-hov-text {
+    transition: color 0.2s;
+}
+
+.table-hov-prd {
+    transition: background-color 0.2s;
+}
+
+.ws-p {
+    white-space: nowrap;
+}
+
+/* Add padding to table rows */
+:deep(.v-data-table__tr) {
+    padding: 5px 0 !important;
+}
+
+:deep(.v-data-table__td) {
+    padding: 5px 16px !important;
+}
+
+:deep(.v-data-table__th) {
+    padding: 5px 16px !important;
+    white-space: nowrap !important;
+}
+
+:deep(.v-data-table__th .v-data-table-header__content) {
+    white-space: nowrap !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+:deep(.v-text-field input) {
+    font-size: 16px !important;
 }
 </style>

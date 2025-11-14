@@ -1,19 +1,23 @@
 <template>
     <div>
-        <v-toolbar flat dense class="tool-sty crd-trn">
+        <!-- Toolbar -->
+        <v-toolbar flat dense class="tool-sty my-6 pl-4 crd-trn">
             <v-btn :disabled="allbasketsdata && allbasketsdata.length >= 10"
-                class="elevation-0 rounded-pill font-weight-bold text-none" color="primary" height="40"
-                @click="setSIPdialog(null)">+ Create SIP</v-btn>
+                class="elevation-0 rounded-pill font-weight-bold text-none" variant="elevated" color="primary"
+                height="40" @click="setSIPdialog(null)">+ Create SIP</v-btn>
             <v-spacer></v-spacer>
-            <v-text-field style="max-width: 220px" v-model="opensearch" hide-details prepend-inner-icon="mdi-magnify"
-                label="Search" class="rounded-pill mr-2" variant="solo" density="comfortable" :bg-color="'secbg'" />
-            <v-icon class="ml-3 cursor-p" :disabled="loading" @click="getOrderbook" color="maintext"
-                size="24">mdi-reload</v-icon>
+            <v-text-field elevation="0" rounded v-model="opensearch" prepend-inner-icon="mdi-magnify"
+                placeholder="Search" variant="solo" density="compact" hide-details class="rounded mr-4"
+                style="max-width: 220px" flat bg-color="secbg" />
+            <v-icon :disabled="loading" :class="['ml-3 cursor-p', { 'reload-rotating': loading }]" @click="getOrderbook"
+                color="maintext" size="24">mdi-reload</v-icon>
         </v-toolbar>
 
+        <!-- SIP Orders Table -->
         <v-data-table :headers="orderheader" :items="filteredSIPs" fixed-header :hide-default-footer="true"
-            :loading="loading" class="mt-3 rounded-lg overflow-y-auto"
-            style="border-radius: 4px; border: 1px solid #EBEEF0" height="480" :items-per-page="10"
+            :loading="loading" class="holdings-table mt-3 rounded-lg overflow-y-auto"
+            style="border-radius: 8px; border: 1px solid #EBEEF0; background-color: #ffffff !important;" height="480px"
+            :items-per-page="10" :item-class="() => 'table-row'" :row-props="() => ({ class: 'table-row' })"
             @click:row="(_, { item }) => setviewSIP(item)">
             <template #item.sip_name="{ item }">
                 <span class="font-weight-medium maintext--text ws-p">{{ item.sip_name }}</span>
@@ -24,12 +28,11 @@
             </template>
             <template #item.internal="{ item }">
                 <span class="font-weight-bold ws-p"
-                    :class="item.internal?.active ? 'success--text' : 'warning--text'">{{
+                    :class="item.internal?.active ? 'maingreen--text' : 'mainred--text'">{{
                         item.internal ? (item.internal.active ? 'Active' : 'Inactive') : '-' }}</span>
             </template>
             <template #item.frequency="{ item }">
-                <span class="font-weight-medium maintext--text ws-p">{{ item.frequency ? frequencylist[item.frequency] :
-                    '-' }}</span>
+                <span class="font-weight-medium maintext--text ws-p">{{ getFrequencyDisplay(item.frequency) }}</span>
             </template>
             <template #item.end_period="{ item }">
                 <span class="font-weight-medium maintext--text ws-p">{{ item.internal ? item.internal.period : '-' }}/{{
@@ -37,10 +40,12 @@
             </template>
             <template #item.actions="{ item }">
                 <div @click.stop>
-                    <v-btn icon size="small" class="mr-1" @click="setSIPdialog(item)">
+                    <v-btn icon size="small" class="mr-1 elevation-0" style="background-color: transparent !important;"
+                        @click="setSIPdialog(item)">
                         <v-icon>mdi-square-edit-outline</v-icon>
                     </v-btn>
-                    <v-btn icon size="small" @click="openCancelDialog(item)">
+                    <v-btn icon size="small" class="elevation-0" style="background-color: transparent !important;"
+                        @click="openCancelDialog(item)">
                         <v-icon>mdi-trash-can-outline</v-icon>
                     </v-btn>
                 </div>
@@ -56,9 +61,10 @@
         </v-data-table>
 
         <!-- SIP Dialog -->
-        <v-dialog v-model="basketdialog" width="680" scrollable>
-            <v-card class="pb-6 px-6 overflow-hidden rounded-lg" color="cardbg">
-                <v-list-item-title class="font-weight-bold title maintext--text mt-4 mb-1">
+        <v-dialog v-model="basketdialog" width="680" max-width="680" scrollable>
+            <v-card class="pb-6 px-6 rounded-lg" color="cardbg" style="max-height: 85vh;">
+                <v-list-item-title class="font-weight-bold title maintext--text mt-4 pb-2"
+                    style="border-bottom: 1px solid #EBEEF0;">
                     {{ setmode ? 'Create' : 'Edit' }} SIP order
                     <v-icon @click="closeSIPDialog" class="float-right" color="maintext"
                         :disabled="orderloader">mdi-close</v-icon>
@@ -68,18 +74,17 @@
                     <v-col cols="3">
                         <p class="font-weight-regular fs-14 subtext--text mb-2">SIP name</p>
                         <v-text-field placeholder="name" @keypress="isLetter" hide-details height="40" variant="solo"
-                            :bg-color="'secbg'" density="comfortable" flat class="rounded-pill mb-0"
-                            v-model="sip_name" />
+                            :bg-color="'secbg'" density="compact" flat rounded="xl" class=" mb-0" v-model="sip_name" />
                     </v-col>
                     <v-col cols="3">
                         <p class="font-weight-regular fs-14 subtext--text mb-2">Start date</p>
                         <v-menu v-model="menu2" :close-on-content-click="false" transition="scale-transition"
                             location="bottom" min-width="auto">
                             <template #activator="{ props }">
-                                <v-text-field placeholder="YYYY-MM-DD" hide-details height="40" variant="solo"
-                                    :bg-color="'secbg'" density="comfortable" flat class="rounded-pill mb-0"
-                                    hide-spin-buttons v-model="sipdate" append-icon="mdi-calendar" readonly
-                                    v-bind="props" />
+                                <v-text-field placeholder="DD-MM-YYYY" hide-details height="40" variant="solo"
+                                    :bg-color="'secbg'" density="compact" flat rounded="xl" class=" mb-0"
+                                    hide-spin-buttons :model-value="formattedDate" append-inner-icon="mdi-calendar"
+                                    readonly v-bind="props" />
                             </template>
                             <v-date-picker v-model="sipdate" @update:model-value="menu2 = false" :min="maxdate" />
                         </v-menu>
@@ -87,28 +92,26 @@
                     <v-col cols="3">
                         <p class="font-weight-regular fs-14 subtext--text mb-2">Frequency</p>
                         <v-select placeholder="Daily, Weekly, Monthly" hide-details v-model="frequency"
-                            :items="frequencylist" height="40" append-icon="mdi-chevron-down" variant="solo"
-                            :bg-color="'secbg'" density="comfortable" flat block class="rounded-pill" item-title="title"
-                            item-value="value" />
+                            :items="frequencylist" :bg-color="'secbg'" density="compact" variant="flat" block
+                            rounded="xl" class="" item-title="title" item-value="value" />
                     </v-col>
                     <v-col cols="3">
                         <p class="font-weight-regular fs-14 subtext--text mb-2">No.of SIPs</p>
                         <v-text-field placeholder="4" hide-details height="40" variant="solo" :bg-color="'secbg'"
-                            density="comfortable" flat class="rounded-pill mb-0" type="number" hide-spin-buttons
+                            density="compact" flat rounded="xl" class=" mb-0" type="number" hide-spin-buttons
                             v-model="sipinstall" />
                     </v-col>
                     <v-col cols="2">
                         <v-select @update:model-value="setSearchFilter" hide-details v-model="searchexch"
-                            :items="['NSE', 'BSE']" height="40" append-icon="mdi-chevron-down" variant="solo"
-                            :bg-color="'secbg'" density="comfortable" flat block class="rounded-pill" item-title="title"
-                            item-value="value" />
+                            :items="['NSE', 'BSE']" height="40" variant="solo" :bg-color="'secbg'" density="compact"
+                            flat block rounded="xl" class="sip-exchange-select" style="white-space: nowrap;" />
                     </v-col>
                     <!-- Phase 7: Add uppercase conversion on input matching old app -->
                     <v-col cols="10" class="ml-auto">
                         <v-autocomplete :disabled="model && model.set" @update:model-value="setListinbsk"
-                            :loading="searchloading" item-title="tsym" return-object class="rounded-pill" flat
-                            variant="solo" :bg-color="'secbg'" density="comfortable" v-model="model"
-                            v-model:search="search" hide-details label="Search script" :items="sfilterdata"
+                            :loading="searchloading" item-title="tsym" return-object rounded="xl" class="" flat
+                            variant="solo" :bg-color="'secbg'" density="compact" v-model="model" v-model:search="search"
+                            hide-details placeholder="Search script" :items="sfilterdata"
                             prepend-inner-icon="mdi-magnify" append-icon="" no-filter clearable
                             @update:search="onSearchInputUppercase" />
                     </v-col>
@@ -117,8 +120,8 @@
                 <!-- Phase 7: Add must-sort and sort-by to match old app -->
                 <v-data-table v-if="!model || !model.token" must-sort :sort-by="['idx']" :sort-desc="[true]"
                     fixed-header :hide-default-footer="true" :loading="loading" class="mt-0 rounded-lg overflow-y-auto"
-                    style="border: 1px solid #EBEEF0" height="240" :headers="singlebskheader" :items="orderbookdata"
-                    :items-per-page="20">
+                    style="border: 1px solid #EBEEF0" :height="getTableHeight" :headers="singlebskheader"
+                    :items="orderbookdata" :items-per-page="-1">
                     <template #item.tsym="{ item }">
                         <p class="font-weight-medium maintext--text mb-0 ws-p">
                             {{ item.tsym || '' }}
@@ -126,24 +129,27 @@
                         </p>
                     </template>
                     <template #item.qty="{ item }">
-                        <v-text-field v-if="item.invby === 'Qty'" height="30" hide-details dense class="rounded-lg"
-                            type="number" hide-spin-buttons variant="outlined" v-model="item.qty" />
+                        <v-text-field v-if="item.invby === 'Qty'" height="30" hide-details density="compact"
+                            style="border-radius: 10px !important;" class="rounded-lg" type="number" hide-spin-buttons
+                            variant="outlined" v-model="item.qty" />
                         <span v-else>{{ '--' }}</span>
                     </template>
                     <template #item.prc="{ item }">
-                        <v-text-field v-if="item.invby === 'Amount'" hide-details dense class="rounded-lg" type="number"
-                            hide-spin-buttons variant="outlined" v-model="item.prc" />
+                        <v-text-field v-if="item.invby === 'Amount'" hide-details density="compact"
+                            style="border-radius: 10px !important;" class="rounded-lg" type="number" hide-spin-buttons
+                            variant="outlined" v-model="item.prc" />
                         <span v-else>{{ '--' }}</span>
                     </template>
                     <template #item.invby="{ item }">
-                        <v-select @update:model-value="setInvestby(item)" hide-details v-model="item.invby"
-                            :items="['Qty', 'Amount']" dense append-icon="mdi-chevron-down" variant="outlined"
-                            class="rounded-lg" />
+                        <v-select @update:model-value="setInvestby(item)" height="30" hide-details density="compact"
+                            v-model="item.invby" :items="['Qty', 'Amount']" variant="outlined"
+                            style="border-radius: 10px !important;" class="rounded-lg" />
                     </template>
                     <!-- Phase 7: Use SVG icon matching old app -->
                     <template #item.actions="{ item }">
                         <div @click.stop>
-                            <v-btn icon size="small" class="text-align-center mt-2" @click="setListcancel(item, 'pop')">
+                            <v-btn icon size="small" class="text-align-center mt-2 elevation-0"
+                                style="background-color: transparent !important;" @click="setListcancel(item, 'pop')">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="24" height="24">
                                     <path fill="currentColor" fill-rule="evenodd"
                                         d="M11.5 6a.5.5 0 0 0-.5.5V8h6V6.5a.5.5 0 0 0-.5-.5h-5zM18 8V6.5c0-.83-.67-1.5-1.5-1.5h-5c-.83 0-1.5.67-1.5 1.5V8H5.5a.5.5 0 0 0 0 1H7v12.5A2.5 2.5 0 0 0 9.5 24h9a2.5 2.5 0 0 0 2.5-2.5V9h1.5a.5.5 0 0 0 0-1H18zm2 1H8v12.5c0 .83.67 1.5 1.5 1.5h9c.83 0 1.5-.67 1.5-1.5V9zm-8.5 3c.28 0 .5.22.5.5v7a.5.5 0 0 1-1 0v-7c0-.28.22-.5.5-.5zm5.5.5a.5.5 0 0 0-1 0v7a.5.5 0 0 0 1 0v-7z">
@@ -206,7 +212,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import noDataImg from '@/assets/no data folder.svg'
 import cancelIcon from '@/assets/orderbook/cancel-icon.svg'
 import { useAppStore } from '@/stores/appStore'
@@ -271,6 +277,30 @@ const filteredSIPs = computed(() => {
     )
 })
 
+// Format date from YYYY-MM-DD to DD-MM-YYYY for display
+const formattedDate = computed(() => {
+    if (!sipdate.value) return ''
+    const date = new Date(sipdate.value)
+    if (isNaN(date.getTime())) return ''
+    const day = String(date.getDate()).padStart(2, '0')
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}-${month}-${year}`
+})
+
+// Calculate dynamic table height based on number of items
+const getTableHeight = computed(() => {
+    const itemCount = orderbookdata.value.length
+    if (itemCount === 0) return 240 // Default height when no items
+    // Each row is approximately 52px (including padding and input fields), header is 48px
+    // Minimum height: 240px, Maximum height: 600px (to fit within dialog with scrolling)
+    const rowHeight = 52 // Approximate row height with input fields
+    const headerHeight = 48
+    const calculatedHeight = headerHeight + (itemCount * rowHeight)
+    // Cap at 600px max, but allow scrolling for more items
+    return Math.min(Math.max(calculatedHeight, 240), 600)
+})
+
 function setDate(date) {
     const d = new Date(`${date.slice(2, 4)}/${date.slice(0, 2)}/${date.slice(4)}`).toLocaleDateString('en-US', {
         year: 'numeric',
@@ -280,12 +310,45 @@ function setDate(date) {
     return d
 }
 
+// Map frequency from API response to display format
+function getFrequencyDisplay(frequency) {
+    if (!frequency && frequency !== 0) return '-'
+
+    // Frequency map: API returns 0, 1, 2, 3 or string values
+    const freqMap = {
+        '0': 'Daily',
+        '1': 'Weekly',
+        '2': 'Fortnightly',
+        '3': 'Monthly',
+        'Daily': 'Daily',
+        'Weekly': 'Weekly',
+        'Fortnightly': 'Fortnightly',
+        'Monthly': 'Monthly'
+    }
+
+    // Handle both string and number types
+    const freqKey = String(frequency)
+    return freqMap[freqKey] || frequency || '-'
+}
+
 function setSIPdialog(item) {
     if (item) {
         setmode.value = false
         sip_name.value = item.sip_name
-        frequency.value = frequencylist.find(f => f.value === item.frequency)?.value || frequencylist[item.frequency]?.value
-        sipdate.value = `${item.start_date.slice(4)}-${item.start_date.slice(2, 4)}-${item.start_date.slice(0, 2)}`
+        // Map frequency from API response (0,1,2,3 or string) to frequencylist value
+        const freqMap = { '0': 'Daily', '1': 'Weekly', '2': 'Fortnightly', '3': 'Monthly' }
+        const freqKey = String(item.frequency)
+        const mappedFreq = freqMap[freqKey] || item.frequency
+        frequency.value = frequencylist.find(f => f.value === mappedFreq)?.value || mappedFreq
+        // Convert DDMMYYYY to YYYY-MM-DD for date picker
+        if (item.start_date && item.start_date.length === 8) {
+            const day = item.start_date.slice(0, 2)
+            const month = item.start_date.slice(2, 4)
+            const year = item.start_date.slice(4)
+            sipdate.value = `${year}-${month}-${day}`
+        } else {
+            sipdate.value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().substr(0, 10)
+        }
         sipinstall.value = item.end_period
         singledata.value = item
         // Phase 7: Add idx to each scrip for sorting
@@ -413,7 +476,7 @@ async function setcancelBSK() {
     const item = { SipId: singledata.value.internal.SipId }
     const odata = await getSIPOrderset(item, 'CancelSipOrder')
     if (odata.ReqStatus === 'OK') {
-        appStore.showSnackbar(1, 'SIP Order have been Cancelled')
+        appStore.showSnackbar(0, 'SIP Order have been Cancelled')
         getOrderbook()
     } else {
         appStore.showSnackbar(2, odata.emsg || 'Failed to cancel SIP order')
@@ -446,7 +509,7 @@ function setListcancel(item, type) {
 
 function isLetter(e) {
     const char = String.fromCharCode(e.keyCode)
-    if (/^[A-Za-z]+$/.test(char) || char === ' ') return true
+    if (/^[A-Za-z]+$/.test(char) || char === ' ' || char === '-') return true
     else e.preventDefault()
 }
 
@@ -462,8 +525,8 @@ function validateSIPForm() {
     // 1. SIP Name validation
     if (!sip_name.value || !sip_name.value.trim()) {
         errors.push('SIP name is required')
-    } else if (!/^[A-Za-z\s]+$/.test(sip_name.value.trim())) {
-        errors.push('SIP name can only contain letters and spaces')
+    } else if (!/^[A-Za-z\s-]+$/.test(sip_name.value.trim())) {
+        errors.push('SIP name can only contain letters, spaces, and hyphens')
     } else if (setmode.value) {
         // Check for duplicate SIP name (only in create mode)
         const ind = allbasketsdata.value.findIndex(o => o.sip_name === sip_name.value.trim())
@@ -479,15 +542,15 @@ function validateSIPForm() {
         const today = new Date()
         today.setHours(0, 0, 0, 0)
         const startDate = new Date(sipdate.value)
-        startDate.setHours(0, 0, 0, 0)
 
-        if (startDate < today) {
-            errors.push('Start date must be today or later')
-        }
-
-        // Validate date format (YYYY-MM-DD)
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(sipdate.value)) {
-            errors.push('Start date must be in YYYY-MM-DD format')
+        // Check if date is valid
+        if (isNaN(startDate.getTime())) {
+            errors.push('Start date is invalid')
+        } else {
+            startDate.setHours(0, 0, 0, 0)
+            if (startDate < today) {
+                errors.push('Start date must be today or later')
+            }
         }
     }
 
@@ -724,6 +787,19 @@ function handleSIPOrderTrigger(event) {
         // Dialog is already opened by setSIPdialog(null)
         // Verify dialog is opened
         console.log('SIP dialog should be open. basketdialog:', basketdialog.value)
+
+        // Clear URL query params after dialog opens (clean URL)
+        // Use nextTick to ensure dialog is fully opened
+        nextTick(() => {
+            setTimeout(() => {
+                const currentPath = window.location.pathname
+                if (currentPath === '/orders' && window.location.search) {
+                    // Clear query params from URL
+                    window.history.replaceState({}, '', '/orders')
+                    console.log('[StockSIPorders] Cleared URL query params after dialog opened')
+                }
+            }, 200) // Small delay to ensure dialog is fully rendered
+        })
     } else {
         console.log('SIP order trigger received but no token found:', securityData)
     }
@@ -734,6 +810,18 @@ onMounted(() => {
     window.addEventListener('orderbook-update', onOrderbookUpdate)
     // Phase 2: Listen for SIP order trigger from buy/sell dialog
     window.addEventListener('siporder-trigger', handleSIPOrderTrigger)
+
+    // Check for pending SIP data on mount (in case event was dispatched before component mounted)
+    if (typeof window !== 'undefined' && window.__pendingSIPData) {
+        console.log('[StockSIPorders] Found pending SIP data on mount:', window.__pendingSIPData)
+        // Wait a bit to ensure component is fully initialized
+        setTimeout(() => {
+            if (window.__pendingSIPData) {
+                handleSIPOrderTrigger({ detail: window.__pendingSIPData })
+                window.__pendingSIPData = null
+            }
+        }, 100)
+    }
 })
 
 onBeforeUnmount(() => {
@@ -742,3 +830,40 @@ onBeforeUnmount(() => {
     window.removeEventListener('siporder-trigger', handleSIPOrderTrigger)
 })
 </script>
+
+<style scoped>
+/* Prevent text truncation in exchange select */
+:deep(.sip-exchange-select .v-field__input),
+:deep(.sip-exchange-select .v-select__selection) {
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+}
+
+:deep(.sip-exchange-select .v-field__input input) {
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+}
+
+:deep(.sip-exchange-select .v-select__selection-text) {
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+}
+
+/* Reload icon rotation animation */
+.reload-rotating {
+    animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+</style>

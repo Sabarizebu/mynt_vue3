@@ -1,18 +1,24 @@
 <template>
     <div>
-        <v-toolbar flat dense class="tool-sty crd-trn">
+        <!-- Toolbar -->
+        <v-toolbar flat dense class="tool-sty my-6 pl-4 crd-trn">
             <p class="title font-weight-bold mb-0">Tradebook ({{ orderbookdata.length }})</p>
             <v-spacer></v-spacer>
-            <v-text-field style="max-width: 220px" v-model="opensearch" hide-details prepend-inner-icon="mdi-magnify"
-                label="Search for Stocks" class="rounded-pill mr-4" variant="solo" density="comfortable"
-                :bg-color="'secbg'" />
-            <v-icon class="ml-3 cursor-p" :disabled="loading" @click="getOrderbook" color="maintext"
-                size="24">mdi-reload</v-icon>
+
+            <v-text-field elevation="0" rounded v-model="opensearch"
+                prepend-inner-icon="mdi-magnify" placeholder="Search" variant="solo" density="compact" hide-details
+                class="rounded mr-4" style="max-width: 220px" flat bg-color="secbg" />
+
+            <v-icon :disabled="loading" :class="['ml-3 cursor-p', { 'reload-rotating': loading }]" @click="getOrderbook"
+                color="maintext" size="24">mdi-reload</v-icon>
         </v-toolbar>
 
+        <!-- Trade Book Table -->
         <v-data-table :headers="orderheader" :items="filteredItems" fixed-header :hide-default-footer="true"
-            :loading="loading" class="mt-3 rounded-lg overflow-y-auto"
-            style="border-radius: 4px; border: 1px solid #EBEEF0" height="480" :items-per-page="-1"
+            :loading="loading" class="holdings-table mt-3 rounded-lg overflow-y-auto"
+            style="border-radius: 8px; border: 1px solid #EBEEF0; background-color: #ffffff !important;"
+            height="480px" :items-per-page="-1"
+            :item-class="() => 'table-row'" :row-props="() => ({ class: 'table-row' })"
             @click:row="(_, { item }) => setOrderrowdata(item)">
             <template #item.norentm="{ item }">
                 <span class="font-weight-medium maintext--text">{{ timeStr(item.norentm) }}</span>
@@ -25,33 +31,37 @@
                 </v-chip>
             </template>
             <template #item.tsym="{ item }">
-                <div class="pos-rlt">
-                    <p class="font-weight-medium maintext--text mb-0 table-hov-text ws-p mr-4">
+                <div class="pos-rlt" style="min-height: 40px; padding-right: 200px;">
+                    <p class="font-weight-bold fs-13 txt-162 black--text mb-0 table-hov-text"
+                        style="margin-right: 0; white-space: nowrap;">
                         {{ item.tsym || '' }}
                         <span class="ml-1 subtext--text fs-10">{{ item.exchs || item.exch || '' }}</span>
                     </p>
-                    <div @click.stop class="pos-abs table-hov" style="top: 15px; right: 0">
-                        <v-btn @click="setSSDtab('order', item.token, item.exch, item.tsym, 'b', item)"
-                            min-width="20px" color="maingreen" class="px-0 font-weight-bold white--text elevation-0 mr-1"
-                            size="x-small"> B </v-btn>
-                        <v-btn @click="setSSDtab('order', item.token, item.exch, item.tsym, 's', item)"
-                            min-width="20px" color="mainred" class="px-0 font-weight-bold white--text elevation-0 mr-1"
-                            size="x-small"> S </v-btn>
-                        <v-btn @click="setSSDtab('chart', item.token, item.exch, item.tsym, null, item)"
-                            style="border: 1px solid #EBEEF0" min-width="20px" color="mainbg"
-                            class="px-0 font-weight-bold white--text elevation-0 mr-1" size="x-small">
-                            <v-icon size="18" color="maintext">mdi-chart-line-variant</v-icon>
+                    <div v-if="item" @click.stop class="pos-abs table-hov"
+                        style="top: 50%; transform: translateY(-50%); right: 0; z-index: 10; gap: 4px; pointer-events: auto; display: flex; align-items: center;">
+                        <v-btn @click.stop="setSSDtab('order', item.token, item.exch, item.tsym, 'b', item)"
+                            min-width="20px" height="20px"
+                            style="background-color: #43A833; color: #ffffff; border-radius: 4px; min-width: 20px; padding: 0 4px;"
+                            class="font-weight-bold elevation-0 mr-1" size="x-small"> B
                         </v-btn>
-                        <v-btn @click="setSSDtab('order', item.token, item.exch, item.tsym, item.trantype?.toLowerCase(), item)"
-                            style="border: 1px solid #EBEEF0" min-width="20px" color="mainbg"
-                            class="px-0 font-weight-bold white--text elevation-0 mr-1" size="x-small">
-                            <v-icon size="18" color="maintext">mdi-autorenew</v-icon>
+                        <v-btn @click.stop="setSSDtab('order', item.token, item.exch, item.tsym, 's', item)"
+                            min-width="20px" height="20px"
+                            style="background-color: #FF1717; color: #ffffff; border-radius: 4px; min-width: 20px; padding: 0 4px;"
+                            class="font-weight-bold elevation-0 mr-1" size="x-small"> S
                         </v-btn>
-                        <v-menu close-on-click :location="'bottom'" class="table-menu">
+                        <v-btn @click.stop="setSSDtab('chart', item.token, item.exch, item.tsym, null, item)"
+                            style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
+                            min-width="20px" color="mainbg" class="font-weight-bold elevation-0 mr-1"
+                            size="x-small">
+                            <v-icon size="14" color="#666666">mdi-chart-line-variant</v-icon>
+                        </v-btn>
+                        <v-menu close-on-click location="bottom" offset-y class="table-menu">
                             <template #activator="{ props }">
-                                <v-btn v-bind="props" style="border: 1px solid #EBEEF0" min-width="20px"
-                                    color="mainbg" class="px-0 font-weight-bold white--text elevation-0 mr-1" size="x-small">
-                                    <v-icon size="20" color="maintext">mdi-dots-horizontal</v-icon>
+                                <v-btn v-bind="props"
+                                    style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
+                                    min-width="20px" color="mainbg" class="font-weight-bold elevation-0 mr-1"
+                                    size="x-small">
+                                    <v-icon size="14" color="#666666">mdi-dots-horizontal</v-icon>
                                 </v-btn>
                             </template>
                             <v-card class="table-menu-list">
@@ -223,3 +233,19 @@ onBeforeUnmount(() => {
     window.removeEventListener('orderbook-update', onOrderbookUpdate)
 })
 </script>
+
+<style scoped>
+/* Reload icon rotation animation */
+.reload-rotating {
+    animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+</style>

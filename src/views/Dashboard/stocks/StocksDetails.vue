@@ -152,7 +152,7 @@
 
             <!-- Future Tab -->
             <v-window-item :value="4">
-                <v-data-table v-if="futuredata && futuredata.length > 0" disable-sort mobile hide-default-footer
+                <v-data-table v-if="futuredata && futuredata.length > 0" disable-sort hide-default-footer
                     class="rounded-0 overflow-y-auto futtable" fixed-header :headers="futurechainhead"
                     :items="futuredata">
                     <template v-slot:[`item.tsym`]="{ item }">
@@ -238,7 +238,7 @@
                             <v-col cols="6" class="pa-0" v-for="(s, ids, d) in securityinfos" :key="d">
                                 <v-list-item class="py-0">
                                     <v-list-item-subtitle class="subtitle-1 font-weight-medium">{{ ids
-                                    }}</v-list-item-subtitle>
+                                        }}</v-list-item-subtitle>
                                     <template v-slot:append>
                                         <v-list-item-title class="subtitle-1 font-weight-bold">
                                             <span>{{ s != undefined ? s : "-" }}</span>
@@ -262,7 +262,7 @@
                                     <v-card class="elevation-0 rounded-lg py-3 px-4 mb-2" color="secgreen">
                                         <p class="font-weight-bold fs-14 mb-0">
                                             {{ a.tsym }} <span class="fs-10 font-weight-medium subtext--text">{{ a.exch
-                                            }}</span>
+                                                }}</span>
                                         </p>
                                         <p class="mb-0 fs-14">
                                             <span class="font-weight-medium">{{ a.ltp ? a.ltp : "0.00" }}</span>
@@ -285,7 +285,7 @@
                                     <v-card class="elevation-0 rounded-lg py-3 px-4 mb-2" color="secbg">
                                         <p class="font-weight-bold fs-14 mb-0">
                                             {{ a.tsym }} <span class="fs-10 font-weight-medium subtext--text">{{ a.exch
-                                            }}</span>
+                                                }}</span>
                                         </p>
                                         <p class="mb-0 fs-14">
                                             <span class="font-weight-medium">{{ a.ltp ? a.ltp : "0.00" }}</span>
@@ -308,7 +308,7 @@
                                     <v-card class="elevation-0 rounded-lg py-3 px-4 mb-2" color="secred">
                                         <p class="font-weight-bold fs-14 mb-0">
                                             {{ a.tsym }} <span class="fs-10 font-weight-medium subtext--text">{{ a.exch
-                                            }}</span>
+                                                }}</span>
                                         </p>
                                         <p class="mb-0 fs-14">
                                             <span class="font-weight-medium">{{ a.ltp ? a.ltp : "0.00" }}</span>
@@ -957,11 +957,20 @@ onMounted(async () => {
     }
 
     // Watch for route changes (when navigating to same route with different params)
-    watch(() => [route.params, route.query], async ([newParams, newQuery], [oldParams, oldQuery]) => {
+    watch(() => [route.params, route.query, route.path], async ([newParams, newQuery, newPath], [oldParams, oldQuery, oldPath]) => {
+        // CRITICAL: Only process query params if we're on the stocks details route
+        // This prevents intercepting query params from other routes (like /orders)
+        // If we're on /orders or any other route, ignore query params
+        if (newPath && (newPath.startsWith('/orders') || newPath.startsWith('/mutualfund') || newPath.startsWith('/ipos') || newPath.startsWith('/bonds'))) {
+            // We're not on stocks details route, ignore query params
+            return
+        }
+
         let params = null
 
         // Check query params first (they persist on refresh)
-        if (newQuery && newQuery.token && newQuery.exch && newQuery.tsym) {
+        // Only process if we're on stocks details route (path includes /stocks/details or related routes)
+        if (newQuery && newQuery.token && newQuery.exch && newQuery.tsym && newPath && newPath.includes('/stocks/details')) {
             params = [
                 newQuery.type || 'detail',
                 newQuery.token,
@@ -1123,8 +1132,10 @@ function resolveCurrentSymbol() {
 }
 
 .tab-txt {
-    font-size: 13px;
+    font-size: 15px !important;
 }
+
+
 
 .ws-p {
     white-space: nowrap;
@@ -1168,5 +1179,16 @@ function resolveCurrentSymbol() {
 
 .no-scroll {
     overflow: hidden;
+}
+
+/* Make active tab text black */
+:deep(.v-tabs .v-tab--selected),
+:deep(.v-tabs .v-tab--selected .v-tab__text),
+:deep(.v-tabs .v-tab--selected .tab-txt) {
+    color: #000000 !important;
+}
+
+:deep(.v-tabs .v-tab--selected) {
+    opacity: 1 !important;
 }
 </style>

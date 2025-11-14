@@ -43,7 +43,7 @@ export default {
   banklogo: 'https://ekycbe.mynt.in/zebu',
 
   imgicon: "https://besim.zebull.in/static/equity/icons/",
-  // searchapi: 'http://192.168.5.180:5010/',
+  searchapi: 'https://v3.mynt.in/search/',
 
   eqapi: 'https://v3.mynt.in/equity/',
   // eqapiD: 'http://192.168.5.138:5000/',
@@ -53,6 +53,7 @@ export default {
   // mfapi: 'http://192.168.5.175:5000',
   mfapi: 'https://v3.mynt.in/mf/',
   mfnewapi: 'https://v3.mynt.in/mfapi/',
+  masterfileapi: 'https://v3.mynt.in/mf/',
 
   exmynt: 'https://be.zebull.in/',
   // Dmfapi: 'http://192.168.5.192:5000/',

@@ -32,6 +32,13 @@ export const useOrderStore = defineStore('order', {
         // Loaders
         isPlacingOrder: false,
         isCalculating: false,
+
+        // Order counts [open, executed, rejected]
+        orderCounts: [0, 0, 0],
+
+        // Filter settings for navigation
+        orderFilterTab: null,
+        orderFilterType: null,
     }),
     actions: {
         openOrderDialog() {
@@ -49,6 +56,19 @@ export const useOrderStore = defineStore('order', {
         setPreferences({ quick, sticky }) {
             if (typeof quick === 'boolean') this.isQuickOrder = quick
             if (typeof sticky === 'boolean') this.isStickyDialog = sticky
+        },
+        setOrderCounts(counts) {
+            if (Array.isArray(counts) && counts.length >= 3) {
+                this.orderCounts = [counts[0] || 0, counts[1] || 0, counts[2] || 0]
+            }
+        },
+        setOrderFilter(tab, type) {
+            this.orderFilterTab = tab
+            this.orderFilterType = type
+        },
+        clearOrderFilter() {
+            this.orderFilterTab = null
+            this.orderFilterType = null
         },
     },
 })

@@ -1,7 +1,7 @@
 <template>
     <div class="modern-watchlist">
-        <!-- Search Header -->
-        <div class="search-header">
+        <!-- Search Header (hidden on mutual funds page) -->
+        <div v-if="!panel" class="search-header">
             <div class="search-container">
                 <v-icon class="search-icon">mdi-magnify</v-icon>
                 <input v-model="search" @input="onSearchInput" placeholder="Search script"
@@ -14,17 +14,19 @@
         </div>
 
         <!-- Watchlist Toolbar with Tabs -->
-        <v-toolbar v-if="!panel && !optchainbasket && !search" flat dense class="tool-sty crd-trn">
+        <v-toolbar v-if="!panel && !optchainbasket && !search && !addscript" flat density="compact"
+            class="tool-sty crd-trn">
             <div ref="watchlistTabsContainer" v-dragscroll.x @mousedown="handleTabsMouseDown"
                 @mouseup="handleTabsMouseUp" @mouseleave="handleTabsMouseUp" @mousemove="handleTabsMouseMove"
                 style="width: calc(100% - 60px); cursor: grab; user-select: none;"
                 class="overflow-x-auto d-inline-flex no-scroll rounded-xl watchlist-tabs-scrollable"
                 :class="{ 'dragging': isDraggingTabs }">
                 <!-- User Watchlists -->
+                <!-- CRITICAL: Show watchlists even if empty initially - they will load from localStorage/API -->
                 <div v-if="!watchsecti" class="d-inline-flex" style="white-space: nowrap;">
-                    <div v-for="(wl, index) in watchlist" :key="index" class="pr-2">
+                    <div v-for="(wl, index) in watchlist" :key="`user-wl-${index}-${wl}`" class="pr-2">
                         <v-chip @click.stop="watchlistis = wl; selectWatchlist(wl)" :class="[
-                            'font-weight-medium px-3 py-1 watchlisttab',
+                            'font-weight-medium px-3 py-2 watchlisttab',
                             watchlistis === wl ? 'watchlisttab-active' : ''
                         ]" size="medium">
                             {{ wl }}
@@ -34,7 +36,7 @@
                 <!-- Predefined Watchlists -->
                 <div v-if="PreMWlist && PreMWlist.length > 0 && !search" class="d-inline-flex"
                     style="white-space: nowrap;">
-                    <div v-for="(p, s) in PreMWlist" :key="s" class="pr-2">
+                    <div v-for="(p, s) in PreMWlist" :key="`pre-wl-${s}-${p.key}`" class="pr-2">
                         <v-chip @click.stop="watchlistis = p.key; selectWatchlist(p.key)" :class="[
                             'font-weight-medium px-3 watchlisttab',
                             watchlistis === p.key ? 'watchlisttab-active' : ''
@@ -82,8 +84,7 @@
                     {{ watchlist && watchlist.length >= 10 ? "Maximum 10 watchlists You can create."
                         : "Create new watchlist" }}</span>
             </v-tooltip>
-            <v-icon @click="(addscript = false), (watchsecti = !watchsecti)" :disabled="isLoading" color="maintext"
-                class="ml-2">
+            <v-icon @click="toggleWatchlistSection" :disabled="isLoading" color="maintext" class="ml-2">
                 {{ !watchsecti ? 'mdi-dots-vertical' : 'mdi-chevron-left' }}
             </v-icon>
         </v-toolbar>
@@ -99,7 +100,13 @@
                     New Watchlist
                 </v-btn>
             </v-card-title> -->
-            <v-list>
+            <!-- Loading state -->
+            <div v-if="isLoading && (!watchlist || watchlist.length === 0)" class="text-center py-8 px-4">
+                <v-progress-circular indeterminate color="primary" size="24"></v-progress-circular>
+                <p class="subtext--text fs-14 mt-2">Loading watchlists...</p>
+            </div>
+            <!-- Watchlist list -->
+            <v-list v-else-if="watchlist && watchlist.length > 0">
                 <div v-for="(wl, index) in watchlist" :key="index" @click="selectWatchlist(wl); watchsecti = false"
                     class="cursor-pointer watchlist-manage-item" :class="{ 'active': wl === watchlistis }"
                     style="display: flex;align-items: center;justify-content: space-between;">
@@ -118,14 +125,37 @@
                         </div>
                     </div>
 
-                    <div class="mr-2">
-                        <v-btn @click.stop="confirmDeleteWatchlist(wl)" icon size="small" variant="text"
-                            class="delete-btn">
-                            <v-icon size="30" color="maintext">mdi-delete-outline</v-icon>
-                        </v-btn>
+                    <div class="mr-2 d-flex align-center" style="gap: 8px;">
+                        <v-tooltip location="left" color="black">
+                            <template v-slot:activator="{ props }">
+                                <v-btn v-bind="props" @click.stop="addScriptToWatchlist(wl)" icon size="small"
+                                    variant="text" class="add-script-btn" :disabled="isLoading">
+                                    <v-icon size="24" color="primary">mdi-plus-circle</v-icon>
+                                </v-btn>
+                            </template>
+                            <span>Add script</span>
+                        </v-tooltip>
+                        <v-tooltip location="left" color="black">
+                            <template v-slot:activator="{ props }">
+                                <v-btn v-bind="props" @click.stop="confirmDeleteWatchlist(wl)" icon size="small"
+                                    variant="text" class="delete-btn" :disabled="isLoading">
+                                    <v-icon size="30" color="maintext">mdi-delete-outline</v-icon>
+                                </v-btn>
+                            </template>
+                            <span>Delete watchlist</span>
+                        </v-tooltip>
                     </div>
                 </div>
             </v-list>
+            <!-- Empty state when no watchlists -->
+            <div v-else-if="!isLoading" class="text-center py-8 px-4">
+                <v-icon size="48" color="grey lighten-1">mdi-format-list-bulleted</v-icon>
+                <p class="subtext--text fs-14 mt-2 mb-4">No watchlists available</p>
+                <v-btn @click="createMWdialog = true" color="primary" class="text-none" size="small" variant="elevated">
+                    <v-icon left size="16">mdi-plus</v-icon>
+                    Create Watchlist
+                </v-btn>
+            </div>
 
         </v-card>
 
@@ -255,7 +285,8 @@
             </div>
 
             <v-card v-else class="text-center py-16 px-8 elevation-0 crd-trn" width="100%">
-                <img class="align-self-stretch mx-auto" width="70px" src="/src/assets/searcha-icon.svg" />
+                <img class="align-self-stretch mx-auto" width="70px"
+                    :src="getAssetPath(`searcha-icon${$vuetify.theme.dark ? 'd' : ''}.svg`)" />
                 <p class="subtext--text fs-14 mb-1">Hmmm, Looks like no Strikes — why not add some? Choose from the
                     option
                     chain.</p>
@@ -296,7 +327,7 @@
             style="bottom: 0; right: 0">
             <v-btn @click="optchainbasket = true" color="primary" icon="true" variant="elevated">
                 <v-badge :content="optchainbasketdata.length" color="warning">
-                    <img width="24px" src="/src/assets/usermenu/9d.svg" />
+                    <img width="24px" :src="getAssetPath('usermenu/9d.svg')" />
                 </v-badge>
             </v-btn>
         </div>
@@ -304,15 +335,18 @@
         <!-- Mutual Fund Section (when panel is true) -->
         <div v-if="panel && !optchainbasket" class="mutual-fund-section">
             <!-- Mutual Fund Search -->
-            <v-text-field v-model="mfsearch" :loading="searchloading" ref="mwref"
-                class="rounded-pill mt-2 mf-search-input" variant="outlined" density="compact" :bg-color="'secbg'"
-                @input="handleMFSearchInput"
-                @click="(addscript = true), (watchsecti = false), (mfwatchlistdata = []), (nodata = null), putMWfocus()"
-                label="Search funds" prepend-inner-icon="mdi-magnify" hide-details>
-                <template v-if="addscript" v-slot:append>
-                    <v-icon :disabled="isLoading" @click="onMWClear()" color="primary" class="mr-1">mdi-close</v-icon>
-                </template>
-            </v-text-field>
+            <div class="search-header">
+                <div class="search-container">
+                    <v-icon class="search-icon">mdi-magnify</v-icon>
+                    <input v-model="mfsearch" @input="handleMFSearchInput" placeholder="Search funds"
+                        class="search-input rounded-pill" :class="{ 'searching': searchloading }" ref="mwref"
+                        @click="(addscript = true), (watchsecti = false), (mfwatchlistdata = []), (nodata = null), putMWfocus()" />
+                    <v-progress-circular v-if="searchloading" size="16" width="2" indeterminate
+                        class="search-loader"></v-progress-circular>
+                    <v-icon v-if="addscript && !searchloading" @click="onMWClear()" :disabled="isLoading"
+                        color="primary" class="search-clear-icon cursor-pointer">mdi-close</v-icon>
+                </div>
+            </div>
 
             <!-- Mutual Fund Toolbar -->
             <v-toolbar v-if="!addscript" flat density="compact" class="tool-sty crd-trn">
@@ -370,7 +404,7 @@
                     <v-card v-for="(item, o) in mfuseritem" :key="o"
                         class="elevation-0 rounded-0 table-row overflow-hidden crd-trn">
                         <div class="table-row pos-rlt">
-                            <v-list-item class="pa-0 py-1">
+                            <di class="pa-0 py-1">
                                 <v-list-item-title class="fs-13 font-weight-medium mb-1 maintext--text table-hov-text">
                                     <span class="txt-dec-cust cursor-pointer" @click="setSinglepage(item)">
                                         {{ item.name ? item.name : "" }}
@@ -402,7 +436,7 @@
                                         </span>
                                     </span>
                                 </v-list-item-subtitle>
-                            </v-list-item>
+                            </di>
                             <v-divider></v-divider>
                         </div>
                         <!-- Phase 2: Add key to force re-render when uid or PreDefinedMW.is changes -->
@@ -425,7 +459,8 @@
                     </v-card>
                 </div>
                 <v-card v-else class="text-center py-16 px-8 elevation-0 crd-trn" width="100%">
-                    <img class="align-self-stretch mx-auto" width="70px" src="/src/assets/searcha-icon.svg" />
+                    <img class="align-self-stretch mx-auto" width="70px"
+                        :src="getAssetPath(`searcha-icon${$vuetify.theme.dark ? 'd' : ''}.svg`)" />
                     <p class="txt-999 fs-14 mb-1">
                         Hmmm, Looks like no symbols in your watchlist
                         <span>{{ !PreDefinedMW.is ? " — why not add some?" : "." }}</span>
@@ -443,11 +478,10 @@
                 class="overflow-y-auto overflow-x-hidden no-scroll">
                 <div v-if="mfwatchlistdata && mfwatchlistdata.length > 0">
                     <div v-for="(w, l) in mfwatchlistdata" :key="l" class="table-row pos-rlt">
-                        <v-list-item :disabled="w.watchlist"
-                            @click="uid ? getusedMutual('add', w) : router.push('/login')" class="px-0 crd-trn">
-                            <v-list-item-title class="maintext--text mb-0 table-hov-text fs-14">
+                        <div @click="uid ? getusedMutual('add', w) : router.push('/login')" class="px-0 crd-trn">
+                            <p class="maintext--text mb-0 table-hov-text fs-14">
                                 {{ w.name }}
-                            </v-list-item-title>
+                            </p>
                             <v-chip-group column class="mb-0">
                                 <v-chip color="secbg" size="x-small" variant="flat"
                                     style="border-radius: 4px; padding: 10px 8px !important">
@@ -462,17 +496,20 @@
                                     </span>
                                 </v-chip>
                             </v-chip-group>
-                            <div>
-                                <v-icon v-if="uid" class="float-right" :color="w.watchlist ? 'primary' : 'maintext'">
-                                    {{ w.watchlist ? "mdi-bookmark" : "mdi-bookmark-plus-outline" }}
+                            <div class="pos-abs" style="top: 8px; right: 8px; z-index: 10;">
+                                <v-icon v-if="uid" :color="w.watchlist ? 'primary' : 'maintext'" size="24"
+                                    @click.stop="uid ? toggleMutualFundWatchlist(w) : router.push('/login')"
+                                    class="cursor-pointer">
+                                    {{ w.watchlist ? "mdi-bookmark" : "mdi-bookmark-outline" }}
                                 </v-icon>
                             </div>
-                        </v-list-item>
+                        </div>
                         <v-divider></v-divider>
                     </div>
                 </div>
                 <v-card v-else-if="nodata" class="text-center py-16 px-8 elevation-0 crd-trn" width="100%">
-                    <img class="align-self-stretch mx-auto" width="70px" src="/src/assets/searcha-icon.svg" />
+                    <img class="align-self-stretch mx-auto" width="70px"
+                        :src="getAssetPath(`searcha-icon${$vuetify.theme.dark ? 'd' : ''}.svg`)" />
                     <p class="txt-999 fs-14 mb-1">No results found</p>
                 </v-card>
             </div>
@@ -484,19 +521,22 @@
             <v-card id="pdcard" color="cardbg" class="elevation-0">
                 <v-row no-gutters>
                     <v-col v-for="(s, l) in pdmwdata" :key="l" cols="6" class="pa-1 pdmwlists">
-                        <v-card class="elevation-0 crd-trn pos-rlt cursor-p"
-                            :color="watchlistis == s.key ? 'primary' : 'secbg'"
-                            style="border: 1px solid #EBEEF0;background-color: #F1F3F8 !important;border-radius: 5px !important;"
+                        <v-card class="elevation-0 crd-trn pos-rlt cursor-p" style="background-color: white !important;"
+                            :class="watchlistis == s.key ? 'pdmw-card-selected' : ''"
+                            :style="watchlistis == s.key
+                                ? 'border: none !important;background-color: #F1F3F8 !important;border-radius: 5px !important;'
+                                : 'border: none !important;background-color: #F1F3F8 !important;border-radius: 5px !important;'"
                             @click="uid ? setSSDtab(l, s.token, s.exch, s.tsym) : null">
                             <div
                                 style="display: flex;justify-content: space-between;align-content: center !important;padding: 0px !important;">
-                                <v-list-item-title class="maintext--text font-weight-medium fs-12 pa-1">
+                                <v-list-item-title class="maintext--text font-weight-medium fs-12 pa-1 pdmw-card-text">
                                     {{ s.tsym ? s.tsym : '' }}
                                 </v-list-item-title>
 
                                 <span class="text-right">
-                                    <span class="maintext--text font-weight-medium fs-12">
-                                        ₹<span :id="`p${s.token}ltp`">{{ s.ltp ? s.ltp : "0.00" }}</span>
+                                    <span class="maintext--text font-weight-medium fs-12 pdmw-card-text">
+                                        ₹<span :id="`p${s.token}ltp`" class="pdmw-card-text">{{ s.ltp ? s.ltp : "0.00"
+                                            }}</span>
                                     </span>
                                 </span>
                             </div>
@@ -504,7 +544,7 @@
                                 display: 'flex',
                                 justifyContent: 'flex-end',
                                 width: '100% !important',
-                                color: (s.ch && parseFloat(s.ch) > 0) ? '#35d05d' : (s.ch && parseFloat(s.ch) < 0) ? '#ff5252' : '#676767'
+                                color: (s.ch && parseFloat(s.ch) > 0) ? '#43A833' : (s.ch && parseFloat(s.ch) < 0) ? '#F23645' : '#676767'
                             }" :class="[
                                 'd-inline-flex font-weight-medium fs-12 px-2',
                                 (s.ch && parseFloat(s.ch) > 0) ? 'maingreen--text' : (s.ch && parseFloat(s.ch) < 0) ? 'mainred--text' : 'subtext--text'
@@ -535,7 +575,7 @@
                     :class="{ 'dragging': isDraggingExchangeFilter }">
                     <div class="d-inline-flex" style="white-space: nowrap;">
                         <div v-for="(e, x) in exchfilter" :key="x" class="pr-2">
-                            <v-chip @click.stop="stocksexch = x; searchFilter()" :class="[
+                            <v-chip @click.stop="handleFilterChange(x)" :class="[
                                 'font-weight-medium px-3 watchlisttab',
                                 stocksexch === x ? 'watchlisttab-active' : ''
                             ]" size="medium">
@@ -558,18 +598,25 @@
             <!-- Loading State -->
             <div v-if="isLoading" class="loading-state">
                 <v-progress-circular indeterminate color="primary" size="24"></v-progress-circular>
-                <span class="loading-text">Loading watchlist...</span>
+                <!-- <span class="loading-text">Loading watchlist...</span> -->
             </div>
 
             <!-- No Data State -->
             <!-- CRITICAL: Don't show "Add Stocks" button for MY:HOLDINGS - it's a predefined watchlist -->
-            <div v-else-if="watchlistdata === 'no data' && watchlistis !== 'MY:HOLDINGS'" class="no-data-state">
+            <div v-else-if="(watchlistdata === 'no data' || (Array.isArray(watchlistdata) && watchlistdata.length === 0)) && watchlistis !== 'MY:HOLDINGS'"
+                class="no-data-state">
                 <v-icon size="48" color="grey lighten-1">mdi-chart-line-variant</v-icon>
                 <p class="no-data-text">No stocks in this watchlist</p>
-                <button @click="addscript = true" class="add-stocks-btn">
-                    <v-icon left size="16">mdi-plus</v-icon>
-                    Add Stocks
-                </button>
+                <div class="d-flex align-center justify-center" style="gap: 12px; margin-top: 16px;">
+                    <v-btn @click="addscript = true" color="primary" class="text-none" size="small" variant="solo">
+                        <v-icon left size="16">mdi-plus</v-icon>
+                        Add Stocks
+                    </v-btn>
+                    <v-btn @click="selectWatchlist('NIFTY50:NSE')" color="primary" size="small" variant="text"
+                        class="text-none explore-stocks-btn">
+                        Explore stocks
+                    </v-btn>
+                </div>
             </div>
 
             <!-- Empty Holdings State for MY:HOLDINGS -->
@@ -590,27 +637,28 @@
                         <div :key="item.id || item.token || index" class="table-row pos-rlt pt-2 cursor-p"
                             style="border-bottom: 1px solid #EBEEF0;"
                             @click="uid ? setSSDtab('detail', item.token, item.exch, item.tsym || item.tsyms) : null">
-                            <p class="maintext--text mb-1 fs-13 px-1">
+                            <p class="maintext--text mb-1 px-1" style="font-size: 13px !important;">
                                 <span class="table-hov-text">{{ item.tsyms ? item.tsyms : item.tsym ? item.tsym : ''
-                                }}</span>
+                                    }}</span>
                                 <span class="subtext--text">{{ item.exp ? item.exp : '' }}</span>
                                 <span v-if="item.weekly"
                                     style="border-radius: 4px; padding: 0px 4px; background-color: #F1F3F8 !important"
                                     class="ml-1">
                                     <span class="font-weight-medium fs-10 lh-16">{{ item.weekly ? item.weekly : ''
-                                    }}</span>
+                                        }}</span>
                                 </span>
-                                <span class="float-right maintext--text fs-13">
+                                <span class="float-right maintext--text fs-14">
                                     ₹<span :id="`${item.token}ltp`">{{ item.ltp ? item.ltp : '0.00' }}</span>
                                 </span>
                             </p>
                             <p class="mb-0 px-1 lh-16">
                                 <span style="border-radius: 4px; padding: 0px 6px; background-color: #F1F3F8 !important"
                                     class="mr-1 table-hov-prd">
-                                    <span class="font-weight-medium fs-10 lh-16">{{ item.exch ? item.exch : '' }}</span>
+                                    <span class="font-weight-medium lh-16" style="font-size: 11px !important;">{{
+                                        item.exch ? item.exch : '' }}</span>
                                 </span>
                                 <span v-html="setHoldbadge(item.token)"></span>
-                                <span class="subtext--text fs-10">{{ item.ser ? item.ser : '' }}</span>
+                                <span class="subtext--text fs-11">{{ item.ser ? item.ser : '' }}</span>
                                 <span class="float-right fw-6 fs-12" :id="`${item.token}chpclr`"
                                     :class="item.ch > 0 ? 'maingreen--text' : item.ch < 0 ? 'mainred--text' : 'subtext--text'">
                                     <span :id="`${item.token}ch`">{{ item.ch ? item.ch : '0.00' }}</span>
@@ -623,7 +671,7 @@
                                 style="bottom: 8px; left: 50%; transform: translate(-50%, 0); z-index: 100;">
                                 <div v-if="item.instname != 'UNDIND' && item.instname != 'COM'"
                                     @click.stop="handleMenuDialog('order', item.token, item.exch, item.tsym, 'b')"
-                                    style="min-width: 24px; background-color: green!important;color: white !important; border-radius: 4px; cursor: pointer;"
+                                    style="min-width: 24px; background-color: #43A833!important;color: white !important; border-radius: 4px; cursor: pointer;"
                                     class="px-1 pt-1 font-weight-bold white--text elevation-0 fs-10 text-center mr-1">
                                     B
                                 </div>
@@ -662,7 +710,7 @@
                                                     <template v-slot:prepend>
                                                         <img v-if="typeof m.icon === 'number' && m.icon > 2"
                                                             width="20px" class="pl-1"
-                                                            :src="`/src/assets/orderbook/${m.icon}.svg`" />
+                                                            :src="getAssetPath(`orderbook/${m.icon}.svg`)" />
                                                         <v-icon v-else-if="typeof m.icon === 'number' && m.icon <= 2"
                                                             color="#506D84">{{ m.icon }}</v-icon>
                                                         <v-icon v-else color="#506D84">{{ m.icon }}</v-icon>
@@ -694,6 +742,20 @@
                         </div>
                     </template>
                 </draggable>
+
+                <!-- Add Symbol and Explore Stocks Buttons at bottom of stock list -->
+                <div v-if="!isPreDefinedWatchlist"
+                    class="add-symbol-section pa-3 d-flex align-center justify-space-between">
+                    <v-btn @click="addscript = true" color="primary" size="small" variant="text"
+                        class="text-none add-symbol-btn pa-0 ma-0">
+                        <v-icon left size="15" color="primary">mdi-plus-circle</v-icon>
+                        Add symbol
+                    </v-btn>
+                    <v-btn @click="selectWatchlist('NIFTY50:NSE')" color="primary" size="small" variant="text"
+                        class="text-none explore-stocks-btn pa-0 ma-0">
+                        Explore stocks
+                    </v-btn>
+                </div>
             </div>
         </div>
 
@@ -701,7 +763,7 @@
         <div v-if="!panel && addscript && !watchsecti" style="height: calc(100vh - 188px)"
             class="overflow-y-auto overflow-x-hidden no-scroll">
             <div v-if="items && items.length > 0">
-                <div v-for="(w, l) in items" :key="l" class="search-result-item pos-rlt">
+                <div v-for="(w, l) in items" :key="l" class="search-result-item table-row pos-rlt">
                     <v-row no-gutters class="align-center py-2 px-3 cursor-pointer"
                         @click="optsearch ? setSSDtab(l, w.token, w.exch, w.tsym) : addToWatchlist(w, l)">
                         <v-col cols="10" class="d-flex flex-column">
@@ -722,7 +784,8 @@
                                                             w.exch === 'BCD' ? '#F2E1C3CC' :
                                                                 w.exch === 'MCX' ? '#FFF0B3CC' :
                                                                     '#EBDDEFCC'" size="x-small" variant="flat"
-                                    class="mr-1" style="border-radius: 4px; padding: 2px 6px 0 6px; height: 18px;">
+                                    class="mr-1 table-hov-prd"
+                                    style="border-radius: 4px; padding: 2px 6px 0 6px; height: 18px;">
                                     <span class="font-weight-medium fs-10" style="color: black;">
                                         {{ w.exch ? w.exch : "" }}
                                     </span>
@@ -738,56 +801,72 @@
                             </v-icon>
                         </v-col>
                     </v-row>
-                    <!-- Hover actions (hidden by default, shown on hover) -->
-                    <div @click.stop class="pos-abs table-hov search-result-hover"
-                        style="bottom: 8px; left: 50%; transform: translate(-50%, 0)">
+                    <!-- Hover actions (hidden by default, shown on hover) - Same as static watchlist -->
+                    <div v-if="uid" @click.stop class="pos-abs table-hov search-result-hover-options"
+                        :key="`hover-search-${uid}-${PreDefinedMW.is}`"
+                        style="bottom: 8px; left: 50%; transform: translate(-50%, 0); z-index: 100;">
                         <div v-if="w.instname != 'UNDIND' && w.instname != 'COM'"
-                            @click="handleMenuDialog('order', w.token, w.exch, w.tsym, 'b')"
-                            style="min-width: 24px; background-color: green !important; color: white !important; border-radius: 4px"
-                            class="px-1 pt-1 font-weight-bold white--text elevation-0 mr-1 fs-10 text-center">
+                            @click.stop="handleMenuDialog('order', w.token, w.exch, w.tsym, 'b')"
+                            style="min-width: 24px; background-color: #43A833!important;color: white !important; border-radius: 4px; cursor: pointer;"
+                            class="px-1 pt-1 font-weight-bold white--text elevation-0 fs-10 text-center mr-1">
                             B
                         </div>
                         <div v-if="w.instname != 'UNDIND' && w.instname != 'COM'"
-                            @click="handleMenuDialog('order', w.token, w.exch, w.tsym, 's')"
-                            style="min-width: 24px; background-color: red !important; color: white !important; border-radius: 4px"
-                            class="px-1 pt-1 font-weight-bold white--text elevation-0 mr-1 fs-10 text-center">
+                            @click.stop="handleMenuDialog('order', w.token, w.exch, w.tsym, 's')"
+                            style="min-width: 24px; background-color: red!important;color: white !important; border-radius: 4px; cursor: pointer;"
+                            class="px-1 pt-1 font-weight-bold white--text elevation-0 fs-10 text-center mr-1">
                             S
                         </div>
-                        <v-btn @click="setSSDtab('chart', w.token, w.exch, w.tsym)" style="border: 1px solid #EBEEF0"
-                            min-width="20px" color="mainbg" class="px-0 font-weight-bold white--text elevation-0 mr-1"
-                            size="x-small">
+                        <v-btn @click.stop="setSSDtab('chart', w.token, w.exch, w.tsym)"
+                            style="border: 1px solid #EBEEF0" min-width="20px" color="mainbg"
+                            class="px-0 font-weight-bold white--text elevation-0 mr-1" size="x-small">
                             <v-icon size="18" color="maintext">mdi-chart-line-variant</v-icon>
                         </v-btn>
 
                         <v-menu close-on-click location="bottom" :offset="[0, 8]" class="table-menu">
                             <template v-slot:activator="{ props }">
-                                <v-btn v-bind="props" style="border: 1px solid #EBEEF0" min-width="20px" color="mainbg"
-                                    class="px-0 font-weight-bold white--text elevation-0 mr-1" size="x-small">
+                                <v-btn v-bind="props" @click.stop style="border: 1px solid #EBEEF0" min-width="20px"
+                                    color="mainbg" class="px-0 font-weight-bold white--text elevation-0 mr-1"
+                                    size="x-small">
                                     <v-icon size="18" color="maintext">mdi-dots-horizontal</v-icon>
                                 </v-btn>
                             </template>
                             <v-card class="table-menu-list">
-                                <div class="py-2">
+                                <v-list density="compact">
                                     <div v-for="(m, k) in menulist" :key="k">
-                                        <div v-if="m.type == 'depth' || m.type == 'Funda' ? w.instname != 'UNDIND' && w.instname != 'COM' : m.type == 'delete' ? false : true"
-                                            @click="setSSDtab(m.type, w.token, w.exch, w.tsym)"
-                                            class="d-flex align-center px-3 py-2 cursor-pointer menu-item">
-                                            <div class="mr-3 d-flex align-center">
+                                        <v-list-item
+                                            v-if="m.type == 'depth' || m.type == 'Funda' ? w.instname != 'UNDIND' && w.instname != 'COM' : m.type == 'delete' ? false : true"
+                                            @click="m.type != 'delete' ? setSSDtab(m.type, w.token, w.exch, w.tsym || w.tsyms) : null"
+                                            class="pl-3 pr-6">
+                                            <template v-slot:prepend>
                                                 <img v-if="typeof m.icon === 'number' && m.icon > 2" width="20px"
-                                                    :src="`/src/assets/orderbook/${m.icon}.svg`" />
+                                                    class="pl-1" :src="getAssetPath(`orderbook/${m.icon}.svg`)" />
                                                 <v-icon v-else-if="typeof m.icon === 'number' && m.icon <= 2"
-                                                    color="#506D84" size="20">{{ m.icon }}</v-icon>
-                                                <v-icon v-else color="#506D84" size="20">{{ m.icon }}</v-icon>
-                                            </div>
-                                            <p class="subline--text font-weight-medium fs-14 mb-0">
+                                                    color="#506D84">{{ m.icon }}</v-icon>
+                                                <v-icon v-else color="#506D84">{{ m.icon }}</v-icon>
+                                            </template>
+                                            <v-list-item-title class="subline--text font-weight-medium fs-14 pl-2">
                                                 {{ m.name }}
-                                            </p>
-                                        </div>
+                                            </v-list-item-title>
+                                        </v-list-item>
                                         <v-divider v-if="m.hr" class="mx-3"></v-divider>
                                     </div>
-                                </div>
+                                </v-list>
                             </v-card>
                         </v-menu>
+                    </div>
+                    <div v-else @click.stop class="pos-abs table-hov search-result-hover-options"
+                        style="bottom: 8px; left: 50%; transform: translate(-50%, 0); z-index: 100;">
+                        <div @click.stop="uid ? (w.instname != 'UNDIND' && w.instname != 'COM' ? handleMenuDialog('order', w.token, w.exch, w.tsym, 'b') : null) : router.push('/login')"
+                            style="min-width: 24px; background-color: #43A833; border-radius: 4px; cursor: pointer;"
+                            class="px-1 pt-1 font-weight-bold white--text elevation-0 mr-1 fs-10 text-center">
+                            B
+                        </div>
+                        <div @click.stop="uid ? (w.instname != 'UNDIND' && w.instname != 'COM' ? handleMenuDialog('order', w.token, w.exch, w.tsym, 's') : null) : router.push('/login')"
+                            style="min-width: 24px; background-color: #F23645; border-radius: 4px; cursor: pointer;"
+                            class="px-1 pt-1 font-weight-bold white--text elevation-0 fs-10 text-center">
+                            S
+                        </div>
                     </div>
                     <v-divider></v-divider>
                 </div>
@@ -798,40 +877,52 @@
                 </p>
                 <span class="body-2 mb-5 grey--text"> {{ nodata == null ? "Eg. for Nifty Type: Nif" :
                     "Search for another name."
-                }}</span>
+                    }}</span>
             </v-card>
         </div>
 
         <!-- Create Watchlist Dialog -->
-        <v-dialog v-model="createMWdialog" max-width="400">
-            <v-card>
-                <v-card-title>Create New Watchlist</v-card-title>
-                <v-card-text>
-                    <v-text-field v-model="newWatchlistName" label="Watchlist Name" outlined dense
-                        :rules="[v => !!v || 'Name is required']"></v-text-field>
-                </v-card-text>
+        <v-dialog v-model="createMWdialog" max-width="430">
+            <v-card style="border-radius: 18px !important;" density="com5act" class="px-5">
+                <div class="d-flex justify-space-between align-center my-0">
+                    <span class="font-weight-bold fs-20">Create New List</span>
+                    <v-btn icon="mdi-close" variant="text" size="large" color="black"
+                        @click="createMWdialog = false"></v-btn>
+                </div>
+                <div class="py-2">
+                    <p class="mb-2 fs-14">Enter the watchlist name</p>
+                    <v-text-field v-model="newWatchlistName" rounded="xl" placeholder="my first millions" variant="flat"
+                        density="compact" hide-details class="create-watchlist-input rounded-pill"
+                        @keyup.enter="newWatchlistName && createWatchlist()"></v-text-field>
+                </div>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn @click="createMWdialog = false" text>Cancel</v-btn>
-                    <v-btn @click="createWatchlist" color="primary" :disabled="!newWatchlistName">
-                        Create
+                    <v-btn @click="createWatchlist" rounded="xl" :disabled="!newWatchlistName"
+                        class="create-watchlist-save-btn mb-2">
+                        Save
                     </v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
 
         <!-- Delete Watchlist Dialog -->
-        <v-dialog v-model="deleteMWdialog" max-width="400">
-            <v-card>
-                <v-card-title>Delete Watchlist</v-card-title>
-                <v-card-text>
-                    Are you sure you want to delete "{{ watchlistToDelete }}" watchlist?
-                    This action cannot be undone.
-                </v-card-text>
+        <v-dialog v-model="deleteMWdialog" max-width="380">
+            <v-card style="border-radius: 18px !important;" density="compact" class="px-5 pt-4">
+                <div class="d-flex justify-space-between align-center my-0">
+                    <span class="font-weight-bold fs-20">Confirmation</span>
+                    <v-btn icon="mdi-close" variant="text" height="30px" width="30px" size="large" color="black"
+                        @click="deleteMWdialog = false"></v-btn>
+                </div>
+                <div class="py-2">
+                    <p class="fs-14 mb-0">
+                        Do you really want to delete <strong>{{ watchlistToDelete }}</strong> watchlist ?
+                    </p>
+                </div>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn @click="deleteMWdialog = false" variant="text">Cancel</v-btn>
-                    <v-btn @click="deleteWatchlist" color="error">Delete</v-btn>
+                    <v-btn @click="deleteWatchlist" rounded="xl" class="delete-watchlist-yes-btn mb-2">
+                        Yes
+                    </v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -902,7 +993,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAppStore } from '../../stores/appStore'
 import { useAuthStore } from '../../stores/authStore'
 import { useSessionStore } from '../../stores/sessionStore'
@@ -910,6 +1001,7 @@ import { getMwatchlistset, getGloabSearch, getMHoldingdata, getMHoldings, getPre
 import { mynturl, myntappurl, params } from '../../apiurl.js'
 import draggable from 'vuedraggable'
 import { dragscroll } from 'vue-dragscroll'
+import { getAssetPath } from '../../utils/assetHelper.js'
 
 // Register draggable component
 const components = {
@@ -917,6 +1009,7 @@ const components = {
 }
 
 const router = useRouter()
+const route = useRoute()
 const appStore = useAppStore()
 const authStore = useAuthStore()
 const sessionStore = useSessionStore()
@@ -931,6 +1024,7 @@ const mfisLoading = ref(true) // Mutual fund loading state
 const wsListenerAdded = ref(false)
 const stocksContainer = ref(null)
 const isHoveringWatchlist = ref(false)
+const mwref = ref(null) // Mutual fund search input ref
 let lastScrollTop = 0
 let cachedScrollInfo = null
 
@@ -947,7 +1041,27 @@ let exchangeFilterStartX = 0
 let exchangeFilterScrollLeft = 0
 
 // Watchlist data
-const watchlist = ref(['Millionaire'])
+// CRITICAL: Initialize watchlist from localStorage immediately for instant display
+// This ensures watchlists show immediately on mount before API calls complete
+const initializeWatchlistsFromStorage = () => {
+    const currentUid = authStore.uid || sessionStorage.getItem('userid')
+    if (currentUid) {
+        const stored = localStorage.getItem(`${currentUid}_watchlists`)
+        if (stored) {
+            try {
+                const data = JSON.parse(stored)
+                if (Array.isArray(data) && data.length > 0) {
+                    return data
+                }
+            } catch (error) {
+                console.error('Error parsing local watchlists on init:', error)
+            }
+        }
+    }
+    return []
+}
+
+const watchlist = ref(initializeWatchlistsFromStorage())
 const watchlistis = ref(null)
 const watchlistdata = ref([])
 // Cache last known prices to avoid flashing 0.00 when WS sends sparse/partial ticks
@@ -1182,8 +1296,8 @@ const getExchangeColor = (exch) => {
 const getPriceChangeColor = (change) => {
     if (!change) return ''
     const num = parseFloat(change)
-    if (num > 0) return 'success--text'
-    if (num < 0) return 'error--text'
+    if (num > 0) return 'maingreen--text'
+    if (num < 0) return 'mainred--text'
     return ''
 }
 
@@ -1364,6 +1478,10 @@ const addToWatchlist = async (item, index) => {
             item.watchlist = true
             model.value = item
             await getMWlistdata() // Refresh watchlist data
+
+            // If watchlist was created on server (was local, now synced), refresh watchlist list to sync
+            // This ensures the watchlist appears in the server list after first script is added
+            await getWatchlist()
         } else {
             appStore.showSnackbar(0, res.emsg || 'Failed to add to watchlist')
         }
@@ -1581,23 +1699,52 @@ const createWatchlist = async () => {
         return
     }
 
+    // Ensure session is ready before making API calls
+    if (!(await ensureSessionReady())) {
+        appStore.showSnackbar(0, 'Session not ready. Please login again.')
+        return
+    }
+
     try {
-        // For now, just add to local array - can be enhanced with API call later
+        // Clear any cached data for this watchlist name (in case it was previously deleted)
+        clearWatchlistCache(newWatchlistName.value)
+
+        // Watchlist creation endpoint doesn't exist on server (404 error)
+        // Watchlists are created automatically when you add the first script
+        // So we'll add it locally and it will sync to server when first script is added
         watchlist.value.unshift(newWatchlistName.value)
         watchlistis.value = newWatchlistName.value
+        watchlistdata.value = []
         saveWatchlistsToLocalStorage()
 
         appStore.showSnackbar(1, `${newWatchlistName.value} watchlist created`)
-
         createMWdialog.value = false
         newWatchlistName.value = ''
-
-        // Load data for new watchlist
-        await getMWlistdata()
     } catch (error) {
         console.error('Create watchlist error:', error)
         appStore.showSnackbar(0, 'Failed to create watchlist')
     }
+}
+
+// Handle adding script to a specific watchlist
+const addScriptToWatchlist = async (wl) => {
+    // Select the watchlist first
+    await selectWatchlist(wl)
+
+    // Close watchlist management section
+    watchsecti.value = false
+
+    // Open add script/search interface
+    addscript.value = true
+
+    // Focus on search input after a short delay
+    await nextTick()
+    setTimeout(() => {
+        const searchInput = document.querySelector('.search-input')
+        if (searchInput) {
+            searchInput.focus()
+        }
+    }, 100)
 }
 
 const confirmDeleteWatchlist = (wl) => {
@@ -1606,24 +1753,73 @@ const confirmDeleteWatchlist = (wl) => {
 }
 
 const deleteWatchlist = async () => {
+    // Ensure session is ready before making API calls
+    if (!(await ensureSessionReady())) {
+        appStore.showSnackbar(0, 'Session not ready. Please login again.')
+        deleteMWdialog.value = false
+        watchlistToDelete.value = ''
+        return
+    }
+
     try {
-        const index = watchlist.value.indexOf(watchlistToDelete.value)
+        const watchlistNameToDelete = watchlistToDelete.value
+
+        // Prevent deleting the last watchlist - ensure at least one watchlist always exists
+        if (watchlist.value.length <= 1) {
+            appStore.showSnackbar(0, 'Cannot delete the last watchlist. At least one watchlist must remain.')
+            deleteMWdialog.value = false
+            watchlistToDelete.value = ''
+            return
+        }
+
+        // First, delete all scripts from the watchlist if it has any
+        if (Array.isArray(watchlistdata.value) && watchlistdata.value.length > 0) {
+            let scripsToDelete = ""
+            for (let s = 0; s < watchlistdata.value.length; s++) {
+                scripsToDelete += `${s > 0 ? "#" : ""}${watchlistdata.value[s].exch}|${watchlistdata.value[s].token}`
+            }
+
+            try {
+                const deleteScriptsRes = await getMwatchlistset(
+                    `jData={"uid":"${uid.value}","wlname":"${watchlistNameToDelete}","scrips":"${scripsToDelete}"}&jKey=${mtoken.value}`,
+                    "DeleteMultiMWScrips"
+                )
+
+                if (deleteScriptsRes && deleteScriptsRes.stat !== "Ok") {
+                    console.warn('Failed to delete all scripts from watchlist:', deleteScriptsRes.emsg)
+                }
+            } catch (e) {
+                console.warn('Error deleting scripts from watchlist:', e)
+            }
+        }
+
+        // Delete watchlist endpoint doesn't exist on server (404 error)
+        // So we'll remove it locally and clear cache
+        // The server will handle cleanup when it syncs
+        clearWatchlistCache(watchlistNameToDelete)
+
+        const index = watchlist.value.indexOf(watchlistNameToDelete)
         if (index > -1) {
             watchlist.value.splice(index, 1)
             saveWatchlistsToLocalStorage()
-
-            // Switch to first available watchlist
-            if (watchlistis.value === watchlistToDelete.value) {
-                watchlistis.value = watchlist.value[0] || 'Millionaire'
-                if (watchlist.value.length === 0) {
-                    watchlist.value = ['Millionaire']
-                    watchlistis.value = 'Millionaire'
-                }
-                await getMWlistdata()
-            }
-
-            appStore.showSnackbar(1, `${watchlistToDelete.value} watchlist deleted`)
         }
+
+        // Switch to first available watchlist if current watchlist was deleted
+        if (watchlistis.value === watchlistNameToDelete) {
+            // Ensure we have at least one watchlist
+            if (watchlist.value.length > 0) {
+                watchlistis.value = watchlist.value[0]
+                await getMWlistdata()
+            } else {
+                // This shouldn't happen due to validation above, but as a safety measure
+                await getWatchlist()
+            }
+        }
+
+        // Refresh watchlist list from API to sync with server
+        await getWatchlist()
+
+        appStore.showSnackbar(0, `${watchlistNameToDelete} watchlist deleted`)
     } catch (error) {
         console.error('Delete watchlist error:', error)
         appStore.showSnackbar(0, 'Failed to delete watchlist')
@@ -1667,7 +1863,24 @@ const removeFromWatchlist = async (item, index) => {
                 }
             }
 
-            appStore.showSnackbar(1, `${item.tsym || item.tsyms} removed from watchlist`)
+            // CRITICAL: Update cache after deletion to persist changes
+            // Check if watchlist is now empty
+            if (Array.isArray(watchlistdata.value) && watchlistdata.value.length === 0) {
+                watchlistdata.value = "no data"
+                // Clear cache for empty watchlist
+                clearWatchlistCache(watchlistis.value)
+            } else if (Array.isArray(watchlistdata.value) && watchlistdata.value.length > 0) {
+                // Update cache with remaining items
+                saveWatchlistToCache(watchlistis.value, watchlistdata.value)
+            }
+
+            // Unsubscribe from WebSocket for removed item
+            const unsubEvent = new CustomEvent('web-scoketOn', {
+                detail: { flow: 'unsub', data: [{ token: item.token, exch: item.exch }], is: 'wl', page: 'watchlist' }
+            })
+            window.dispatchEvent(unsubEvent)
+
+            appStore.showSnackbar(0, `${item.tsym || item.tsyms} removed from watchlist`)
         } else {
             appStore.showSnackbar(0, res.emsg || 'Failed to remove from watchlist')
         }
@@ -1705,6 +1918,13 @@ const deleteScript = async (model, del) => {
 
         if (res.stat === "Ok") {
             if (aaddtoMW.value && aaddtoMW.value.delete) {
+                // Prevent deleting the last watchlist - ensure at least one watchlist always exists
+                if (watchlist.value.length <= 1) {
+                    appStore.showSnackbar(0, 'Cannot delete the last watchlist. At least one watchlist must remain.')
+                    aaddtoMW.value = {}
+                    return
+                }
+
                 // Delete watchlist from both API and localStorage
                 const watchlistIndex = watchlist.value.indexOf(aaddtoMW.value.wl)
                 if (watchlistIndex > -1) {
@@ -1713,16 +1933,18 @@ const deleteScript = async (model, del) => {
 
                     // Switch to first available watchlist if current watchlist was deleted
                     if (watchlistis.value === aaddtoMW.value.wl) {
-                        watchlistis.value = watchlist.value[0] || 'Millionaire'
-                        if (watchlist.value.length === 0) {
-                            watchlist.value = ['Millionaire']
-                            watchlistis.value = 'Millionaire'
+                        // Ensure at least one watchlist exists
+                        if (watchlist.value.length > 0) {
+                            watchlistis.value = watchlist.value[0]
+                            await getMWlistdata()
+                        } else {
+                            // This shouldn't happen due to validation above, but as safety
+                            await getWatchlist()
                         }
-                        await getMWlistdata()
                     }
                 }
 
-                appStore.showSnackbar(1, `${aaddtoMW.value.wl}, Watchlist deleted.`)
+                appStore.showSnackbar(0, `${aaddtoMW.value.wl}, Watchlist deleted.`)
                 aaddtoMW.value = {}
             } else {
                 // Delete symbol from watchlist
@@ -1737,8 +1959,27 @@ const deleteScript = async (model, del) => {
                         // Remove by index
                         watchlistdata.value.splice(del, 1)
                     }
+
+                    // CRITICAL: Update cache after deletion to persist changes
+                    // Check if watchlist is now empty
+                    if (watchlistdata.value.length === 0) {
+                        watchlistdata.value = "no data"
+                        // Clear cache for empty watchlist
+                        clearWatchlistCache(watchlistis.value)
+                    } else {
+                        // Update cache with remaining items
+                        saveWatchlistToCache(watchlistis.value, watchlistdata.value)
+                    }
+
+                    // Unsubscribe from WebSocket for removed item
+                    if (model && model.token) {
+                        const unsubEvent = new CustomEvent('web-scoketOn', {
+                            detail: { flow: 'unsub', data: [{ token: model.token, exch: model.exch }], is: 'wl', page: 'watchlist' }
+                        })
+                        window.dispatchEvent(unsubEvent)
+                    }
                 }
-                appStore.showSnackbar(1, `${model.tsym || model.tsyms || 'Script'}, script removed`)
+                appStore.showSnackbar(0, `${model.tsym || model.tsyms || 'Script'}, script removed`)
             }
             aaddtoMW.value = {}
         } else {
@@ -1850,7 +2091,7 @@ const getHoldingsBadge = (token) => {
         if (netqty > 0) {
             return `<span style="border-radius: 4px; padding: 0px 6px; background-color: #F1F3F8 !important"
                         class="mr-1 table-hov-prd d-inline-flex align-center">
-                        <img width="13px" src="/src/assets/suitcase.svg" />
+                        <img width="13px" :src="getAssetPath('suitcase.svg')" />
                         <span class="font-weight-medium fs-12 pl-1 pt-1 primary--text">${netqty}</span>
                     </span>`
         }
@@ -1915,6 +2156,25 @@ const loadWatchlistFromCache = (watchlistName) => {
     return null
 }
 
+const clearWatchlistCache = (watchlistName) => {
+    if (!watchlistName) return
+
+    try {
+        // Clear from memory cache
+        if (watchlistDataCache.value[watchlistName]) {
+            delete watchlistDataCache.value[watchlistName]
+        }
+
+        // Clear from localStorage
+        if (uid.value) {
+            const cacheKey = `${uid.value}_watchlist_cache_${watchlistName}`
+            localStorage.removeItem(cacheKey)
+        }
+    } catch (error) {
+        console.error('Error clearing watchlist cache:', error)
+    }
+}
+
 // Ensure each watchlist item has a unique identifier
 const ensureUniqueIds = () => {
     if (watchlistdata.value && Array.isArray(watchlistdata.value)) {
@@ -1974,6 +2234,22 @@ const getWatchlist = async () => {
         // This ensures fresh data is fetched on initial load
         console.log('[MWList] Calling MWList API...', { uid: uid.value, mtoken: mtoken.value ? 'present' : 'missing' })
 
+        // Load local watchlists first to preserve locally created ones
+        let localWatchlists = []
+        if (uid.value) {
+            const stored = localStorage.getItem(`${uid.value}_watchlists`)
+            if (stored) {
+                try {
+                    const data = JSON.parse(stored)
+                    if (Array.isArray(data) && data.length > 0) {
+                        localWatchlists = [...data]
+                    }
+                } catch (error) {
+                    console.error('Error parsing local watchlists:', error)
+                }
+            }
+        }
+
         const res = await getMwatchlistset(
             `jData={"uid":"${uid.value}","actid":"${uid.value}"}&jKey=${mtoken.value}`,
             "MWList"
@@ -1983,19 +2259,34 @@ const getWatchlist = async () => {
 
         if (res && ((res.values && res.values.length > 0) || res.stat === "Ok")) {
             // Process MWList response (like old app line 1580-1583)
-            const data = res.values ? res.values.sort((a, b) => a.localeCompare(b)) : []
+            const serverWatchlists = res.values ? res.values.sort((a, b) => a.localeCompare(b)) : []
 
-            if (data.length > 0) {
-                watchlist.value = data
+            if (serverWatchlists.length > 0) {
+                // Merge server watchlists with local watchlists
+                // Keep all server watchlists and add any local watchlists that aren't on server yet
+                const mergedWatchlists = [...serverWatchlists]
+                localWatchlists.forEach(localWl => {
+                    if (!mergedWatchlists.includes(localWl)) {
+                        mergedWatchlists.push(localWl)
+                    }
+                })
+
+                watchlist.value = mergedWatchlists
                 // CRITICAL: Set first watchlist as default (like old app line 1588)
-                watchlistis.value = data[0]
+                // If current watchlist exists, keep it; otherwise use first one
+                if (!watchlistis.value || !mergedWatchlists.includes(watchlistis.value)) {
+                    watchlistis.value = mergedWatchlists[0]
+                }
                 saveWatchlistsToLocalStorage()
-                console.log('[MWList] Watchlist loaded:', { watchlist: data, selected: watchlistis.value })
+                console.log('[MWList] Watchlist loaded:', { watchlist: mergedWatchlists, selected: watchlistis.value })
             } else {
-                // No values in response, try localStorage fallback
-                console.log('[MWList] No values in response, trying localStorage fallback...')
-                if (loadWatchlistsFromLocalStorage()) {
-                    // Use localStorage data
+                // No values in response, use localStorage data
+                console.log('[MWList] No values in response, using localStorage data...')
+                if (localWatchlists.length > 0) {
+                    watchlist.value = localWatchlists
+                    if (!watchlistis.value || !localWatchlists.includes(watchlistis.value)) {
+                        watchlistis.value = localWatchlists[0]
+                    }
                     const cached = loadWatchlistFromCache(watchlistis.value)
                     if (cached && Array.isArray(cached) && cached.length > 0) {
                         watchlistdata.value = cached
@@ -2003,17 +2294,22 @@ const getWatchlist = async () => {
                         watchlistdata.value = 'no data'
                     }
                 } else {
-                    // Initialize with default (like old app line 1592-1593)
-                    watchlist.value = ['Millionaire']
-                    watchlistis.value = 'Millionaire'
+                    // No local watchlists either - create a default one
+                    // This ensures at least one watchlist always exists
+                    const defaultWatchlist = 'Millionaire'
+                    watchlist.value = [defaultWatchlist]
+                    watchlistis.value = defaultWatchlist
                     saveWatchlistsToLocalStorage()
                 }
             }
         } else {
-            // API failed or empty response, try localStorage fallback
-            console.log('[MWList] API failed or empty, trying localStorage fallback...')
-            if (loadWatchlistsFromLocalStorage()) {
-                // Use localStorage data
+            // API failed or empty response, use localStorage data
+            console.log('[MWList] API failed or empty, using localStorage data...')
+            if (localWatchlists.length > 0) {
+                watchlist.value = localWatchlists
+                if (!watchlistis.value || !localWatchlists.includes(watchlistis.value)) {
+                    watchlistis.value = localWatchlists[0]
+                }
                 const cached = loadWatchlistFromCache(watchlistis.value)
                 if (cached && Array.isArray(cached) && cached.length > 0) {
                     watchlistdata.value = cached
@@ -2021,12 +2317,31 @@ const getWatchlist = async () => {
                     watchlistdata.value = 'no data'
                 }
             } else {
-                // Initialize with default (like old app line 1592-1593)
-                watchlist.value = ['Millionaire']
-                watchlistis.value = 'Millionaire'
+                // No local watchlists either - create a default one
+                // This ensures at least one watchlist always exists
+                const defaultWatchlist = 'Millionaire'
+                watchlist.value = [defaultWatchlist]
+                watchlistis.value = defaultWatchlist
                 saveWatchlistsToLocalStorage()
             }
         }
+
+        // Ensure at least one watchlist exists and first one is selected
+        if (watchlist.value.length === 0) {
+            const defaultWatchlist = 'Millionaire'
+            watchlist.value = [defaultWatchlist]
+            watchlistis.value = defaultWatchlist
+            saveWatchlistsToLocalStorage()
+            console.log('[MWList] Created default watchlist:', defaultWatchlist)
+        } else if (!watchlistis.value || !watchlist.value.includes(watchlistis.value)) {
+            // Set focus on first watchlist if none selected or selected one doesn't exist
+            watchlistis.value = watchlist.value[0]
+            console.log('[MWList] Set first watchlist as selected:', watchlistis.value)
+        }
+
+        // CRITICAL: Force Vue 3 reactivity update by reassigning the array
+        // This ensures the template updates immediately when watchlist.value changes
+        watchlist.value = [...watchlist.value]
 
         // Load data for selected watchlist (like old app line 1589)
         await getMWlistdata()
@@ -2041,14 +2356,20 @@ const getWatchlist = async () => {
                 watchlistdata.value = 'no data'
             }
         } else {
-            // Fallback to default (like old app line 1592-1593)
-            watchlist.value = ['Millionaire']
-            watchlistis.value = 'Millionaire'
+            // Fallback to default - ensure at least one watchlist exists
+            const defaultWatchlist = 'Millionaire'
+            watchlist.value = [defaultWatchlist]
+            watchlistis.value = defaultWatchlist
             saveWatchlistsToLocalStorage()
             await getMWlistdata()
         }
     } finally {
         isLoading.value = false
+        // CRITICAL: Ensure watchlist array is reactive after all operations
+        // This ensures tabs update even if API was slow or failed
+        if (watchlist.value.length > 0) {
+            watchlist.value = [...watchlist.value]
+        }
     }
 }
 
@@ -2145,6 +2466,8 @@ const getMWlistdata = async () => {
             // Ensure we have data before continuing
             if (watchlistdata.value.length === 0) {
                 watchlistdata.value = "no data"
+                // Clear cache for empty watchlist
+                clearWatchlistCache(watchlistis.value)
                 isLoading.value = false
                 return
             }
@@ -2178,6 +2501,8 @@ const getMWlistdata = async () => {
             // If API fails, keep cached data if available
             if (!cached || !Array.isArray(cached) || cached.length === 0) {
                 watchlistdata.value = "no data";
+                // Clear cache for empty watchlist
+                clearWatchlistCache(watchlistis.value)
             }
             // eventBus.$emit('snack-event', 2, res.emsg ? res.emsg : 'no data');
         }
@@ -2187,6 +2512,8 @@ const getMWlistdata = async () => {
         const cached = loadWatchlistFromCache(watchlistis.value)
         if (!cached || !Array.isArray(cached) || cached.length === 0) {
             watchlistdata.value = 'no data'
+            // Clear cache for empty watchlist
+            clearWatchlistCache(watchlistis.value)
         }
     } finally {
         isLoading.value = false
@@ -2521,27 +2848,63 @@ const handleWheelScroll = (event) => {
     }
 }
 
+// Handle filter change - re-fetch from API if search exists, otherwise filter existing results
+const handleFilterChange = async (index) => {
+    // Update the filter index
+    stocksexch.value = index
+
+    // If search query exists and has at least 2 characters, re-fetch from API with new category
+    if (search.value && search.value.length >= 2) {
+        // Re-fetch from API with the new category filter
+        await performSearch()
+    } else {
+        // No search query - just filter existing results
+        searchFilter()
+    }
+}
+
 // Exchange filter for stocks
 const searchFilter = () => {
     items.value = []
+
+    // If no items available, return empty
+    if (!allitems.value || allitems.value.length === 0) {
+        items.value = []
+        nodata.value = "noooo"
+        isLoading.value = false
+        return
+    }
+
     if (stocksexch.value == 0) {
+        // All - show all items
         items.value = allitems.value
-    } else if (stocksexch.value >= 1 && stocksexch.value <= 4) {
-        for (let s = 0; s < allitems.value.length; s++) {
-            if (stocksexch.value == 1 && (allitems.value[s].exch == "NSE" || allitems.value[s].exch == "BSE")) {
-                items.value.push(allitems.value[s])
-            } else if (stocksexch.value == 2 && (allitems.value[s].exch == "NFO" || allitems.value[s].exch == "BFO")) {
-                items.value.push(allitems.value[s])
-            } else if (stocksexch.value == 3 && allitems.value[s].exch == "CDS") {
-                items.value.push(allitems.value[s])
-            } else if (stocksexch.value == 4 && allitems.value[s].exch == "MCX") {
-                items.value.push(allitems.value[s])
-            }
-        }
+    } else if (stocksexch.value == 1) {
+        // Equity - filter NSE and BSE
+        items.value = allitems.value.filter(item => item.exch == "NSE" || item.exch == "BSE")
+    } else if (stocksexch.value == 2) {
+        // F&O - filter NFO and BFO
+        items.value = allitems.value.filter(item => item.exch == "NFO" || item.exch == "BFO")
+    } else if (stocksexch.value == 3) {
+        // Currency - filter CDS
+        items.value = allitems.value.filter(item => item.exch == "CDS")
+    } else if (stocksexch.value == 4) {
+        // Commodities - filter MCX
+        items.value = allitems.value.filter(item => item.exch == "MCX")
+    } else if (stocksexch.value == 5) {
+        // Indices - show all items (indices are already filtered by category in API)
+        items.value = allitems.value
     } else {
         items.value = []
         nodata.value = "noooo"
     }
+
+    // Update nodata state
+    if (items.value.length === 0) {
+        nodata.value = "noooo"
+    } else {
+        nodata.value = null
+    }
+
     isLoading.value = false
 }
 
@@ -2635,9 +2998,12 @@ const setmfserach = async (setext) => {
 // Focus mutual fund search input
 const putMWfocus = () => {
     setTimeout(() => {
-        const mwref = document.querySelector('.mf-search-input')
-        if (mwref) {
-            const input = mwref.querySelector('input')
+        // Try to use ref first
+        if (mwref.value) {
+            mwref.value.focus()
+        } else {
+            // Fallback to query selector
+            const input = document.querySelector('.mutual-fund-section .search-input')
             if (input) input.focus()
         }
     }, 10)
@@ -2779,7 +3145,23 @@ const getusedMutual = async (mode, item, del) => {
         } else if (res.msg == "script added" && res.stat == "Ok") {
             showdata = res.scripts
         } else if (res.msg == "script deleted" && res.stat == "Ok") {
-            mfuseritem.value.splice(del, 1)
+            if (del >= 0) {
+                mfuseritem.value.splice(del, 1)
+            } else if (item && item.ISIN) {
+                // Find and remove by ISIN if index is not provided
+                const idx = mfuseritem.value.findIndex(mf => mf.ISIN === item.ISIN)
+                if (idx >= 0) {
+                    mfuseritem.value.splice(idx, 1)
+                }
+            }
+            // Update watchlist status in search results
+            if (item && item.ISIN) {
+                const watchlistSet = new Set(mfuseritem.value.map(mf => mf.ISIN))
+                mfwatchlistdata.value = mfwatchlistdata.value.map(mfItem => ({
+                    ...mfItem,
+                    watchlist: watchlistSet.has(mfItem.ISIN)
+                }))
+            }
         } else if (res.scripts != "No data" && mode) {
             appStore.showSnackbar(0, res.msg ? res.msg : res)
         }
@@ -2813,6 +3195,32 @@ const getusedMutual = async (mode, item, del) => {
 const deleteuserMutual = (item) => {
     let del = mfuseritem.value.indexOf(item)
     getusedMutual("delete", item, del)
+}
+
+// Toggle mutual fund watchlist - similar to addToWatchlist for stocks
+const toggleMutualFundWatchlist = async (item) => {
+    // Ensure session is ready before making API calls
+    if (!(await ensureSessionReady())) {
+        return
+    }
+
+    // Check if item is already in watchlist - allow deselection
+    if (item.watchlist) {
+        // Remove from watchlist (deselection)
+        // Find index in mfuseritem if it exists, otherwise use -1
+        let del = -1
+        if (Array.isArray(mfuseritem.value)) {
+            const index = mfuseritem.value.findIndex(mf => mf.ISIN === item.ISIN)
+            if (index >= 0) {
+                del = index
+            }
+        }
+        await getusedMutual("delete", item, del)
+        return
+    }
+
+    // Item is not in watchlist - add it
+    await getusedMutual("add", item)
 }
 
 const setSinglepage = (item) => {
@@ -3422,6 +3830,69 @@ const handleExchangeFilterMouseUp = () => {
     handleExchangeFilterMouseUpGlobal()
 }
 
+// Toggle watchlist management section - ensure watchlist is loaded before showing
+const toggleWatchlistSection = async () => {
+    // Close add script if open
+    addscript.value = false
+
+    // If opening the section, ensure watchlist is loaded
+    if (!watchsecti.value) {
+        // Ensure watchlist is always an array
+        if (!Array.isArray(watchlist.value)) {
+            watchlist.value = []
+        }
+
+        // Check if watchlist is empty or not loaded
+        if (watchlist.value.length === 0) {
+            // Try to load from localStorage first (fast)
+            const currentUid = authStore.uid || sessionStorage.getItem('userid')
+            if (currentUid) {
+                const stored = localStorage.getItem(`${currentUid}_watchlists`)
+                if (stored) {
+                    try {
+                        const data = JSON.parse(stored)
+                        if (Array.isArray(data) && data.length > 0) {
+                            watchlist.value = data
+                            // Set first watchlist as selected if none is selected
+                            if (!watchlistis.value || !data.includes(watchlistis.value)) {
+                                watchlistis.value = data[0]
+                            }
+                            // Force reactivity update
+                            watchlist.value = [...watchlist.value]
+                            console.log('[Toggle] Loaded watchlists from localStorage:', data)
+                        }
+                    } catch (error) {
+                        console.error('Error loading watchlists from localStorage on toggle:', error)
+                    }
+                }
+            }
+
+            // If still empty and user is logged in, try to load from API
+            if (watchlist.value.length === 0 && uid.value && mtoken.value) {
+                try {
+                    // Set loading state
+                    isLoading.value = true
+                    await getWatchlist()
+                    // Force reactivity update after API call
+                    if (watchlist.value && watchlist.value.length > 0) {
+                        watchlist.value = [...watchlist.value]
+                    }
+                    isLoading.value = false
+                } catch (error) {
+                    console.error('Error loading watchlists from API on toggle:', error)
+                    isLoading.value = false
+                }
+            }
+        } else {
+            // Watchlist exists, just ensure reactivity
+            watchlist.value = [...watchlist.value]
+        }
+    }
+
+    // Toggle the section
+    watchsecti.value = !watchsecti.value
+}
+
 // Utility Methods
 const setEscape = () => {
     if (watchsecti.value) {
@@ -3452,6 +3923,7 @@ const setSSDtab = (type, token, exch, tsym) => {
     console.log('setSSDtab called:', { type, token, exch, tsym })
 
     if (type === "alert") {
+        // StockOrderWindow.vue will automatically close GTC dialog when it receives alert event
         const event = new CustomEvent('menudialog', {
             detail: { type: "alert", token, exch, tsym }
         })
@@ -3676,6 +4148,28 @@ onMounted(async () => {
     // Check pathname to set panel state (like Vue 2 created hook)
     checkPathForPanel()
 
+    // CRITICAL: Load watchlists from localStorage IMMEDIATELY (synchronously) before any API calls
+    // This ensures watchlists are visible immediately on mount, even before API completes
+    const currentUid = authStore.uid || sessionStorage.getItem('userid')
+    if (currentUid) {
+        const storedWatchlists = localStorage.getItem(`${currentUid}_watchlists`)
+        if (storedWatchlists) {
+            try {
+                const parsed = JSON.parse(storedWatchlists)
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    watchlist.value = parsed
+                    // Set first watchlist as selected if none is selected
+                    if (!watchlistis.value || !parsed.includes(watchlistis.value)) {
+                        watchlistis.value = parsed[0]
+                    }
+                    console.log('[Mount] Loaded watchlists from localStorage immediately:', parsed)
+                }
+            } catch (error) {
+                console.error('Error loading watchlists from localStorage on mount:', error)
+            }
+        }
+    }
+
     // Ensure listener is attached before any subscriptions
     if (!wsListenerAdded.value) {
         window.addEventListener('web-scoketConn', handleWebSocketUpdate)
@@ -3712,8 +4206,19 @@ onMounted(async () => {
     if (sessionStatus === "dmFsaWR1c2Vy" && uid.value && mtoken.value) {
         // User is logged in - load user watchlists (like Vue 2 line 932)
         await getWatchlist()
-        // CRITICAL: getWatchlist() will set watchlistis.value to first watchlist (data[0])
-        // So after getWatchlist(), watchlistis.value will already be set to first user watchlist
+
+        // CRITICAL: Force reactivity update after getWatchlist() completes
+        // This ensures watchlist tabs update immediately after API call
+        if (watchlist.value.length > 0) {
+            watchlist.value = [...watchlist.value]
+        }
+
+        // CRITICAL: getWatchlist() will set watchlistis.value to first watchlist
+        // Ensure first watchlist is selected and focused after loading
+        if (watchlist.value.length > 0 && (!watchlistis.value || !watchlist.value.includes(watchlistis.value))) {
+            watchlistis.value = watchlist.value[0]
+            await getMWlistdata()
+        }
 
         // CRITICAL: Load user mutual fund watchlist on mount if logged in (like Vue 2 line 933)
         await getusedMutual()
@@ -3872,8 +4377,36 @@ watch([uid, mtoken], async ([newUid, newMtok]) => {
         await nextTick()
         console.log('Phase 2: Forcing re-render of watchlist items after login')
 
+        // CRITICAL: Load watchlists from localStorage IMMEDIATELY (synchronously) before API call
+        // This ensures watchlists show immediately after login, even before API completes
+        if (newUid) {
+            const storedWatchlists = localStorage.getItem(`${newUid}_watchlists`)
+            if (storedWatchlists) {
+                try {
+                    const parsed = JSON.parse(storedWatchlists)
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        watchlist.value = parsed
+                        // Set first watchlist as selected if none is selected
+                        if (!watchlistis.value || !parsed.includes(watchlistis.value)) {
+                            watchlistis.value = parsed[0]
+                        }
+                        console.log('[Watch] Loaded watchlists from localStorage immediately after login:', parsed)
+                    }
+                } catch (error) {
+                    console.error('Error loading watchlists from localStorage after login:', error)
+                }
+            }
+        }
+
         // CRITICAL: Load user watchlists immediately after login (like Vue 2 line 932)
+        // This will refresh from API and merge with local data
         await getWatchlist()
+
+        // CRITICAL: Force reactivity update after getWatchlist() completes in watch
+        // This ensures watchlist tabs update immediately after login
+        if (watchlist.value.length > 0) {
+            watchlist.value = [...watchlist.value]
+        }
 
         // CRITICAL: Load user mutual fund watchlist immediately after login (like Vue 2 line 933)
         await getusedMutual()
@@ -3985,6 +4518,24 @@ watch([uid, mtoken], async ([newUid, newMtok]) => {
         mfisLoading.value = false
     }
 })
+
+// Watch for route changes to show/hide mutual funds panel
+watch(
+    () => route.path,
+    (newPath) => {
+        // Check if route includes mutualfund
+        if (newPath.includes('mutualfund')) {
+            panel.value = true
+            // Load user's mutual fund watchlist if logged in
+            if (uid.value) {
+                getusedMutual()
+            }
+        } else {
+            panel.value = false
+        }
+    },
+    { immediate: true }
+)
 </script>
 
 <script>
@@ -4004,7 +4555,7 @@ export default {
     border-radius: 15px;
     font-size: 13px;
     font-weight: 600;
-    padding: 4px 12px;
+    padding: 7px 12px;
     background-color: #F1F3F8;
 }
 
@@ -4110,6 +4661,45 @@ export default {
     opacity: 1;
 }
 
+.add-script-btn {
+    opacity: 0.8;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.add-script-btn:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.add-script-btn:disabled {
+    opacity: 0.4;
+}
+
+.add-symbol-section {
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    background-color: #ffffff;
+}
+
+.add-symbol-btn {
+    font-weight: 500;
+    font-size: 12px !important;
+    letter-spacing: 0.01em;
+}
+
+.add-symbol-btn:hover {
+    background-color: rgba(25, 118, 210, 0.08);
+}
+
+.explore-stocks-btn {
+    font-weight: 500;
+    font-size: 12px !important;
+    letter-spacing: 0.01em;
+}
+
+.explore-stocks-btn:hover {
+    background-color: rgba(25, 118, 210, 0.08);
+}
+
 /* Dark theme adjustments for watchlist management */
 .theme--dark .watchlist-manage-item {
     border-bottom-color: rgba(255, 255, 255, 0.08);
@@ -4131,6 +4721,11 @@ export default {
 .theme--dark .indicator-square.active {
     background-color: #2196F3;
     border-color: #2196F3;
+}
+
+.theme--dark .add-symbol-section {
+    border-top-color: rgba(255, 255, 255, 0.08);
+    background-color: transparent;
 }
 
 .watchlist-container {
@@ -4691,7 +5286,7 @@ div.table-row:hover .watchlist-hover-options button .mdi-close {
 
 .change-value.positive,
 .change-percent.positive {
-    color: #35d05d;
+    color: #43A833;
 }
 
 .change-value.negative,
@@ -4758,7 +5353,7 @@ div.table-row:hover .watchlist-hover-options button .mdi-close {
 }
 
 .search-result-item:hover {
-    background-color: #CFD9F2;
+    background-color: #CFD9F2 !important;
 }
 
 .search-result-item:last-child {
@@ -4769,10 +5364,82 @@ div.table-row:hover .watchlist-hover-options button .mdi-close {
     display: none !important;
 }
 
-.search-result-item:hover .search-result-hover {
+.search-result-hover-options {
+    display: none !important;
+    align-items: center;
+    z-index: 100 !important;
+    pointer-events: auto !important;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+/* Show hover options when search-result-item is hovered - Same as table-row */
+.search-result-item:hover .search-result-hover,
+.search-result-item:hover .search-result-hover-options,
+.search-result-item .search-result-hover:hover,
+.search-result-item .search-result-hover-options:hover {
     display: inline-flex !important;
     align-items: center !important;
     gap: 4px !important;
+    z-index: 100 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Keep hover options visible when hovering over them */
+.search-result-hover:hover,
+.search-result-hover-options:hover {
+    display: inline-flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Search result item hover styles - Same as table-row */
+.search-result-item:hover {
+    background-color: #CFD9F2 !important;
+}
+
+.search-result-item:hover .table-hov-text {
+    color: #0037B7 !important;
+}
+
+.search-result-item:hover .table-hov-prd {
+    background-color: #fff !important;
+}
+
+/* Ensure hover options are visible on hover - override any conflicting styles */
+.search-result-item:hover .pos-abs.search-result-hover,
+.search-result-item:hover .pos-abs.search-result-hover-options,
+.search-result-item:hover .search-result-hover.search-result-hover-options {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+/* Additional specificity for search result hover options */
+div.search-result-item:hover div.search-result-hover,
+div.search-result-item:hover div.search-result-hover-options,
+div.search-result-item:hover div.pos-abs.search-result-hover,
+div.search-result-item:hover div.pos-abs.search-result-hover-options {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+/* Ensure all buttons inside search result hover options are visible */
+div.search-result-item:hover div.search-result-hover-options v-btn,
+div.search-result-item:hover div.search-result-hover-options button,
+div.search-result-item:hover div.search-result-hover-options .v-btn,
+div.search-result-item:hover .search-result-hover-options v-btn,
+div.search-result-item:hover .search-result-hover-options button,
+div.search-result-item:hover .search-result-hover-options .v-btn {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
 }
 
 .result-info {
@@ -4857,5 +5524,101 @@ div.table-row:hover .watchlist-hover-options button .mdi-close {
 
 .pdmwlists:hover .pdmwlist {
     display: block;
+}
+
+/* Predefined watchlist cards - ensure text is always black */
+.pdmw-card-selected .maintext--text,
+.pdmw-card-selected .v-list-item-title,
+.pdmw-card-selected span.maintext--text,
+.pdmw-card-selected .v-list-item-title span {
+    color: black !important;
+}
+
+/* Ensure all text in predefined cards is black, even when selected */
+.pdmwlists .v-card .maintext--text,
+.pdmwlists .v-card .v-list-item-title,
+.pdmwlists .v-card span.maintext--text,
+.pdmwlists .v-card .v-list-item-title span {
+    color: #000000 !important;
+}
+
+/* Override Vuetify primary color text for selected cards - but preserve change colors */
+.pdmw-card-selected .maintext--text,
+.pdmw-card-selected .v-list-item-title,
+.pdmw-card-selected span.maintext--text:not(.maingreen--text):not(.mainred--text):not(.subtext--text) {
+    color: #000000 !important;
+}
+
+/* Ensure price text is always black */
+.pdmwlists .v-card span[id*="ltp"],
+.pdmw-card-selected span[id*="ltp"] {
+    color: #000000 !important;
+}
+
+/* Ensure all predefined card text is black */
+.pdmw-card-text {
+    color: #000000 !important;
+}
+
+.pdmwlists .v-card .pdmw-card-text,
+.pdmw-card-selected .pdmw-card-text {
+    color: #000000 !important;
+}
+
+/* Dark theme - ensure text is visible */
+.theme--dark .pdmw-card-text,
+.theme--dark .pdmwlists .v-card .pdmw-card-text,
+.theme--dark .pdmw-card-selected .pdmw-card-text {
+    color: #FFFFFF !important;
+}
+
+.theme--dark .pdmwlists .v-card .maintext--text,
+.theme--dark .pdmw-card-selected .maintext--text,
+.theme--dark .pdmwlists .v-card .v-list-item-title,
+.theme--dark .pdmw-card-selected .v-list-item-title {
+    color: #FFFFFF !important;
+}
+
+.theme--dark .pdmwlists .v-card span[id*="ltp"],
+.theme--dark .pdmw-card-selected span[id*="ltp"] {
+    color: #FFFFFF !important;
+}
+
+:deep(.v-text-field input) {
+    font-size: 15px !important;
+}
+
+/* Create Watchlist Dialog Styles */
+.create-watchlist-input :deep(.v-field__input) {
+    background-color: #F1F3F8 !important;
+    min-height: 48px !important;
+    border-radius: 50% !important;
+}
+
+.create-watchlist-input :deep(.v-field) {
+    background-color: #F5F5F5 !important;
+}
+
+.create-watchlist-save-btn {
+    min-width: 80px !important;
+    text-transform: none !important;
+}
+
+.create-watchlist-save-btn:disabled {
+    background-color: #E4E4E4 !important;
+    color: #9E9E9E !important;
+}
+
+.create-watchlist-save-btn:not(:disabled) {
+    background-color: black !important;
+    color: #FFFFFF !important;
+}
+
+/* Delete Watchlist Dialog Styles */
+.delete-watchlist-yes-btn {
+    min-width: 80px !important;
+    text-transform: none !important;
+    background-color: black !important;
+    color: #FFFFFF !important;
 }
 </style>

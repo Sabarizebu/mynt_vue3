@@ -72,9 +72,6 @@ import ViewsLayout from '../views/ViewsLayout.vue'
 import NotFoundPage from '../views/NotFoundPage.vue'
 import StartCheck from '../views/StartCheck.vue'
 
-// Trading page
-import TradingPage from '../views/Trading/TradingPage.vue'
-
 // Use Firebase Analytics instance from firebase.js
 
 const routes = [
@@ -97,11 +94,6 @@ const routes = [
     path: '/lwc',
     name: 'lwc',
     component: LightweightChart
-  },
-  {
-    path: '/trading',
-    name: 'trading',
-    component: TradingPage
   },
   {
     path: '/',

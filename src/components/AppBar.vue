@@ -1,16 +1,13 @@
 <template>
     <div>
         <v-app-bar color="cardbg" width="100%" permanent class="cust-appbar">
-            <img @click="toHome()" :src="`/src/assets/${$vuetify.theme.dark ? 'logod' : 'logo'}.svg`" width="80px"
-                alt="zebulogo" class="mr-4" />
+            <img @click="toHome()" :src="$vuetify.theme.dark ? logod : logo" width="80px" alt="zebulogo" class="mr-4" />
 
             <v-btn :to="t.path != '/optionz' ? t.path : ''" @click="appMainPage(t)" v-for="(t, index) in dashitems"
-                :key="index" text plain exact
+                :key="index" text variant="plain" exact
                 :class="['menu-btn', 'text-capitalize', 'd-none', 'd-sm-flex', { 'menu-btn-active': isRouteActive(t.path) }]"
                 :active="isRouteActive(t.path)">
-                <!-- <v-badge color="primary" :content="t.type" :value="t.type ? true : false"> -->
                 <span active-class="font-weight-bold" class="menu-text-sty">{{ t.txt }}</span>
-                <!-- </v-badge> -->
             </v-btn>
             <v-spacer></v-spacer>
 
@@ -54,19 +51,19 @@
                 </v-card>
             </v-menu>
 
-            <v-btn v-if="authStore.useris()" to="/positions" text plain exact
+            <v-btn v-if="authStore.useris()" to="/positions" text variant="plain" exact
                 :class="['menu-btn', 'text-capitalize', 'd-none', 'd-md-flex', { 'menu-btn-active': isPositionsActive }]"
                 :active="isPositionsActive">
                 <span class="menu-text-sty">Positions</span></v-btn>
-            <v-btn v-if="authStore.useris()" to="/holdings" text plain exact
+            <v-btn v-if="authStore.useris()" to="/holdings" text variant="plain" exact
                 :class="['menu-btn', 'text-capitalize', 'd-none', 'd-md-flex', { 'menu-btn-active': isHoldingsActive }]"
                 :active="isHoldingsActive">
                 <span class="menu-text-sty">Holdings</span></v-btn>
-            <v-btn v-if="authStore.useris()" to="/orders" text plain exact
+            <v-btn v-if="authStore.useris()" to="/orders" text variant="plain" exact
                 :class="['menu-btn', 'text-capitalize', 'd-none', 'd-md-flex', { 'menu-btn-active': isOrdersActive }]"
                 :active="isOrdersActive">
                 <span class="menu-text-sty">Orders</span></v-btn>
-            <v-btn v-if="authStore.useris()" to="/funds" text plain exact
+            <v-btn v-if="authStore.useris()" to="/funds" text variant="plain" exact
                 :class="['menu-btn', 'text-capitalize', 'd-none', 'd-md-flex', { 'menu-btn-active': isFundsActive }]"
                 :active="isFundsActive">
                 <span class="menu-text-sty">Fund</span></v-btn>
@@ -77,7 +74,7 @@
                         <v-btn v-if="authStore.useris()" to="/notification" icon small exact
                             :class="['ml-1', 'mr-2', 'd-none', 'd-md-flex', { 'notification-active': isNotificationActive }]"
                             :active="isNotificationActive">
-                            <img :src="`/src/assets/${$vuetify.theme.dark ? 'notificationd' : 'notification'}.svg`" />
+                            <img :src="$vuetify.theme.dark ? notificationd : notification" />
                         </v-btn>
                     </div>
                 </template>
@@ -140,7 +137,7 @@
                             target="_blank">
                             <v-list-item-icon class="mr-3 text-center">
                                 <img width="24px" class="pl-1"
-                                    :src="`/src/assets/usermenu/${$vuetify.theme.dark ? '1d' : '1'}.svg`" />
+                                    :src="getAssetPath(`usermenu/${$vuetify.theme.dark ? '1d' : '1'}.svg`)" />
                             </v-list-item-icon>
                             <v-list-item-content>
                                 <v-list-item-title class="font-weight-medium fs-14 mb-0">My Account</v-list-item-title>
@@ -155,7 +152,7 @@
                             target="_blank">
                             <v-list-item-icon class="mr-3 text-center">
                                 <img width="22px" class="pl-1"
-                                    :src="`/src/assets/usermenu/${$vuetify.theme.dark ? 'reportsd' : 'reports'}.svg`" />
+                                    :src="getAssetPath(`usermenu/${$vuetify.theme.dark ? 'reportsd' : 'reports'}.svg`)" />
                             </v-list-item-icon>
                             <v-list-item-content>
                                 <v-list-item-title class="font-weight-medium fs-14 mb-0">Reports</v-list-item-title>
@@ -169,7 +166,7 @@
                             target="_blank">
                             <v-list-item-icon class="mr-3 text-center">
                                 <img width="22px" class="pl-1"
-                                    :src="`/src/assets/usermenu/${$vuetify.theme.dark ? 'coad' : 'coa'}.svg`" />
+                                    :src="getAssetPath(`usermenu/${$vuetify.theme.dark ? 'coad' : 'coa'}.svg`)" />
                             </v-list-item-icon>
                             <v-list-item-content>
                                 <v-list-item-title class="font-weight-medium fs-14 mb-0">Corporation
@@ -183,7 +180,7 @@
                             target="_blank">
                             <v-list-item-icon class="mr-3 text-center">
                                 <img width="24px" class="pl-1"
-                                    :src="`/src/assets/usermenu/${$vuetify.theme.dark ? 'pledged' : 'pledge'}.svg`" />
+                                    :src="getAssetPath(`usermenu/${$vuetify.theme.dark ? 'pledged' : 'pledge'}.svg`)" />
                             </v-list-item-icon>
                             <v-list-item-content>
                                 <v-list-item-title class="font-weight-medium fs-14 mb-0">Pledge &
@@ -196,7 +193,7 @@
                         <v-list-item href="https://zebuetrade.com/referral" target="_blank">
                             <v-list-item-icon class="mr-3 text-center">
                                 <img width="22px" class="pl-1"
-                                    :src="`/src/assets/usermenu/${$vuetify.theme.dark ? 'referald' : 'referal'}.svg`" />
+                                    :src="getAssetPath(`usermenu/${$vuetify.theme.dark ? 'referald' : 'referal'}.svg`)" />
                             </v-list-item-icon>
                             <v-list-item-content>
                                 <v-list-item-title class="font-weight-medium fs-14 mb-0">Refer</v-list-item-title>
@@ -207,7 +204,7 @@
                         <v-list-item href="https://zebuetrade.com/contactus" target="_blank">
                             <v-list-item-icon class="mr-3 text-center">
                                 <img width="22px" class="pl-1"
-                                    :src="`/src/assets/usermenu/${$vuetify.theme.dark ? '6d' : '6'}.svg`" />
+                                    :src="getAssetPath(`usermenu/${$vuetify.theme.dark ? '6d' : '6'}.svg`)" />
                             </v-list-item-icon>
                             <v-list-item-content>
                                 <v-list-item-title class="font-weight-medium fs-14 mb-0">Help &
@@ -219,7 +216,7 @@
                         <v-list-item to="/settings">
                             <v-list-item-icon class="mr-3 text-center">
                                 <img width="22px" class="pl-1"
-                                    :src="`/src/assets/usermenu/${$vuetify.theme.dark ? '7d' : '7'}.svg`" />
+                                    :src="getAssetPath(`usermenu/${$vuetify.theme.dark ? '7d' : '7'}.svg`)" />
                             </v-list-item-icon>
                             <v-list-item-content>
                                 <v-list-item-title class="font-weight-medium fs-14 mb-0">Setting</v-list-item-title>
@@ -231,7 +228,7 @@
                         <v-list-item @click="logOut()">
                             <v-list-item-icon class="mr-3 text-center">
                                 <img width="22px" class="pl-1"
-                                    :src="`/src/assets/usermenu/${$vuetify.theme.dark ? '8d' : '8'}.svg`" />
+                                    :src="getAssetPath(`usermenu/${$vuetify.theme.dark ? '8d' : '8'}.svg`)" />
                             </v-list-item-icon>
                             <v-list-item-content>
                                 <v-list-item-title class="font-weight-medium fs-14">Logout</v-list-item-title>
@@ -304,6 +301,13 @@ import { useSessionStore } from '../stores/sessionStore'
 import { getProfiledata, getDeskLogout, getMyntLogout, getHsTokenapi } from "./mixins/getAPIdata.js"
 import { mynturl } from "../apiurl.js"
 import CryptoJS from "crypto-js"
+import { getAssetPath } from '../utils/assetHelper.js'
+
+// Import static assets for production compatibility
+import logo from '@/assets/logo.svg'
+import logod from '@/assets/logod.svg'
+import notification from '@/assets/notification.svg'
+import notificationd from '@/assets/notificationd.svg'
 
 const router = useRouter()
 const route = useRoute()
@@ -363,9 +367,6 @@ const isIpoActive = computed(() => route.path === '/ipo' || route.path.startsWit
 const isBondsActive = computed(() => route.path === '/bonds' || route.path.startsWith('/bonds/'))
 const isCollectionActive = computed(() => route.path === '/collection' || route.path.startsWith('/collection/'))
 
-// Computed property for Trading route
-const isTradingActive = computed(() => route.path === '/trading' || route.path.startsWith('/trading/'))
-
 // Helper function to check if a route is active
 const isRouteActive = (path) => {
     if (path === '/stocks') return isStocksActive.value
@@ -373,7 +374,6 @@ const isRouteActive = (path) => {
     if (path === '/ipo') return isIpoActive.value
     if (path === '/bonds') return isBondsActive.value
     if (path === '/collection') return isCollectionActive.value
-    if (path === '/trading') return isTradingActive.value
     return false
 }
 
@@ -382,7 +382,7 @@ const dashitems = ref([
     { txt: "Mutual Fund", path: "/mutualfund", idx: 1 },
     { txt: "IPOs", path: "/ipo", idx: 2 },
     { txt: "Bonds", path: "/bonds", idx: 3 },
-    { txt: "Collection", path: "/collection", idx: 4, type: "Beta" },
+    // { txt: "Collection", path: "/collection", idx: 4, type: "Beta" },
     { txt: "OptionZ", path: "/optionz", idx: 5 },
     // { txt: "Trading", path: "/trading", idx: 6 },
 ])
@@ -620,38 +620,68 @@ watch(
     opacity: 1 !important;
 }
 
+/* Ensure all menu buttons maintain full opacity in all states */
+.menu-btn,
+.menu-btn.v-btn,
+.menu-btn.v-btn:focus,
+.menu-btn.v-btn:not(:focus),
+.menu-btn.v-btn:hover,
+.menu-btn.v-btn:active {
+    opacity: 1 !important;
+}
+
 /* Active/Selected state: primary color, bold - NO background */
 /* Only apply active styles when menu-btn-active class is present */
 .menu-btn-active.menu-btn .v-btn__content,
 .menu-btn-active.menu-btn .menu-text-sty,
 .menu-btn-active .menu-text-sty {
-    color: var(--v-primary-base, #0037B7) !important;
+    color: #0037B7 !important;
+    opacity: 1 !important;
     /* font-weight: 700 !important; */
-    background-color: transparent !important;
 }
+
+/* Ensure full opacity for active buttons regardless of focus state */
+.menu-btn-active,
+.menu-btn-active.v-btn,
+.menu-btn-active.v-btn:focus,
+.menu-btn-active.v-btn:not(:focus),
+.menu-btn-active.v-btn--active,
+.menu-btn-active.router-link-active,
+.menu-btn-active.router-link-exact-active {
+    opacity: 1 !important;
+}
+
+.menu-btn-active .v-btn__content,
+.menu-btn-active .menu-text-sty {
+    opacity: 1 !important;
+}
+
 
 /* Override Vuetify's default active state for router links - only allow exact match */
 .menu-btn.router-link-exact-active:not(.router-link-active) .menu-text-sty,
 .menu-btn.router-link-exact-active:not(.router-link-active) .v-btn__content {
-    color: var(--v-primary-base, #0037B7) !important;
+    color: #0037B7 !important;
+    opacity: 1 !important;
     /* font-weight: 700 !important; */
-    background-color: transparent !important;
+}
+
+/* Ensure router-link-active buttons maintain full opacity */
+.menu-btn.router-link-exact-active,
+.menu-btn.router-link-exact-active.v-btn,
+.menu-btn.router-link-exact-active.v-btn:focus,
+.menu-btn.router-link-exact-active.v-btn:not(:focus) {
+    opacity: 1 !important;
 }
 
 /* Explicitly disable active state for buttons that shouldn't be active */
 .menu-btn:not(.menu-btn-active).v-btn--active .menu-text-sty,
 .menu-btn:not(.menu-btn-active).router-link-active:not(.router-link-exact-active) .menu-text-sty,
 .menu-btn:not(.menu-btn-active).v-btn--active .v-btn__content {
-    color: #000 !important;
+    color: #0037B7 !important;
     font-weight: 500 !important;
 }
 
-/* Remove any background or hover effects from inactive buttons */
-.menu-btn:not(.menu-btn-active)::before,
-.menu-btn:not(.menu-btn-active):hover::before {
-    opacity: 0 !important;
-    background-color: transparent !important;
-}
+
 
 /* Notification button active state */
 .notification-active {

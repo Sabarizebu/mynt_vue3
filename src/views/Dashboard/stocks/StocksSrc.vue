@@ -4,62 +4,63 @@
             <StatBoard />
         </div>
         <!-- <img src="@/assets/stat.svg" width="100%" alt=""> -->
-        <v-card v-else class="elevation-0 mb-6 mb-sm-16 px-6 py-4 pa-sm-6 rounded-lg" color="#51FFB6">
-            <v-row no-gutters>
-                <v-col cols="12" sm="4">
-                    <p class="fs-36 font-weight-bold black--text lh-40 mb-0 d-none d-sm-flex">
-                        Simple. <br />
-                        Insightful. <br />
+        <v-card v-else class="elevation-0 mb-4 mb-md-14 pa-4 pa-md-6 rounded-lg pos-rlt" color="#51FFB6"
+            style="overflow: visible;">
+            <v-row>
+                <!-- Text Column -->
+                <v-col cols="12" md="4">
+                    <p class="fs-26 d-md-none font-weight-bold lh-24 black--text">Simple. <br /> Insightful. <br />
+                        Incremental.</p>
+                    <p class="fs-36 d-none d-md-flex font-weight-bold lh-32 black--text">Simple. <br /> Insightful.
+                        <br />
                         Incremental.
                     </p>
-                    <p class="fs-32 font-weight-bold black--text lh-28 mb-0 d-sm-none">
-                        Simple. <br />
-                        Insightful. <br />
-                        Incremental.
-                    </p>
-                </v-col>
-                <v-col cols="7" class="pos-rlt ml-auto mr-4 d-none d-sm-flex">
-                    <div style="width: 100%" no-gutters class="d-inline-flex flex-row-reverse">
-                        <v-card width="170px" class="pb-4 mr-3 stk-land-crds rounded-xl elevation-1">
-                            <img :src="`/src/assets/stocks/main-card-3${$vuetify.theme.dark ? 'd' : ''}.svg`"
-                                class="px-2" alt="main-card-3" width="100%" />
-                            <p class="fs-16 font-weight-bold lh-16 px-4 mb-0">
-                                Discover IPO <br />
-                                early winners.
-                            </p>
-                        </v-card>
-                        <v-card width="170px" class="pb-4 mr-3 stk-land-crds rounded-xl elevation-1">
-                            <img :src="`/src/assets/stocks/main-card-2${$vuetify.theme.dark ? 'd' : ''}.svg`"
-                                class="px-2" alt="main-card-2" width="100%" />
-                            <p class="fs-16 font-weight-bold lh-16 px-4 mb-0">
-                                Invest safely <br />
-                                in bonds.
-                            </p>
-                        </v-card>
-                        <v-card width="170px" class="pb-4 mr-3 stk-land-crds rounded-xl elevation-1">
-                            <img :src="`/src/assets/stocks/main-card-1${$vuetify.theme.dark ? 'd' : ''}.svg`"
-                                class="px-2" alt="main-card-1" width="100%" />
-                            <p class="fs-16 font-weight-bold lh-16 px-4 mb-0">
-                                Buy stocks <br />
-                                with a click.
-                            </p>
-                        </v-card>
-                    </div>
                 </v-col>
             </v-row>
+
+            <!-- Three Cards Div - Position Absolute -->
+            <div class="pos-abs d-none d-md-flex align-stretch"
+                style="right: 16px; top: 130px; transform: translateY(-50%); gap: 12px;">
+                <v-card width="170px" class="pb-4 stk-land-crds rounded-lg text-center d-flex flex-column"
+                    style="height: 200px;">
+                    <img :src="mainCard1" class="px-4 pt-6 pb-2" alt="main-card-1" width="79%" />
+                    <p class="fs-16 font-weight-bold lh-16 px-4 mt-1 mb-0 maintext--text">
+                        Buy stocks<br />
+                        with a click.
+                    </p>
+                </v-card>
+                <v-card width="170px" class="pb-4 stk-land-crds rounded-lg text-center d-flex flex-column"
+                    style="height: 200px;">
+                    <img :src="mainCard2" class="px-4 pt-6 pb-2" alt="main-card-2" width="79%" />
+                    <p class="fs-16 font-weight-bold lh-16 px-4 mt-1 mb-0 maintext--text">
+                        Invest safely<br />
+                        in bonds.
+                    </p>
+                </v-card>
+                <v-card width="170px" class="pb-4 stk-land-crds rounded-lg text-center d-flex flex-column"
+                    style="height: 200px;">
+                    <img :src="mainCard3" class="px-4 pt-6 pb-2" alt="main-card-3" width="79%" />
+                    <p class="fs-16 font-weight-bold lh-16 px-4 mt-1 mb-0 maintext--text">
+                        Discover IPO<br />
+                        early winners.
+                    </p>
+                </v-card>
+            </div>
         </v-card>
-        <v-toolbar class="tool-sty elevation-0 crd-trn" density="compact">
-            <img width="32px" src="@/assets/stocks/ind.svg" alt="ind" class="mr-1 pa-1" />
+        <v-toolbar class="tool-sty elevation-0 crd-trn pt-10 pb-3" density="compact">
+            <img width="32px" :src="indIcon" alt="ind" class="mr-1 pa-1" />
             <p class="title font-weight-bold mb-0 mr-3">Top indices</p>
             <v-spacer></v-spacer>
-            <v-btn @click="scrollToo('indices', -600)" class="mr-2" variant="outlined" icon size="small"> <v-icon
-                    size="24">mdi-chevron-left</v-icon> </v-btn>
-            <v-btn @click="scrollFrom('indices', 600)" class="mr-1" icon size="small" variant="outlined"> <v-icon
-                    size="24">mdi-chevron-right</v-icon> </v-btn>
+            <v-btn @click="scrollToo('indices', -600)" width="26px" height="26px" class="mr-2" variant="outlined" icon
+                size="small">
+                <v-icon size="24">mdi-chevron-left</v-icon> </v-btn>
+            <v-btn @click="scrollFrom('indices', 600)" class="mr-1" width="26px" height="26px" icon size="small"
+                variant="outlined"> <v-icon size="24">mdi-chevron-right</v-icon> </v-btn>
         </v-toolbar>
         <v-card id="indices" v-dragscroll.x class="crd-trn d-inline-flex overflow-x-auto elevation-0 no-scroll mb-2"
             width="100%">
-            <v-card v-for="(s, l) in pdmwdata" :key="l" @click="setSSDtab('Details', s.token, s.exch, s.tsym)"
+            <v-card v-for="(s, l) in pdmwdata" :key="l"
+                @click="() => { setSSDtab('Details', s.token, s.exch, s.tsym); }"
                 class="px-3 py-2 crd-trn pos-rlt table-row" :class="l != pdmwdata.length - 1 ? 'mr-4' : ''"
                 min-width="160px" style="border: 1px solid #EBEEF0 !important;">
                 <div v-if="uid" @click.stop class="pos-abs table-hov" style="bottom: 32px; right: 4px;">
@@ -81,13 +82,13 @@
                     </v-btn>
                 </div>
 
-                <p class="subtitle-2 font-weight-bold mb-2 ws-p" v-text="s.tsym ? s.tsym : ''"></p>
+                <p class="mb-2 ws-p font-weight-bold" style="font-size: 14px;" v-text="s.tsym ? s.tsym : ''"></p>
                 <v-card class="pt-02 mb-3 elevation-0 rounded-pill" width="30%" color="maintext"></v-card>
                 <p class="fs-14 txt-000 font-weight-medium mb-0">
                     ₹<span :id="`ssdpd${s.token}ltp`">{{ s.ltp ? Number(s.ltp).toFixed(2) : "0.00" }}</span>
                 </p>
                 <p class="fs-12 font-weight-medium mb-0" :id="`ssdpd${s.token}chpclr`"
-                    :class="s.chp > 0 ? 'maingreen--text' : s.chp < 0 ? 'mainred--text' : 'subtext--text'">
+                    :style="s.ch > 0 ? 'color: #43A833;' : s.ch < 0 ? 'color: #FF0000;' : 'color: #000000;'">
                     <span :id="`ssdpd${s.token}ch`">{{ s.ch ? Number(s.ch).toFixed(2) : "0.00" }}</span>
                     <span :id="`ssdpd${s.token}chp`"> ({{ s.chp ? Number(s.chp).toFixed(2) : "0.00" }}%)</span>
                 </p>
@@ -104,7 +105,7 @@
                             class="text-center cursor-p">
                             <div class="d-inline-flex align-center">
                                 <img width="28px" :src="advIcons[p]" :alt="advLabels[p]" class="mr-1" />
-                                <p class="subtitle-1 font-weight-bold mb-0">{{ v }}</p>
+                                <p class="font-weight-bold mb-0" style="font-size: 20px !important;">{{ v }}</p>
                             </div>
                             <v-card class="elevation-0 mx-auto"
                                 :color="(advdectab === (p === 0 ? 'sectors' : 'thematic')) ? 'primary' : 'transparent'"
@@ -114,156 +115,181 @@
                 </v-row>
                 <v-divider class="mb-2"></v-divider>
 
-                <!-- Tabs content replicated using explicit state like notifications page -->
-                <div v-if="advdectab === 'sectors'">
-                    <v-card v-for="(i, o) in advdecitems.Sectors.slice(0, 6)" :key="o"
-                        @click="i.data && i.data.token && advdecitems.wsdata[i.data.token] ? setSSDtab('Details', i.data.token, 'NSE', advdecitems.wsdata[i.data.token].tsym) : null"
-                        width="100%" class="elevation-0 pa-3 rounded-lg" :class="o < 5 ? 'mb-2' : ''" bg-color="secbg">
-                        <v-row no-gutters>
-                            <v-col cols="5" sm="4" class="pr-0">
-                                <p class="mb-0 subtitle-2 font-weight-medium lh-16">
-                                    {{ i.title }} <span class="caption subtext-text font-weight-bold">({{ i.data
-                                        && i.data.sum ?
-                                        i.data.sum :
-                                        ".." }})</span>
-                                </p>
-                                <p class="fs-14 maintext--text font-weight-medium mb-0 lh-16">
-                                    <span
-                                        v-if="advdecitems.wsdata && i.data && i.data.token && advdecitems.wsdata[i.data.token]">
-                                        <span :id="`ssdad${i.data.token}ltp`">₹{{ advdecitems.wsdata && i.data
-                                            && i.data.token
-                                            &&
-                                            advdecitems.wsdata[i.data.token] &&
-                                            advdecitems.wsdata[i.data.token].ltp ?
-                                            `${advdecitems.wsdata[i.data.token].ltp}` : "" }}</span> &nbsp;<span
-                                            class="fs-12"
-                                            :class="advdecitems.wsdata[i.data.token] ? (advdecitems.wsdata[i.data.token].chp > 0 ? 'maingreen--text' : advdecitems.wsdata[i.data.token].chp < 0 ? 'mainred--text' : 'subtext--text') : 'subtext--text'"
-                                            :id="`ssdad${i.data.token}chpclr`"><span :id="`ssdad${i.data.token}ch`">{{
-                                                advdecitems.wsdata[i.data.token] ?
-                                                    `${advdecitems.wsdata[i.data.token].ch}` :
-                                                    "0.00"
-                                            }}</span>
-                                            <span :id="`ssdad${i.data.token}chp`"> ({{
-                                                advdecitems.wsdata[i.data.token] &&
-                                                    advdecitems.wsdata[i.data.token].chp ?
-                                                    `${Number(advdecitems.wsdata[i.data.token].chp).toFixed(2)}`
-                                                    : "0.00" }}%)</span></span>
-                                    </span>
-                                    <span v-else class="fs-12">0.00 <span class="fs-9"> 0.00
-                                            (0.00%)</span></span>
-                                </p>
-                            </v-col>
-                            <v-col cols="7" sm="8" v-if="i.data">
-                                <v-card color="transparent" width="100%" class="elevation-0 d-inline-flex"
-                                    style="height: 8px;">
-                                    <v-card class="elevation-0 rounded-lg crd-trn d-inline-flex overflow-hidden"
-                                        :style="{ width: i.data.adp || '0%', height: '8px', display: 'inline-flex' }">
-                                        <v-card class="elevation-0 rounded-lg py-1" color="maingreen"
-                                            style="width: 100%;"></v-card>
-                                    </v-card>
-                                    <v-card v-if="i.data.Negative > 0 || i.data.Neutral > 0"
-                                        class="elevation-0 rounded-lg px-1 crd-trn d-inline-flex overflow-hidden"
-                                        :style="{ width: i.data.adn || '0%', height: '8px', display: 'inline-flex' }">
-                                        <v-card class="elevation-0 rounded-lg py-1" color="#D9D9D9"
-                                            style="width: 100%;"></v-card>
-                                    </v-card>
-                                    <v-card class="elevation-0 rounded-lg crd-trn d-inline-flex overflow-hidden"
-                                        :style="{ width: i.data.adm || '0%', height: '8px', display: 'inline-flex' }">
-                                        <v-card class="elevation-0 rounded-lg py-1" color="mainred"
-                                            style="width: 100%;"></v-card>
-                                    </v-card>
-                                </v-card>
+                <!-- Tabs content with slider effect -->
+                <div class="tab-slider-container" style="overflow: hidden; position: relative;">
+                    <div class="tab-slider-wrapper"
+                        :style="{ transform: `translateX(-${advdectab === 'sectors' ? 0 : 100}%)` }">
+                        <!-- Sectors Tab -->
+                        <div class="tab-slide" style="width: 100%; flex-shrink: 0;">
+                            <v-card v-for="(i, o) in advdecitems.Sectors.slice(0, 6)" :key="o"
+                                @click="i.data && i.data.token && advdecitems.wsdata[i.data.token] ? setSSDtab('Details', i.data.token, 'NSE', advdecitems.wsdata[i.data.token].tsym) : null"
+                                width="100%" class="elevation-0 px-3 py-2 rounded-lg" :class="o < 5 ? 'mb-2' : ''"
+                                bg-color="secbg" style="background-color: #F1F3F8 !important;">
                                 <v-row no-gutters>
-                                    <v-col cols="6" class="pt-1">
-                                        <p v-if="i.data.Positive > 0" class="mb-0 lh-16 mt-2 subtitle-2">
-                                            <v-icon color="maingreen" size="18">mdi-arrow-top-right</v-icon>
-                                            {{ i.data.Positive }}
+                                    <v-col cols="5" sm="4" class="pr-0">
+                                        <p class="mb-0 subtitle-2 font-weight-medium lh-16">
+                                            {{ i.title }} <span class="caption subtext-text font-weight-bold">({{ i.data
+                                                && i.data.sum ?
+                                                i.data.sum :
+                                                ".." }})</span>
+                                        </p>
+                                        <p class="fs-14 maintext--text font-weight-medium mb-0 lh-16">
+                                            <span
+                                                v-if="advdecitems.wsdata && i.data && i.data.token && advdecitems.wsdata[i.data.token]">
+                                                <span :id="`ssdad${i.data.token}ltp`">₹{{ advdecitems.wsdata && i.data
+                                                    && i.data.token
+                                                    &&
+                                                    advdecitems.wsdata[i.data.token] &&
+                                                    advdecitems.wsdata[i.data.token].ltp ?
+                                                    `${advdecitems.wsdata[i.data.token].ltp}` : "" }}</span> &nbsp;<span
+                                                    class="fs-12"
+                                                    :class="advdecitems.wsdata[i.data.token] ? (advdecitems.wsdata[i.data.token].chp > 0 ? 'maingreen--text' : advdecitems.wsdata[i.data.token].chp < 0 ? 'mainred--text' : 'subtext--text') : 'subtext--text'"
+                                                    :id="`ssdad${i.data.token}chpclr`">
+                                                    <span :id="`ssdad${i.data.token}ch`" :style="{
+                                                        color: advdecitems.wsdata[i.data.token] && advdecitems.wsdata[i.data.token].ch ?
+                                                            (Number(advdecitems.wsdata[i.data.token].ch) > 0 ? '#43A833' :
+                                                                Number(advdecitems.wsdata[i.data.token].ch) < 0 ? '#FF0000' : '#000000') : '#000000'
+                                                    }">{{
+                                                        advdecitems.wsdata[i.data.token] ?
+                                                            `${advdecitems.wsdata[i.data.token].ch}` :
+                                                            "0.00"
+                                                    }}</span>
+                                                    <span :id="`ssdad${i.data.token}chp`" :style="{
+                                                        color: advdecitems.wsdata[i.data.token] && advdecitems.wsdata[i.data.token].chp ?
+                                                            (Number(advdecitems.wsdata[i.data.token].chp) > 0 ? '#43A833' :
+                                                                Number(advdecitems.wsdata[i.data.token].chp) < 0 ? '#FF0000' : '#000000') : '#000000'
+                                                    }"> ({{
+                                                        advdecitems.wsdata[i.data.token] &&
+                                                            advdecitems.wsdata[i.data.token].chp ?
+                                                            `${Number(advdecitems.wsdata[i.data.token].chp).toFixed(2)}`
+                                                            : "0.00" }}%)</span></span>
+                                            </span>
+                                            <span v-else class="fs-12">0.00 <span class="fs-9"> 0.00
+                                                    (0.00%)</span></span>
                                         </p>
                                     </v-col>
-                                    <v-col cols="6" class="pt-1">
-                                        <p v-if="i.data.Negative > 0" class="mb-0 lh-16 mt-2 subtitle-2 text-right">
-                                            {{ i.data.Negative }}
-                                            <v-icon color="mainred" size="18">mdi-arrow-bottom-right</v-icon>
-                                        </p>
+                                    <v-col cols="7" sm="8" v-if="i.data">
+                                        <v-card color="transparent" width="100%" class="elevation-0 d-inline-flex"
+                                            style="height: 8px;">
+                                            <v-card class="elevation-0 rounded-lg crd-trn d-inline-flex overflow-hidden"
+                                                :style="{ width: i.data.adp || '0%', height: '8px', display: 'inline-flex' }">
+                                                <v-card class="elevation-0 rounded-lg py-1" color="maingreen"
+                                                    style="width: 100%;"></v-card>
+                                            </v-card>
+                                            <v-card v-if="i.data.Negative > 0 || i.data.Neutral > 0"
+                                                class="elevation-0 rounded-lg px-1 crd-trn d-inline-flex overflow-hidden"
+                                                :style="{ width: i.data.adn || '0%', height: '8px', display: 'inline-flex' }">
+                                                <v-card class="elevation-0 rounded-lg py-1" color="#D9D9D9"
+                                                    style="width: 100%;"></v-card>
+                                            </v-card>
+                                            <v-card class="elevation-0 rounded-lg crd-trn d-inline-flex overflow-hidden"
+                                                :style="{ width: i.data.adm || '0%', height: '8px', display: 'inline-flex' }">
+                                                <v-card class="elevation-0 rounded-lg py-1" color="mainred"
+                                                    style="width: 100%;"></v-card>
+                                            </v-card>
+                                        </v-card>
+                                        <v-row no-gutters>
+                                            <v-col cols="6" class="pt-1">
+                                                <p v-if="i.data.Positive > 0" class="mb-0 lh-16 mt-0 subtitle-2">
+                                                    <v-icon color="maingreen" size="18">mdi-arrow-top-right</v-icon>
+                                                    {{ i.data.Positive }}
+                                                </p>
+                                            </v-col>
+                                            <v-col cols="6" class="pt-1">
+                                                <p v-if="i.data.Negative > 0"
+                                                    class="mb-0 lh-16 mt-0 subtitle-2 text-right">
+                                                    {{ i.data.Negative }}
+                                                    <v-icon color="mainred" size="18">mdi-arrow-bottom-right</v-icon>
+                                                </p>
+                                            </v-col>
+                                        </v-row>
+                                    </v-col>
+                                    <v-col cols="8" v-else>
+                                        <v-skeleton-loader height="8px" width="100%" type="card"></v-skeleton-loader>
                                     </v-col>
                                 </v-row>
-                            </v-col>
-                            <v-col cols="8" v-else>
-                                <v-skeleton-loader height="8px" width="100%" type="card"></v-skeleton-loader>
-                            </v-col>
-                        </v-row>
-                    </v-card>
-                </div>
-                <div v-else-if="advdectab === 'thematic'">
-                    <v-card v-for="(i, o) in advdecitems.Thematic.slice(0, 6)" :key="o"
-                        @click="i.data && i.data.token && advdecitems.wsdata[i.data.token] ? setSSDtab('Details', i.data.token, 'NSE', advdecitems.wsdata[i.data.token].tsym) : null"
-                        width="100%" class="elevation-0 pa-3 rounded-lg" :class="o < 5 ? 'mb-2' : ''" bg-color="secbg">
-                        <v-row no-gutters>
-                            <!-- duplicate same inner layout -->
-                            <v-col cols="5" sm="4" class="pr-0">
-                                <p class="mb-0 subtitle-2 font-weight-medium lh-16">
-                                    {{ i.title }} <span class="caption subtext-text font-weight-bold">({{ i.data &&
-                                        i.data.sum ?
-                                        i.data.sum : ".." }})</span>
-                                </p>
-                                <p class="fs-14 maintext--text font-weight-medium mb-0 lh-16">
-                                    <span
-                                        v-if="advdecitems.wsdata && i.data && i.data.token && advdecitems.wsdata[i.data.token]">
-                                        <span :id="`ssdad${i.data.token}ltp`">₹{{ advdecitems.wsdata[i.data.token].ltp
-                                            || '0.00'
-                                            }}</span> &nbsp;<span class="fs-12"
-                                            :class="getSectorColorClass(i.data.token)"
-                                            :id="`ssdad${i.data.token}chpclr`"><span :id="`ssdad${i.data.token}ch`">{{
-                                                advdecitems.wsdata[i.data.token].ch || "0.00"
-                                            }}</span>
-                                            <span :id="`ssdad${i.data.token}chp`"> ({{
-                                                advdecitems.wsdata[i.data.token].chp ?
-                                                    `${Number(advdecitems.wsdata[i.data.token].chp).toFixed(2)}` : "0.00"
-                                            }}%)</span></span>
-                                    </span>
-                                    <span v-else class="fs-12">₹0.00 <span class="fs-9"> 0.00 (0.00%)</span></span>
-                                </p>
-                            </v-col>
-                            <v-col cols="7" sm="8" v-if="i.data">
-                                <v-card color="transparent" width="100%" class="elevation-0 d-inline-flex"
-                                    style="height: 8px;">
-                                    <v-card class="elevation-0 rounded-lg crd-trn d-inline-flex overflow-hidden"
-                                        :style="{ width: i.data.adp || '0%', height: '8px', display: 'inline-flex' }">
-                                        <v-card class="elevation-0 rounded-lg py-1" color="maingreen"
-                                            style="width: 100%;"></v-card>
-                                    </v-card>
-                                    <v-card v-if="i.data.Negative > 0 || i.data.Neutral > 0"
-                                        class="elevation-0 rounded-lg px-1 crd-trn d-inline-flex overflow-hidden"
-                                        :style="{ width: i.data.adn || '0%', height: '8px', display: 'inline-flex' }">
-                                        <v-card class="elevation-0 rounded-lg py-1" color="#D9D9D9"
-                                            style="width: 100%;"></v-card>
-                                    </v-card>
-                                    <v-card class="elevation-0 rounded-lg crd-trn d-inline-flex overflow-hidden"
-                                        :style="{ width: i.data.adm || '0%', height: '8px', display: 'inline-flex' }">
-                                        <v-card class="elevation-0 rounded-lg py-1" color="mainred"
-                                            style="width: 100%;"></v-card>
-                                    </v-card>
-                                </v-card>
+                            </v-card>
+                        </div>
+                        <!-- Thematic Tab -->
+                        <div class="tab-slide" style="width: 100%; flex-shrink: 0;">
+                            <v-card v-for="(i, o) in advdecitems.Thematic.slice(0, 6)" :key="o"
+                                @click="i.data && i.data.token && advdecitems.wsdata[i.data.token] ? setSSDtab('Details', i.data.token, 'NSE', advdecitems.wsdata[i.data.token].tsym) : null"
+                                width="100%" class="elevation-0 px-3 py-1 rounded-lg" :class="o < 5 ? 'mb-2' : ''"
+                                bg-color="secbg" style="background-color: #F1F3F8 !important;">
                                 <v-row no-gutters>
-                                    <v-col cols="6" class="pt-1">
-                                        <p v-if="i.data.Positive > 0" class="mb-0 lh-16 mt-2 subtitle-2">
-                                            <v-icon color="maingreen" size="18">mdi-arrow-top-right</v-icon>
-                                            {{ i.data.Positive }}
+                                    <!-- duplicate same inner layout -->
+                                    <v-col cols="5" sm="4" class="pr-0">
+                                        <p class="mb-0 subtitle-2 font-weight-medium lh-16">
+                                            {{ i.title }} <span class="caption subtext-text font-weight-bold">({{ i.data
+                                                &&
+                                                i.data.sum ?
+                                                i.data.sum : ".." }})</span>
+                                        </p>
+                                        <p class="fs-14 maintext--text font-weight-medium mb-0 lh-16">
+                                            <span
+                                                v-if="advdecitems.wsdata && i.data && i.data.token && advdecitems.wsdata[i.data.token]">
+                                                <span :id="`ssdad${i.data.token}ltp`">₹{{
+                                                    advdecitems.wsdata[i.data.token].ltp
+                                                    || '0.00'
+                                                }}</span> &nbsp;<span class="fs-12"
+                                                    :class="getSectorColorClass(i.data.token)"
+                                                    :id="`ssdad${i.data.token}chpclr`"><span
+                                                        :id="`ssdad${i.data.token}ch`">{{
+                                                            advdecitems.wsdata[i.data.token].ch || "0.00"
+                                                        }}</span>
+                                                    <span :id="`ssdad${i.data.token}chp`"> ({{
+                                                        advdecitems.wsdata[i.data.token].chp ?
+                                                            `${Number(advdecitems.wsdata[i.data.token].chp).toFixed(2)}` :
+                                                            "0.00"
+                                                    }}%)</span></span>
+                                            </span>
+                                            <span v-else class="fs-12">₹0.00 <span class="fs-9"> 0.00
+                                                    (0.00%)</span></span>
                                         </p>
                                     </v-col>
-                                    <v-col cols="6" class="pt-1">
-                                        <p v-if="i.data.Negative > 0" class="mb-0 lh-16 mt-2 subtitle-2 text-right">
-                                            {{ i.data.Negative }}
-                                            <v-icon color="mainred" size="18">mdi-arrow-bottom-right</v-icon>
-                                        </p>
+                                    <v-col cols="7" sm="8" v-if="i.data">
+                                        <v-card color="transparent" width="100%" class="elevation-0 d-inline-flex"
+                                            style="height: 8px;">
+                                            <v-card class="elevation-0 rounded-lg crd-trn d-inline-flex overflow-hidden"
+                                                :style="{ width: i.data.adp || '0%', height: '8px', display: 'inline-flex' }">
+                                                <v-card class="elevation-0 rounded-lg py-1" color="maingreen"
+                                                    style="width: 100%;"></v-card>
+                                            </v-card>
+                                            <v-card v-if="i.data.Negative > 0 || i.data.Neutral > 0"
+                                                class="elevation-0 rounded-lg px-1 crd-trn d-inline-flex overflow-hidden"
+                                                :style="{ width: i.data.adn || '0%', height: '8px', display: 'inline-flex' }">
+                                                <v-card class="elevation-0 rounded-lg py-1" color="#D9D9D9"
+                                                    style="width: 100%;"></v-card>
+                                            </v-card>
+                                            <v-card class="elevation-0 rounded-lg crd-trn d-inline-flex overflow-hidden"
+                                                :style="{ width: i.data.adm || '0%', height: '8px', display: 'inline-flex' }">
+                                                <v-card class="elevation-0 rounded-lg py-1" color="mainred"
+                                                    style="width: 100%;"></v-card>
+                                            </v-card>
+                                        </v-card>
+                                        <v-row no-gutters>
+                                            <v-col cols="6" class="pt-1">
+                                                <p v-if="i.data.Positive > 0" class="mb-0 lh-16 mt-2 subtitle-2">
+                                                    <v-icon color="maingreen" size="18">mdi-arrow-top-right</v-icon>
+                                                    {{ i.data.Positive }}
+                                                </p>
+                                            </v-col>
+                                            <v-col cols="6" class="pt-1">
+                                                <p v-if="i.data.Negative > 0"
+                                                    class="mb-0 lh-16 mt-2 subtitle-2 text-right">
+                                                    {{ i.data.Negative }}
+                                                    <v-icon color="mainred" size="18">mdi-arrow-bottom-right</v-icon>
+                                                </p>
+                                            </v-col>
+                                        </v-row>
+                                    </v-col>
+                                    <v-col cols="8" v-else>
+                                        <v-skeleton-loader height="8px" width="100%" type="card"></v-skeleton-loader>
                                     </v-col>
                                 </v-row>
-                            </v-col>
-                            <v-col cols="8" v-else>
-                                <v-skeleton-loader height="8px" width="100%" type="card"></v-skeleton-loader>
-                            </v-col>
-                        </v-row>
-                    </v-card>
+                            </v-card>
+                        </div>
+                    </div>
                 </div>
                 <!-- </template> -->
                 <div class="text-center mt-2">
@@ -273,23 +299,25 @@
                 </div>
             </v-col>
             <v-col cols="12" sm="6" class="pt-md-0">
-                <v-toolbar class="elevation-0" density="compact" color="transparent">
-                    <p class="title font-weight-bold mb-0">Heatmap</p>
-                    <v-spacer></v-spacer>
+                <div class="elevation-0 mx-auto"
+                    style="display: flex;justify-content: space-between;align-items: center;width: 90%;">
+                    <p class="title font-weight-bold mb-0" style="flex-grow: 1;">Heatmap</p>
+                    <!-- <v-spacer></v-spacer> -->
 
-                    <v-select @update:model-value="setStatavddec()" :readonly="issloading" style="max-width: 50%"
-                        v-model="treemaps" hide-details append-icon="mdi-chevron-down"
-                        class="rounded-pill d-none d-sm-flex" density="compact" variant="flat" bg-color="secbg"
-                        :items="treemapitem" label="Condition"></v-select>
-                </v-toolbar>
+                    <v-select v-model="treemaps" :items="treemapitem" @update:model-value="setStatavddec()"
+                        :readonly="issloading" variant="flat" density="compact" hide-details bg-color="secbg"
+                        class="w-100 rounded-pill fullwidth-select" style="color: white;max-width: 50%;"></v-select>
+
+
+                </div>
                 <v-card height="500px" width="100%" id="avddecchart"
                     class="crd-trn rounded-lg elevation-0 px-6 pt-1 pb-16 pos-rlt">
                     <div v-if="heatmapError" class="d-flex align-center justify-center pos-abs" style="inset:0;">
                         <div class="text-center">
                             <p class="mb-2 title font-weight-bold">Service temporarily unavailable</p>
-                            <p class="mb-4 subtext--text">Unable to load heatmap data. We will retry s
-                                rtly.</p>
-                            <v-btn size="small" color="primary" class="text-none" @click="setStatavddec()">Retry
+                            <p class="mb-4 subtext--text">Unable to load heatmap data. We will retry shortly.</p>
+                            <v-btn size="small" color="primary" variant="plain" class="text-none"
+                                @click="setStatavddec()">Retry
                                 now</v-btn>
                         </div>
                     </div>
@@ -302,10 +330,10 @@
             <v-spacer></v-spacer>
 
 
-            <v-btn @click="scrollToo('market', -600)" class="mx-2" icon size="small" variant="outlined"> <v-icon
-                    size="24">mdi-chevron-left</v-icon> </v-btn>
-            <v-btn @click="scrollFrom('market', 600)" class="mr-1" icon size="small" variant="outlined"> <v-icon
-                    size="24">mdi-chevron-right</v-icon> </v-btn>
+            <v-btn @click="scrollToo('market', -600)" width="26px" height="26px" class="mx-2" icon size="small"
+                variant="outlined"> <v-icon size="24">mdi-chevron-left</v-icon> </v-btn>
+            <v-btn @click="scrollFrom('market', 600)" width="26px" height="26px" class="mr-1" icon size="small"
+                variant="outlined"> <v-icon size="24">mdi-chevron-right</v-icon> </v-btn>
         </v-toolbar>
 
 
@@ -325,10 +353,9 @@
                             @click="$router.push({ name: 'stocks market', params: { abc: l } })" text
                             class="text-none px-0 primary--text" size="small">See all</v-btn>
                     </v-toolbar>
-                    <v-data-table must-sort :sort-by="[l == 2 ? 'vol' : 'chp']" :sort-desc="l != 1 ? [true] : [false]"
-                        mobile hide-default-footer fixed-header :loading="isloading" class="rounded-lg overflow-y-auto"
-                        style="min-width: 330px" :headers="tradeheader" :search="opensearch" :items="tabel"
-                        :items-per-page="5">
+                    <v-data-table hide-default-footer fixed-header :loading="isloading"
+                        class="rounded-lg overflow-y-auto" style="min-width: 330px" :headers="tradeheader"
+                        :search="opensearch" :items="tabel" :items-per-page="5">
                         <template v-slot:[`item.tsym`]="{ item }">
                             <p class="mb-0 lh-16">
                                 <span @click="setSinglestock(item.tsym.split('-')[0], item)"
@@ -342,10 +369,11 @@
                             <p class="mb-0 lh-18">
                                 <span class="d-none" v-if="!uid">{{ setScrpitCH(l, item, "TA") }}</span>
 
-                                <span class="font-weight-medium maintext--text">₹<span :id="`ssdta${item.token}ltp`"
+                                <span class="font-weight-medium maintext--text black--text">₹<span
+                                        :id="`ssdta${item.token}ltp`"
                                         v-text="item.lp ? Number(item.lp).toFixed(2) : '0.00'"></span></span> <br />
                                 <span class="font-weight-medium fs-12 ws-p" :id="`ssdta${item.token}chpclr`"
-                                    :class="item.ch > 0 ? 'maingreen--text' : item.ch < 0 ? 'mainred--text' : 'subtext--text'">
+                                    :style="{ color: item.ch > 0 ? 'green' : item.ch < 0 && 'red' }">
                                     <span :id="`ssdta${item.token}ch`" v-text="item.ch ? item.ch : '0.00'"> </span>
                                     <span :id="`ssdta${item.token}chp`"
                                         v-text="` (${item.chp ? item.chp : item.pc}%)`"></span></span>
@@ -376,107 +404,136 @@
         </div>
 
         <v-card style="border: thin solid #EBEEF0 !important" variant="outlined" class="rounded-lg mb-8" color="cardbg">
-            <v-toolbar ref="smcp" id="smcp" class="elevation-0 my-4 px-4" density="compact" color="transparent">
-                <img width="40px" src="@/assets/stocks/srcm.svg" alt="srcm" class="mr-2" />
-                <p class="title font-weight-bold mb-0" style="color: black;">Stock monitor</p>
+            <v-toolbar ref="smcp" id="smcp" class="elevation-0 my-4 px-3" density="compact" color="transparent">
+                <img width="40px" :src="srcmIcon" alt="srcm" class="mr-2" />
+                <p class="title font-weight-bold mb-0 " style="color: black;">Stock monitor</p>
                 <v-spacer></v-spacer>
-                <v-select v-model="screent0" :items="screent0item" item-title="text" item-value="value"
-                    label="Condition" variant="flat" density="comfortable" hide-details menu-icon="mdi-chevron-down"
-                    :readonly="issloading" class="rounded-pill mr-3 d-none d-sm-flex"
-                    style="max-width: 180px; background-color: #F1F3F8;color: black;"
-                    @update:model-value="getContentlistdata('yes')" />
 
-                <v-select v-model="screent1" :items="screent1item" item-title="text" item-value="value"
-                    label="Condition" variant="flat" density="comfortable" hide-details menu-icon="mdi-chevron-down"
-                    :readonly="issloading" class="rounded-pill d-none d-sm-flex"
-                    style="max-width: 140px; background-color: #F1F3F8;color: black;"
-                    @update:model-value="getContentlistdata('yes')" />
+                <v-row class="d-flex align-center justify-end px-4" no-gutters>
+                    <v-select v-model="screent0" :items="screent0item" item-title="text" item-value="value"
+                        variant="flat" density="compact" hide-details menu-icon="mdi-chevron-down"
+                        :readonly="issloading" class="rounded-pill d-none d-sm-flex text-center mr-3 elevation-0" style="
+                        max-width: 180px;
+                        height: 36px;
+                        background-color: #f1f3f8;
+                        color: #000;
+                        font-weight: 500;
+                        font-size: 14px;
+                        padding: 0 15px;
+                        border-radius: 9999px;
+                        align-items: center;
+                        justify-content: center;
+                        display: flex;
+                        margin-top: 0 !important;
+                        padding-top: 0 !important;
+                        align-self: center;
+                        " @update:model-value="getContentlistdata('yes')" />
 
+
+                    <v-select v-model="screent1" :items="screent1item" item-title="text" item-value="value"
+                        variant="flat" density="compact" hide-details menu-icon="mdi-chevron-down"
+                        :readonly="issloading" class="rounded-pill d-none d-sm-flex align-center text-center" style="
+                            max-width: 140px;
+                            height: 36px;
+                            background-color: #f1f3f8;
+                            color: #000;
+                            font-weight: 500;
+                            font-size: 14px;
+                            padding: 0 15px;
+                            text-align: center;
+                            border-radius: 9999px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                             margin-top: 0 !important;
+                        padding-top: 0 !important;
+                        " @update:model-value="getContentlistdata('yes')" />
+                </v-row>
             </v-toolbar>
 
-            <div style="overflow-x:auto;">
-                <v-data-table must-sort :sort-by="['chp']" :sort-desc="[true]" :loading="issloading" density="compact"
-                    mobile-breakpoint="900" fixed-header height="480px" class="rounded-lg overflow-y-auto"
-                    style="border-radius: 4px; border: 1px solid #EBEEF0; min-width:660px;" :headers="screenheader"
-                    :search="opensearch" :items="screentitems" :items-per-page="10" :hide-default-footer="true">
-                    <template v-slot:[`item.tsym`]="{ item }">
-                        <span @click="setSinglestock(item.tsym.split('-')[0], item)"
-                            class="font-weight-medium text-capitalize txt-dec-cust ws-p" v-text="item.tsym"></span>
-                    </template>
+            <v-data-table must-sort :sort-by="['chp']" :sort-desc="[true]" hide-default-footer fixed-header
+                :loading="issloading" class="rounded-lg overflow-y-auto" :headers="screenheader" :search="opensearch"
+                :items="screentitems" :items-per-page="10">
+                <template v-slot:[`item.tsym`]="{ item }">
+                    <span @click="setSinglestock(item.tsym.split('-')[0], item)"
+                        class="font-weight-medium text-capitalize txt-dec-cust ws-p" style="font-size: 12px !important;"
+                        v-text="item.tsym"></span>
+                </template>
 
-                    <template v-slot:[`item.ltp`]="{ item }">
-                        <p class="mb-0 lh-18">
-                            <span class="d-none" v-if="!uid">{{ setScrpitCH("", item, "SCR") }}</span>
+                <template v-slot:[`item.ltp`]="{ item }">
+                    <p class="mb-0 lh-18">
+                        <span class="d-none" v-if="!uid">{{ setScrpitCH("", item,
+                            "SCR")
+                        }}</span>
 
-                            <span class="font-weight-medium maintext--text">₹<span :id="`ssdsc${item.token}ltp`"
-                                    v-text="item.lp ? Number(item.lp).toFixed(2) : '0.00'"></span></span> <br />
-                            <span class="font-weight-medium fs-12 ws-p" :id="`ssdsc${item.token}chpclr`"
-                                :class="item.ch > 0 ? 'maingreen--text' : item.ch < 0 ? 'mainred--text' : 'subtext--text'">
-                                <span :id="`ssdsc${item.token}ch`" v-text="item.ch ? item.ch : '0.00'"> </span>
-                                <span :id="`ssdsc${item.token}chp`"
-                                    v-text="` (${item.chp ? item.chp : item.pc}%)`"></span></span>
-                        </p>
-                    </template>
+                        <span class="font-weight-medium maintext--text black--text">₹<span :id="`ssdsc${item.token}ltp`"
+                                v-text="item.lp ? Number(item.lp).toFixed(2) : '0.00'"></span></span> <br />
+                        <span class="font-weight-medium fs-12 ws-p" :id="`ssdsc${item.token}chpclr`"
+                            :class="item.ch > 0 ? 'maingreen--text' : item.ch < 0 ? 'mainred--text' : 'subtext--text'"
+                            :style="{ color: item.ch > 0 ? 'green' : item.ch < 0 ? 'red' : 'gray' }">
+                            <span :id="`ssdsc${item.token}ch`" v-text="item.ch ? item.ch : '0.00'"> </span>
+                            <span :id="`ssdsc${item.token}chp`"
+                                v-text="` (${item.chp ? item.chp : item.pc}%)`"></span></span>
+                    </p>
+                </template>
 
-                    <template v-slot:[`item.vol`]="{ item }">
-                        <span class="font-weight-medium maintext--text">{{ item.v ? item.v : "0.00" }}</span>
-                    </template>
-                    <template v-slot:[`item.op`]="{ item }">
-                        <span class="font-weight-medium maintext--text" :id="`ssdsc${item.token}op`">{{ item.ap ?
-                            item.ap :
-                            "0.00"
-                            }}</span>
-                    </template>
-                    <template v-slot:[`item.cp`]="{ item }">
-                        <span class="font-weight-medium maintext--text" :id="`ssdsc${item.token}cp`">{{ item.c ? item.c
-                            :
-                            "0.00"
-                            }}</span>
-                    </template>
-                    <template v-slot:[`item.high`]="{ item }">
-                        <span class="font-weight-medium maintext--text" :id="`ssdsc${item.token}high`">{{ item.h ?
-                            item.h :
-                            "0.00"
-                            }}</span>
-                    </template>
-                    <template v-slot:[`item.low`]="{ item }">
-                        <span class="font-weight-medium maintext--text" :id="`ssdsc${item.token}low`">{{ item.l ? item.l
-                            :
-                            "0.00"
-                            }}</span>
-                    </template>
+                <template v-slot:[`item.vol`]="{ item }">
+                    <span class="font-weight-medium maintext--text black--text">{{ item.v ? item.v : "0.00" }}</span>
+                </template>
+                <template v-slot:[`item.op`]="{ item }">
+                    <span class="font-weight-medium maintext--text black--text" :id="`ssdsc${item.token}op`">{{ item.ap
+                        ? item.ap :
+                        "0.00"
+                    }}</span>
+                </template>
+                <template v-slot:[`item.cp`]="{ item }">
+                    <span class="font-weight-medium maintext--text black--text" :id="`ssdsc${item.token}cp`">{{ item.c ?
+                        item.c :
+                        "0.00"
+                    }}</span>
+                </template>
+                <template v-slot:[`item.high`]="{ item }">
+                    <span class="font-weight-medium maintext--text black--text" :id="`ssdsc${item.token}high`">{{ item.h
+                        ? item.h :
+                        "0.00"
+                    }}</span>
+                </template>
+                <template v-slot:[`item.low`]="{ item }">
+                    <span class="font-weight-medium maintext--text black--text" :id="`ssdsc${item.token}low`">{{ item.l
+                        ? item.l :
+                        "0.00"
+                    }}</span>
+                </template>
 
-                    <template v-slot:no-data>
-                        <v-col v-if="screentidata" cols="12" class="text-center pa-0">
-                            <v-container fill-height>
-                                <v-btn block class="elevation-0 text-center rounded-xl" height="300px" text
-                                    color="transparent" @click="getContentlistdata">
-                                    <div class="mx-auto py-16">
-                                        <img width="60px" src="@/assets/sm_icon.svg" class="mb-3">
-                                        <h3 class="primary--text font-weight-medium mb-2 text-none">Stock monitor</h3>
-                                        <p class="subtext--text mb-0 text-none">Click to load the Market monitor data
-                                        </p>
-                                    </div>
-                                </v-btn>
-                            </v-container>
-                        </v-col>
-                        <v-col v-else cols="12" class="text-center pa-16">
-                            <div>
-                                <img width="80px" src="@/assets/no data folder.svg" alt="no data" />
-                                <h5 class="txt-999 font-weight-regular">There is no data here yet!</h5>
-                            </div>
-                        </v-col>
-                    </template>
-                </v-data-table>
-            </div>
+                <template v-slot:no-data>
+                    <v-col v-if="screentidata" cols="12" class="text-center pa-0">
+                        <v-container fill-height>
+                            <v-btn block class="elevation-0 text-center rounded-xl" height="300px" text
+                                color="transparent" @click="getContentlistdata">
+                                <div class="mx-auto py-16">
+                                    <img width="60px" :src="smIcon" class="mb-3">
+                                    <h3 class="primary--text font-weight-medium mb-2 text-none">Stock monitor</h3>
+                                    <p class="subtext--text mb-0 text-none">Click to load the Market monitor data</p>
+                                </div>
+                            </v-btn>
+                        </v-container>
+                    </v-col>
+                    <v-col v-else cols="12" class="text-center pa-16">
+                        <div>
+                            <img width="80px" :src="noDataFolder" alt="no data" />
+                            <h5 class="txt-999 font-weight-regular">There is no data here yet!</h5>
+                        </div>
+                    </v-col>
+                </template>
+            </v-data-table>
             <v-divider></v-divider>
             <v-btn v-if="screentitems && screentitems.length > 0" :disabled="issloading" to="/stocks/screener" block
                 text class="text-none primary--text" height="48px">See
                 all</v-btn>
         </v-card>
 
-        <v-row ref="eve" id="eve" no-gutters class="mb-6">
-            <v-col cols="12" md="6" class="py-md-0">
+        <v-row ref="eve" id="eve" class="mb-6">
+            <v-col cols="12" md="6" class="py-md-0 ">
                 <v-card style="border: thin solid #EBEEF0 !important"
                     class="crd-trn elevation-0 overflow-hidden rounded-lg" width="100%">
                     <div class="px-4 py-4">
@@ -493,41 +550,36 @@
                         </div>
                         <div v-else-if="allcropact && allcropact.length > 0">
                             <v-card variant="outlined" v-for="(d, e, f) in allcropact.slice(0, 5)" :key="f"
-                                class="mb-3 rounded-lg" color="secbg">
-                                <v-list-item>
-                                    <v-list-item-content>
-                                        <v-list-item-title
-                                            class="txt-5E6 mb-1 mb-2 font-weight-medium fs-14 text-capitalize">
+                                class="mb-3 rounded-lg"
+                                style="background-color: #F1F3F8 !important;border: none !important;">
+                                <v-row no-gutters>
+                                    <v-col cols="4" class="pa-3">
+                                        <p class="txt-5E6 mb-1 mb-2 font-weight-medium fs-12 text-capitalize">
                                             {{ d.symbol }}
-                                        </v-list-item-title>
-                                        <v-list-item-subtitle
-                                            class="maintext--text mb-0 font-weight-medium fs-13 text-capitalize">{{
-                                                d.registrar }} <span class="fs-10">({{ d.issueType
-                                            }})</span></v-list-item-subtitle>
-                                    </v-list-item-content>
+                                        </p>
+                                        <p class="maintext--text mb-0 font-weight-medium fs-10 text-capitalize">{{
+                                            d.registrar }} <span class="fs-10">({{ d.issueType
+                                            }})</span></p>
+                                    </v-col>
 
-                                    <v-list-item-content>
-                                        <v-list-item-title
-                                            class="txt-5E6 mb-1 mb-2 font-weight-medium fs-14 text-capitalize">
+                                    <v-col cols="4" class="pa-3">
+                                        <p class="txt-5E6 mb-1 mb-2 font-weight-medium fs-12 text-capitalize">
                                             Listing date
-                                        </v-list-item-title>
-                                        <v-list-item-subtitle
-                                            class="maintext--text mb-0 font-weight-medium fs-13 text-capitalize">{{
-                                                d.biddingStartDate ? d.biddingStartDate.slice(0, 5) : "" }} <span
+                                        </p>
+                                        <p class="maintext--text mb-0 font-weight-medium fs-10 text-capitalize">{{
+                                            d.biddingStartDate ? d.biddingStartDate.slice(0, 5) : "" }} <span
                                                 class="fs-10 text-lowercase">to</span> {{ d.biddingEndDate
-                                                }}</v-list-item-subtitle>
-                                    </v-list-item-content>
-                                    <v-list-item-content>
-                                        <v-list-item-title
-                                            class="txt-5E6 mb-1 mb-2 font-weight-medium fs-14 text-capitalize">
+                                                }}</p>
+                                    </v-col>
+                                    <v-col cols="4" class="pa-3">
+                                        <p class="txt-5E6 mb-1 mb-2 font-weight-medium fs-12 text-capitalize">
                                             Price offered
-                                        </v-list-item-title>
-                                        <v-list-item-subtitle
-                                            class="maintext--text mb-0 font-weight-medium fs-13 text-capitalize">₹{{
-                                                d.minPrice ? Number(d.minPrice).toFixed(2) : "0.00"
-                                            }}</v-list-item-subtitle>
-                                    </v-list-item-content>
-                                </v-list-item>
+                                        </p>
+                                        <p class="maintext--text mb-0 font-weight-medium fs-10 text-capitalize">₹{{
+                                            d.minPrice ? Number(d.minPrice).toFixed(2) : "0.00"
+                                        }}</p>
+                                    </v-col>
+                                </v-row>
                             </v-card>
                         </div>
                         <div v-else-if="allcropact == null">
@@ -535,7 +587,7 @@
                                 <v-btn block class="elevation-0 text-center rounded-xl" height="200px" text
                                     color="primary" @click="getCorpationaction">
                                     <div class="mx-auto py-16">
-                                        <img width="60px" src="@/assets/ca_icon.svg" class="mb-3">
+                                        <img width="60px" :src="caIcon" class="mb-3">
                                         <h3 class="primary--text font-weight-medium mb-2 text-none">Corporate Actions
                                         </h3>
                                         <p class="subtext--text mb-0 text-none">Click to load the corporate action data
@@ -607,7 +659,7 @@
                                 <v-btn block class="elevation-0 text-center rounded-xl" height="200px" text
                                     color="primary" @click="getNews">
                                     <div class="mx-auto py-16">
-                                        <img width="60px" src="@/assets/news_icon.svg" class="mb-3">
+                                        <img width="60px" :src="newsIcon" class="mb-3">
                                         <h3 class="primary--text font-weight-medium mb-2 text-none">News</h3>
                                         <p class="subtext--text mb-0 text-none">Click to load the latest news</p>
                                     </div>
@@ -655,6 +707,17 @@ import ic_ma from '@/assets/stocks/ma.svg'
 import ic_sect from '@/assets/stocks/sect.svg'
 import ic_them from '@/assets/stocks/them.svg'
 
+// Import static assets for production compatibility
+import mainCard1 from '@/assets/stocks/main-card-1.svg'
+import mainCard2 from '@/assets/stocks/main-card-2.svg'
+import mainCard3 from '@/assets/stocks/main-card-3.svg'
+import indIcon from '@/assets/stocks/ind.svg'
+import srcmIcon from '@/assets/stocks/srcm.svg'
+import smIcon from '@/assets/sm_icon.svg'
+import noDataFolder from '@/assets/no data folder.svg'
+import caIcon from '@/assets/ca_icon.svg'
+import newsIcon from '@/assets/news_icon.svg'
+
 // Router and Theme
 const router = useRouter()
 const theme = useTheme()
@@ -663,6 +726,9 @@ const theme = useTheme()
 const uid = ref(null)
 const mtoken = ref(null)
 const stoken = ref(null)
+
+// Storage reset handler - defined at module level for cleanup
+let storageResetHandler = null
 
 // Loading states
 const tradeaction = ref(0)
@@ -779,6 +845,16 @@ const unwatchAuth = ref(null)
 const sessionCheckInterval = ref(null)
 const pdmwdataPollInterval = ref(null)
 const heatmapResizeObserver = ref(null)
+const visibilityChangeHandler = ref(null)
+const windowFocusHandler = ref(null)
+
+// Flag to prevent duplicate fetchInitialIndicesData calls
+const initialIndicesDataCalled = ref(false)
+const initialIndicesDataPending = ref(false)
+
+// Throttle for setWebsocket calls to prevent rapid successive API calls
+const lastSetWebsocketCall = ref(0)
+const setWebsocketThrottleMs = 1000 // Minimum 1 second between calls
 
 // State tracking for WebSocket updates (like watchlist)
 const lastState = ref({})
@@ -905,40 +981,77 @@ onMounted(() => {
     // Note: We don't load pdmwdata array structure from localStorage to preserve full 8-item default array
     // Only prices are cached/restored, not the array structure itself
 
+    // Don't clear values - just ensure fresh data is fetched
+    // Clearing values causes "0.00" to show immediately which is not desired
+
     // Initialize data loading
     // Subscribe pdmwdata to WebSocket immediately (like Vue 2 line 855)
     // This MUST happen before cache restore to ensure WebSocket subscription is active
-    // Subscribe pdmwdata to WebSocket
-    setWebsocket("sub", pdmwdata.value, "ssd-pd");
+    // For logged-in users, subscribe to WebSocket; for non-logged-in users, skip (we use fetchInitialIndicesData instead)
+    if (uid.value) {
+        setWebsocket("sub", pdmwdata.value, "ssd-pd");
+    }
 
     // Fetch initial indices data on mount (works for both logged in and logged out users)
-    // This ensures data is available immediately instead of waiting for WebSocket
-    fetchInitialIndicesData();
+    // This ensures fresh data is available immediately instead of waiting for WebSocket
+    // Always fetch fresh data on page refresh - don't rely on cache
+    // Force refresh on page load to ensure we get latest data
+    fetchInitialIndicesData(true).then(() => {
+        // After fresh data is loaded, cache will be updated with fresh data
+        // This ensures next refresh will have recent cache, but we still fetch fresh data
+    }).catch((error) => {
+        console.error('Error fetching initial indices data:', error);
+        // Retry after a short delay
+        setTimeout(() => {
+            fetchInitialIndicesData(true);
+        }, 1000);
+    });
     getADlistdata();
     setStatavddec();
     if (res != "dmFsaWR1c2Vy") {
         getToplistdata();
         getContentlistdata();
     }
+    // Load news and corporate actions on mount
+    getNews();
+    getCorpationaction();
     // Defensive re-subscribe shortly after mount to handle socket warm-up on hard refresh
+    // Only for logged-in users (non-logged-in users already have data from fetchInitialIndicesData)
     setTimeout(() => {
-        // Always re-subscribe pdmwdata, not just if logged in
-        // This ensures all indices get WebSocket updates at mounting stage
-        setWebsocket('sub', pdmwdata.value, 'ssd-pd');
-        if (uid.value && Object.keys(advdecitems.wsdata || {}).length > 0) {
-            setWebsocket('sub', Object.values(advdecitems.wsdata), 'adv');
+        if (uid.value) {
+            // Re-subscribe pdmwdata for logged-in users
+            setWebsocket('sub', pdmwdata.value, 'ssd-pd');
+            if (Object.keys(advdecitems.wsdata || {}).length > 0) {
+                setWebsocket('sub', Object.values(advdecitems.wsdata), 'adv');
+            }
         }
-        // Re-restore cache after subscription to ensure cached data shows if WebSocket not ready
-        updatePdmwdataFromCache()
+        // Note: Removed cache restoration here - fresh data from fetchInitialIndicesData should be used
+        // Cache is only used as fallback in fetchInitialIndicesData if API fails
     }, 1200);
 
-    // Set up polling for non-logged-in users (fetch data every 5 seconds)
+    // For non-logged-in users, set up periodic refresh to ensure data stays fresh
     // For logged-in users, WebSocket will handle updates in real-time
     if (!uid.value) {
+        // Refresh data every 30 seconds for non-logged-in users
         pdmwdataPollInterval.value = setInterval(() => {
-            setWebsocket('sub', pdmwdata.value, 'ssd-pd');
-        }, 5000); // Poll every 5 seconds for non-logged-in users
+            fetchInitialIndicesData(true);
+        }, 30000); // 30 seconds
     }
+
+    // Add visibility change listener to refresh data when tab becomes visible
+    visibilityChangeHandler.value = () => {
+        if (!document.hidden) {
+            // Tab became visible - refresh data to ensure it's up to date
+            fetchInitialIndicesData(true);
+        }
+    };
+    document.addEventListener('visibilitychange', visibilityChangeHandler.value);
+
+    // Also refresh on window focus (when user switches back to the tab)
+    windowFocusHandler.value = () => {
+        fetchInitialIndicesData(true);
+    };
+    window.addEventListener('focus', windowFocusHandler.value);
 
     checkVisibility();
     // setInterval(() => {
@@ -954,7 +1067,6 @@ onMounted(() => {
     watch(uid, async (newUid, oldUid) => {
         if (newUid && !oldUid) {
             // User just logged in - re-subscribe WebSocket immediately
-            console.log('Phase 1: User logged in, re-subscribing WebSocket for top indices and sectors');
             await nextTick();
 
             // Stop polling interval if it exists (switch from polling to WebSocket)
@@ -992,13 +1104,9 @@ onMounted(() => {
             }, 1200);
         } else if (!newUid && oldUid) {
             // User logged out - clear subscriptions if needed
-            console.log('Phase 1: User logged out');
-            // Start polling for non-logged-in users
-            if (!pdmwdataPollInterval.value) {
-                pdmwdataPollInterval.value = setInterval(() => {
-                    setWebsocket('sub', pdmwdata.value, 'ssd-pd');
-                }, 5000);
-            }
+            // Note: Removed polling for non-logged-in users
+            // Data is already available from initial fetch on mount
+            // If fresh data is needed, user can refresh the page
         }
     }, { immediate: false });
 
@@ -1098,17 +1206,35 @@ onMounted(() => {
         initializeLoggedInData();
     });
 
-    // Watch for login changes
+    // Watch for login/logout changes
     unwatchAuth.value = watch(
         () => [authStore.uid, authStore.mtoken],
-        async ([nUid, nMtok]) => {
+        async ([nUid, nMtok], [oldUid, oldMtok]) => {
             if (nUid && nMtok) {
+                // User logged in
                 await nextTick();
                 await initializeLoggedInData();
+            } else if (!nUid && oldUid) {
+                // User logged out - clear local uid ref
+                uid.value = null;
+                mtoken.value = null;
+                stoken.value = null;
+                console.log("🔄 User logged out, cleared local uid ref");
             }
         },
         { immediate: false }
     );
+    
+    // Listen for storage-reset event (triggered on session expiry)
+    storageResetHandler = () => {
+        // Clear local uid ref when storage is reset
+        uid.value = null;
+        mtoken.value = null;
+        stoken.value = null;
+        console.log("🔄 Storage reset event received, cleared local uid ref");
+    };
+    
+    window.addEventListener('storage-reset', storageResetHandler);
 
     // Also listen for sessionStorage changes (fallback)
     const intervalId = setInterval(() => {
@@ -1125,6 +1251,20 @@ onBeforeUnmount(() => {
     window.removeEventListener('scroll', checkVisibility);
     window.removeEventListener('websocket-quote-update', handleQuoteUpdate);
     window.removeEventListener('web-scoketConn', handleWebSocketConnection);
+    // Remove storage-reset listener
+    if (storageResetHandler) {
+        window.removeEventListener('storage-reset', storageResetHandler);
+        storageResetHandler = null;
+    }
+    if (visibilityChangeHandler.value) {
+        document.removeEventListener('visibilitychange', visibilityChangeHandler.value);
+        visibilityChangeHandler.value = null;
+    }
+    // Remove focus handler
+    if (windowFocusHandler.value) {
+        window.removeEventListener('focus', windowFocusHandler.value);
+        windowFocusHandler.value = null;
+    }
     if (unwatchAuth.value) {
         unwatchAuth.value();
         unwatchAuth.value = null;
@@ -1164,7 +1304,7 @@ const savePdmwdataCache = () => {
             localStorage.setItem(`${uid.value || 'guest'}_pdmwdata_cache`, JSON.stringify(cache))
         }
     } catch (err) {
-        console.log('savePdmwdataCache error:', err)
+        // Silent error handling for cache save
     }
 }
 
@@ -1177,20 +1317,32 @@ const loadPdmwdataCache = () => {
             return JSON.parse(cached)
         }
     } catch (err) {
-        console.log('loadPdmwdataCache error:', err)
+        // Silent error handling for cache load
     }
     return null
 }
 
 const updatePdmwdataFromCache = () => {
     // Restore cached prices to pdmwdata array (only if current value is missing/zero)
+    // This is used as a fallback when API fails, not as primary data source
     const cache = loadPdmwdataCache()
     if (cache) {
+        // Check cache age - only use if cache is less than 5 minutes old
+        const maxCacheAge = 5 * 60 * 1000; // 5 minutes in milliseconds
+        const now = Date.now();
+
         for (let i = 0; i < pdmwdata.value.length; i++) {
             const item = pdmwdata.value[i]
             if (item.token && cache[item.token]) {
                 const cached = cache[item.token]
+                // Check if cache is too old
+                const cacheAge = cached.timestamp ? (now - cached.timestamp) : Infinity;
+                if (cacheAge > maxCacheAge) {
+                    continue; // Skip old cache entries
+                }
+
                 // Only use cache if current value is missing, null, or 0
+                // This ensures fresh data always takes precedence
                 if (!item.ltp || item.ltp === "0.00" || item.ltp === "0" || item.ltp === 0) {
                     if (cached.ltp) item.ltp = cached.ltp
                 }
@@ -1323,7 +1475,6 @@ const handleWebSocketConnection = (event) => {
             // Check if it's a top indices token (pdmwdata) - use string comparison
             const pIndex = pdmwdata.value.findIndex((o) => String(o.token) === tokenStr);
             if (pIndex >= 0) {
-                console.log('handleWebSocketConnection: Processing direct token update', tokenStr);
                 optionChainDataParse(detail);
             }
 
@@ -1340,7 +1491,6 @@ const handleWebSocketConnection = (event) => {
                 // Use string comparison for token matching
                 const pIndex = pdmwdata.value.findIndex((o) => String(o.token) === tokenStr);
                 if (pIndex >= 0) {
-                    console.log('handleWebSocketConnection: Processing WebSocket feed format (dk/df) for token', tokenStr);
                     // Map WebSocket feed format to optionChainDataParse format
                     const mappedData = {
                         token: token,
@@ -1430,20 +1580,12 @@ const scrollFrom = (id, value) => {
 const setScrpitCH = (x, i, a, l) => {
     if (a == "TA") {
         let f = tradeactionitem.value[x].findIndex((o) => o.token == i.token);
-        if (f >= 0) {
-            tradeactionitem.value[x][f]["ch"] = Number(i.lp) && Number(i.c) ? (Number(i.lp) - Number(i.c)).toFixed(2) : 0;
-            tradeactionitem.value[x][f]["chp"] = Number(i.ch) && Number(i.lp) ? ((Number(i.ch) / Number(i.lp)) * 100).toFixed(2) : 0;
-            // Force reactivity
-            tradeactionitem.value[x] = [...tradeactionitem.value[x]];
-        }
+        tradeactionitem.value[x][f]["ch"] = Number(i.lp) && Number(i.c) ? (Number(i.lp) - Number(i.c)).toFixed(2) : 0;
+        tradeactionitem.value[x][f]["chp"] = Number(i.ch) && Number(i.lp) ? ((Number(i.ch) / Number(i.lp)) * 100).toFixed(2) : 0;
     } else if (a == "SCR") {
         let f = screentitems.value.findIndex((o) => o.token == i.token);
-        if (f >= 0) {
-            screentitems.value[f]["ch"] = Number(i.lp) && Number(i.c) ? (Number(i.lp) - Number(i.c)).toFixed(2) : 0;
-            screentitems.value[f]["chp"] = Number(i.ch) && Number(i.lp) ? ((Number(i.ch) / Number(i.lp)) * 100).toFixed(2) : 0;
-            // Force reactivity
-            screentitems.value = [...screentitems.value];
-        }
+        screentitems.value[f]["ch"] = Number(i.lp) && Number(i.c) ? (Number(i.lp) - Number(i.c)).toFixed(2) : 0;
+        screentitems.value[f]["chp"] = Number(i.ch) && Number(i.lp) ? ((Number(i.ch) / Number(i.lp)) * 100).toFixed(2) : 0;
     } else if (a == "st" && l < 5) {
         let g = sectorwapper.value.indexOf(`${x}|${l}`);
         if (sectorwslist.value && sectorwslist.value.length == 20) {
@@ -1457,11 +1599,18 @@ const setScrpitCH = (x, i, a, l) => {
 }
 
 // Fetch initial price data for top indices (pdmwdata)
-const fetchInitialIndicesData = async () => {
-    if (!pdmwdata.value || pdmwdata.value.length === 0) {
-        console.log('fetchInitialIndicesData: pdmwdata is empty');
+const fetchInitialIndicesData = async (forceRefresh = false) => {
+    // Prevent duplicate calls unless forced refresh
+    if (initialIndicesDataPending.value && !forceRefresh) {
         return;
     }
+
+    if (!pdmwdata.value || pdmwdata.value.length === 0) {
+        return;
+    }
+
+    // Set pending flag
+    initialIndicesDataPending.value = true;
 
     try {
         // Prepare data array for API call
@@ -1471,18 +1620,11 @@ const fetchInitialIndicesData = async () => {
             tsym: item.tsym
         }));
 
-        // Phase 3: Verify all indices are being fetched
-        console.log(`Phase 3: fetchInitialIndicesData: Fetching data for ${indicesData.length} indices`);
-        indicesData.forEach((item, index) => {
-            console.log(`Phase 3: Fetching index ${index + 1}/${indicesData.length}: ${item.exch}|${item.token}|${item.tsym}`);
-        });
-
         // Fetch LTP data for all indices
         const response = await getLtpdata(indicesData);
         const raw = response?.data;
 
         if (raw) {
-            console.log('fetchInitialIndicesData: Received data for', Object.keys(raw).length, 'tokens');
             let anyUpdated = false;
             for (let l = 0; l < pdmwdata.value.length; l++) {
                 const item = pdmwdata.value[l];
@@ -1494,9 +1636,13 @@ const fetchInitialIndicesData = async () => {
                     const newChp = Number(v.change).toFixed(2);
 
                     // Always update - don't check if changed, just update
-                    pdmwdata.value[l]["ltp"] = newLtp;
-                    pdmwdata.value[l]["ch"] = newCh;
-                    pdmwdata.value[l]["chp"] = newChp;
+                    // Use object spread to ensure Vue reactivity works properly
+                    pdmwdata.value[l] = {
+                        ...pdmwdata.value[l],
+                        ltp: newLtp,
+                        ch: newCh,
+                        chp: newChp
+                    };
                     anyUpdated = true;
 
                     // Update DOM elements immediately using nextTick to ensure DOM is ready
@@ -1516,10 +1662,10 @@ const fetchInitialIndicesData = async () => {
                                 : ch < 0
                                     ? 'font-weight-medium fs-12 ws-p mainred--text'
                                     : 'font-weight-medium fs-12 ws-p subtext--text';
+                            // Also update inline style for color
+                            chpclrTag.style.color = ch > 0 ? '#008000' : ch < 0 ? '#FF0000' : '#000000';
                         }
                     }
-                } else {
-                    console.log('fetchInitialIndicesData: No data for token', item.token);
                 }
             }
 
@@ -1528,27 +1674,28 @@ const fetchInitialIndicesData = async () => {
                 savePdmwdataCache();
             }
         } else {
-            console.log('fetchInitialIndicesData: No raw data received from API, trying cache');
-            // Try to load from cache (Phase 3.2: Add Fallback for Missing Top Indices Data)
+            // Try to load from cache only if API returns no data
+            // But only use cache if it's recent (less than 5 minutes old)
             const cache = loadPdmwdataCache();
             if (cache) {
-                console.log('fetchInitialIndicesData: Loading data from cache');
                 updatePdmwdataFromCache();
             }
         }
     } catch (error) {
         console.error('fetchInitialIndicesData: Error fetching initial indices data:', error);
-        console.error('fetchInitialIndicesData: Error stack:', error.stack);
-        // Phase 3.2: Try to load from cache on error
+        // Try to load from cache on error, but only if cache is recent
         try {
             const cache = loadPdmwdataCache();
             if (cache) {
-                console.log('fetchInitialIndicesData: Loading data from cache after error');
                 updatePdmwdataFromCache();
             }
         } catch (cacheError) {
             console.error('fetchInitialIndicesData: Error loading cache:', cacheError);
         }
+    } finally {
+        // Reset pending flag
+        initialIndicesDataPending.value = false;
+        initialIndicesDataCalled.value = true;
     }
 }
 
@@ -1575,33 +1722,20 @@ const getToplistdata = async () => {
 }
 
 const getContentlistdata = async (change) => {
-    try {
-        if (change == "yes" && uid.value) {
-            // Unsubscribe from old data
-            setWebsocket("unsub-D", screentitems.value, "sc");
-        }
-
-        issloading.value = true;
-        screentitems.value = [];
-
-        let data = await getConTentList(["NSE", screent1.value, screent0.value]);
-
-        if (data && data.length > 0) {
-            screentitems.value = data.slice(0, 10);
-
-            // Subscribe to WebSocket for real-time updates
-            if (uid.value) {
-                setWebsocket("sub", data, "sc");
-            }
-        }
-
-        screentidata.value = false;
-    } catch (error) {
-        console.error("Error loading stock monitor data:", error);
-        screentidata.value = false;
-    } finally {
-        issloading.value = false;
+    if (change == "yes" && uid.value) {
+        setWebsocket("unsub-D", screentitems.value, "sc");
     }
+    issloading.value = true;
+    screentitems.value = [];
+    let data = await getConTentList(["NSE", screent1.value, screent0.value]);
+    if (data && data.length > 0) {
+        screentitems.value = data.slice(0, 10);
+        if (uid.value) {
+            setWebsocket("sub", data, "sc");
+        }
+    }
+    screentidata.value = false;
+    issloading.value = false;
 }
 
 const getSectorlistdata = async () => {
@@ -1650,10 +1784,7 @@ const getMrkBreakerdata = async () => {
 
 const getADlistdata = async () => {
     try {
-        // Phase 4.1: Add comprehensive error logging
-        console.log('getADlistdata: Starting to fetch sector/thematic data');
         let data = await getADindices();
-        console.log('getADlistdata: getADindices response:', data);
 
         if (data && data != 500) {
             // Process sectors data with Vue 3 reactivity
@@ -1751,10 +1882,6 @@ const getADlistdata = async () => {
             // Sort by market cap
             advdecitems.Sectors.sort((a, b) => Number(b.data?.marketCap || 0) - Number(a.data?.marketCap || 0));
             advdecitems.Thematic.sort((a, b) => Number(b.data?.marketCap || 0) - Number(a.data?.marketCap || 0));
-
-            // Phase 4.1: Log summary of processed data
-            console.log('getADlistdata: Processed', advdecitems.Sectors.length, 'sectors and', advdecitems.Thematic.length, 'thematic indices');
-            console.log('getADlistdata: WebSocket data entries:', Object.keys(advdecitems.wsdata || {}).length);
         } else {
             console.warn('getADlistdata: Invalid response from getADindices API:', data);
         }
@@ -1764,7 +1891,6 @@ const getADlistdata = async () => {
         }
     } catch (error) {
         console.error('getADlistdata: Error loading sectors/thematic data:', error);
-        console.error('getADlistdata: Error stack:', error.stack);
     }
 }
 
@@ -2030,19 +2156,28 @@ const newsPage = (n) => {
 }
 
 const getNews = async () => {
-    newsloading.value = true;
-    allnews.value = [];
-    totalnews.value = 0;
-    let config = await getssNews();
-    if (config.data && config.data.length > 0) {
-        let data = config.data;
-        for (let v = 0; v < data.length; v++) {
-            data[v]["isdate"] = `${new Date(data[v].pubDate).toDateString().slice(3)} ${new Date(data[v].pubDate).toLocaleString("en-US", { hour: "numeric", minute: "numeric", hour12: true })} IST`;
-            allnews.value.push(data[v]);
+    try {
+        newsloading.value = true;
+        allnews.value = [];
+        totalnews.value = 0;
+        let config = await getssNews();
+        if (config && config.data && config.data.length > 0) {
+            let data = config.data;
+            for (let v = 0; v < data.length; v++) {
+                data[v]["isdate"] = `${new Date(data[v].pubDate).toDateString().slice(3)} ${new Date(data[v].pubDate).toLocaleString("en-US", { hour: "numeric", minute: "numeric", hour12: true })} IST`;
+                allnews.value.push(data[v]);
+            }
+            totalnews.value = config.newsCount || 0;
+        } else {
+            console.warn('[StocksSrc] getssNews returned no data:', config);
         }
-        totalnews.value = config.newsCount;
+    } catch (error) {
+        console.error('[StocksSrc] Error fetching news:', error);
+        allnews.value = [];
+        totalnews.value = 0;
+    } finally {
+        newsloading.value = false;
     }
-    newsloading.value = false;
 }
 
 const getCorpationaction = async () => {
@@ -2056,18 +2191,27 @@ const getCorpationaction = async () => {
 }
 
 const setSSDtab = (type, token, exch, tsym) => {
-    // console.log('tsym', type, token, exch, tsym)
     if (type == "alert") {
         // eventBus.$emit("menudialog", "alert", token, exch, tsym);
     } else if (type == "cGTT") {
         // eventBus.$emit("menudialog", "order-GTT", token, exch, tsym, "b");
     } else {
-        let path = window.location;
-        path["val"] = [type, token, exch, tsym];
-        if (path.pathname != "/stocks/details") {
-            router.push({ name: "stocks details", params: { val: path.val } });
-        } else {
-            // eventBus.$emit("ssd-event", type, token, exch, tsym);
+        // Use query params since route doesn't have :val param defined
+        // StocksDetails.vue reads from route.query first, then falls back to localStorage
+        try {
+            router.push({
+                name: "stocks details",
+                query: {
+                    type: type || 'detail',
+                    token: token,
+                    exch: exch,
+                    tsym: tsym
+                }
+            }).catch((error) => {
+                console.error('[StocksSrc] Navigation error:', error);
+            });
+        } catch (error) {
+            console.error('[StocksSrc] Navigation exception:', error);
         }
     }
 }
@@ -2083,6 +2227,14 @@ const setWebsocket = async (flow, data, is) => {
         });
         window.dispatchEvent(event);
     } else {
+        // Throttle API calls for non-logged-in users to prevent rapid successive calls
+        const now = Date.now();
+        const timeSinceLastCall = now - lastSetWebsocketCall.value;
+        if (timeSinceLastCall < setWebsocketThrottleMs) {
+            return;
+        }
+        lastSetWebsocketCall.value = now;
+
         let raw = await getLtpdata(data);
         raw = raw.data;
         if (is == "ssd-pd" && raw) {
@@ -2262,19 +2414,18 @@ const optionChainDataParse = (data) => {
     if (advdecitems.wsdata && advdecitems.wsdata[tokenStr]) {
         updateSectorData(data);
     }
-    // Handle stock monitor (screentitems) updates
     let s = screentitems.value.findIndex((o) => o.token == token);
     if (s >= 0 && screentitems.value[s].token == token) {
-        // Handle lp (last price) - template uses item.lp
+        // Handle ltp
         if (data.lp !== undefined && data.lp !== null) {
-            screentitems.value[s].lp = Number(data.lp).toFixed(2);
+            screentitems.value[s].ltp = Number(data.lp).toFixed(2);
         } else if (data.ltp !== undefined && data.ltp !== null) {
-            screentitems.value[s].lp = Number(data.ltp).toFixed(2);
+            screentitems.value[s].ltp = Number(data.ltp).toFixed(2);
         } else if (data.l !== undefined && data.l !== null) {
-            screentitems.value[s].lp = Number(data.l).toFixed(2);
+            screentitems.value[s].ltp = Number(data.l).toFixed(2);
         }
 
-        // Handle ch (change)
+        // Handle ch
         if (data.ch !== undefined && data.ch !== null) {
             screentitems.value[s]["ch"] = Number(data.ch) > 0 || Number(data.ch) < 0 ? Number(data.ch).toFixed(2) : (0).toFixed(2);
         } else if (data.c !== undefined && data.c !== null && data.lp !== undefined && data.lp !== null) {
@@ -2282,11 +2433,9 @@ const optionChainDataParse = (data) => {
             screentitems.value[s]["ch"] = change > 0 || change < 0 ? change.toFixed(2) : (0).toFixed(2);
         }
 
-        // Handle chp (change percentage)
+        // Handle chp
         if (data.chp !== undefined && data.chp !== null) {
             screentitems.value[s]["chp"] = Number(data.chp).toFixed(2);
-        } else if (data.pc !== undefined && data.pc !== null) {
-            screentitems.value[s]["chp"] = Number(data.pc).toFixed(2);
         } else if (data.c !== undefined && data.c !== null && screentitems.value[s]["ch"]) {
             const closePrice = Number(data.c);
             if (closePrice > 0) {
@@ -2295,86 +2444,59 @@ const optionChainDataParse = (data) => {
             }
         }
 
-        // Handle volume (v)
-        if (data.v !== undefined && data.v !== null) {
-            screentitems.value[s]["v"] = Number(data.v).toFixed(2);
-        } else if (data.volume !== undefined && data.volume !== null) {
-            screentitems.value[s]["v"] = Number(data.volume).toFixed(2);
+        // Handle volume
+        if (data.volume !== undefined && data.volume !== null) {
+            screentitems.value[s]["vol"] = Number(data.volume);
         } else if (data.vol !== undefined && data.vol !== null) {
-            screentitems.value[s]["v"] = Number(data.vol).toFixed(2);
+            screentitems.value[s]["vol"] = Number(data.vol);
         }
 
-        // Handle open price (ap -> op field)
-        if (data.ap !== undefined && data.ap !== null) {
-            screentitems.value[s]["ap"] = Number(data.ap).toFixed(2);
-        } else if (data.open_price !== undefined && data.open_price !== null) {
-            screentitems.value[s]["ap"] = Number(data.open_price).toFixed(2);
+        // Handle open price
+        if (data.open_price !== undefined && data.open_price !== null) {
+            screentitems.value[s]["op"] = Number(data.open_price) ? Number(data.open_price).toFixed(2) : (0).toFixed(2);
         } else if (data.open !== undefined && data.open !== null) {
-            screentitems.value[s]["ap"] = Number(data.open).toFixed(2);
+            screentitems.value[s]["op"] = Number(data.open) ? Number(data.open).toFixed(2) : (0).toFixed(2);
         }
 
-        // Handle close price (c -> cp field)
-        if (data.c !== undefined && data.c !== null) {
-            screentitems.value[s]["c"] = Number(data.c).toFixed(2);
-        } else if (data.prev_close_price !== undefined && data.prev_close_price !== null) {
-            screentitems.value[s]["c"] = Number(data.prev_close_price).toFixed(2);
+        // Handle close price
+        if (data.prev_close_price !== undefined && data.prev_close_price !== null) {
+            screentitems.value[s]["cp"] = Number(data.prev_close_price) ? Number(data.prev_close_price).toFixed(2) : (0).toFixed(2);
         } else if (data.close !== undefined && data.close !== null) {
-            screentitems.value[s]["c"] = Number(data.close).toFixed(2);
+            screentitems.value[s]["cp"] = Number(data.close) ? Number(data.close).toFixed(2) : (0).toFixed(2);
+        } else if (data.c !== undefined && data.c !== null) {
+            screentitems.value[s]["cp"] = Number(data.c) ? Number(data.c).toFixed(2) : (0).toFixed(2);
         }
 
-        // Handle high price (h)
-        if (data.h !== undefined && data.h !== null) {
-            screentitems.value[s]["h"] = Number(data.h).toFixed(2);
-        } else if (data.high_price !== undefined && data.high_price !== null) {
-            screentitems.value[s]["h"] = Number(data.high_price).toFixed(2);
+        // Handle high price
+        if (data.high_price !== undefined && data.high_price !== null) {
+            screentitems.value[s]["high"] = Number(data.high_price) ? Number(data.high_price).toFixed(2) : (0).toFixed(2);
         } else if (data.high !== undefined && data.high !== null) {
-            screentitems.value[s]["h"] = Number(data.high).toFixed(2);
+            screentitems.value[s]["high"] = Number(data.high) ? Number(data.high).toFixed(2) : (0).toFixed(2);
         }
 
-        // Handle low price (l)
-        if (data.l !== undefined && data.l !== null && data.lp === undefined) {
-            // Only use data.l for low if it's not being used for ltp
-            screentitems.value[s]["l"] = Number(data.l).toFixed(2);
-        } else if (data.low_price !== undefined && data.low_price !== null) {
-            screentitems.value[s]["l"] = Number(data.low_price).toFixed(2);
+        // Handle low price
+        if (data.low_price !== undefined && data.low_price !== null) {
+            screentitems.value[s]["low"] = Number(data.low_price) ? Number(data.low_price).toFixed(2) : (0).toFixed(2);
         } else if (data.low !== undefined && data.low !== null) {
-            screentitems.value[s]["l"] = Number(data.low).toFixed(2);
+            screentitems.value[s]["low"] = Number(data.low) ? Number(data.low).toFixed(2) : (0).toFixed(2);
         }
 
-        // Force reactivity
-        screentitems.value = [...screentitems.value];
-
-        // Update DOM elements immediately
-        nextTick(() => {
-            const ltpTag = document.getElementById(`ssdsc${token}ltp`);
-            if (ltpTag) {
-                ltpTag.innerHTML = screentitems.value[s].lp ? Number(screentitems.value[s].lp).toFixed(2) : '0.00';
-
-                const chTag = document.getElementById(`ssdsc${token}ch`);
-                const chpTag = document.getElementById(`ssdsc${token}chp`);
-                const chpclrTag = document.getElementById(`ssdsc${token}chpclr`);
-                const opTag = document.getElementById(`ssdsc${token}op`);
-                const cpTag = document.getElementById(`ssdsc${token}cp`);
-                const highTag = document.getElementById(`ssdsc${token}high`);
-                const lowTag = document.getElementById(`ssdsc${token}low`);
-
-                if (chTag) chTag.innerHTML = screentitems.value[s].ch ? screentitems.value[s].ch : '0.00';
-                if (chpTag) chpTag.innerHTML = ` (${screentitems.value[s].chp || screentitems.value[s].pc || '0.00'}%)`;
-
-                // Update color class based on ch value
-                if (chpclrTag) {
-                    const ch = parseFloat(screentitems.value[s].ch) || 0;
-                    const baseClasses = 'font-weight-medium fs-12 ws-p';
-                    const colorClass = ch > 0 ? 'maingreen--text' : ch < 0 ? 'mainred--text' : 'subtext--text';
-                    chpclrTag.className = `${baseClasses} ${colorClass}`;
-                }
-
-                if (opTag) opTag.innerHTML = screentitems.value[s].ap ? screentitems.value[s].ap : "0.00";
-                if (cpTag) cpTag.innerHTML = screentitems.value[s].c ? screentitems.value[s].c : "0.00";
-                if (highTag) highTag.innerHTML = screentitems.value[s].h ? screentitems.value[s].h : "0.00";
-                if (lowTag) lowTag.innerHTML = screentitems.value[s].l ? screentitems.value[s].l : "0.00";
-            }
-        });
+        let tag = document.getElementById(`ssdsc${token}ltp`);
+        if (tag) {
+            document.getElementById(`ssdsc${token}ltp`).innerHTML = screentitems.value[s].ltp;
+            const chTag = document.getElementById(`ssdsc${token}ch`);
+            const chpTag = document.getElementById(`ssdsc${token}chp`);
+            const opTag = document.getElementById(`ssdsc${token}op`);
+            const cpTag = document.getElementById(`ssdsc${token}cp`);
+            const highTag = document.getElementById(`ssdsc${token}high`);
+            const lowTag = document.getElementById(`ssdsc${token}low`);
+            if (chTag) chTag.innerHTML = screentitems.value[s].ch;
+            if (chpTag) chpTag.innerHTML = ` (${screentitems.value[s].chp}%)`;
+            if (opTag) opTag.innerHTML = screentitems.value[s].op;
+            if (cpTag) cpTag.innerHTML = screentitems.value[s].cp;
+            if (highTag) highTag.innerHTML = screentitems.value[s].high;
+            if (lowTag) lowTag.innerHTML = screentitems.value[s].low;
+        }
     }
     if (tradeactionitem.value.length == 4) {
         let o = tradeactionitem.value[0].findIndex((o) => o.token == token);
@@ -2452,9 +2574,20 @@ const optionChainDataParse = (data) => {
 </script>
 
 <style>
+.black--text {
+    color: black !important;
+}
+
 .stk-land-crds {
-    background-color: linear-gradient(270deg, #fff 77.04%, #f6f6f6 115%), #fff !important;
+    background-color: #fff !important;
+    border: 1px solid #EBEEF0 !important;
     box-shadow: 0px 38.519px 25.482px 0px rgba(83, 30, 0, 0.04), 0px 20px 13px 0px rgba(83, 30, 0, 0.04), 0px 8.148px 6.519px 0px rgba(83, 30, 0, 0.03), 0px 1.852px 3.148px 0px rgba(83, 30, 0, 0.02) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stk-land-crds:hover {
+    transform: translateY(-2px);
+    box-shadow: 0px 48px 32px 0px rgba(83, 30, 0, 0.06), 0px 24px 16px 0px rgba(83, 30, 0, 0.05), 0px 12px 8px 0px rgba(83, 30, 0, 0.04), 0px 4px 4px 0px rgba(83, 30, 0, 0.03) !important;
 }
 
 /* Ensure ECharts container stretches fully */
@@ -2464,5 +2597,77 @@ const optionChainDataParse = (data) => {
 
 #avddecchart>div {
     width: 100% !important;
+}
+
+
+
+.v-field__input {
+    justify-content: center !important;
+}
+
+.v-select__selection-text {
+    text-align: center;
+}
+
+.v-field__append-inner {
+    margin-right: 4px;
+}
+
+.custom-pill-select .v-field__input {
+    justify-content: center !important;
+    /* centers the text horizontally */
+    padding: 0 8px !important;
+}
+
+.custom-pill-select .v-select__selection-text {
+    text-align: center !important;
+}
+
+.custom-pill-select .v-field__append-inner {
+    margin-right: 4px !important;
+    /* small right padding for the icon */
+}
+
+.custom-pill-select .v-field {
+    box-shadow: none !important;
+    /* remove shadow when focused */
+}
+
+.custom-pill-select .v-field__outline {
+    display: none !important;
+    /* hides default Vuetify border */
+}
+
+.fullwidth-select {
+    width: 60% !important;
+    /* full width */
+    /* justify-content: center !important; */
+}
+
+
+
+.fullwidth-select .v-field {
+    width: 100% !important;
+    /* stretch inside parent */
+    border-radius: 9999px !important;
+    /* full pill shape */
+}
+
+/* Tab Slider Effect */
+.tab-slider-container {
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+}
+
+.tab-slider-wrapper {
+    display: flex;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+}
+
+.tab-slide {
+    width: 100%;
+    flex-shrink: 0;
 }
 </style>

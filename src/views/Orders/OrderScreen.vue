@@ -21,11 +21,14 @@
             <v-text-field v-if="ordertab === 'orders'" style="max-width: 220px" v-model="opensearch" hide-details
                 prepend-inner-icon="mdi-magnify" label="Search" class="rounded-pill mr-4" variant="solo"
                 density="comfortable" :bg-color="'secbg'" />
-            <v-icon :disabled="loading" class="ml-3 cursor-p" @click="getOrderbook" color="maintext"
+            <v-icon :disabled="loading" 
+                :class="['ml-3 cursor-p', { 'reload-rotating': loading }]"
+                @click="getOrderbook" color="maintext"
                 size="24">mdi-reload</v-icon>
         </v-toolbar>
 
-        <div v-if="ordertab === 'orders'" style="z-index:0">
+        <v-window v-model="ordertab" style="z-index:0">
+            <v-window-item value="orders">
             <v-data-table :headers="openHeaders" :items="searchedOpen" :loading="loading" :hide-default-footer="true"
                 fixed-header class="rounded-lg overflow-y-auto"
                 style="border-radius:4px; border:1px solid #EBEEF0" height="520" :items-per-page="-1">
@@ -59,8 +62,8 @@
                     </div>
                 </template>
             </v-data-table>
-        </div>
-        <div v-else-if="ordertab === 'executed'">
+            </v-window-item>
+            <v-window-item value="executed">
             <v-data-table :headers="execHeaders" :items="execItems" :loading="loading" :hide-default-footer="true"
                 fixed-header class="rounded-lg overflow-y-auto"
                 style="border-radius:4px; border:1px solid #EBEEF0" height="520" :items-per-page="-1">
@@ -94,7 +97,8 @@
                     </div>
                 </template>
             </v-data-table>
-        </div>
+            </v-window-item>
+        </v-window>
     </div>
 </template>
 
@@ -103,9 +107,11 @@ import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import noDataImg from '@/assets/no data folder.svg'
 import { useAppStore } from '@/stores/appStore'
+import { useOrderStore } from '@/stores/orderStore'
 import { getMOrderbook } from '@/components/mixins/getAPIdata'
 
 const appStore = useAppStore()
+const orderStore = useOrderStore()
 const router = useRouter()
 const route = useRoute()
 
@@ -180,6 +186,18 @@ function setOrderPayload(payload) {
     orderbookdata.value = all
     openorders.value = payload?.openorders || all.filter(o => o.way === 'open')
     execorders.value = payload?.execorders || all.filter(o => o.way !== 'open')
+    
+    // Update order counts in store if stat array is available
+    if (payload?.stat && Array.isArray(payload.stat) && payload.stat.length >= 3) {
+        orderStore.setOrderCounts(payload.stat)
+    } else {
+        // Calculate counts from orders if stat is not available
+        const openCount = openorders.value.length
+        const execCount = execorders.value.filter(o => o.status === 'COMPLETE').length
+        const rejectedCount = execorders.value.filter(o => o.status === 'REJECTED' || o.status === 'CANCELED').length
+        orderStore.setOrderCounts([openCount, execCount, rejectedCount])
+    }
+    
     try {
         sessionStorage.setItem('orders_last', JSON.stringify(payload))
     } catch (e) { }
@@ -239,3 +257,19 @@ onBeforeUnmount(() => {
     window.removeEventListener('orderbook-update', onOrderbookUpdate)
 })
 </script>
+
+<style scoped>
+/* Reload icon rotation animation */
+.reload-rotating {
+    animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+</style>

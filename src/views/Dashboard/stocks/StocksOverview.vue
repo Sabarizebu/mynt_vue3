@@ -58,13 +58,14 @@
                                 "0.00" }}</span>
                             <br class="d-none d-md-block" />
                             <span class="fs-12" :id="`ssdove${stkltp}chpclr`"
+                                :style="{ color: menudata[0] ? (menudata[0].ch > 0 ? '#43A833' : menudata[0].ch < 0 ? '#F23645' : '#676767') : '#676767' }"
                                 :class="menudata[0] ? (menudata[0].ch > 0 ? 'maingreen--text' : menudata[0].ch < 0 ? 'mainred--text' : 'subtext-text') : 'subtext-text'">
                                 <span :id="`ssdove${stkltp}ch`">{{ menudata[0] && menudata[0].ch ? `${menudata[0].ch}` :
                                     "0.00" }}
                                 </span>
                                 (<span :id="`ssdove${stkltp}chp`">{{ menudata[0] && menudata[0].chp ?
                                     `${menudata[0].chp}` : "0.00"
-                                    }}</span>%)</span>
+                                }}</span>%)</span>
                         </p>
                     </v-col>
                 </v-row>
@@ -266,7 +267,7 @@
                             <v-list-item-title class="maintext--text font-weight-medium fs-12 mb-1 py-1">
                                 <span :id="`ssdove${stkltp}ap`">{{ menudata[0] && menudata[0].ap ? menudata[0].ap :
                                     "0.00"
-                                    }}</span></v-list-item-title>
+                                }}</span></v-list-item-title>
                         </v-list-item>
                         <v-divider></v-divider>
                     </v-col>
@@ -277,7 +278,7 @@
                             <v-list-item-title class="maintext--text font-weight-medium fs-12 mb-1 py-1">
                                 <span :id="`ssdove${stkltp}oi`">{{ menudata[0] && menudata[0].oi ? menudata[0].oi :
                                     "0.00"
-                                    }}</span></v-list-item-title>
+                                }}</span></v-list-item-title>
                         </v-list-item>
                         <v-divider></v-divider>
                     </v-col>
@@ -289,7 +290,7 @@
                             <v-list-item-title class="maintext--text font-weight-medium fs-12 mb-1 py-1">
                                 <span :id="`ssdove${stkltp}uc`">{{ menudata[0] && menudata[0].uc ? menudata[0].uc :
                                     "0.00"
-                                    }}</span></v-list-item-title>
+                                }}</span></v-list-item-title>
                         </v-list-item>
                         <v-divider></v-divider>
                     </v-col>
@@ -301,7 +302,7 @@
                             <v-list-item-title class="maintext--text font-weight-medium fs-12 mb-1 py-1">
                                 <span :id="`ssdove${stkltp}lc`">{{ menudata[0] && menudata[0].lc ? menudata[0].lc :
                                     "0.00"
-                                    }}</span></v-list-item-title>
+                                }}</span></v-list-item-title>
                         </v-list-item>
                         <v-divider></v-divider>
                     </v-col>
@@ -313,7 +314,7 @@
                             <v-list-item-title class="maintext--text font-weight-medium fs-12 mb-1 py-1">
                                 <span :id="`ssdove${stkltp}ltq`">{{ menudata[0] && menudata[0].ltq ? menudata[0].ltq :
                                     "0.00"
-                                    }}</span></v-list-item-title>
+                                }}</span></v-list-item-title>
                         </v-list-item>
                         <v-divider></v-divider>
                     </v-col>
@@ -325,7 +326,7 @@
                             <v-list-item-title class="maintext--text font-weight-medium fs-12 mb-1 py-1">
                                 <span :id="`ssdove${stkltp}ltt`">{{ menudata[0] && menudata[0].ltt ? menudata[0].ltt :
                                     "0.00"
-                                    }}</span></v-list-item-title>
+                                }}</span></v-list-item-title>
                         </v-list-item>
                         <v-divider></v-divider>
                     </v-col>

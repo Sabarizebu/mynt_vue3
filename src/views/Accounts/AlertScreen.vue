@@ -3,11 +3,11 @@
         <div style="position: sticky !important; top: 80px; z-index: 1;">
             <v-toolbar class="tool-sty elevation-0 pl-4" height="40px" style="background-color: white !important;"
                 dense>
-                <v-tabs v-model="bodytab" color="maintext" fixed show-arrows density="comfortable">
-                    <v-tab value="notification" class=" py-3 text-none text-start min-w-fit">Notification</v-tab>
-                    <v-tab value="exch_alert" class=" py-3 text-none text-start min-w-fit">Exch alert</v-tab>
-                    <v-tab value="exch_status" class=" py-3 text-none text-start min-w-fit">Exch status</v-tab>
-                    <v-tab value="pending_alert" class=" py-3 text-none text-start min-w-fit">Pending alert</v-tab>
+                <v-tabs v-model="bodytab" color="#000" fixed show-arrows density="comfortable" class="alert-tabs">
+                    <v-tab value="notification" class="alert-tab text-none">Notification</v-tab>
+                    <v-tab value="exch_alert" class="alert-tab text-none">Exch alert</v-tab>
+                    <v-tab value="exch_status" class="alert-tab text-none">Exch status</v-tab>
+                    <v-tab value="pending_alert" class="alert-tab text-none">Pending alert</v-tab>
                 </v-tabs>
                 <v-spacer />
                 <v-icon class="ml-3 cursor-p" @click="getAllalerts" color="maintext" size="24">mdi-reload</v-icon>
@@ -16,18 +16,15 @@
         </div>
 
         <!-- Tab contents -->
-        <div v-if="bodytab === 'notification'" style="border-top: 1px solid #EBEEF0;">
+        <div v-if="bodytab === 'notification'" style="border-top: 1px solid #EBEEF0; background-color: white;">
             <div v-if="allalert.b && allalert.b.length">
-                <v-card v-for="(n, e) in allalert.b" :key="e" class="crd-trn rounded-lg elevation-0 mb-0">
-                    <v-list-item two-line class="px-2 pr-sm-3">
-                        <v-list-item-content class="py-4">
-                            <p class="fs-14 mb-2 text-rap-l2 lh-20" v-html="n.dmsg" />
-                            <v-list-item-subtitle class="fs-12 font-weight-regular">{{ n.norentm
-                            }}</v-list-item-subtitle>
-                        </v-list-item-content>
-                    </v-list-item>
-                    <v-divider />
-                </v-card>
+                <div v-for="(n, e) in allalert.b" :key="e"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 16px;">
+                    <p style="font-size: 14px; line-height: 20px; color: #000; margin: 0 0 4px 0; font-weight: 400;"
+                        v-html="n.dmsg" />
+                    <p style="font-size: 12px; line-height: 16px; color: #999; margin: 0; font-weight: 400;">{{
+                        n.norentm }}</p>
+                </div>
             </div>
             <div v-else class="mx-auto text-center py-16">
                 <img class="align-self-stretch mx-auto" width="80px" :src="noDataImg" alt="no data" />
@@ -35,18 +32,15 @@
             </div>
         </div>
 
-        <div v-else-if="bodytab === 'exch_alert'">
+        <div v-else-if="bodytab === 'exch_alert'" style="background-color: white;">
             <div v-if="allalert.m && allalert.m.length">
-                <v-card v-for="(n, e) in allalert.m" :key="e" class="crd-trn rounded-lg elevation-0 mb-0">
-                    <v-list-item two-line class="px-2 pr-sm-3">
-                        <v-list-item-content class="py-0">
-                            <p class="fs-14 mb-2 text-rap-l2 lh-20">{{ n.exch }}: {{ n.exch_msg }}</p>
-                            <v-list-item-subtitle class="fs-12 font-weight-regular">{{ n.exch_tm
-                            }}</v-list-item-subtitle>
-                        </v-list-item-content>
-                    </v-list-item>
-                    <v-divider />
-                </v-card>
+                <div v-for="(n, e) in allalert.m" :key="e"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 16px;">
+                    <p style="font-size: 14px; line-height: 20px; color: #000; margin: 0 0 4px 0; font-weight: 400;">{{
+                        n.exch }}: {{ n.exch_msg }}</p>
+                    <p style="font-size: 12px; line-height: 16px; color: #999; margin: 0; font-weight: 400;">{{
+                        n.exch_tm }}</p>
+                </div>
             </div>
             <div v-else class="mx-auto text-center py-16">
                 <img class="align-self-stretch mx-auto" width="80px" :src="noDataImg" alt="no data" />
@@ -54,25 +48,23 @@
             </div>
         </div>
 
-        <div v-else-if="bodytab === 'exch_status'">
+        <div v-else-if="bodytab === 'exch_status'" style="background-color: white;">
             <div v-if="allalert.s && allalert.s.length">
-                <v-card v-for="(n, e) in allalert.s" :key="e" class="crd-trn rounded-lg elevation-0 mb-0">
-                    <v-list-item two-line class="px-2 pr-sm-3">
-                        <v-list-item-content class="pb-3 pt-2">
-                            <p class="fs-14 mb-1 mt-1 text-rap-l2 lh-20">{{ e + 1 }}. {{ n.exch }}</p>
-                            <p class="font-weight-regular fs-13 mb-0 text-rap-l2 lh-20">
-                                <span class="subtext--text">Status: </span>
-                                <v-icon size="10" :color="n.exchstat.includes('OPEN') ? '#1FD601' : '#D60101'">
-                                    mdi-checkbox-blank-circle
-                                </v-icon>
-                                {{ n.exchstat }} | <span class="subtext--text">Market type:</span> {{ n.exchtype }}
-                            </p>
-                            <v-list-item-subtitle class="fs-12 font-weight-regular mb-0">{{ n.description
-                            }}</v-list-item-subtitle>
-                        </v-list-item-content>
-                    </v-list-item>
-                    <v-divider />
-                </v-card>
+                <div v-for="(n, e) in allalert.s" :key="e"
+                    style="border-bottom: 1px solid #EBEEF0; padding: 12px 16px;">
+                    <p style="font-size: 14px; line-height: 20px; color: #000; margin: 0 0 6px 0; font-weight: 400;">{{
+                        e + 1 }}. {{ n.exch }}</p>
+                    <p style="font-size: 13px; line-height: 20px; color: #000; margin: 0 0 4px 0; font-weight: 400;">
+                        <span style="color: #666;">Status: </span>
+                        <v-icon size="10" :color="n.exchstat.includes('OPEN') ? '#1FD601' : '#D60101'"
+                            style="margin: 0 4px;">
+                            mdi-checkbox-blank-circle
+                        </v-icon>
+                        {{ n.exchstat }} | <span style="color: #666;">Market type:</span> {{ n.exchtype }}
+                    </p>
+                    <p style="font-size: 12px; line-height: 16px; color: #999; margin: 0; font-weight: 400;">{{
+                        n.description }}</p>
+                </div>
             </div>
             <div v-else class="mx-auto text-center py-16">
                 <img class="align-self-stretch mx-auto" width="80px" :src="noDataImg" alt="no data" />
@@ -80,42 +72,34 @@
             </div>
         </div>
 
-        <div v-else-if="bodytab === 'pending_alert'">
-            <!-- Search field -->
-            <v-text-field v-model="opensearch" variant="solo" density="comfortable" :bg-color="'secbg'"
-                placeholder="Search by instrument, exchange, alert type..." hide-details class="mt-3 mx-3"
-                prepend-inner-icon="mdi-magnify" clearable />
-
+        <div v-else-if="bodytab === 'pending_alert'" style="background-color: white;">
             <!-- Pending alerts table -->
             <v-data-table :loading="loader" must-sort :sort-by="[{ key: 'norentm', order: 'desc' }]" hide-default-footer
-                fixed-header class="mt-3 rounded-lg overflow-y-auto"
-                style="border-radius: 4px; border: 1px solid #EBEEF0;" height="480px" :headers="orderheader"
-                :items="searchedPendingItems" :items-per-page="-1" :search="opensearch">
+                fixed-header class="mt-3 alert-pending-table"
+                style="border-radius: 4px; border: 1px solid #EBEEF0; background-color: white;" height="480px"
+                :headers="orderheader" :items="searchedPendingItems" :items-per-page="-1" :search="opensearch">
                 <template #item.tsym="{ item }">
-                    <div class="pos-rlt">
-                        <p class="font-weight-medium maintext--text mb-0 table-hov-text ws-p mr-4">
+                    <div class="pos-rlt instrument-cell">
+                        <p class="table-hov-text ws-p instrument-name">
                             {{ item.tsym || '' }}
-                            <span class="ml-1 txt-999 fs-10">{{ item.exch || '' }}</span>
+                            <span class="instrument-exchange">{{ item.exch || '' }}</span>
                         </p>
-                        <div @click.stop class="pos-abs table-hov" style="top: 15px; right: 0">
-                            <v-btn @click="setSSDtab('order', item.token, item.exch, item.tsym, 'b', item)"
-                                min-width="20px" color="maingreen"
-                                class="px-0 font-weight-bold white--text elevation-0 mr-1" size="x-small">B</v-btn>
-                            <v-btn @click="setSSDtab('order', item.token, item.exch, item.tsym, 's', item)"
-                                min-width="20px" color="mainred"
-                                class="px-0 font-weight-bold white--text elevation-0 mr-1" size="x-small">S</v-btn>
-                            <v-btn @click="setSSDtab('chart', item.token, item.exch, item.tsym, null, item)"
-                                style="border: 1px solid #EBEEF0" min-width="20px" color="mainbg"
-                                class="px-0 font-weight-bold elevation-0 mr-1" size="x-small">
-                                <v-icon size="18" color="maintext">mdi-chart-line-variant</v-icon>
+                        <div @click.stop class="pos-abs table-hov action-buttons">
+                            <v-btn @click.stop="setSSDtab('order', item.token, item.exch, item.tsym, 'b', item)"
+                                class="action-btn buy-btn elevation-0" size="x-small">B</v-btn>
+                            <v-btn @click.stop="setSSDtab('order', item.token, item.exch, item.tsym, 's', item)"
+                                class="action-btn sell-btn elevation-0" size="x-small">S</v-btn>
+                            <v-btn @click.stop="setSSDtab('chart', item.token, item.exch, item.tsym, null, item)"
+                                class="action-btn icon-btn elevation-0" size="x-small">
+                                <v-icon size="14" color="#000">mdi-chart-line-variant</v-icon>
                             </v-btn>
                             <v-tooltip location="top" color="black">
                                 <template #activator="{ props }">
-                                    <div v-bind="props">
-                                        <v-btn @click="setSSDtab('c-alert', item.token, item.exch, item.tsym, '', item)"
-                                            style="border: 1px solid #EBEEF0" min-width="20px" color="mainbg"
-                                            class="px-0 font-weight-bold elevation-0 mr-1" size="x-small">
-                                            <v-icon size="18" color="maintext">mdi-close</v-icon>
+                                    <div v-bind="props" @click.stop>
+                                        <v-btn
+                                            @click.stop="setSSDtab('c-alert', item.token, item.exch, item.tsym, '', item)"
+                                            class="action-btn icon-btn elevation-0" size="x-small">
+                                            <v-icon size="14" color="#000">mdi-close</v-icon>
                                         </v-btn>
                                     </div>
                                 </template>
@@ -123,11 +107,11 @@
                             </v-tooltip>
                             <v-tooltip location="top" color="black">
                                 <template #activator="{ props }">
-                                    <div v-bind="props">
-                                        <v-btn @click="setSSDtab('m-alert', item.token, item.exch, item.tsym, '', item)"
-                                            style="border: 1px solid #EBEEF0" min-width="20px" color="mainbg"
-                                            class="px-0 font-weight-bold elevation-0 mr-1" size="x-small">
-                                            <v-icon size="16" color="maintext">mdi-pen</v-icon>
+                                    <div v-bind="props" @click.stop>
+                                        <v-btn
+                                            @click.stop="setSSDtab('m-alert', item.token, item.exch, item.tsym, '', item)"
+                                            class="action-btn icon-btn elevation-0" size="x-small">
+                                            <v-icon size="12" color="#000">mdi-pen</v-icon>
                                         </v-btn>
                                     </div>
                                 </template>
@@ -135,9 +119,8 @@
                             </v-tooltip>
                             <v-menu close-on-click :location="'bottom'" class="table-menu">
                                 <template #activator="{ props }">
-                                    <v-btn v-bind="props" style="border: 1px solid #EBEEF0" min-width="20px"
-                                        color="mainbg" class="px-0 font-weight-bold elevation-0 mr-1" size="x-small">
-                                        <v-icon size="20" color="maintext">mdi-dots-horizontal</v-icon>
+                                    <v-btn v-bind="props" class="action-btn icon-btn elevation-0" size="x-small">
+                                        <v-icon size="16" color="#000">mdi-dots-horizontal</v-icon>
                                     </v-btn>
                                 </template>
                                 <v-card class="table-menu-list">
@@ -150,11 +133,12 @@
                                                     <v-icon v-if="typeof m.icon === 'string'" :icon="m.icon" size="20"
                                                         color="#506D84" />
                                                     <img v-else-if="m.icon > 2" width="20px" class="pl-1"
-                                                        :src="require(`@/assets/orderbook/${m.icon}.svg`)" />
+                                                        :src="getIconPath(m.icon)" />
                                                     <v-icon v-else :icon="m.icon" size="20" color="#506D84" />
                                                 </template>
-                                                <v-list-item-title class="subline--text font-weight-medium fs-14">{{
-                                                    m.name }}</v-list-item-title>
+                                                <v-list-item-title
+                                                    class="subline--text ml-2 font-weight-medium fs-14">{{
+                                                        m.name }}</v-list-item-title>
                                             </v-list-item>
                                             <v-divider v-if="m.hr" class="mx-3"></v-divider>
                                         </div>
@@ -165,20 +149,16 @@
                     </div>
                 </template>
                 <template #item.alert_type="{ item }">
-                    <p class="font-weight-medium maintext--text mb-0">
-                        {{ item.alert_type || '' }}
-                    </p>
+                    <p class="table-cell-text">{{ item.alert_type || '' }}</p>
                 </template>
                 <template #item.condition="{ item }">
-                    <p class="font-weight-medium maintext--text mb-0">
-                        {{ item.condition || '' }}
-                    </p>
+                    <p class="table-cell-text">{{ item.condition || '' }}</p>
                 </template>
                 <template #item.d="{ item }">
-                    <p class="font-weight-medium maintext--text mb-0 text-right">{{ item.d || '' }}</p>
+                    <p class="table-cell-text value-cell">{{ item.d || '' }}</p>
                 </template>
                 <template #item.al_id="{ item }">
-                    <p class="font-weight-medium maintext--text mb-0 text-right">{{ item.al_id || '' }}</p>
+                    <p class="table-cell-text order-no-cell">{{ item.al_id || '' }}</p>
                 </template>
                 <template #no-data>
                     <div class="mx-auto py-16 mt-16">
@@ -192,8 +172,8 @@
         <!-- Cancel Alert Dialog -->
         <v-dialog v-model="canceldialog" max-width="400">
             <v-card class="rounded-xl elevation-0 text-center pt-8 pb-6 overflow-hidden">
-                <img :src="cancelIcon" alt="cancel icon" />
-                <p class="font-weight-medium mt-3 fs-22 lh-24 mb-8">
+                <img :src="cancelIcon" alt="cancel icon" width="15%" class="mx-auto text-center" />
+                <p class="font-weight-medium mt-5 fs-20 lh-24 mb-8">
                     Are you sure you want to <br> cancel <b>{{ singledata.tsym }}</b> alert?
                 </p>
                 <v-row class="px-6" no-gutters>
@@ -221,6 +201,36 @@ import cancelIcon from '@/assets/orderbook/cancel-icon.svg'
 import { getAlertAPi, setMalert } from '@/components/mixins/getAPIdata'
 import { useAppStore } from '@/stores/appStore'
 
+// Import orderbook icons
+import icon4 from '@/assets/orderbook/4.svg'
+import icon5 from '@/assets/orderbook/5.svg'
+import icon6 from '@/assets/orderbook/6.svg'
+import icon7 from '@/assets/orderbook/7.svg'
+import icon9 from '@/assets/orderbook/9.svg'
+import icon10 from '@/assets/orderbook/10.svg'
+import icon11 from '@/assets/orderbook/11.svg'
+import icon12 from '@/assets/orderbook/12.svg'
+import icon13 from '@/assets/orderbook/13.svg'
+import icon31 from '@/assets/orderbook/31.svg'
+
+// Icon mapping
+const iconMap = {
+    4: icon4,
+    5: icon5,
+    6: icon6,
+    7: icon7,
+    9: icon9,
+    10: icon10,
+    11: icon11,
+    12: icon12,
+    13: icon13,
+    31: icon31
+}
+
+function getIconPath(iconNumber) {
+    return iconMap[iconNumber] || ''
+}
+
 const appStore = useAppStore()
 const router = useRouter()
 
@@ -236,7 +246,7 @@ const orderheader = [
     { title: 'Alert type', key: 'alert_type', sortable: false },
     { title: 'Condition', key: 'condition', sortable: false },
     { title: 'Value', key: 'd', sortable: false, align: 'end' },
-    { title: 'Order no', key: 'al_id', sortable: false, align: 'end' }
+    { title: 'Order no.', key: 'al_id', sortable: false, align: 'end' }
 ]
 
 const menulist = [
@@ -262,7 +272,7 @@ const searchedPendingItems = computed(() => {
     let items = pendingItems.value
     if (opensearch.value) {
         items = items.filter(item =>
-            includeSearch(item, ['tsym', 'exch', 'ai_t', 'd', 'al_id'], opensearch.value)
+            includeSearch(item, ['tsym', 'exch', 'ai_t', 'd'], opensearch.value)
         )
     }
     // Add computed fields for display
@@ -292,20 +302,96 @@ async function getAllalerts() {
 }
 
 function setSSDtab(type, token, exch, tsym, trantype, item) {
-    if (type === 'c-alert') {
-        singledata.value = item || {}
-        canceldialog.value = true
-    } else if (type === 'alert' || type === 'm-alert') {
-        window.dispatchEvent(new CustomEvent('menudialog', {
-            detail: { type, token, exch, tsym, trantype, item }
-        }))
-    } else if (type === 'cGTT') {
-        window.dispatchEvent(new CustomEvent('menudialog', {
-            detail: { type: 'order-GTT', token, exch, tsym, trantype: 'b' }
-        }))
-    } else {
-        const path = [type, token, exch, tsym]
-        router.push({ name: 'stocks details', params: { val: path } })
+    // Use item data if parameters are missing
+    const finalToken = token || item?.token
+    const finalExch = exch || item?.exch
+    const finalTsym = tsym || item?.tsym
+
+    // Validate required parameters
+    if (!finalToken || !finalExch || !finalTsym) {
+        console.error('Missing required parameters:', { type, token, exch, tsym, trantype, item })
+        appStore.showSnackbar(2, 'Invalid instrument data')
+        return
+    }
+
+    // Use validated values
+    token = finalToken
+    exch = finalExch
+    tsym = finalTsym
+
+    try {
+        if (type === 'c-alert') {
+            singledata.value = item || {}
+            canceldialog.value = true
+        } else if (type === 'alert' || type === 'm-alert') {
+            // Open alert dialog
+            window.dispatchEvent(new CustomEvent('menudialog', {
+                detail: { type, token, exch, tsym, trantype, item }
+            }))
+        } else if (type === 'order') {
+            // Open Stock Order Window in buy or sell mode
+            // Ensure trantype is 'b' for buy or 's' for sell
+            const orderType = (trantype === 'b' || trantype === 's') ? trantype : 'b'
+            window.dispatchEvent(new CustomEvent('menudialog', {
+                detail: { type: 'order', token, exch, tsym, trantype: orderType, item }
+            }))
+        } else if (type === 'cGTT') {
+            // Open GTT order window
+            window.dispatchEvent(new CustomEvent('menudialog', {
+                detail: { type: 'order-GTT', token, exch, tsym, trantype: 'b' }
+            }))
+        } else if (type === 'chart') {
+            // Open Chart window - route to stocks details page with proper params
+            const path = [type, token, exch, tsym]
+
+            // Store params in localStorage for persistence (required by StocksDetails)
+            localStorage.setItem('ssdParams', JSON.stringify(path))
+            localStorage.setItem('ssdtsym', `${exch}:${tsym}`)
+            localStorage.setItem('ssdtoken', token)
+
+            // Check if already on stocks details page
+            const currentRoute = router.currentRoute.value
+            if (currentRoute.name === 'stocks details') {
+                // If already on page, dispatch ssd-event to update chart
+                window.dispatchEvent(new CustomEvent('ssd-event', {
+                    detail: { type, token, exch, tsym }
+                }))
+            } else {
+                // Navigate to stocks details page with params and query
+                router.push({
+                    name: 'stocks details',
+                    params: { val: path },
+                    query: { type, token, exch, tsym }
+                })
+            }
+        } else {
+            // Default: route to stocks details page
+            const path = [type, token, exch, tsym]
+
+            // Store params in localStorage for persistence
+            localStorage.setItem('ssdParams', JSON.stringify(path))
+            localStorage.setItem('ssdtsym', `${exch}:${tsym}`)
+            localStorage.setItem('ssdtoken', token)
+
+            // Check if already on stocks details page
+            const currentRoute = router.currentRoute.value
+            if (currentRoute.name === 'stocks details') {
+                // If already on page, dispatch ssd-event to update
+                window.dispatchEvent(new CustomEvent('ssd-event', {
+                    detail: { type, token, exch, tsym }
+                }))
+            } else {
+                // Navigate to stocks details page with params and query
+                router.push({
+                    name: 'stocks details',
+                    params: { val: path },
+                    query: { type, token, exch, tsym }
+                })
+            }
+        }
+    } catch (error) {
+        console.error('Error in setSSDtab:', error)
+        appStore.showSnackbar(2, 'Failed to open window')
     }
 }
 
@@ -315,23 +401,32 @@ async function setCancelalert() {
     if (!uid || !singledata.value.al_id) {
         appStore.showSnackbar(2, 'Invalid alert data')
         loader.value = false
+        canceldialog.value = false
+        singledata.value = {}
         return
     }
-    const data = { uid, al_id: singledata.value.al_id }
-    const alert = await setMalert(data, 'cancel')
-    if (alert.stat === 'OI deleted') {
-        appStore.showSnackbar(1, `Alert has been Cancelled for ${singledata.value.tsym}`)
-        await getAllalerts()
-    } else {
-        appStore.showSnackbar(2, alert.emsg || alert)
+    try {
+        const data = { uid, al_id: singledata.value.al_id }
+        const alert = await setMalert(data, 'cancel')
+        if (alert.stat === 'OI deleted') {
+            appStore.showSnackbar(1, `Alert has been Cancelled for ${singledata.value.tsym}`)
+            await getAllalerts()
+        } else {
+            appStore.showSnackbar(2, alert.emsg || alert)
+        }
+    } catch (error) {
+        console.error('Error cancelling alert:', error)
+        appStore.showSnackbar(2, 'Failed to cancel alert')
+    } finally {
+        loader.value = false
+        canceldialog.value = false
+        singledata.value = {}
     }
-    loader.value = false
-    singledata.value = {}
-    canceldialog.value = false
 }
 
 function onOrderbookUpdate(e) {
-    if (e.detail === 'orders') {
+    // Handle both event formats: e.detail === 'orders' or e.detail.type === 'orders'
+    if (e.detail === 'orders' || e.detail?.type === 'orders') {
         getAllalerts()
     }
 }
@@ -358,3 +453,198 @@ onBeforeUnmount(() => {
     window.removeEventListener('orderbook-update', onOrderbookUpdate)
 })
 </script>
+
+<style scoped>
+/* Alert Pending Table Styles */
+.alert-pending-table :deep(.v-data-table__wrapper) {
+    background-color: white;
+}
+
+.alert-pending-table :deep(thead th) {
+    background-color: #F1F3F8 !important;
+    color: #666666 !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    line-height: 16px !important;
+    border-bottom: 1px solid #EBEEF0 !important;
+    padding: 12px 16px !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+}
+
+.alert-pending-table :deep(tbody td) {
+    color: #000 !important;
+    font-size: 13px !important;
+    padding: 12px 16px !important;
+    border-bottom: 1px solid #EBEEF0 !important;
+    background-color: white !important;
+    vertical-align: middle !important;
+}
+
+.alert-pending-table :deep(tbody tr) {
+    transition: background-color 0.2s ease !important;
+    cursor: pointer !important;
+}
+
+.alert-pending-table :deep(tbody tr:hover) {
+    background-color: #E1E8F7 !important;
+}
+
+.alert-pending-table :deep(tbody tr:hover td) {
+    background-color: #E1E8F7 !important;
+}
+
+.alert-pending-table :deep(tbody tr td) {
+    overflow: visible !important;
+    position: relative !important;
+}
+
+/* Instrument cell styling */
+.instrument-cell {
+    padding-right: 120px;
+    position: relative;
+}
+
+.instrument-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #000;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.instrument-exchange {
+    font-size: 10px;
+    color: #999;
+    margin-left: 4px;
+}
+
+/* Action buttons container */
+.action-buttons {
+    top: 50%;
+    transform: translateY(-50%);
+    right: 0;
+    display: none;
+    align-items: center;
+    gap: 4px;
+    z-index: 10;
+}
+
+.alert-pending-table :deep(tbody tr:hover .action-buttons) {
+    display: flex !important;
+    align-items: center !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.alert-pending-table :deep(tbody tr:hover .table-hov-text) {
+    color: #0037B7 !important;
+}
+
+/* Action button styles */
+.action-btn {
+    min-width: 20px !important;
+    width: 20px !important;
+    height: 20px !important;
+    padding: 0 !important;
+    border-radius: 2px !important;
+}
+
+.buy-btn {
+    background-color: #43A833 !important;
+    color: white !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+}
+
+.sell-btn {
+    background-color: #FF1717 !important;
+    color: white !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+}
+
+.icon-btn {
+    border: 1px solid #EBEEF0 !important;
+    background-color: white !important;
+}
+
+/* Table cell text styling */
+.table-cell-text {
+    font-size: 13px;
+    font-weight: 500;
+    color: #000;
+    margin: 0;
+}
+
+.value-cell {
+    text-align: right;
+}
+
+.order-no-cell {
+    text-align: right;
+}
+
+/* Tab styling */
+.alert-tabs :deep(.v-tabs__wrapper) {
+    min-height: 40px;
+}
+
+.alert-tabs :deep(.v-tab) {
+    min-width: auto;
+    padding: 0 16px;
+    text-transform: none;
+    font-size: 14px;
+    font-weight: 400;
+    color: #000;
+    letter-spacing: normal;
+    opacity: 1;
+    transition: all 0.2s ease;
+    height: 40px;
+}
+
+.alert-tabs :deep(.v-tab:hover) {
+    color: #000;
+    background-color: transparent;
+}
+
+.alert-tabs :deep(.v-tab--selected) {
+    color: #000;
+    font-weight: 700;
+}
+
+.alert-tabs :deep(.v-tab--selected .v-tab__text) {
+    color: #000 !important;
+    font-weight: 700 !important;
+}
+
+/* Active tab underline indicator - black underline */
+.alert-tabs :deep(.v-tabs-slider-wrapper) {
+    height: 2px !important;
+    margin-bottom: 0 !important;
+}
+
+.alert-tabs :deep(.v-tabs-slider) {
+    background-color: #000 !important;
+    height: 2px !important;
+    border-radius: 0 !important;
+}
+
+/* Remove default Vuetify tab indicator if present */
+.alert-tabs :deep(.v-tab--active) {
+    color: #000;
+}
+
+.alert-tabs :deep(.v-tab--active::before) {
+    opacity: 0;
+}
+
+/* Tab spacing and alignment */
+.alert-tabs :deep(.v-tabs__container) {
+    height: 40px;
+}
+
+.alert-tabs :deep(.v-tab__content) {
+    padding: 0;
+}
+</style>

@@ -290,7 +290,7 @@ export const useWatchlistStore = defineStore('watchlist', {
         
         const res = await getMwatchlistset(
           `jData={"uid":"${uid}","wlname":"${wlName}"}&jKey=${mtoken}`,
-          "SetMWlistset"
+          "SetMWlist"
         )
         
         if (res && res.stat === "Ok") {

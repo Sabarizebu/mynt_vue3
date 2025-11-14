@@ -9,6 +9,9 @@ export default defineConfig({
     vue(),
     vuetify({
       autoImport: true,
+      styles: {
+        configFile: 'src/assets/theme-light.css',
+      },
     }),
   ],
   resolve: {
@@ -34,6 +37,7 @@ export default defineConfig({
         }
       }
     },
-    chunkSizeWarningLimit: 1000
+    chunkSizeWarningLimit: 1000,
+    assetsInlineLimit: 0 // Prevent inlining of font files
   }
 })

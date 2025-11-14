@@ -1,6 +1,7 @@
 <template>
     <div>
-        <v-toolbar flat dense class="tool-sty pl-4 crd-trn">
+        <!-- Toolbar -->
+        <v-toolbar flat dense class="tool-sty my-6 pl-4 crd-trn">
             <v-tabs v-model="ordertab" color="primary" fixed show-arrows density="compact"
                 @update:model-value="onTabChange">
                 <v-tab value="orders" class="font-weight-bold subtitle-1 mb-0 text-none">
@@ -11,309 +12,341 @@
                 </v-tab>
             </v-tabs>
             <v-spacer></v-spacer>
-            <v-text-field v-if="ordertab === 'orders'" style="max-width: 220px" v-model="opensearch" hide-details
-                prepend-inner-icon="mdi-magnify" label="Search for Stocks" class="rounded-pill mr-4" variant="solo"
-                density="comfortable" :bg-color="'secbg'" />
-            <v-select v-if="ordertab === 'orders'" style="max-width: 180px" v-model="filter" hide-details
-                append-icon="mdi-chevron-down" prepend-inner-icon="mdi-playlist-check" class="rounded-pill mr-2"
-                variant="solo" density="comfortable" :bg-color="'secbg'" :items="filterso" item-title="title"
-                item-value="value" @update:model-value="filtercount = 0" />
-            <v-select v-else style="max-width: 180px" v-model="filter" hide-details append-icon="mdi-chevron-down"
-                prepend-inner-icon="mdi-playlist-check" class="rounded-pill mr-2" variant="solo" density="comfortable"
-                :bg-color="'secbg'" :items="filterse" item-title="title" item-value="value"
+
+            <v-text-field elevation="0" rounded v-if="ordertab === 'orders'" v-model="opensearch"
+                prepend-inner-icon="mdi-magnify" placeholder="Search" variant="solo" density="compact" hide-details
+                class="rounded mr-4" style="max-width: 220px" flat bg-color="secbg" />
+
+            <v-select v-if="ordertab === 'orders'" style="max-width: 160px" v-model="filter" rounded hide-details
+                item-title="title" item-value="value" prepend-inner-icon="mdi-format-list-bulleted"
+                class="rounded-pill ml-4" variant="solo" density="compact" flat bg-color="secbg" elevation="0"
+                :items="filterso" @update:model-value="filtercount = 0" />
+            <v-select v-else style="max-width: 160px" v-model="filter" rounded hide-details item-title="title"
+                item-value="value" prepend-inner-icon="mdi-format-list-bulleted" class="rounded-pill ml-4"
+                variant="solo" density="compact" flat bg-color="secbg" elevation="0" :items="filterse"
                 @update:model-value="filtercount = 0" />
+
             <v-btn v-if="ordertab === 'orders'" :disabled="!openorders.length" @click="openCancelDialog('all')"
-                class="elevation-0 rounded-pill font-weight-bold text-none ml-2" color="primary">
+                class="elevation-0 rounded-pill font-weight-bold text-none ml-4" color="primary">
                 Cancel {{ orddselected.length === openorders.length ? 'all' : orddselected.length > 0 ?
                     orddselected.length : 'all' }}
             </v-btn>
-            <v-icon class="ml-3 cursor-p" :disabled="loading" @click="getOrderbook" color="maintext"
-                size="24">mdi-reload</v-icon>
+            <v-icon :disabled="loading" :class="['ml-3 cursor-p', { 'reload-rotating': loading }]" @click="getOrderbook"
+                color="maintext" size="24">mdi-reload</v-icon>
         </v-toolbar>
 
-        <v-data-table v-if="ordertab === 'orders'" v-model="orddselected" :headers="orderheader"
-            :items="filteredOpenSorted" :loading="loading" fixed-header :hide-default-footer="true" :items-per-page="-1"
-            class="mt-3 rounded-lg overflow-y-auto" style="border-radius: 4px; border: 1px solid #EBEEF0"
-            height="480" item-key="norenordno" show-select @click:row="(_, { item }) => setOrderrowdata(item)">
-            <template #item.norentm="{ item }">
-                <span class="font-weight-medium maintext--text">{{ timeStr(item.norentm) }}</span>
-            </template>
-            <template #item.trantype="{ item }">
-                <v-chip small :color="item.trantype === 'B' ? 'green' : 'red'"
-                    :text-color="item.trantype === 'B' ? 'maingreen' : 'mainred'"
-                    style="border-radius: 5px; padding: 10px 8px !important;">
-                    <span class="font-weight-medium fs-12">{{ item.trantype === 'B' ? 'BUY' : 'SELL' }}</span>
-                </v-chip>
-            </template>
-            <template #item.tsym="{ item }">
-                <div class="pos-rlt">
-                    <p class="font-weight-medium maintext--text mb-0 table-hov-text ws-p mr-4">
-                        {{ item.tsym || '' }}
-                        <span class="ml-1 subtext--text fs-10">{{ item.exchs || item.exch || '' }}</span>
-                    </p>
-                    <div @click.stop class="pos-abs table-hov" style="top: 15px; right: 0">
-                        <v-btn
-                            v-if="item.status !== 'COMPLETE' && item.status !== 'CANCELED' && item.status !== 'REJECTED'"
-                            @click="onModify(item)" style="border: 1px solid #EBEEF0" min-width="20px"
-                            color="mainbg" class="px-0 font-weight-bold white--text elevation-0 mr-1" size="x-small">
-                            <v-icon size="18" color="maintext">mdi-pen</v-icon>
-                        </v-btn>
-                        <v-btn
-                            v-if="item.status !== 'COMPLETE' && item.status !== 'CANCELED' && item.status !== 'REJECTED'"
-                            @click="openCancelDialog(item)" style="border: 1px solid #EBEEF0" min-width="20px"
-                            color="mainbg" class="px-0 font-weight-bold white--text elevation-0 mr-1" size="x-small">
-                            <v-icon size="18" color="maintext">mdi-close-circle-outline</v-icon>
-                        </v-btn>
-                        <v-btn @click="setSSDtab('chart', item.token, item.exch, item.tsym, null, item)"
-                            style="border: 1px solid #EBEEF0" min-width="20px" color="mainbg"
-                            class="px-0 font-weight-bold white--text elevation-0 mr-1" size="x-small">
-                            <v-icon size="18" color="maintext">mdi-chart-line-variant</v-icon>
-                        </v-btn>
-                        <v-btn
-                            @click="setSSDtab('order', item.token, item.exch, item.tsym, item.trantype.toLowerCase(), item)"
-                            style="border: 1px solid #EBEEF0" min-width="20px" color="mainbg"
-                            class="px-0 font-weight-bold white--text elevation-0 mr-1" size="x-small">
-                            <v-icon size="18" color="maintext">mdi-autorenew</v-icon>
-                        </v-btn>
-                        <v-menu close-on-click :location="'bottom'" class="table-menu">
-                            <template #activator="{ props }">
-                                <v-btn v-bind="props" style="border: 1px solid #EBEEF0" min-width="20px"
-                                    color="mainbg" class="px-0 font-weight-bold white--text elevation-0 mr-1"
-                                    size="x-small">
-                                    <v-icon size="20" color="maintext">mdi-dots-horizontal</v-icon>
+        <!-- Orders Table -->
+        <v-window v-model="ordertab" style="z-index:0">
+            <v-window-item value="orders">
+                <v-data-table v-model="orddselected" :headers="orderheader" :items="filteredOpenSorted"
+                    :loading="loading" fixed-header :hide-default-footer="true" :items-per-page="-1"
+                    class="holdings-table mt-3 rounded-lg overflow-y-auto"
+                    style="border-radius: 8px; border: 1px solid #EBEEF0; background-color: #ffffff !important;"
+                    height="480px" item-key="norenordno" show-select :item-class="() => 'table-row'"
+                    :row-props="() => ({ class: 'table-row' })" @click:row="(_, { item }) => setOrderrowdata(item)">
+                    <template #item.norentm="{ item }">
+                        <span class="font-weight-medium maintext--text">{{ timeStr(item.norentm) }}</span>
+                    </template>
+                    <template #item.trantype="{ item }">
+                        <v-chip small :color="item.trantype === 'B' ? 'green' : 'red'"
+                            :text-color="item.trantype === 'B' ? 'maingreen' : 'mainred'"
+                            style="border-radius: 5px; padding: 10px 8px !important;">
+                            <span class="font-weight-medium fs-12">{{ item.trantype === 'B' ? 'BUY' : 'SELL' }}</span>
+                        </v-chip>
+                    </template>
+                    <template #item.tsym="{ item }">
+                        <div class="pos-rlt">
+                            <p class="font-weight-medium maintext--text mb-0 table-hov-text ws-p mr-4">
+                                {{ item.tsym || '' }}
+                                <span class="ml-1 subtext--text fs-10">{{ item.exchs || item.exch || '' }}</span>
+                            </p>
+                            <div @click.stop class="pos-abs table-hov" style="top: 15px; right: 0">
+                                <v-btn
+                                    v-if="item.status !== 'COMPLETE' && item.status !== 'CANCELED' && item.status !== 'REJECTED'"
+                                    @click.stop="onModify(item)" min-width="20px" height="20px"
+                                    style="background-color: #43A833; color: #ffffff; border-radius: 4px; min-width: 20px; padding: 0 4px;"
+                                    class="font-weight-bold elevation-0 mr-1" size="x-small"> B
                                 </v-btn>
-                            </template>
-                            <v-card class="table-menu-list">
-                                <v-list density="compact">
-                                    <div v-for="(m, k) in menulist.open" :key="k">
-                                        <v-list-item
-                                            @click="m.type === 'cancel' ? openCancelDialog(item) : m.type ? setSSDtab(m.type, item.token, item.exch, item.tsym, m.trans || item.trantype?.toLowerCase(), item) : setOrderrowdata(item)"
-                                            class="pl-3 pr-6">
-                                            <template #prepend>
-                                                <v-icon v-if="typeof m.icon === 'string'" :icon="m.icon" size="20"
-                                                    color="#506D84" />
-                                                <img v-else-if="m.icon > 2" width="20px" class="pl-1"
-                                                    :src="require(`@/assets/orderbook/${m.icon}.svg`)" />
-                                            </template>
-                                            <v-list-item-title class="subline--text font-weight-medium fs-14">{{
-                                                m.name }}</v-list-item-title>
-                                        </v-list-item>
-                                        <v-divider v-if="m.hr" class="mx-3"></v-divider>
-                                    </div>
-                                </v-list>
-                            </v-card>
-                        </v-menu>
-                    </div>
-                </div>
-            </template>
-            <template #item.s_prdt_ali="{ item }">
-                <v-chip v-if="item.s_prdt_ali" small class="table-hov-prd" text-color="subtext"
-                    style="border-radius: 5px; padding: 10px 8px !important">
-                    <span class="font-weight-medium fs-12">{{ item.s_prdt_ali }}</span>
-                </v-chip>
-                <v-chip v-else-if="item.ordersource === 'ESIP'" small class="table-hov-prd" text-color="subtext"
-                    style="border-radius: 5px; padding: 10px 8px !important">
-                    <span class="font-weight-medium fs-12">{{ item.ordersource }}</span>
-                </v-chip>
-            </template>
-            <template #item.qty="{ item }">
-                <p class="font-weight-medium maintext--text mb-0">
-                    {{ item.fillshares && Number(item.fillshares) > 0 ? `${item.fillshares / (item.exch === 'MCX' ?
-                        item.ls : 1)}/` : '' }}{{ item.qty ? (item.qty / (item.exch === 'MCX' ? item.ls : 1)) : '0' }}
-                </p>
-            </template>
-            <template #item.rprc="{ item }">
-                <p class="text-right font-weight-medium maintext--text mb-0">{{ fmt(item.avgprc || item.rprc) }}</p>
-            </template>
-            <template #item.ltp="{ item }">
-                <p class="text-right font-weight-medium maintext--text mb-0">
-                    <span :id="`ord${item.idx || item.norenordno}|${item.token}ltp`">{{ fmt(item.ltp) }}</span>
-                </p>
-            </template>
-            <template #item.prc="{ item }">
-                <p class="text-right font-weight-medium maintext--text mb-0">{{ fmt(item.prc) }}</p>
-            </template>
-            <template #item.trgprc="{ item }">
-                <p class="text-right font-weight-medium maintext--text mb-0">{{ fmt(item.trgprc) }}</p>
-            </template>
-            <template #item.value="{ item }">
-                <p class="text-right font-weight-medium maintext--text mb-0">{{ fmt(item.value) }}</p>
-            </template>
-            <template #item.status="{ item }">
-                <div class="ws-p font-weight-medium maintext--text align-center">
-                    <v-tooltip location="top" color="black">
-                        <template #activator="{ props }">
-                            <div v-bind="props" class="d-inline-flex">
-                                <svg v-if="item.status === 'COMPLETE'" xmlns="http://www.w3.org/2000/svg" width="20"
-                                    height="15" viewBox="0 0 20 15" fill="none">
-                                    <rect width="20" height="15" rx="7" fill="#2DB266" />
-                                    <path d="M6.25 8.2475L8.415 10.4125L13.8275 5" stroke="white" stroke-width="1.2"
-                                        stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
-                                <svg v-else-if="item.status === 'CANCELED' || item.status === 'REJECTED'"
-                                    xmlns="http://www.w3.org/2000/svg" width="20" height="15" viewBox="0 0 20 15"
-                                    fill="none">
-                                    <rect width="20" height="15" rx="7" fill="#DC2626" />
-                                    <path d="M7.5 10L12.5 5M7.5 5L12.5 10" stroke="white" stroke-width="1.2"
-                                        stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
-                                <svg v-else xmlns="http://www.w3.org/2000/svg" width="17" height="12"
-                                    viewBox="0 0 17 12" fill="none">
-                                    <path
-                                        d="M0.941406 6C0.941406 2.68629 3.6277 0 6.94141 0H10.9416C14.2553 0 16.9416 2.68629 16.9416 6C16.9416 9.31371 14.2553 12 10.9416 12H6.9414C3.62769 12 0.941406 9.31371 0.941406 6Z"
-                                        fill="#FFB038" />
-                                    <path
-                                        d="M5.19143 7C5.74373 7 6.19145 6.55228 6.19145 6C6.19145 5.44772 5.74373 5 5.19143 5C4.63914 5 4.19142 5.44772 4.19142 6C4.19142 6.55228 4.63914 7 5.19143 7Z"
-                                        fill="white" />
-                                    <path
-                                        d="M9.19149 7C9.74378 7 10.1915 6.55228 10.1915 6C10.1915 5.44772 9.74378 5 9.19149 5C8.63919 5 8.19147 5.44772 8.19147 6C8.19147 6.55228 8.63919 7 9.19149 7Z"
-                                        fill="white" />
-                                    <path
-                                        d="M13.1915 7C13.7438 7 14.1915 6.55228 14.1915 6C14.1915 5.44772 13.7438 5 13.1915 5C12.6392 5 12.1915 5.44772 12.1915 6C12.1915 6.55228 12.6392 7 13.1915 7Z"
-                                        fill="white" />
-                                </svg>
-                                {{ item.status || '' }}
+                                <v-btn
+                                    v-if="item.status !== 'COMPLETE' && item.status !== 'CANCELED' && item.status !== 'REJECTED'"
+                                    @click.stop="openCancelDialog(item)" min-width="20px" height="20px"
+                                    style="background-color: #FF1717; color: #ffffff; border-radius: 4px; min-width: 20px; padding: 0 4px;"
+                                    class="font-weight-bold elevation-0 mr-1" size="x-small"> S
+                                </v-btn>
+                                <v-btn @click.stop="setSSDtab('chart', item.token, item.exch, item.tsym, null, item)"
+                                    style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
+                                    min-width="20px" color="mainbg" class="font-weight-bold elevation-0 mr-1"
+                                    size="x-small">
+                                    <v-icon size="14" color="#666666">mdi-chart-line-variant</v-icon>
+                                </v-btn>
+                                <v-tooltip location="bottom">
+                                    <template #activator="{ props }">
+                                        <div v-bind="props">
+                                            <v-btn
+                                                @click.stop="setSSDtab('order', item.token, item.exch, item.tsym, item.trantype.toLowerCase(), item)"
+                                                style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
+                                                min-width="20px" color="mainbg"
+                                                class="font-weight-bold elevation-0 mr-1" size="x-small">
+                                                <v-icon size="14" color="#666666">mdi-close</v-icon>
+                                            </v-btn>
+                                        </div>
+                                    </template>
+                                    <span>Exit</span>
+                                </v-tooltip>
+                                <v-menu close-on-click :location="'bottom'" class="table-menu">
+                                    <template #activator="{ props }">
+                                        <v-btn v-bind="props" style="border: 1px solid #EBEEF0" min-width="20px"
+                                            color="mainbg" class="px-0 font-weight-bold white--text elevation-0 mr-1"
+                                            size="x-small">
+                                            <v-icon size="20" color="maintext">mdi-dots-horizontal</v-icon>
+                                        </v-btn>
+                                    </template>
+                                    <v-card class="table-menu-list">
+                                        <v-list density="compact">
+                                            <div v-for="(m, k) in menulist.open" :key="k">
+                                                <v-list-item
+                                                    @click="m.type === 'cancel' ? openCancelDialog(item) : m.type ? setSSDtab(m.type, item.token, item.exch, item.tsym, m.trans || item.trantype?.toLowerCase(), item) : setOrderrowdata(item)"
+                                                    class="pl-3 pr-6">
+                                                    <template #prepend>
+                                                        <v-icon v-if="typeof m.icon === 'string'" :icon="m.icon"
+                                                            size="20" color="#506D84" />
+                                                        <img v-else-if="m.icon > 2" width="20px" class="pl-1"
+                                                            :src="require(`@/assets/orderbook/${m.icon}.svg`)" />
+                                                    </template>
+                                                    <v-list-item-title class="subline--text font-weight-medium fs-14">{{
+                                                        m.name }}</v-list-item-title>
+                                                </v-list-item>
+                                                <v-divider v-if="m.hr" class="mx-3"></v-divider>
+                                            </div>
+                                        </v-list>
+                                    </v-card>
+                                </v-menu>
                             </div>
-                        </template>
-                        <span>{{ item.rejreason || item.st_intrn || '' }}</span>
-                    </v-tooltip>
-                </div>
-            </template>
-            <template #no-data>
-                <div class="text-center">
-                    <div class="mx-auto py-16 mt-16">
-                        <img class="mx-auto" width="80px" :src="noDataImg" />
-                        <h4 class="subtext--text font-weight-regular caption">
-                            There is no Open order <br />data here yet!
-                        </h4>
-                    </div>
-                </div>
-            </template>
-        </v-data-table>
-
-        <v-data-table v-else :headers="orderheader" :items="filteredExecSorted" :loading="loading" fixed-header
-            :hide-default-footer="true" :items-per-page="-1" class="mt-3 rounded-lg overflow-y-auto"
-            style="border-radius: 4px; border: 1px solid #EBEEF0" height="480"
-            @click:row="(_, { item }) => setOrderrowdata(item)">
-            <template #item.norentm="{ item }">
-                <span class="font-weight-medium maintext--text">{{ timeStr(item.norentm) }}</span>
-            </template>
-            <template #item.trantype="{ item }">
-                <v-chip small :color="item.trantype === 'B' ? 'green' : 'red'"
-                    :text-color="item.trantype === 'B' ? 'maingreen' : 'mainred'"
-                    style="border-radius: 5px; padding: 10px 8px !important;">
-                    <span class="font-weight-medium fs-12">{{ item.trantype === 'B' ? 'BUY' : 'SELL' }}</span>
-                </v-chip>
-            </template>
-            <template #item.tsym="{ item }">
-                <div class="pos-rlt">
-                    <p class="font-weight-medium maintext--text mb-0 table-hov-text ws-p mr-4">
-                        {{ item.tsym || '' }}
-                        <span class="ml-1 subtext--text fs-10">{{ item.exchs || item.exch || '' }}</span>
-                    </p>
-                    <div @click.stop class="pos-abs table-hov" style="top: 15px; right: 0">
-                        <v-btn @click="setSSDtab('order', item.token, item.exch, item.tsym, 'b', item)" min-width="20px"
-                            color="maingreen" class="px-0 font-weight-bold white--text elevation-0 mr-1" size="x-small">
-                            B </v-btn>
-                        <v-btn @click="setSSDtab('order', item.token, item.exch, item.tsym, 's', item)" min-width="20px"
-                            color="mainred" class="px-0 font-weight-bold white--text elevation-0 mr-1" size="x-small"> S
-                        </v-btn>
-                        <v-btn @click="setSSDtab('chart', item.token, item.exch, item.tsym, null, item)"
-                            style="border: 1px solid #EBEEF0" min-width="20px" color="mainbg"
-                            class="px-0 font-weight-bold white--text elevation-0 mr-1" size="x-small">
-                            <v-icon size="18" color="maintext">mdi-chart-line-variant</v-icon>
-                        </v-btn>
-                        <v-btn
-                            @click="setSSDtab('order', item.token, item.exch, item.tsym, item.trantype?.toLowerCase(), item)"
-                            style="border: 1px solid #EBEEF0" min-width="20px" color="mainbg"
-                            class="px-0 font-weight-bold white--text elevation-0 mr-1" size="x-small">
-                            <v-icon size="18" color="maintext">mdi-autorenew</v-icon>
-                        </v-btn>
-                        <v-menu close-on-click :location="'bottom'" class="table-menu">
-                            <template #activator="{ props }">
-                                <v-btn v-bind="props" style="border: 1px solid #EBEEF0" min-width="20px"
-                                    color="mainbg" class="px-0 font-weight-bold white--text elevation-0 mr-1"
-                                    size="x-small">
-                                    <v-icon size="20" color="maintext">mdi-dots-horizontal</v-icon>
-                                </v-btn>
-                            </template>
-                            <v-card class="table-menu-list">
-                                <v-list density="compact">
-                                    <div v-for="(m, k) in menulist.exec" :key="k">
-                                        <v-list-item
-                                            @click="m.type ? setSSDtab(m.type, item.token, item.exch, item.tsym, m.trans || item.trantype?.toLowerCase(), item) : setOrderrowdata(item)"
-                                            class="pl-3 pr-6">
-                                            <template #prepend>
-                                                <v-icon v-if="typeof m.icon === 'string'" :icon="m.icon" size="20"
-                                                    color="#506D84" />
-                                                <img v-else-if="m.icon > 2" width="20px" class="pl-1"
-                                                    :src="require(`@/assets/orderbook/${m.icon}.svg`)" />
-                                            </template>
-                                            <v-list-item-title class="subline--text font-weight-medium fs-14">{{
-                                                m.name }}</v-list-item-title>
-                                        </v-list-item>
-                                        <v-divider v-if="m.hr" class="mx-3"></v-divider>
+                        </div>
+                    </template>
+                    <template #item.s_prdt_ali="{ item }">
+                        <v-chip v-if="item.s_prdt_ali" small class="table-hov-prd" text-color="subtext"
+                            style="border-radius: 5px; padding: 10px 8px !important">
+                            <span class="font-weight-medium fs-12">{{ item.s_prdt_ali }}</span>
+                        </v-chip>
+                        <v-chip v-else-if="item.ordersource === 'ESIP'" small class="table-hov-prd" text-color="subtext"
+                            style="border-radius: 5px; padding: 10px 8px !important">
+                            <span class="font-weight-medium fs-12">{{ item.ordersource }}</span>
+                        </v-chip>
+                    </template>
+                    <template #item.qty="{ item }">
+                        <p class="font-weight-medium maintext--text mb-0">
+                            {{ item.fillshares && Number(item.fillshares) > 0 ? `${item.fillshares / (item.exch ===
+                                'MCX' ?
+                                item.ls : 1)}/` : '' }}{{ item.qty ? (item.qty / (item.exch === 'MCX' ? item.ls : 1)) : '0'
+                            }}
+                        </p>
+                    </template>
+                    <template #item.rprc="{ item }">
+                        <p class="text-right font-weight-medium maintext--text mb-0">{{ fmt(item.avgprc || item.rprc) }}
+                        </p>
+                    </template>
+                    <template #item.ltp="{ item }">
+                        <p class="text-right font-weight-medium maintext--text mb-0">
+                            <span :id="`ord${item.idx || item.norenordno}|${item.token}ltp`">{{ fmt(item.ltp) }}</span>
+                        </p>
+                    </template>
+                    <template #item.prc="{ item }">
+                        <p class="text-right font-weight-medium maintext--text mb-0">{{ fmt(item.prc) }}</p>
+                    </template>
+                    <template #item.trgprc="{ item }">
+                        <p class="text-right font-weight-medium maintext--text mb-0">{{ fmt(item.trgprc) }}</p>
+                    </template>
+                    <template #item.value="{ item }">
+                        <p class="text-right font-weight-medium maintext--text mb-0">{{ fmt(item.value) }}</p>
+                    </template>
+                    <template #item.status="{ item }">
+                        <div class="ws-p font-weight-medium maintext--text align-center">
+                            <v-tooltip location="top" color="black">
+                                <template #activator="{ props }">
+                                    <div v-bind="props" class="d-inline-flex">
+                                        <svg v-if="item.status === 'COMPLETE'" xmlns="http://www.w3.org/2000/svg"
+                                            width="20" height="15" viewBox="0 0 20 15" fill="none">
+                                            <rect width="20" height="15" rx="7" fill="#2DB266" />
+                                            <path d="M6.25 8.2475L8.415 10.4125L13.8275 5" stroke="white"
+                                                stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                        <svg v-else-if="item.status === 'CANCELED' || item.status === 'REJECTED'"
+                                            xmlns="http://www.w3.org/2000/svg" width="20" height="15"
+                                            viewBox="0 0 20 15" fill="none">
+                                            <rect width="20" height="15" rx="7" fill="#DC2626" />
+                                            <path d="M7.5 10L12.5 5M7.5 5L12.5 10" stroke="white" stroke-width="1.2"
+                                                stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                        <svg v-else xmlns="http://www.w3.org/2000/svg" width="17" height="12"
+                                            viewBox="0 0 17 12" fill="none">
+                                            <path
+                                                d="M0.941406 6C0.941406 2.68629 3.6277 0 6.94141 0H10.9416C14.2553 0 16.9416 2.68629 16.9416 6C16.9416 9.31371 14.2553 12 10.9416 12H6.9414C3.62769 12 0.941406 9.31371 0.941406 6Z"
+                                                fill="#FFB038" />
+                                            <path
+                                                d="M5.19143 7C5.74373 7 6.19145 6.55228 6.19145 6C6.19145 5.44772 5.74373 5 5.19143 5C4.63914 5 4.19142 5.44772 4.19142 6C4.19142 6.55228 4.63914 7 5.19143 7Z"
+                                                fill="white" />
+                                            <path
+                                                d="M9.19149 7C9.74378 7 10.1915 6.55228 10.1915 6C10.1915 5.44772 9.74378 5 9.19149 5C8.63919 5 8.19147 5.44772 8.19147 6C8.19147 6.55228 8.63919 7 9.19149 7Z"
+                                                fill="white" />
+                                            <path
+                                                d="M13.1915 7C13.7438 7 14.1915 6.55228 14.1915 6C14.1915 5.44772 13.7438 5 13.1915 5C12.6392 5 12.1915 5.44772 12.1915 6C12.1915 6.55228 12.6392 7 13.1915 7Z"
+                                                fill="white" />
+                                        </svg>
+                                        {{ item.status || '' }}
                                     </div>
-                                </v-list>
-                            </v-card>
-                        </v-menu>
-                    </div>
-                </div>
-            </template>
-            <template #item.s_prdt_ali="{ item }">
-                <v-chip v-if="item.s_prdt_ali" small class="table-hov-prd" text-color="subtext"
-                    style="border-radius: 5px; padding: 10px 8px !important">
-                    <span class="font-weight-medium fs-12">{{ item.s_prdt_ali }}</span>
-                </v-chip>
-            </template>
-            <template #item.qty="{ item }">
-                <p class="font-weight-medium maintext--text mb-0">{{ item.fillshares && Number(item.fillshares) > 0 ?
-                    `${item.fillshares / (item.exch === 'MCX' ? item.ls : 1)}/` : '' }}{{ item.qty ? (item.qty /
-                        (item.exch === 'MCX' ? item.ls : 1)) : '0' }}</p>
-            </template>
-            <template #item.rprc="{ item }">
-                <p class="text-right font-weight-medium maintext--text mb-0">{{ fmt(item.avgprc || item.rprc) }}</p>
-            </template>
-            <template #item.ltp="{ item }">
-                <p class="text-right font-weight-medium maintext--text mb-0">{{ fmt(item.ltp) }}</p>
-            </template>
-            <template #item.prc="{ item }">
-                <p class="text-right font-weight-medium maintext--text mb-0">{{ fmt(item.prc) }}</p>
-            </template>
-            <template #item.trgprc="{ item }">
-                <p class="text-right font-weight-medium maintext--text mb-0">{{ fmt(item.trgprc) }}</p>
-            </template>
-            <template #item.value="{ item }">
-                <p class="text-right font-weight-medium maintext--text mb-0">{{ fmt(item.value) }}</p>
-            </template>
-            <template #item.status="{ item }">
-                <div class="ws-p font-weight-medium maintext--text align-center">
-                    <svg v-if="item.status === 'COMPLETE'" xmlns="http://www.w3.org/2000/svg" width="20" height="15"
-                        viewBox="0 0 20 15" fill="none">
-                        <rect width="20" height="15" rx="7" fill="#2DB266" />
-                        <path d="M6.25 8.2475L8.415 10.4125L13.8275 5" stroke="white" stroke-width="1.2"
-                            stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    <svg v-else-if="item.status === 'CANCELED' || item.status === 'REJECTED'"
-                        xmlns="http://www.w3.org/2000/svg" width="20" height="15" viewBox="0 0 20 15" fill="none">
-                        <rect width="20" height="15" rx="7" fill="#DC2626" />
-                        <path d="M7.5 10L12.5 5M7.5 5L12.5 10" stroke="white" stroke-width="1.2" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                    </svg>
-                    {{ item.status || '' }}
-                </div>
-            </template>
-            <template #no-data>
-                <div class="text-center">
-                    <div class="mx-auto py-16 mt-16">
-                        <img class="mx-auto" width="80px" :src="noDataImg" />
-                        <h4 class="subtext--text font-weight-regular caption">
-                            There is no Executed order <br />data here yet!
-                        </h4>
-                    </div>
-                </div>
-            </template>
-        </v-data-table>
+                                </template>
+                                <span>{{ item.rejreason || item.st_intrn || '' }}</span>
+                            </v-tooltip>
+                        </div>
+                    </template>
+                    <template #no-data>
+                        <div class="text-center">
+                            <div class="mx-auto py-16 mt-16">
+                                <img class="mx-auto" width="80px" :src="noDataImg" />
+                                <h4 class="subtext--text font-weight-regular caption">
+                                    There is no Open order <br />data here yet!
+                                </h4>
+                            </div>
+                        </div>
+                    </template>
+                </v-data-table>
+            </v-window-item>
+
+            <!-- Executed Orders Table -->
+            <v-window-item value="executed">
+                <v-data-table :headers="orderheader" :items="filteredExecSorted" :loading="loading" fixed-header
+                    :hide-default-footer="true" :items-per-page="-1"
+                    class="holdings-table mt-3 rounded-lg overflow-y-auto"
+                    style="border-radius: 8px; border: 1px solid #EBEEF0; background-color: #ffffff !important;"
+                    height="480px" :item-class="() => 'table-row'" :row-props="() => ({ class: 'table-row' })"
+                    @click:row="(_, { item }) => setOrderrowdata(item)">
+                    <template #item.norentm="{ item }">
+                        <span class="font-weight-medium maintext--text">{{ timeStr(item.norentm) }}</span>
+                    </template>
+                    <template #item.trantype="{ item }">
+                        <v-chip small :color="item.trantype === 'B' ? 'green' : 'red'"
+                            :text-color="item.trantype === 'B' ? 'maingreen' : 'mainred'"
+                            style="border-radius: 5px; padding: 10px 8px !important;">
+                            <span class="font-weight-medium fs-12">{{ item.trantype === 'B' ? 'BUY' : 'SELL' }}</span>
+                        </v-chip>
+                    </template>
+                    <template #item.tsym="{ item }">
+                        <div class="pos-rlt" style="min-height: 40px; padding-right: 200px;">
+                            <p class="font-weight-bold fs-13 txt-162 black--text mb-0 table-hov-text"
+                                style="margin-right: 0; white-space: nowrap;">
+                                {{ item.tsym || '' }}
+                                <span class="ml-1 subtext--text fs-10">{{ item.exchs || item.exch || '' }}</span>
+                            </p>
+                            <div v-if="item" @click.stop class="pos-abs table-hov"
+                                style="top: 50%; transform: translateY(-50%); right: 0; z-index: 10; gap: 4px; pointer-events: auto; display: flex; align-items: center;">
+                                <v-btn @click.stop="setSSDtab('order', item.token, item.exch, item.tsym, 'b', item)"
+                                    min-width="20px" height="20px"
+                                    style="background-color: #43A833; color: #ffffff; border-radius: 4px; min-width: 20px; padding: 0 4px;"
+                                    class="font-weight-bold elevation-0 mr-1" size="x-small"> B
+                                </v-btn>
+                                <v-btn @click.stop="setSSDtab('order', item.token, item.exch, item.tsym, 's', item)"
+                                    min-width="20px" height="20px"
+                                    style="background-color: #FF1717; color: #ffffff; border-radius: 4px; min-width: 20px; padding: 0 4px;"
+                                    class="font-weight-bold elevation-0 mr-1" size="x-small"> S
+                                </v-btn>
+                                <v-btn @click.stop="setSSDtab('chart', item.token, item.exch, item.tsym, null, item)"
+                                    style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
+                                    min-width="20px" color="mainbg" class="font-weight-bold elevation-0 mr-1"
+                                    size="x-small">
+                                    <v-icon size="14" color="#666666">mdi-chart-line-variant</v-icon>
+                                </v-btn>
+                                <v-menu close-on-click location="bottom" offset-y class="table-menu">
+                                    <template #activator="{ props }">
+                                        <v-btn v-bind="props"
+                                            style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
+                                            min-width="20px" color="mainbg" class="font-weight-bold elevation-0 mr-1"
+                                            size="x-small">
+                                            <v-icon size="14" color="#666666">mdi-dots-horizontal</v-icon>
+                                        </v-btn>
+                                    </template>
+                                    <v-card class="table-menu-list">
+                                        <v-list density="compact">
+                                            <div v-for="(m, k) in menulist.exec" :key="k">
+                                                <v-list-item
+                                                    @click="m.type ? setSSDtab(m.type, item.token, item.exch, item.tsym, m.trans || item.trantype?.toLowerCase(), item) : setOrderrowdata(item)"
+                                                    class="pl-3 pr-6">
+                                                    <template #prepend>
+                                                        <v-icon v-if="typeof m.icon === 'string'" :icon="m.icon"
+                                                            size="20" color="#506D84" />
+                                                        <img v-else-if="m.icon > 2" width="20px" class="pl-1"
+                                                            :src="require(`@/assets/orderbook/${m.icon}.svg`)" />
+                                                    </template>
+                                                    <v-list-item-title class="subline--text font-weight-medium fs-14">{{
+                                                        m.name }}</v-list-item-title>
+                                                </v-list-item>
+                                                <v-divider v-if="m.hr" class="mx-3"></v-divider>
+                                            </div>
+                                        </v-list>
+                                    </v-card>
+                                </v-menu>
+                            </div>
+                        </div>
+                    </template>
+                    <template #item.s_prdt_ali="{ item }">
+                        <v-chip v-if="item.s_prdt_ali" small class="table-hov-prd" text-color="subtext"
+                            style="border-radius: 5px; padding: 10px 8px !important">
+                            <span class="font-weight-medium fs-12">{{ item.s_prdt_ali }}</span>
+                        </v-chip>
+                    </template>
+                    <template #item.qty="{ item }">
+                        <p class="font-weight-medium maintext--text mb-0">{{ item.fillshares && Number(item.fillshares)
+                            > 0 ?
+                            `${item.fillshares / (item.exch === 'MCX' ? item.ls : 1)}/` : '' }}{{ item.qty ? (item.qty /
+                                (item.exch === 'MCX' ? item.ls : 1)) : '0' }}</p>
+                    </template>
+                    <template #item.rprc="{ item }">
+                        <p class="text-right font-weight-medium maintext--text mb-0">{{ fmt(item.avgprc || item.rprc) }}
+                        </p>
+                    </template>
+                    <template #item.ltp="{ item }">
+                        <p class="text-right font-weight-medium maintext--text mb-0">{{ fmt(item.ltp) }}</p>
+                    </template>
+                    <template #item.prc="{ item }">
+                        <p class="text-right font-weight-medium maintext--text mb-0">{{ fmt(item.prc) }}</p>
+                    </template>
+                    <template #item.trgprc="{ item }">
+                        <p class="text-right font-weight-medium maintext--text mb-0">{{ fmt(item.trgprc) }}</p>
+                    </template>
+                    <template #item.value="{ item }">
+                        <p class="text-right font-weight-medium maintext--text mb-0">{{ fmt(item.value) }}</p>
+                    </template>
+                    <template #item.status="{ item }">
+                        <div class="ws-p font-weight-medium maintext--text align-center">
+                            <svg v-if="item.status === 'COMPLETE'" xmlns="http://www.w3.org/2000/svg" width="20"
+                                height="15" viewBox="0 0 20 15" fill="none">
+                                <rect width="20" height="15" rx="7" fill="#2DB266" />
+                                <path d="M6.25 8.2475L8.415 10.4125L13.8275 5" stroke="white" stroke-width="1.2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <svg v-else-if="item.status === 'CANCELED' || item.status === 'REJECTED'"
+                                xmlns="http://www.w3.org/2000/svg" width="20" height="15" viewBox="0 0 20 15"
+                                fill="none">
+                                <rect width="20" height="15" rx="7" fill="#DC2626" />
+                                <path d="M7.5 10L12.5 5M7.5 5L12.5 10" stroke="white" stroke-width="1.2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            {{ item.status || '' }}
+                        </div>
+                    </template>
+                    <template #no-data>
+                        <div class="text-center">
+                            <div class="mx-auto py-16 mt-16">
+                                <img class="mx-auto" width="80px" :src="noDataImg" />
+                                <h4 class="subtext--text font-weight-regular caption">
+                                    There is no Executed order <br />data here yet!
+                                </h4>
+                            </div>
+                        </div>
+                    </template>
+                </v-data-table>
+            </v-window-item>
+        </v-window>
 
         <!-- Order Details Drawer -->
         <v-navigation-drawer v-model="orderdrawer" temporary location="right" :scrim="true" width="360" color="cardbg"
@@ -337,7 +370,7 @@
                     </v-list-item-title>
                     <v-list-item-title class="txt-000 font-weight-medium fs-16 mb-1">₹{{ fmt(singledata.raw?.lp ||
                         singledata.ltp)
-                        }}</v-list-item-title>
+                    }}</v-list-item-title>
                     <v-list-item-title
                         :class="singledata.rpnl > 0 ? 'maingreen--text' : singledata.rpnl < 0 ? 'mainred--text' : 'subtext--text'"
                         class="font-weight-medium fs-12">
@@ -586,9 +619,11 @@ import { useRouter } from 'vue-router'
 import noDataImg from '@/assets/no data folder.svg'
 import cancelIcon from '@/assets/orderbook/cancel-icon.svg'
 import { useAppStore } from '@/stores/appStore'
+import { useOrderStore } from '@/stores/orderStore'
 import { getMOrderbook, getSingleorderbook, getLtpdata } from '@/components/mixins/getAPIdata'
 
 const appStore = useAppStore()
+const orderStore = useOrderStore()
 const router = useRouter()
 
 const loading = ref(false)
@@ -749,6 +784,18 @@ function setOrderPayload(payload) {
     orderbookdata.value = all
     openorders.value = payload?.openorders || all.filter(o => o.way === 'open')
     execorders.value = payload?.execorders || all.filter(o => o.way !== 'open')
+
+    // Update order counts in store if stat array is available
+    if (payload?.stat && Array.isArray(payload.stat) && payload.stat.length >= 3) {
+        orderStore.setOrderCounts(payload.stat)
+    } else {
+        // Calculate counts from orders if stat is not available
+        const openCount = openorders.value.length
+        const execCount = execorders.value.filter(o => o.status === 'COMPLETE').length
+        const rejectedCount = execorders.value.filter(o => o.status === 'REJECTED' || o.status === 'CANCELED').length
+        orderStore.setOrderCounts([openCount, execCount, rejectedCount])
+    }
+
     try {
         sessionStorage.setItem('orders_last', JSON.stringify(payload))
     } catch (e) { }
@@ -909,6 +956,17 @@ onMounted(() => {
             if (parsed && (parsed.response || parsed.openorders)) setOrderPayload(parsed)
         }
     } catch (e) { }
+
+    // Apply filter from store if set (from StatBoard navigation)
+    if (orderStore.orderFilterTab) {
+        ordertab.value = orderStore.orderFilterTab
+        if (orderStore.orderFilterType) {
+            filter.value = orderStore.orderFilterType
+        }
+        // Clear the filter after applying
+        orderStore.clearOrderFilter()
+    }
+
     getOrderbook()
     window.addEventListener('tempdata-update', onTempUpdate)
     window.addEventListener('orderbook-update', onOrderbookUpdate)
@@ -921,3 +979,20 @@ onBeforeUnmount(() => {
     window.removeEventListener('web-scoketConn', onWsTick)
 })
 </script>
+
+<style scoped>
+/* Reload icon rotation animation */
+.reload-rotating {
+    animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+</style>

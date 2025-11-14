@@ -13,20 +13,25 @@
                 <v-icon>mdi-chevron-right</v-icon>
             </template>
         </v-breadcrumbs>
-        <v-card style="border: thin solid #EBEEF0 !important" variant="outlined"
-            class="rounded-lg mt-4 mb-8 crd-trn">
-            <v-toolbar class="elevation-0 my-4" density="compact" color="transparent">
+        <v-card style="border: thin solid #EBEEF0 !important" variant="outlined" class="rounded-lg mt-4 mb-8"
+            color="cardbg">
+            <v-toolbar ref="adcp" id="adcp" class="elevation-0 my-4 px-3" density="compact" color="transparent">
+                <!-- <img width="40px" :src="srcmIcon" alt="srcm" class="mr-2" /> -->
                 <div>
-                    <p class="font-weight-bold title mb-0 text-none ws-p lh-16">
+                    <p class="title font-weight-bold mb-0" style="color: black !important;">
                         {{ advdecis ? advdecis.split("-")[0] : "" }} <span
                             class="caption subtext--text font-weight-bold">({{
                                 advdecstat.sum ? advdecstat.sum : ".." }})</span>
                     </p>
                     <p class="fs-14 maintext--text font-weight-medium mb-0 lh-16">
-                        ₹<span :id="`savddec${advdecstat.token}ltp`">{{ advdecstat.ltp ? advdecstat.ltp : "0.00"
+                        <span :id="`savddec${advdecstat.token}ltp`" class="black--text">{{ advdecstat.ltp
+                            ?
+                            advdecstat.ltp :
+                            "0.00"
                         }}</span>&nbsp;
                         <span class="fs-12" :id="`savddec${advdecstat.token}chpclr`"
-                            :class="advdecstat.ch > 0 ? 'maingreen--text' : advdecstat.ch < 0 ? 'mainred--text' : 'subtext--text'">
+                            :class="advdecstat.ch > 0 ? 'maingreen--text' : advdecstat.ch < 0 ? 'mainred--text' : 'subtext--text'"
+                            :style="{ color: advdecstat.ch > 0 ? 'green' : advdecstat.ch < 0 ? 'red' : 'gray' }">
                             <span :id="`savddec${advdecstat.token}ch`">{{ advdecstat.ch ? advdecstat.ch : '0.00'
                             }}</span>
                             <span :id="`savddec${advdecstat.token}chp`"> ({{ advdecstat.chp ? advdecstat.chp : '0.00'
@@ -34,57 +39,81 @@
                         </span>
                     </p>
                 </div>
-                <v-spacer class="d-none d-sm-flex"></v-spacer>
+                <v-spacer></v-spacer>
 
-                <v-select @update:model-value="getADindicesdata('main')" :readonly="isloading" style="max-width: 140px"
-                    v-model="advdecisi" hide-details append-icon="mdi-chevron-down"
-                    class="rounded-pill mr-3 d-none d-sm-flex" density="compact" variant="solo" bg-color="secbg"
-                    :items="Object.entries(adindiceslist)" return-object>
-                    <template v-slot:item="{ item }">
-                        <span>{{ item[0] }}</span>
-                    </template>
-                    <template v-slot:selection="{ item }">
-                        <span>{{ item[0] }}</span>
-                    </template>
-                </v-select>
-                <v-autocomplete @update:model-value="getADindicesdata('yes')" :readonly="isloading" style="max-width: 140px"
-                    v-model="advdecis" hide-details append-icon="mdi-chevron-down"
-                    class="rounded-pill mr-3 d-none d-sm-flex" density="compact" variant="solo" bg-color="secbg"
-                    :items="adindiceslist[advdecisi] ? adindiceslist[advdecisi] : []" return-object>
-                    <template v-slot:item="{ item }">
-                        <span>{{ typeof item === 'string' ? item : (item.name || item) }}</span>
-                    </template>
-                    <template v-slot:selection="{ item }">
-                        <span>{{ typeof item === 'string' ? item : (item.name || item) }}</span>
-                    </template>
-                </v-autocomplete>
-                <v-text-field style="max-width: 220px" :disabled="isloading" v-model="opensearch" hide-details
-                    prepend-inner-icon="mdi-magnify" label="Search" class="rounded-pill d-none d-sm-flex"
-                    density="compact" variant="solo" bg-color="secbg"></v-text-field>
+                <div class="d-flex align-center justify-end d-none d-sm-flex" style="gap: 12px;">
+                    <v-select v-model="advdecisi" @update:model-value="getADindicesdata('main')" :readonly="isloading"
+                        :items="mainIndicesItems" item-title="title" item-value="value" hide-details
+                        menu-icon="mdi-chevron-down" variant="flat" density="compact"
+                        class="rounded-pill align-center elevation-0" style="
+                        max-width: 180px;
+                        min-width: 140px;
+                        height: 36px;
+                        background-color: #f1f3f8;
+                        color: #000;
+                        font-weight: 500;
+                        font-size: 14px;
+                        border-radius: 9999px;
+                        overflow: hidden;
+                        margin-top: 0 !important;
+                        padding-top: 0 !important;
+                        align-self: center;
+                        " />
+
+
+                    <v-autocomplete v-model="advdecis" @update:model-value="getADindicesdata('yes')"
+                        :readonly="isloading" :items="subIndicesItems" item-title="title" item-value="value"
+                        hide-details menu-icon="mdi-chevron-down" density="compact" variant="flat"
+                        class="rounded-pill align-center" style="
+    max-width: 180px;
+    min-width: 140px;
+    height: 36px;
+    background-color: #f1f3f8;
+    color: #000;
+    font-weight: 500;
+    font-size: 14px;
+    border-radius: 9999px;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  " />
+
+
+
+                    <v-text-field v-model="opensearch" :disabled="isloading" variant="solo" density="compact"
+                        prepend-inner-icon="mdi-magnify" placeholder="Search" hide-details rounded="pill" flat
+                        bg-color="secbg" class="search-bar mx-auto" style="transition: width 0.3s ease;"
+                        @focus="focused = true" @blur="focused = false" />
+                </div>
             </v-toolbar>
 
-            <v-toolbar class="elevation-0 my-4 d-sm-none" density="compact" color="transparent">
-                <v-select @update:model-value="getADindicesdata('main')" :readonly="isloading" v-model="advdecisi" hide-details
-                    append-icon="mdi-chevron-down" class="rounded-pill mr-1" density="compact" variant="solo"
-                    bg-color="secbg" :items="Object.entries(adindiceslist)" return-object>
-                    <template v-slot:item="{ item }">
-                        <span>{{ item[0] }}</span>
-                    </template>
-                    <template v-slot:selection="{ item }">
-                        <span>{{ item[0] }}</span>
-                    </template>
-                </v-select>
-                <v-autocomplete @update:model-value="getADindicesdata('yes')" :readonly="isloading" v-model="advdecis" hide-details
-                    append-icon="mdi-chevron-down" class="rounded-pill ml-1" density="compact" variant="solo"
-                    bg-color="secbg" :items="adindiceslist[advdecisi] ? adindiceslist[advdecisi] : []" return-object>
-                    <template v-slot:item="{ item }">
-                        <span>{{ typeof item === 'string' ? item : (item.name || item) }}</span>
-                    </template>
-                    <template v-slot:selection="{ item }">
-                        <span>{{ typeof item === 'string' ? item : (item.name || item) }}</span>
-                    </template>
-                </v-autocomplete>
+            <v-toolbar class="elevation-0 my-4 d-sm-none px-3" density="compact" color="transparent">
+                <div class="d-flex align-center" style="gap: 8px; width: 100%;">
+                    <v-select @update:model-value="getADindicesdata('main')" :readonly="isloading" v-model="advdecisi"
+                        variant="plain" density="comfortable" hide-details menu-icon="mdi-chevron-down"
+                        class="rounded-pill flex-grow-1" :items="mainIndicesItems" item-title="title" item-value="value"
+                        style="
+                            height: 36px;
+                            background-color: #f1f3f8;
+                            color: #000;
+                            font-weight: 500;
+                            font-size: 14px;
+                            border-radius: 9999px;
+                            " />
+
+                    <v-autocomplete @update:model-value="getADindicesdata('yes')" :readonly="isloading"
+                        v-model="advdecis" variant="plain" density="comfortable" hide-details
+                        menu-icon="mdi-chevron-down" class="rounded-pill flex-grow-1" :items="subIndicesItems"
+                        item-title="title" item-value="value" style="
+                            height: 36px;
+                            background-color: #f1f3f8;
+                            color: #000;
+                            font-weight: 500;
+                            font-size: 14px;
+                            border-radius: 9999px;
+                            " />
+                </div>
             </v-toolbar>
+            <v-divider></v-divider>
 
             <div class="px-4">
                 <v-card width="100%" class="elevation-0 pa-3 rounded-lg mb-3" height="60px" color="secbg">
@@ -113,59 +142,69 @@
                 </v-card>
             </div>
 
-            <v-data-table must-sort :sort-by="['change']" :sort-desc="[true]" mobile fixed-header
+            <v-data-table must-sort :sort-by="['change']" :sort-desc="[true]" hide-default-footer fixed-header
                 :loading="isloading" class="rounded-lg overflow-y-auto" :headers="tradeheader" :search="opensearch"
                 :items="advdectabel" :items-per-page="10">
                 <template v-slot:[`item.SYMBOL`]="{ item }">
                     <p class="mb-0 lh-16">
                         <span @click="setSinglestock(item.SYMBOL.split(':')[1].split('-')[0], item)"
-                            class="font-weight-medium text-capitalize txt-dec-cust ws-p">{{ item.SYMBOL.split(":")[1]
+                            class="font-weight-medium text-capitalize txt-dec-cust ws-p"
+                            style="font-size: 12px !important;">{{ item.SYMBOL.split(":")[1]
                             }}</span>
                         <br /><span class="caption subtext--text ws-p">{{ item.Industry ? item.Industry : "" }}</span>
                     </p>
                 </template>
                 <template v-slot:[`item.ltp`]="{ item }">
                     <p class="mb-0 lh-18">
-                        <span class="font-weight-medium maintext--text"> ₹<span :id="`avddec${item.Token}ltp`">{{
-                            item.ltp ? Number(item.ltp).toFixed(2) : '0.00' }}</span></span> <br />
+                        <span class="font-weight-medium maintext--text black--text"><span :id="`avddec${item.Token}ltp`"
+                                v-text="item.ltp ? Number(item.ltp).toFixed(2) : '0.00'"></span></span> <br />
                         <span class="font-weight-medium fs-12 ws-p" :id="`avddec${item.Token}chpclr`"
-                            :class="item.ch > 0 ? 'maingreen--text' : item.ch < 0 ? 'mainred--text' : 'subtext--text'">
-                            <span :id="`avddec${item.Token}ch`">{{ item.ch ? item.ch : '0.00' }} </span>
-                            <span :id="`avddec${item.Token}chp`"> ({{ item.chp ? item.chp : '0.00' }}%)</span>
-                        </span>
+                            :class="item.ch > 0 ? 'maingreen--text' : item.ch < 0 ? 'mainred--text' : 'subtext--text'"
+                            :style="{ color: item.ch > 0 ? 'green' : item.ch < 0 ? 'red' : 'gray' }">
+                            <span :id="`avddec${item.Token}ch`" v-text="item.ch ? item.ch : '0.00'"> </span>
+                            <span :id="`avddec${item.Token}chp`"
+                                v-text="` (${item.chp ? item.chp : '0.00'}%)`"></span></span>
                     </p>
                 </template>
 
                 <template v-slot:[`item.vol`]="{ item }">
-                    <span class="font-weight-medium maintext--text" :id="`avddec${item.Token}vol`">{{
+                    <span class="font-weight-medium maintext--text black--text" :id="`avddec${item.Token}vol`">{{
                         item.vol ? item.vol : "0.00" }}</span>
                 </template>
                 <template v-slot:[`item.op`]="{ item }">
-                    <span class="font-weight-medium maintext--text" :id="`avddec${item.Token}op`">{{
-                        item.op ? item.op : "0.00" }}</span>
+                    <span class="font-weight-medium maintext--text black--text" :id="`avddec${item.Token}op`">{{
+                        item.op ? item.op :
+                            "0.00"
+                    }}</span>
                 </template>
                 <template v-slot:[`item.cp`]="{ item }">
-                    <span class="font-weight-medium maintext--text" :id="`avddec${item.Token}cp`">{{
-                        item.cp ? item.cp : "0.00" }}</span>
+                    <span class="font-weight-medium maintext--text black--text" :id="`avddec${item.Token}cp`">{{
+                        item.cp ? item.cp :
+                            "0.00"
+                    }}</span>
                 </template>
                 <template v-slot:[`item.high`]="{ item }">
-                    <span class="font-weight-medium maintext--text" :id="`avddec${item.Token}high`">{{
-                        item.high ? item.high : "0.00" }}</span>
+                    <span class="font-weight-medium maintext--text black--text" :id="`avddec${item.Token}high`">{{
+                        item.high ? item.high :
+                            "0.00"
+                    }}</span>
                 </template>
                 <template v-slot:[`item.low`]="{ item }">
-                    <span class="font-weight-medium maintext--text" :id="`avddec${item.Token}low`">{{
-                        item.low ? item.low : "0.00" }}</span>
+                    <span class="font-weight-medium maintext--text black--text" :id="`avddec${item.Token}low`">{{
+                        item.low ? item.low :
+                            "0.00"
+                    }}</span>
                 </template>
                 <template v-slot:no-data>
                     <v-col cols="12" class="text-center pa-16">
-                        <div class="mx-auto">
-                            <img class="align-self-stretch mx-auto" width="80px" src="/src/assets/no data folder.svg"
-                                alt="no data" />
+                        <div>
+                            <img width="80px" :src="noDataFolder" alt="no data" />
                             <h5 class="txt-999 font-weight-regular">There is no data here yet!</h5>
                         </div>
                     </v-col>
                 </template>
             </v-data-table>
+            <v-divider></v-divider>
         </v-card>
     </div>
 </template>
@@ -175,6 +214,8 @@ import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../../../stores/authStore'
 import { getADindices, getADindice, getLtpdata } from '@/components/mixins/getAPIdata'
+import srcmIcon from '@/assets/stocks/srcm.svg'
+import noDataFolder from '@/assets/no data folder.svg'
 
 const router = useRouter()
 const route = useRoute()
@@ -227,14 +268,41 @@ const wsdata = ref([])
 // Computed
 const tradeheader = computed(() => {
     return [
-        { text: "Symbol", value: "SYMBOL", sortable: false, class: "ws-p" },
-        { text: "Price", value: "ltp", sortable: false, align: "end", class: "ws-p" },
-        { text: "Open", value: "op", align: "end", class: "ws-p" },
-        { text: "High", value: "high", align: "end", class: "ws-p" },
-        { text: "Low", value: "low", align: "end", class: "ws-p" },
-        { text: "Close", value: "cp", align: "end", class: "ws-p" },
-        { text: "Volume", value: "vol", align: "end", class: "ws-p" },
+        { title: "Symbol", key: "SYMBOL", sortable: false, class: "ws-p" },
+        { title: "Price", key: "ltp", sortable: false, align: "end", class: "ws-p" },
+        { title: "Open", key: "op", align: "end", class: "ws-p" },
+        { title: "High", key: "high", align: "end", class: "ws-p" },
+        { title: "Low", key: "low", align: "end", class: "ws-p" },
+        { title: "Close", key: "cp", align: "end", class: "ws-p" },
+        { title: "Volume", key: "vol", align: "end", class: "ws-p" },
     ];
+})
+
+const advdecisiKey = computed(() => {
+    if (Array.isArray(advdecisi.value)) {
+        return advdecisi.value[0]
+    } else if (typeof advdecisi.value === 'object' && advdecisi.value?.title) {
+        return advdecisi.value.title
+    }
+    return advdecisi.value
+})
+
+const mainIndicesItems = computed(() => {
+    return Object.entries(adindiceslist.value).map(([key, val]) => ({
+        title: key,
+        value: key
+    }))
+})
+
+const subIndicesItems = computed(() => {
+    const key = advdecisiKey.value
+    if (!key || !adindiceslist.value[key]) {
+        return []
+    }
+    return adindiceslist.value[key].map(item => ({
+        title: typeof item === 'string' ? item : (item.name || item),
+        value: typeof item === 'string' ? item : (item.name || item)
+    }))
 })
 
 // Methods
@@ -264,16 +332,19 @@ const getADlistdata = async () => {
 }
 
 const getADindicesdata = async (change) => {
+    // Get the key from computed property
+    const currentKey = advdecisiKey.value
+
     if (change == "main") {
         // When main category changes, set first item from that category
-        if (adindiceslist.value[advdecisi.value] && adindiceslist.value[advdecisi.value].length > 0) {
-            const firstItem = adindiceslist.value[advdecisi.value][0]
+        if (adindiceslist.value[currentKey] && adindiceslist.value[currentKey].length > 0) {
+            const firstItem = adindiceslist.value[currentKey][0]
             advdecis.value = typeof firstItem === 'string' ? firstItem : (firstItem.name || firstItem)
         }
     }
 
-    // Handle advdecis as string or object
-    const advdecisValue = typeof advdecis.value === 'string' ? advdecis.value : (advdecis.value?.name || advdecis.value)
+    // Handle advdecis - it should be a string now
+    const advdecisValue = typeof advdecis.value === 'string' ? advdecis.value : (advdecis.value?.name || advdecis.value || '')
 
     let fill = advdecfilter.value[advdecisValue]
     if (fill) {
@@ -306,7 +377,7 @@ const getADindicesdata = async (change) => {
                     advdeclistis.value = key
                     // Update breadcrumbs
                     bcitems.value[1].text = key
-                    bcitems.value[3].text = key
+                    bcitems.value[3].text = currentKey || key
                     bcitems.value[4].text = advdecisValue
                     break
                 }
@@ -547,5 +618,17 @@ onBeforeUnmount(() => {
 <style scoped>
 .cursor-p {
     cursor: pointer;
+}
+
+.search-bar {
+    width: 180px;
+    /* default width */
+    max-width: 400px;
+    /* cap the max width */
+}
+
+.search-bar:focus-within {
+    /* width: 320px; */
+    /* expands smoothly on focus */
 }
 </style>

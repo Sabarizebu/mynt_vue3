@@ -4,9 +4,6 @@ import router from './router'
 import { createPinia } from 'pinia'
 import vuetify from './plugins/vuetify'
 
-// Import Material Design Icons
-import '@mdi/font/css/materialdesignicons.css'
-
 // Import Firebase
 import './firebase.js'
 

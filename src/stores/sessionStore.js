@@ -131,7 +131,7 @@ export const useSessionStore = defineStore('session', () => {
 
   const handleSessionError = (error, authStore, appStore) => {
     // Extract error message (exact same as old app: line 713)
-    const errorMsg = error.emsg ? error.emsg : error
+    const errorMsg = error.emsg ? error.emsg : (typeof error === 'string' ? error : "Session expired : Invalid Session Key")
     
     // Check if it's "another system" error or session expired
     const isAnotherSystem = typeof errorMsg === 'string' && 
@@ -141,43 +141,47 @@ export const useSessionStore = defineStore('session', () => {
        errorMsg.includes('Session Expired') ||
        errorMsg.includes('Invalid Session Key'))
     
-    // Clear all auth data FIRST (immediate logout)
-    // Clear auth tokens exactly like old app (lines 715-717)
-    authStore.mtoken = null
-    authStore.token = null
-    authStore.uid = null
+    console.log("🔄 Session error detected, logging out user:", errorMsg);
     
-    // Clear session status
+    // IMPORTANT: Clear sessionStorage FIRST so components reading from it get null immediately
     sessionStorage.removeItem("c3RhdHVz")
-    
-    // Reset storage
-    appStore.resetStorage()
-    
-    // Clear auth store completely (removes all login functionality)
-    authStore.clearAuth()
+    sessionStorage.removeItem("userid")
+    sessionStorage.removeItem("usession")
+    sessionStorage.removeItem("msession")
     
     // Clear user-related data from localStorage
     localStorage.removeItem("profile_data")
     localStorage.removeItem("client_data")
     
-    // Emit storage-reset event (exact same as old app: line 714)
-    // In Vue 3, we dispatch a custom event instead of eventBus
-    window.dispatchEvent(new CustomEvent('storage-reset'))
+    // Clear auth store completely (removes all login functionality)
+    // This will trigger watchers in components that watch authStore.uid
+    authStore.clearAuth()
     
-    // Show message immediately (exact same as old app: line 713)
+    // Reset storage
+    appStore.resetStorage()
+    
+    // Show snackbar message FIRST before any navigation or cleanup
+    // This ensures the user sees the message
     appStore.showSnackbar(2, errorMsg)
     
-    // Immediate navigation to stocks page (no delay)
-    // This ensures user is logged out immediately and navigated to the page shown before login
-    console.log("🔄 Immediate logout and navigation to stocks page due to session end");
-    
-    // Navigate immediately to stocks page (the page shown before login)
-    router.push('/stocks').catch((err) => {
-      // Ignore navigation errors (e.g., already on stocks page)
-      if (err.name !== 'NavigationDuplicated') {
-        console.error('Navigation error:', err);
-      }
-    });
+    // Small delay to ensure snackbar is visible before navigation
+    setTimeout(() => {
+      // Emit storage-reset event (exact same as old app: line 714)
+      // In Vue 3, we dispatch a custom event instead of eventBus
+      window.dispatchEvent(new CustomEvent('storage-reset'))
+      
+      // Immediate navigation to stocks page
+      // This ensures user is logged out immediately and navigated to the page shown before login
+      console.log("🔄 Immediate logout and navigation to stocks page due to session end");
+      
+      // Navigate immediately to stocks page (the page shown before login)
+      router.push('/stocks').catch((err) => {
+        // Ignore navigation errors (e.g., already on stocks page)
+        if (err.name !== 'NavigationDuplicated') {
+          console.error('Navigation error:', err);
+        }
+      });
+    }, 100);
     
     // Force reload if navigation didn't work (fallback)
     // This ensures UI is completely reset to initial state

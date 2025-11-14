@@ -1,338 +1,301 @@
 <template>
     <div>
-        <v-toolbar flat dense class="tool-sty pl-4 crd-trn">
-            <v-tabs v-model="ordertab" color="primary" fixed show-arrows density="comfortable"
-                @update:model-value="onTabChange">
-                <v-tab :value="'open'" class="font-weight-bold subtitle-1 mb-0 text-none">
-                    Open Orders ({{ openorders.length }})
-                </v-tab>
-                <v-tab :value="'exec'" class="font-weight-bold subtitle-1 mb-0 text-none">
-                    Close Orders ({{ execorders.length }})
-                </v-tab>
-            </v-tabs>
-            <v-spacer></v-spacer>
-            <v-text-field style="max-width: 220px" v-model="opensearch" hide-details prepend-inner-icon="mdi-magnify"
-                label="Search bonds" class="rounded-pill mr-4" variant="solo" density="comfortable"
-                :bg-color="'secbg'" />
-            <v-select style="max-width: 180px" v-model="filter" hide-details class="rounded-pill" clearable
-                variant="solo" density="comfortable" :bg-color="'secbg'" item-title="series" item-value="series"
-                :items="seriesList" label="Bond series" />
-            <v-icon class="ml-3 cursor-p" :disabled="tableloader" @click="getOrderbook" color="maintext"
-                size="24">mdi-reload</v-icon>
-        </v-toolbar>
+        <v-dialog v-model="bondorderdialog" persistent
+            @click:outside="!orderpoploader ? closeMenudialog('bondorder') : ''" max-width="400">
+            <v-card class="pb-1 overflow-hidden" color="cardbg" style="border-radius: 15px;">
+                <v-card class="elevation-0 pt-2 pb-1" color="secbg">
+                    <v-toolbar class="elevation-0 px-1 px-md-2 crd-trn" density="compact">
+                        <P class="font-weight-bold fs-16 maintext--text mb-0 px-4">
+                            Order {{ menudata.type == 0 ? "G-SEC" : menudata.type == 1 ? "T-BILL" : menudata.type == 2 ?
+                                "SDL" : menudata.type == 3 ? "SGB" : "" }}
+                        </P>
+                        <v-spacer></v-spacer>
+                        <v-btn :disabled="orderpoploader" @click="closeMenudialog('bondorder')" color="maintext"
+                            size="x-small" variant="outlined" icon class="mr-3">
+                            <v-icon color="maintext">mdi-close</v-icon>
+                        </v-btn>
+                    </v-toolbar>
+                </v-card>
+                <v-progress-linear v-if="orderpoploader" indeterminate></v-progress-linear>
 
-        <v-data-table :headers="orderheader" :items="filteredRows" fixed-header :hide-default-footer="true"
-            :loading="tableloader" class="mt-3 rounded-lg overflow-y-auto"
-            style="border-radius: 4px; border:1px solid #EBEEF0" height="480" :items-per-page="-1"
-            @click:row="(_, { item }) => setOrderrowdata(item)">
-            <template #item.symbol="{ item }">
-                <div class="pos-rlt">
-                    <span class="table-hov-text maintext--text font-weight-medium">{{ item.symbol || '-' }}</span>
-                    <span class="ml-1 subtext--text fs-10">{{ item.series || '' }}</span>
-                    <div @click.stop class="pos-abs table-hov" style="top: 15px; right: 0">
-                        <v-menu close-on-click :location="'bottom'" class="table-menu">
-                            <template #activator="{ props }">
-                                <v-btn v-bind="props" style="border: 1px solid #EBEEF0" min-width="20px"
-                                    color="mainbg" class="px-0 font-weight-bold white--text elevation-0 mr-1"
-                                    size="x-small">
-                                    <v-icon size="20" color="maintext">mdi-dots-horizontal</v-icon>
-                                </v-btn>
-                            </template>
-                            <v-card class="table-menu-list">
-                                <v-list density="compact">
-                                    <div v-for="(m, k) in (ordertab === 'open' ? menulist.open : menulist.exec)" :key="k">
-                                        <v-list-item @click="m.type === 'new' ? router.push('/bonds') : m.type === 'cd' ? (canceldialog = true) : setOrderrowdata(item)"
-                                            class="pl-3 pr-6">
-                                            <template #prepend>
-                                                <v-icon v-if="typeof m.icon === 'string'" :icon="m.icon" size="20"
-                                                    color="#506D84" />
-                                                <img v-else-if="m.icon > 2" width="20px" class="pl-1"
-                                                    :src="require(`@/assets/orderbook/${m.icon}.svg`)" />
-                                            </template>
-                                            <v-list-item-title class="subline--text font-weight-medium fs-14">{{
-                                                m.name }}</v-list-item-title>
-                                        </v-list-item>
-                                        <v-divider v-if="m.hr" class="mx-3"></v-divider>
-                                    </div>
-                                </v-list>
-                            </v-card>
-                        </v-menu>
-                    </div>
-                </div>
-            </template>
-            <template #item.investmentValue="{ item }">
-                <p class="font-weight-medium text-right maintext--text mb-0">{{
-                    item.investmentValue ? `₹${Number(item.investmentValue).toLocaleString()}` : '' }}</p>
-            </template>
-            <template #item.response_datetime="{ item }">
-                <span class="font-weight-medium maintext--text">{{ (item.response_datetime || '').slice(0, 16) }}</span>
-            </template>
-            <template #item.reponse_status="{ item }">
-                <p class="font-weight-medium maintext--text mb-0 text-capitalize">
-                    <img width="20" class="mb-n02" v-if="item.appstatus === 'Success'" src="@/assets/success.svg" />
-                    <img width="20" class="mb-n02" v-else-if="item.appstatus === 'Pending'" src="@/assets/warning.svg" />
-                    <img width="20" class="mb-n02" v-else src="@/assets/error.svg" />
-                    {{ item.appstatus || '' }}
-                </p>
-            </template>
-            <template #no-data>
-                <div class="text-center">
-                    <div class="mx-auto py-16 mt-16">
-                        <img class="mx-auto" width="80" :src="noDataImg" />
-                        <h4 class="txt-999 font-weight-regular caption">There is no {{ ordertab === 'exec' ? 'Close' : 'Open' }} order data here yet!</h4>
-                    </div>
-                </div>
-            </template>
-        </v-data-table>
+                <div class="px-4 px-md-6 pt-4 pb-2">
+                    <v-list-item class="px-0">
+                        <v-list-item-content class="py-0">
+                            <v-list-item-title class="font-weight-bold fs-16 maintext--text mb-0">
+                                {{ menudata.name ? menudata.name : "" }}
+                            </v-list-item-title>
+                            <v-chip-group column class="mb-1 pt-0 mt-0">
+                                <v-chip size="x-small" variant="flat" :style="{
+                                    backgroundColor: '#F1F3F8',
+                                    color: '#666666',
+                                    borderRadius: '5px',
+                                    height: '20px'
+                                }">
+                                    <span class="fs-10">
+                                        {{ menudata.symbol ? menudata.symbol : "" }}
+                                    </span>
+                                </v-chip>
+                                <v-chip v-if="menudata.isin" size="x-small" variant="flat" :style="{
+                                    backgroundColor: '#F1F3F8',
+                                    color: '#666666',
+                                    borderRadius: '5px',
+                                    height: '20px'
+                                }">
+                                    <span class="fs-10">
+                                        {{ menudata.isin ? menudata.isin : "" }}
+                                    </span>
+                                </v-chip>
+                            </v-chip-group>
+                        </v-list-item-content>
+                    </v-list-item>
 
-        <!-- Drawer -->
-        <v-navigation-drawer v-model="orderdrawer" temporary location="right" :scrim="true" width="360"
-            color="cardbg" class="pt-2">
-            <template v-slot:prepend>
-                <v-toolbar class="nav-drawer" density="comfortable">
-                    <v-btn icon variant="text" density="comfortable" @click="orderdrawer = false"><v-icon
-                            color="subtext" size="20">mdi-close</v-icon></v-btn>
-                    <p class="maintext--text font-weight-bold mb-0 ml-2">Order Details</p>
+                    <p class="font-weight-regular fs-14 subtext--text mb-2">Units</p>
+                    <v-text-field :model-value="bondqty" @update:model-value="bondqty = $event" @keyup="handleQtyKeyup"
+                        density="compact" variant="solo" flat rounded="pill" :bg-color="'secbg'" class="rounded-pill"
+                        type="number" hide-spin-buttons :min="menudata.minbidqty" hide-details
+                        :step="menudata.lotbitsize" :max="menudata.maxbidqty">
+                        <template #append-inner>
+                            <v-btn @click="incrementQty" icon class="elevation-0" variant="text" size="small">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none">
+                                    <circle cx="12" cy="12" r="12" fill="white" />
+                                    <path d="M12 8V16" stroke="#999999" stroke-width="2" stroke-linecap="round" />
+                                    <path d="M16 12L8 12" stroke="#999999" stroke-width="2" stroke-linecap="round" />
+                                </svg>
+                            </v-btn>
+                        </template>
+
+                        <template #prepend-inner>
+                            <v-btn @click="decrementQty" icon class="elevation-0" variant="text" size="small">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none">
+                                    <circle cx="12" cy="12" r="12" fill="white" />
+                                    <path d="M16 12L8 12" stroke="#999999" stroke-width="2" stroke-linecap="round" />
+                                </svg>
+                            </v-btn>
+                        </template>
+                    </v-text-field>
+
+                    <p class="fs-10 subtext--text ml-6 mt-2">
+                        Units limit {{ menudata.minbidqty || 0 }} - {{ menudata.maxbidqty || 0 }}
+                    </p>
+
+                    <p class="subtext--text fs-12 mt-3 mb-0">
+                        Ledger balance : <b>₹{{ menudata.ledger ? menudata.ledger : "0.00" }}</b>
+                    </p>
+
+                    <v-card v-if="menudata.ledger < menudata.cutoffPrice * bondqty" color="primhover"
+                        class="rounded-lg px-4 py-2 elevation-0 mt-4">
+                        <div class="mb-0 primary--text fs-12 d-flex align-center"
+                            style="gap: 4px; white-space: nowrap;">
+                            <v-icon size="16" color="primary">mdi-information-outline</v-icon>
+                            <span class="text-primary">
+                                Insufficient balance, Add fund ₹{{ (menudata.cutoffPrice * bondqty).toFixed(2) }}
+                            </span>
+                            <v-btn @click="closeMenudialog('bondorder')" variant="text"
+                                class="text-none font-weight-black px-0" size="small" color="primary" to="/funds">
+                                Click here
+                            </v-btn>
+                        </div>
+
+                    </v-card>
+                </div>
+
+                <v-toolbar class="tool-sty elevation-0 pt-4 mb-2 px-4 px-md-6 crd-trn" density="compact">
+                    <span class="font-weight-regular fs-12 subtext--text">
+                        Price : <span class="text-primary font-weight-bold">
+                            ₹{{ menudata.cutoffPrice ? menudata.cutoffPrice.toFixed(2) : "0.00" }}
+                        </span>
+                    </span>
                     <v-spacer></v-spacer>
-                </v-toolbar>
-            </template>
-            <v-list-item class="pt-3">
-                <v-list-item-title class="font-weight-medium maintext--text mb-3">{{ singledata.symbol || '' }} <span
-                        class="ml-1 txt-999 fs-10">{{ singledata.series || '' }}</span></v-list-item-title>
-                <v-list-item-title class="subtext--text font-weight-medium fs-16 mb-1">₹{{ singledata.investmentValue || '0.00' }}</v-list-item-title>
-            </v-list-item>
-            <v-list-item>
-                <v-list-item-title class="subtext--text font-weight-medium fs-13 mb-1">Order</v-list-item-title>
-                <v-list-item-title class="maintext--text font-weight-bold fs-14">Entry Success
-                    <p class="float-right mb-0">
-                        <img width="20" class="mb-n02" src="@/assets/success.svg" />
-                        <span> Success</span>
-                    </p>
-                </v-list-item-title>
-            </v-list-item>
-            <v-list-item>
-                <v-list-item-title class="subtext--text font-weight-medium fs-13 mb-1">Verification</v-list-item-title>
-                <v-list-item-title class="maintext--text font-weight-bold fs-14">{{ verifyLabel(singledata.verificationStatus) }}
-                    <p class="float-right mb-0">
-                        <img width="20" class="mb-n02" v-if="singledata.verificationStatus === 'S'" src="@/assets/success.svg" />
-                        <img width="20" class="mb-n02" v-else-if="singledata.verificationStatus === 'P'" src="@/assets/warning.svg" />
-                        <img width="20" class="mb-n02" v-else src="@/assets/error.svg" />
-                        <span> {{ verifyLabel(singledata.verificationStatus) }}</span>
-                    </p>
-                </v-list-item-title>
-            </v-list-item>
-            <v-list-item>
-                <v-list-item-title class="subtext--text font-weight-medium fs-13 mb-1">Clearing</v-list-item-title>
-                <v-list-item-title class="maintext--text font-weight-bold fs-14">{{ singledata.clearingStatus || '' }}
-                    <p class="float-right mb-0">
-                        <img width="20" class="mb-n02"
-                            v-if="singledata.clearingStatus === 'Allotted'" src="@/assets/success.svg" />
-                        <img width="20" class="mb-n02"
-                            v-else-if="singledata.clearingStatus === 'Fund Pending' || singledata.clearingStatus === 'Sent to NSCCL'"
-                            src="@/assets/warning.svg" />
-                        <img width="20" class="mb-n02" v-else src="@/assets/error.svg" />
-                        <span> {{ clearingLabel(singledata.clearingStatus) }}</span>
-                    </p>
-                </v-list-item-title>
-            </v-list-item>
-            <v-divider class="pt-1 mt-2"></v-divider>
-            <div class="px-4 pb-6">
-                <v-btn v-if="singledata.way === 'exec'" @click="router.push('/bonds')" class="rounded-pill text-none font-weight-bold"
-                    block height="40" variant="tonal">Place New order</v-btn>
-                <v-row v-else>
-                    <v-col cols="12">
-                        <v-btn @click="orderdrawer = false; canceldialog = true" class="rounded-pill text-none font-weight-bold"
-                            block height="40" variant="tonal">Cancel Order</v-btn>
-                    </v-col>
-                </v-row>
-            </div>
-            <v-divider class="pt-1"></v-divider>
-            <div class="px-4 pt-1">
-                <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">App no
-                    <p class="float-right mb-0">{{ singledata.applicationNumber || '' }}</p>
-                </v-list-item-title>
-                <v-divider></v-divider>
-                <v-list-item-title v-if="singledata.series === 'SGB'" class="maintext--text font-weight-bold fs-14 py-4">Quantity
-                    <p class="float-right mb-0">{{ singledata.quantity || '' }}</p>
-                </v-list-item-title>
-                <v-divider v-if="singledata.series === 'SGB'"></v-divider>
-                <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">Total amount
-                    <p class="float-right mb-0">₹{{ (singledata.investmentValue || 0).toLocaleString() }}</p>
-                </v-list-item-title>
-                <v-divider></v-divider>
-                <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">Price
-                    <p class="float-right mb-0">₹{{ singledata.bid_detail?.price || '0.00' }}</p>
-                </v-list-item-title>
-                <v-divider></v-divider>
-                <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">Series
-                    <p class="float-right mb-0">{{ singledata.series || '' }}</p>
-                </v-list-item-title>
-                <v-divider></v-divider>
-                <v-list-item-title class="maintext--text font-weight-bold fs-14 pt-4">Failed reason</v-list-item-title>
-                <p class="fs-12 txt-444 font-weight-regular">{{ singledata.fail_reason || 'Order placed successfully' }}</p>
-            </div>
-        </v-navigation-drawer>
 
-        <!-- Cancel Dialog -->
-        <v-dialog v-model="canceldialog" max-width="400">
-            <v-card class="rounded-xl elevation-0 text-center pt-8 pb-6 overflow-hidden">
-                <img src="@/assets/orderbook/cancel-icon.svg" alt="cancel icon" />
-                <p class="font-weight-bold mt-3 fs-22 lh-24 mb-8">Are you sure you want to<br />cancel this
-                    ({{ singledata.symbol || '' }}) order</p>
-                <v-row class="px-6" no-gutters>
-                    <v-col cols="6">
-                        <v-btn @click="canceldialog = false" color="secbg"
-                            class="rounded-pill text-none subtext--text font-weight-bold elevation-0" block
-                            height="40">No</v-btn>
-                    </v-col>
-                    <v-col cols="6">
-                        <v-btn @click="ordCancel" color="btnclr"
-                            class="rounded-pill text-none btntext--text font-weight-bold elevation-0" block
-                            height="40">Yes</v-btn>
-                    </v-col>
-                </v-row>
+                    <v-btn :disabled="bondqty < menudata.minbidqty || menudata.ledger < menudata.cutoffPrice * bondqty"
+                        @click="setBondorder()" :loading="orderpoploader" text-color="white"
+                        class="blk text-none rounded-pill elevation-0  px-4 ml-4" height="40px">
+                        Invest ₹{{ menudata.cutoffPrice && bondqty ? Math.round(menudata.cutoffPrice * bondqty) : "0" }}
+
+                    </v-btn>
+                </v-toolbar>
             </v-card>
         </v-dialog>
     </div>
-    
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import noDataImg from '@/assets/no data folder.svg'
-import { useAppStore } from '@/stores/appStore'
-import { getBondbook, getBondsgbbook } from '@/components/mixins/getAPIdata'
+import eventBus from '@/utils/eventBus.js'
+import { getBondLedger, getBondOrder } from '@/components/mixins/getAPIdata.js'
 
-const appStore = useAppStore()
 const router = useRouter()
 
-const uid = ref('')
-const orderdrawer = ref(false)
-const canceldialog = ref(false)
-const singledata = ref({})
-const tableloader = ref(true)
-const ordertab = ref('open')
-const opensearch = ref('')
-const filter = ref(null)
-const openorders = ref([])
-const execorders = ref([])
-const orderbookdata = ref([])
+// Reactive data
+const uid = ref(null)
+const token = ref(null)
+const mtoken = ref(null)
+const orderpoploader = ref(false)
+const bondqty = ref(null)
+const bondorderdialog = ref(false)
+const menudata = ref({})
 
-const menulist = {
-    open: [
-        { name: 'Cancel Order', icon: 12, type: 'cd' },
-        { name: 'Order Status', icon: 3, type: '', hr: true },
-        { name: 'Details', icon: 10, type: 'detail' },
-    ],
-    exec: [
-        { name: 'New Order', icon: 'mdi-plus', type: 'new', trans: 'b' },
-        { name: 'Order Status', icon: 3, type: '', hr: true },
-        { name: 'Details', icon: 10, type: 'detail' },
-    ],
-}
-
-const orderheader = [
-    { title: 'Symbol', key: 'symbol' },
-    { title: 'Order Number', key: 'orderNumber' },
-    { title: 'Datetime', key: 'response_datetime' },
-    { title: 'Amount', key: 'investmentValue', align: 'right' },
-    { title: 'Reason', key: 'reason', width: '30%' },
-    { title: 'Status', key: 'reponse_status' },
-]
-
-const seriesList = computed(() => {
-    const all = orderbookdata.value || []
-    const set = new Set(all.map(o => o.series).filter(Boolean))
-    return Array.from(set).map(s => ({ series: s }))
+// Computed
+const totalInvestment = computed(() => {
+    if (menudata.value.cutoffPrice && bondqty.value) {
+        return (menudata.value.cutoffPrice * bondqty.value).toFixed(2)
+    }
+    return "0.00"
 })
 
-const filteredRows = computed(() => {
-    const list = (orderbookdata.value || []).filter(o => (ordertab.value ? o.way === ordertab.value : true))
-    const bySeries = filter.value ? list.filter(o => o.series === filter.value) : list
-    const term = opensearch.value?.toLowerCase()
-    if (!term) return bySeries
-    return bySeries.filter(o =>
-        (o.symbol || '').toLowerCase().includes(term) ||
-        (o.series || '').toLowerCase().includes(term) ||
-        (o.orderNumber || '').toLowerCase().includes(term)
-    )
-})
-
-function verifyLabel(v) {
-    return v === 'S' ? 'Success' : v === 'P' ? 'Pending' : 'Failed'
-}
-function clearingLabel(v) {
-    return v === 'Allotted' ? 'Success' : (v === 'Fund Pending' || v === 'Sent to NSCCL') ? 'Pending' : 'Failed'
+// Methods
+function snackAlert(color, msg) {
+    eventBus.$emit('snack-event', color, msg)
 }
 
-function normalizeAndSplit(list) {
-    const out = []
-    for (let q = 0; q < list.length; q++) {
-        const row = { ...list[q] }
-        try { row.bid_detail = typeof row.bid_detail === 'string' ? eval('(' + row.bid_detail + ')') : row.bid_detail } catch { }
-        if (typeof row.response_json === 'string') {
-            let cleaned = row.response_json.replace(/'/g, '"').replace(/\bNone\b/g, 'null').replace(/\bTrue\b/g, 'true').replace(/\bFalse\b/g, 'false')
-            try { row.response_json = JSON.parse(cleaned) } catch { /* ignore */ }
-        }
-        if (typeof row.response_json === 'string') {
-            let cleaned = row.response_json.trim()
-            if ((cleaned.startsWith("'") && cleaned.endsWith("'")) || (cleaned.startsWith('"') && cleaned.endsWith('"'))) cleaned = cleaned.slice(1, -1)
-            try { row.response_json = JSON.parse(cleaned) } catch { /* ignore */ }
-        }
-        row.series = row.response_json?.series === 'TB' ? 'T-BILL' : row.response_json?.series === 'GS' ? 'G-SEC' : row.response_json?.series === 'GB' ? 'SGB' : (row.response_json?.series || row.series)
-        row.fail_reason = row.bid_detail?.requestfor === 'REMOVE' ? 'Order was canceled by yourself.' : row.fail_reason
-        row.appstatus = !row.fail_reason ? ((row.verificationStatus === 'S' && row.clearingStatus === 'Allotted') ? 'Success' : ((row.verificationStatus === 'P' && (row.clearingStatus === 'Sent to NSCCL' || row.clearingStatus === 'Fund Pending')) ? 'Pending' : 'Failed')) : 'Failed'
-        row.way = (row.orderStatus === 'ES' && (row.verificationStatus === 'S' || row.verificationStatus === 'P') && row.clearingStatus !== 'Rejected') ? 'open' : 'exec'
-        out.push(row)
+function handleQtyKeyup() {
+    if (bondqty.value) {
+        bondqty.value = Number(bondqty.value)
+    } else if (bondqty.value < menudata.value.minbidqty) {
+        bondqty.value = menudata.value.minbidqty
     }
-    return out
 }
 
-async function getOrderbook() {
-    tableloader.value = true
-    openorders.value = []
-    execorders.value = []
-    const currentUid = sessionStorage.getItem('userid')
-    if (!currentUid) {
-        tableloader.value = false
-        orderbookdata.value = []
-        return
+function incrementQty() {
+    if (menudata.value.lotbitsize) {
+        bondqty.value = (bondqty.value || 0) + menudata.value.lotbitsize
+        if (menudata.value.maxbidqty && bondqty.value > menudata.value.maxbidqty) {
+            bondqty.value = menudata.value.maxbidqty
+        }
     }
-    uid.value = currentUid
-    const datab = await getBondbook([currentUid])
-    const datas = await getBondsgbbook([currentUid])
-    let data = []
-    if (Array.isArray(datab) && datab.length) data = datab
-    if (Array.isArray(datas) && datas.length) data = data.length ? data.concat(datas) : datas
-    if (Array.isArray(data) && data.length) {
-        const normalized = normalizeAndSplit(data)
-        orderbookdata.value = normalized
-        openorders.value = normalized.filter(o => o.way === 'open')
-        execorders.value = normalized.filter(o => o.way === 'exec')
+}
+
+function decrementQty() {
+    if (menudata.value.lotbitsize) {
+        if (bondqty.value === menudata.value.lotbitsize) {
+            bondqty.value = menudata.value.lotbitsize
+        } else {
+            bondqty.value = Math.max((bondqty.value || 0) - menudata.value.lotbitsize, menudata.value.minbidqty || 0)
+        }
+    }
+}
+
+async function setMenudialog(itemdata, mode) {
+    eventBus.$emit("sub-loader", 1)
+    orderpoploader.value = false
+    menudata.value = {}
+    menudata.value = { ...itemdata }
+
+    try {
+        const ledgerRes = await getBondLedger([uid.value, token.value])
+        menudata.value.ledger = ledgerRes && ledgerRes.total > 0 ? Number(ledgerRes.total).toFixed(2) : null
+    } catch (error) {
+        console.error('Error fetching ledger:', error)
+        menudata.value.ledger = null
+    }
+
+    menudata.value.type = mode
+    bondqty.value = itemdata.minbidqty || 0
+    bondorderdialog.value = true
+    eventBus.$emit("sub-loader", 0)
+}
+
+async function setBondorder(mode, item) {
+    if (mode == 0) {
+        // Cancel order mode
+        orderpoploader.value = true
     } else {
-        orderbookdata.value = []
+        // Buy order mode
+        orderpoploader.value = true
     }
-    ordertab.value = 'open'
-    tableloader.value = false
+
+    let data = {}
+
+    if (mode == 0) {
+        // Cancel order
+        data = {
+            requestfor: "REMOVE",
+            symbol: item.symbol,
+            investmentValue: item.investmentValue,
+            price: item.bid_detail?.price || item.price,
+            orderNumber: item.orderNumber,
+            clientApplicationNumber: item.clientApplicationNumber,
+        }
+    } else {
+        // Buy order
+        data = {
+            requestfor: "BUY",
+            symbol: menudata.value.symbol,
+            investmentValue: menudata.value.flow == 3
+                ? menudata.value.minPrice * bondqty.value
+                : bondqty.value * 100,
+            price: menudata.value.cutoffPrice,
+        }
+
+        if (menudata.value.flow == 3) {
+            data.bidQuantity = bondqty.value
+        }
+    }
+
+    try {
+        const response = await getBondOrder(menudata.value.flow == 3, JSON.stringify(data))
+        orderpoploader.value = false
+
+        if (response && response.status) {
+            const success = response.status == "success"
+            const message = response.orderStatus_response
+                ? `${mode == 0 ? item.symbol : menudata.value.name}, ${response.orderStatus_response}`
+                : response.reason || response
+
+            snackAlert(success ? 1 : 0, message)
+
+            if (mode == 0) {
+                eventBus.$emit("watch-load")
+            }
+        } else {
+            const errorMsg = response && response.emsg
+                ? response.emsg
+                : response.reason || response || "Unknown error"
+            snackAlert(2, errorMsg)
+        }
+    } catch (error) {
+        console.error('Error placing bond order:', error)
+        orderpoploader.value = false
+        snackAlert(2, error.message || "Failed to place order")
+    }
+
+    bondorderdialog.value = false
+    menudata.value = {}
 }
 
-function onTabChange() {
-    // keep for parity; counts update via computed
+function closeMenudialog(type) {
+    if (type == "bondorder") {
+        bondorderdialog.value = false
+    }
+    menudata.value = {}
 }
 
-function setOrderrowdata(item) {
-    orderdrawer.value = true
-    singledata.value = { ...item }
+// Event handlers
+function handleMenudialog(type, itemdata, mode) {
+    if (type == "bondorder") {
+        setMenudialog(itemdata, mode)
+    }
 }
 
-function ordCancel() {
-    // Emit cancel intent; consumer should handle
-    window.dispatchEvent(new CustomEvent('bondmodify-event', { detail: singledata.value }))
-    canceldialog.value = false
+function handleBondModify(data) {
+    setBondorder(0, data)
 }
 
-onMounted(() => {
-    getOrderbook()
+// Lifecycle
+onMounted(async () => {
+    eventBus.$on("menudialog", handleMenudialog)
+    eventBus.$on("bondmodify-event", handleBondModify)
+
+    mtoken.value = sessionStorage.getItem("msession")
+    token.value = sessionStorage.getItem("usession")
+    uid.value = sessionStorage.getItem("userid")
+})
+
+onBeforeUnmount(() => {
+    eventBus.$off("menudialog", handleMenudialog)
+    eventBus.$off("bondmodify-event", handleBondModify)
 })
 </script>

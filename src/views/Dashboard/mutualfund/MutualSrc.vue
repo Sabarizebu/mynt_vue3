@@ -1,5 +1,5 @@
 <template>
-    <div>
+  <div>
     <v-row no-gutters>
       <v-col cols="12">
         <v-card class="pa-4 px-sm-8 py-sm-6 elevation-0 rounded-lg mb-6" color="secbg">
@@ -7,9 +7,9 @@
           <p class="text-subtitle-2 subtext--text mb-6">Find the right mutual fund across these asset classes</p>
           <v-card v-if="newbestmflist.length > 0" class="crd-trn d-inline-flex overflow-x-auto elevation-0 no-scroll"
             width="100%">
-            <v-card @click="navigateToCategory(b)"
-              v-for="(b, l) in newbestmflist" :key="l" class="px-5 pb-3 pt-4 mr-4 rounded-lg elevation-0"
-              min-width="184px" max-width="190px" style="border: thin solid var(--outline) !important">
+            <v-card @click="navigateToCategory(b)" v-for="(b, l) in newbestmflist" :key="l"
+              class="px-5 pb-3 pt-4 mr-4 rounded-lg elevation-0" min-width="184px" max-width="190px"
+              style="border: thin solid var(--outline) !important">
               <div class="mb-1">
                 <img :src="getImageUrl(b.image)" width="50px" />
               </div>
@@ -23,7 +23,8 @@
               height="200" type="card"></v-skeleton-loader>
           </v-card>
         </v-card>
-        <v-card v-if="nfocount > 0" to="/mutualfund/nfo" variant="outlined" class="pt-4 pb-4 pb-sm-2 rounded-lg my-4 mr-sm-4">
+        <v-card v-if="nfocount > 0" to="/mutualfund/nfo"
+          class=" cardb pt-4 pb-4 pb-sm-2 rounded-lg my-4 mr-sm-4 elevation-0">
           <v-row>
             <v-col cols="1" class="pb-2 d-none d-sm-flex">
               <img src="@/assets/mf/side-one.svg" class="mb-2 ml-4" />
@@ -40,22 +41,21 @@
               </div>
             </v-col>
             <v-col cols="2" sm="1" class="d-none d-sm-flex align-center pt-0">
-              <v-btn color="btnclr" block
-                class="btntext--text text-none font-weight-bold rounded-pill pl-6 pr-4 elevation-0">View <v-icon
-                  size="16" class="ml-2">mdi-arrow-right</v-icon></v-btn>
+              <v-btn color="btnclr" class="text-none font-weight-bold rounded-pill pl-6 pr-4 elevation-0"
+                style="min-width: 120px;">View <v-icon size="16" class="ml-2">mdi-arrow-right</v-icon></v-btn>
             </v-col>
           </v-row>
         </v-card>
 
         <p class="text-h6 font-weight-bold mb-3">Mutual funds categories</p>
-        <v-card v-if="!mfcatloader && newcatlistdata && newcatlistdata.length > 0" class="d-inline-flex overflow-x-auto elevation-0 no-scroll mb-0 crd-trn"
-          width="100%">
-          <v-card @click=" setChangewl(n)" v-for="(n, k) in newcatlistdata" :key="k" class="px-3 py-2 mr-4"
-            min-width="160px" variant="outlined">
+        <v-card v-if="!mfcatloader && newcatlistdata && newcatlistdata.length > 0"
+          class="d-inline-flex overflow-x-auto elevation-0 no-scroll mb-5 crd-trn" width="100%">
+          <v-card @click=" setChangewl(n)" v-for="(n, k) in newcatlistdata" :key="k"
+            class="px-3 py-2 mr-4 elevation-0 cardb" min-width="160px">
             <v-list-item-title class="text-subtitle-2 font-weight-bold mb-2 text-capitalize">{{ n ? n.name : "" }}
               funds</v-list-item-title>
             <v-card class="pt-02 mb-3 elevation-0 rounded-pill" width="30%" color="maintext"></v-card>
-            <p class="fs-12 subtext--text font-weight-medium mb-0">{{ n ? n.count : "" }} funds</p>
+            <p class="fs-12  mb-0 text-grey">{{ n ? n.count : "" }} funds</p>
           </v-card>
         </v-card>
         <v-card v-else class="d-inline-flex overflow-x-auto elevation-0 no-scroll mb-0 crd-trn" width="100%">
@@ -86,8 +86,8 @@
       </v-col>
       <v-col cols="12">
         <div>
-          <v-card style="border: 1px solid var(--outline)" variant="outlined" class="elevation-0 rounded-lg mb-8 mb-md-0 crd-trn">
-            <v-toolbar class="tool-sty elevation-0 py-4 mb-7 px-4 crd-trn" density="compact">
+          <v-card style="border: 1px solid var(--outline)" variant="outlined" class="elevation-0 mb-0 mb-md-0 crd-trn">
+            <v-toolbar class="tool-sty elevation-0 py-4 mb-0 px-4 crd-trn" density="compact">
               <p class="text-h6 font-weight-bold mb-0">{{ headertext ? headertext : "" }}</p>
               <v-spacer></v-spacer>
               <div v-if="mfcategorie.cat != '' || mfcategorie.sub != '' || mfcategorie.amc != ''">
@@ -117,89 +117,89 @@
                 </v-list-item>
               </div>
 
-              <v-text-field style="max-width: 160px" v-model="opensearch" hide-details prepend-inner-icon="mdi-magnify"
-                label="Search" class="rounded-pill ml-1 d-none d-md-flex" density="compact" variant="solo" flat
-                bg-color="secbg"></v-text-field>
+              <v-text-field rounded="pill" v-model="opensearch" hide-details prepend-inner-icon="mdi-magnify"
+                label="Search" class="pwidth rounded-pill ml-1 d-none d-md-flex search-field-center" density="compact"
+                variant="solo" flat bg-color="secbg"></v-text-field>
             </v-toolbar>
-            <v-data-table must-sort :sort-by="[{ key: '', order: 'asc' }]" :search="opensearch" hide-default-footer
-              fixed-header mobile :loading="mftableloader"
-              class="rounded-0 overflow-y-auto mftable-responsive" :headers="tradeheader" height="calc(100vh - 180px)"
-              :items="mftabledata" :items-per-page="mftabledata && mftabledata.length > 0 ? showtable : 0"
-              item-key="Scheme_Code">
+            <v-data-table :search="opensearch" hide-default-footer hide-default-header fixed-header
+              :loading="mftableloader" class=" overflow-y-auto ipo-data-table" :headers="tradeheader"
+              disable-sort="true" height="calc(100vh - 180px)" :items="mftabledata"
+              :items-per-page="mftabledata && mftabledata.length > 0 ? showtable : 0" item-key="Scheme_Code">
               <template v-slot:body="{ items, headers }">
                 <table style="width: 100%; border-collapse: collapse;">
                   <thead style="background-color: #F5F5F5; position: sticky; top: 0; z-index: 10;">
                     <tr>
-                      <th v-for="header in tradeheader" :key="header.key" 
-                          :class="header.class"
-                          :style="{
-                            textAlign: header.align === 'end' ? 'right' : 'left',
-                            padding: '12px 16px',
-                            fontWeight: '600',
-                            fontSize: '14px',
-                            backgroundColor: '#F5F5F5',
-                            borderBottom: '1px solid #E0E0E0',
-                            position: 'sticky',
-                            top: '0'
-                          }">
+                      <th v-for="header in tradeheader" :key="header.key" :class="header.class" :style="{
+                        textAlign: header.align === 'end' ? 'right' : 'left',
+                        padding: '14px',
+                        fontWeight: '600',
+                        fontSize: '14px',
+                        backgroundColor: '#F5F5F5',
+                        borderBottom: '1px solid #E0E0E0',
+                        position: 'sticky',
+                        top: '0'
+                      }">
                         {{ header.title }}
                       </th>
                     </tr>
                   </thead>
                   <tbody v-if="mftabledata && mftabledata.length > 0">
-                    <tr class="table-row" v-for="(item, o) in items" :key="o" 
-                        @mouseenter="hoveredRow = o" 
-                        @mouseleave="hoveredRow = null"
-                        :style="{ 
-                          backgroundColor: hoveredRow === o ? '#E3F2FD' : 'white', 
-                          borderBottom: '1px solid #E0E0E0',
-                          transition: 'background-color 0.2s ease'
-                        }">
-                      <td class="pl-md-6 pl-4" style="width: 40%; vertical-align: middle; padding: 16px;">
+                    <tr class="table-row" v-for="(item, o) in items" :key="o" @mouseenter="hoveredRow = o"
+                      @mouseleave="hoveredRow = null" :style="{
+                        backgroundColor: hoveredRow === o ? '#E3F2FD' : 'white',
+                        borderBottom: '1px solid #E0E0E0',
+                        transition: 'background-color 0.2s ease'
+                      }">
+                      <td class=" px-4" style="width: 40%; vertical-align: middle;">
                         <div class="d-flex align-center justify-space-between">
                           <div class="flex-grow-1" style="min-width: 0;">
-                            <P @click="setSinglepage(item)" 
-                              class="fs-13 font-weight-medium mb-1 primary--text table-hov-text txt-dec-cust"
-                              style="cursor: pointer; color: #0037B7; line-height: 1.4;">
+                            <P @click="setSinglepage(item)"
+                              class="fs-13 font-weight-medium mt-2 table-hov-text txt-dec-cust fund-name-link"
+                              style="cursor: pointer; line-height: 1.4;">
                               {{ item.name ? setNamehide(item.name) : "" }}
                             </P>
 
                             <v-chip-group column class="mb-0">
-                              <v-chip color="#F5F5F5" size="x-small" class="mr-1 mb-1" text-color="#666"
-                                style="border-radius: 4px; padding: 4px 8px; height: 20px; font-size: 10px; display: inline-block;">
-                                <span class="font-weight-medium">
+                              <v-chip size="x-small" variant="flat" class="mr-1 mb-1" :style="{
+                                backgroundColor: '#F1F3F8',
+                                color: '#666666',
+                                borderRadius: '5px',
+                                height: '20px'
+                              }">
+                                <span class="fs-10">
                                   {{ item.Type ? item.Type : "" }}
                                 </span>
                               </v-chip>
-                              <v-chip v-if="item.SubType" color="#F5F5F5" size="x-small" class="mr-1 mb-1" text-color="#666"
-                                style="border-radius: 4px; padding: 4px 8px; height: 20px; font-size: 10px; display: inline-block;">
-                                <span class="font-weight-medium">
+                              <v-chip v-if="item.SubType" size="x-small" variant="flat" class="mr-1 mb-1" :style="{
+                                backgroundColor: '#F1F3F8',
+                                color: '#666666',
+                                borderRadius: '5px',
+                                height: '20px'
+                              }">
+                                <span class="fs-10">
                                   {{ item.SubType ? item.SubType : "" }}
                                 </span>
                               </v-chip>
                             </v-chip-group>
                           </div>
-                          <div @click.stop 
-                            :class="{ 'd-flex': hoveredRow === o, 'd-none': hoveredRow !== o }"
-                            class="align-center"
-                            style="min-width: fit-content; margin-left: 16px; flex-shrink: 0;">
+                          <div @click.stop :class="{ 'd-flex': hoveredRow === o, 'd-none': hoveredRow !== o }"
+                            class="align-center" style="min-width: fit-content; margin-left: 16px; flex-shrink: 0;">
                             <!-- Show Invest button only when NOT logged in -->
-                            <v-btn v-if="!isLoggedIn" @click="$emit('gologin')" size="small"
-                              class="elevation-0 text-none white--text font-weight-bold mr-1"
-                              style="background-color: #0037B7; border-radius: 4px; padding: 6px 16px; height: 28px; font-size: 12px; min-width: 70px; box-shadow: none;">
+                            <v-btn v-if="!isLoggedIn" @click="goToLogin()" size="small"
+                              class="elevation-0 rounded-pill text-none primary--text font-weight-bold" color="#F1F3F8"
+                              style="min-width: 80px; box-shadow: none !important;">
                               Invest</v-btn>
                             <!-- Show Buy, SIP, and watchlist icon only when logged in -->
                             <template v-else>
                               <v-btn v-if="item.Purchase_Allowed == 'Y'" @click="putMForder(item, 'buy')" size="small"
-                                class="elevation-0 text-none white--text font-weight-bold mr-1"
-                                style="background-color: #148564; border-radius: 4px; padding: 6px 16px; height: 28px; font-size: 12px; min-width: 70px; box-shadow: none;">
-                                Buy</v-btn>
+                                class="elevation-0 text-none font-weight-bold mr-1 mf-buy-chip">
+                                Buy </v-btn>
                               <v-btn v-if="item.SIP_FLAG == 'Y'" @click="putMForder(item, 'sip')" size="small"
-                                class="elevation-0 text-none white--text font-weight-bold mr-1"
-                                style="background-color: #0037B7; border-radius: 4px; padding: 6px 16px; height: 28px; font-size: 12px; min-width: 70px; box-shadow: none;">
+                                class="elevation-0 text-none font-weight-bold mr-1 mf-sip-chip">
                                 SIP</v-btn>
-                              <v-btn @click="getusedMutual(item)" style="border: 1px solid var(--outline); box-shadow: none;"
-                                min-width="20px" color="mainbg" class="px-0 elevation-0 ml-2 d-none d-sm-flex" size="x-small">
+                              <v-btn @click="getusedMutual(item)"
+                                style="border: 1px solid var(--outline); box-shadow: none;" min-width="20px"
+                                color="mainbg" class="px-0 elevation-0 ml-2 d-none d-sm-flex" size="x-small">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="10" height="12" viewBox="0 0 10 12"
                                   fill="none">
                                   <path
@@ -212,16 +212,20 @@
                           </div>
                         </div>
                       </td>
-                      <td class="text-right font-weight-medium pr-md-6 pr-4" style="width: 15%; vertical-align: middle; padding: 16px; text-align: right;">
+                      <td class="text-right font-weight-medium px-4 txt-000"
+                        style="width: 15%; vertical-align: middle; padding: 16px; text-align: right;">
                         {{ item.AUM ? Number(item.AUM).toFixed(2) : "0.00" }}
                       </td>
-                      <td class="text-right font-weight-medium pr-md-6 pr-4" style="width: 15%; vertical-align: middle; padding: 16px; text-align: right;">
+                      <td class="text-right font-weight-medium px-4 txt-000"
+                        style="width: 15%; vertical-align: middle; padding: 16px; text-align: right;">
                         {{ item['1Year'] ? Number(item['1Year']).toFixed(2) : "0.00" }}
                       </td>
-                      <td class="text-right font-weight-medium pr-md-6 pr-4" style="width: 15%; vertical-align: middle; padding: 16px; text-align: right;">
+                      <td class="text-right font-weight-medium px-4 txt-000"
+                        style="width: 15%; vertical-align: middle; padding: 16px; text-align: right;">
                         {{ item['3Year'] ? Number(item['3Year']).toFixed(2) : "0.00" }} %
                       </td>
-                      <td class="text-right font-weight-medium pr-md-6 pr-4" style="width: 15%; vertical-align: middle; padding: 16px; text-align: right;">
+                      <td class="text-right font-weight-medium px-4 txt-000"
+                        style="width: 15%; vertical-align: middle; padding: 16px; text-align: right;">
                         <span class="font-weight-medium maintext--text">₹{{ item.Minimum_Purchase_Amount ?
                           Number(item.Minimum_Purchase_Amount).toFixed(2) : "0.00" }}</span>
                       </td>
@@ -254,10 +258,10 @@
         <v-toolbar @click="addscript = true" flat density="compact" class="tool-sty">
           <p class="mb-0 font-weight-bold">
             Filters
-            <v-chip class="ml-1" v-if="mfcategorie.cat || mfcategorie.sub || mfcategorie.amc" size="x-small" color="secbg"
-              text-color="subtext" style="border-radius: 5px; padding: 10px 8px !important">clear all<v-icon
-                @click="(mfcategorie.cat = ''), (mfcategorie.sub = ''), (mfcategorie.amc = ''), setChangewl()" size="14"
-                color="#666" class="ml-2"> mdi-close </v-icon>
+            <v-chip class="ml-1" v-if="mfcategorie.cat || mfcategorie.sub || mfcategorie.amc" size="x-small"
+              color="secbg" text-color="subtext" style="border-radius: 5px; padding: 10px 8px !important">clear
+              all<v-icon @click="(mfcategorie.cat = ''), (mfcategorie.sub = ''), (mfcategorie.amc = ''), setChangewl()"
+                size="14" color="#666" class="ml-2"> mdi-close </v-icon>
             </v-chip>
           </p>
           <v-spacer></v-spacer>
@@ -285,7 +289,7 @@
               <span>
                 <v-badge :model-value="mfcategorie.cat" dot> Category </v-badge>
                 <span class="float-right mr-3 fs-12">{{ mfcategorie.cats ? Object.keys(mfcategorie.cats).length : ""
-                }}</span>
+                  }}</span>
               </span>
             </v-expansion-panel-title>
             <v-expansion-panel-text class="px-0">
@@ -298,7 +302,7 @@
                       :color="mfcategorie.cat == j ? '#0037B7' : '#F1F3F8'"></v-card>
                     <v-list-item-title class="fs-12 text-capitalize"
                       :style="`color:${mfcategorie.cat == j ? '#0037B7' : '#000000'};`"> {{ j.replace("Scheme", "")
-                        }}</v-list-item-title>
+                      }}</v-list-item-title>
                   </v-list-item>
                 </div>
               </div>
@@ -309,7 +313,7 @@
               <span>
                 <v-badge :model-value="mfcategorie.sub" dot> Sub category </v-badge>
                 <span class="float-right mr-3 fs-12">{{ mfcategorie.subs ? Object.keys(mfcategorie.subs).length : ""
-                }}</span>
+                  }}</span>
               </span>
             </v-expansion-panel-title>
             <v-expansion-panel-text class="px-0">
@@ -332,7 +336,7 @@
               <span>
                 <v-badge :model-value="mfcategorie.amc" dot> AMC </v-badge>
                 <span class="float-right mr-3 fs-12">{{ mfcategorie.amcs ? Object.keys(mfcategorie.amcs).length : ""
-                }}</span>
+                  }}</span>
               </span>
             </v-expansion-panel-title>
             <v-expansion-panel-text class="px-0">
@@ -345,7 +349,7 @@
                       :color="mfcategorie.amc == j ? '#0037B7' : '#F1F3F8'"></v-card>
                     <v-list-item-title class="fs-12 text-lowercase"
                       :style="`color:${mfcategorie.amc == j ? '#0037B7' : '#000000'};`"> {{ j.split("_")[0]
-                        }}</v-list-item-title>
+                      }}</v-list-item-title>
                   </v-list-item>
                 </div>
               </div>
@@ -442,7 +446,7 @@
               <span>
                 <v-badge :model-value="mfcategorie.cat" dot> Category </v-badge>
                 <span class="float-right mr-3 fs-12">{{ mfcategorie.cats ? Object.keys(mfcategorie.cats).length : ""
-                }}</span>
+                  }}</span>
               </span>
             </v-expansion-panel-title>
             <v-expansion-panel-text class="px-0">
@@ -455,7 +459,7 @@
                       :color="mfcategorie.cat == j ? '#0037B7' : '#F1F3F8'"></v-card>
                     <v-list-item-title class="fs-12 text-capitalize"
                       :style="`color:${mfcategorie.cat == j ? '#0037B7' : '#000000'};`"> {{ j.replace("Scheme", "")
-                        }}</v-list-item-title>
+                      }}</v-list-item-title>
                   </v-list-item>
                 </div>
               </div>
@@ -466,7 +470,7 @@
               <span>
                 <v-badge :model-value="mfcategorie.sub" dot> Sub category </v-badge>
                 <span class="float-right mr-3 fs-12">{{ mfcategorie.subs ? Object.keys(mfcategorie.subs).length : ""
-                }}</span>
+                  }}</span>
               </span>
             </v-expansion-panel-title>
             <v-expansion-panel-text class="px-0">
@@ -489,7 +493,7 @@
               <span>
                 <v-badge :model-value="mfcategorie.amc" dot> AMC </v-badge>
                 <span class="float-right mr-3 fs-12">{{ mfcategorie.amcs ? Object.keys(mfcategorie.amcs).length : ""
-                }}</span>
+                  }}</span>
               </span>
             </v-expansion-panel-title>
             <v-expansion-panel-text class="px-0">
@@ -502,7 +506,7 @@
                       :color="mfcategorie.amc == j ? '#0037B7' : '#F1F3F8'"></v-card>
                     <v-list-item-title class="fs-12 text-lowercase"
                       :style="`color:${mfcategorie.amc == j ? '#0037B7' : '#000000'};`"> {{ j.split("_")[0]
-                        }}</v-list-item-title>
+                      }}</v-list-item-title>
                   </v-list-item>
                 </div>
               </div>
@@ -559,7 +563,7 @@
         </v-expansion-panels>
       </v-sheet>
     </v-bottom-sheet>
-    </div>
+  </div>
 </template>
 
 <script>
@@ -650,13 +654,14 @@ export default {
   computed: {
     tradeheader() {
       return [
-        { title: "Fund name", key: "name", sortable: false, class: "pl-md-6 pl-4", align: "start", width: "40%" },
-        { title: "AUM", key: "AUM", align: "end", sortable: false, class: "pr-md-6 pr-4", width: "15%" },
-        { title: "1yr CAGR", key: "1Year", align: "end", sortable: false, class: "pr-md-6 pr-4", width: "15%" },
-        { title: "3yr CAGR", key: "3Year", align: "end", sortable: false, class: "pr-md-6 pr-4", width: "15%" },
-        { title: "Min. Invest", key: "Minimum_Purchase_Amount", align: "end", sortable: false, class: "pr-md-6 pr-4", width: "15%" },
+        { title: "Fund name", key: "name", class: "pl-md-6 pl-4", align: "start", width: "40%", sortable: false },
+        { title: "AUM", key: "AUM", align: "end", class: "pr-md-6 pr-4", width: "15%", sortable: false },
+        { title: "1yr CAGR", key: "1Year", align: "end", class: "pr-md-6 pr-4", width: "15%", sortable: false },
+        { title: "3yr CAGR", key: "3Year", align: "end", class: "pr-md-6 pr-4", width: "15%", sortable: false },
+        { title: "Min. Invest", key: "Minimum_Purchase_Amount", align: "end", class: "pr-md-6 pr-4", width: "15%", sortable: false },
       ];
     },
+
     isLoggedIn() {
       // Check if user is logged in - check both uid and sessionStorage
       const sessionUid = sessionStorage.getItem("userid");
@@ -684,7 +689,7 @@ export default {
   async mounted() {
     eventBus.$emit("login-event");
     eventBus.$emit("tabBar-load");
-    
+
     // Initialize uid from sessionStorage on mount
     let res = sessionStorage.getItem("c3RhdHVz");
     if (res == "dmFsaWR1c2Vy") {
@@ -694,13 +699,13 @@ export default {
       this.token = "";
       this.uid = "";
     }
-    
+
     // Initialize with static data so UI shows something immediately
     this.newbestmflist = [...this.staticData];
-    
+
     // Try to load data directly if no parent component handles the "receive" event
     await this.loadMFData();
-    
+
     // Also listen for setRec-event in case parent component handles it
     eventBus.$on("setRec-event", (value) => {
       if (value == "stat_ok") {
@@ -709,7 +714,7 @@ export default {
         this.handleMFData(value);
       }
     });
-    
+
     eventBus.$on("user-event", () => {
       let res = sessionStorage.getItem("c3RhdHVz");
       if (res == "dmFsaWR1c2Vy") {
@@ -720,7 +725,7 @@ export default {
         this.uid = "";
       }
     });
-    
+
     // Watch for route changes to reload data when coming back
     this.$watch(() => this.$route.path, (newPath, oldPath) => {
       if (newPath === '/mutualfund' && oldPath && oldPath.startsWith('/mutualfund/categories')) {
@@ -749,7 +754,7 @@ export default {
       try {
         this.mftableloader = true;
         this.mfcatloader = true;
-        
+
         // Load data from multiple APIs
         const [bestMFRes, topSchemesRes, categoryRes, nfoRes] = await Promise.all([
           getnewBestMF(),
@@ -757,9 +762,9 @@ export default {
           getnewcatgreapi(),
           getMFnofdata()
         ]);
-        
+
         console.log("API Responses:", { bestMFRes, topSchemesRes, categoryRes, nfoRes });
-        
+
         // Process NFO count
         if (nfoRes) {
           if (nfoRes.stat == "Ok" && nfoRes.data && Array.isArray(nfoRes.data)) {
@@ -770,7 +775,7 @@ export default {
             this.nfocount = nfoRes.data.length;
           }
         }
-        
+
         // Process best MF list
         if (bestMFRes) {
           let bestMFData = bestMFRes;
@@ -779,13 +784,13 @@ export default {
           } else if (bestMFRes.stat == "Ok") {
             bestMFData = bestMFRes;
           }
-          
+
           // Initialize with static data
           this.newbestmflist = [...this.staticData];
-          
+
           if (bestMFData && bestMFData.baskets_length && Array.isArray(bestMFData.baskets_length)) {
             this.newbestmflist = this.staticData.map(item => {
-              const match = bestMFData.baskets_length.find(apiItem => 
+              const match = bestMFData.baskets_length.find(apiItem =>
                 apiItem.title && apiItem.title.trim() === item.title.trim()
               );
               if (match && match.count) {
@@ -799,7 +804,7 @@ export default {
           } else if (bestMFData && Array.isArray(bestMFData)) {
             // Handle if response is directly an array
             this.newbestmflist = this.staticData.map(item => {
-              const match = bestMFData.find(apiItem => 
+              const match = bestMFData.find(apiItem =>
                 apiItem.title && apiItem.title.trim() === item.title.trim()
               );
               if (match && (match.count || match.funds)) {
@@ -815,7 +820,7 @@ export default {
           // Use static data if API fails
           this.newbestmflist = [...this.staticData];
         }
-        
+
         // Process top schemes
         if (topSchemesRes) {
           let topData = null;
@@ -828,7 +833,7 @@ export default {
           } else if (Array.isArray(topSchemesRes)) {
             topData = topSchemesRes;
           }
-          
+
           if (topData && Array.isArray(topData) && topData.length > 0) {
             this.mftabledata = topData;
             this.headertext = "Top 100 mutual funds";
@@ -839,7 +844,7 @@ export default {
         } else {
           this.mftabledata = [];
         }
-        
+
         // Process categories
         if (categoryRes) {
           let categoryData = null;
@@ -852,7 +857,7 @@ export default {
           } else if (Array.isArray(categoryRes)) {
             categoryData = categoryRes;
           }
-          
+
           if (categoryData && Array.isArray(categoryData) && categoryData.length > 0) {
             const transformed = categoryData.map(group => {
               if (group.values && Array.isArray(group.values)) {
@@ -886,7 +891,7 @@ export default {
         } else {
           this.newcatlistdata = [];
         }
-        
+
         this.mftableloader = false;
         this.mfcatloader = false;
       } catch (error) {
@@ -896,12 +901,12 @@ export default {
         this.mfcatloader = false;
       }
     },
-    
+
     handleMFData(res) {
       if (res && res.stat == "Ok" && res) {
         this.nfocount = res.nfocount || 0;
         this.mftabledata = res.toplistdata || [];
-        
+
         if (res.newapilist && res.newapilist.data) {
           this.newbestmflist = this.staticData.map(item => {
             const match = res.newapilist.data.baskets_length?.find(apiItem => apiItem.title.trim() === item.title.trim());
@@ -933,7 +938,7 @@ export default {
 
           this.newcatlistdata = transformed;
         }
-        
+
         this.headertext = "Top 100 mutual funds";
         this.mftableloader = false;
         this.mfcatloader = false;
@@ -941,7 +946,7 @@ export default {
         eventBus.$emit("snack-event", 2, res.msg ? res.msg : res);
       }
     },
-    
+
     setNamehide(name) {
       return name && name.length > 30 ? `${name.slice(0, 30)}...` : name;
     },
@@ -954,14 +959,20 @@ export default {
       // Navigate using ISIN if available, otherwise use Scheme_Code
       const identifier = item.ISIN || item.Scheme_Code || item.schemeCode || item.isin;
       if (identifier) {
-        this.$router.push({ 
-          name: "mutual fund single", 
-          params: { ISIN: identifier } 
+        this.$router.push({
+          name: "mutual fund single",
+          params: { ISIN: identifier }
         });
       } else {
         console.error("No ISIN or Scheme_Code found in item:", item);
         eventBus.$emit("snack-event", 0, "Unable to navigate: Missing fund identifier");
       }
+    },
+    goToLogin() {
+      // Trigger login by redirecting to login URL
+      window.location.assign(
+        `https://desk.zebuetrade.com/mynt/?url=${window.location.origin + window.location.pathname}`
+      );
     },
     putMForder(item, type) {
       eventBus.$emit("menudialog", "mforder", type, item);
@@ -973,7 +984,7 @@ export default {
       this.showtable = 24;
       this.mftabledata = [];
       this.headertext = "";
-      
+
       if (n && n.name) {
         this.headertext = n.name + " Funds";
         let newlisttt = this.newcatlistdata.find(
@@ -983,7 +994,7 @@ export default {
           this.mftabledata = newlisttt.values;
         }
       }
-      
+
       this.mftableloader = false;
     },
     setMFrowdata(item) {
@@ -992,12 +1003,12 @@ export default {
     navigateToCategory(category) {
       // Store category data in sessionStorage for navigation
       sessionStorage.setItem('mf_category_data', JSON.stringify(category));
-      this.$router.push({ 
-        name: 'mutual fund categories', 
-        query: { 
+      this.$router.push({
+        name: 'mutual fund categories',
+        query: {
           title: category.title,
-          titlekey: category.titlekey 
-        } 
+          titlekey: category.titlekey
+        }
       });
     },
   },
@@ -1027,5 +1038,32 @@ export default {
   padding: 12px 16px !important;
   font-weight: 600 !important;
   font-size: 14px !important;
+}
+
+/* Fund name link - color only on hover */
+.fund-name-link {
+  color: inherit;
+  transition: color 0.2s ease;
+}
+
+.fund-name-link:hover {
+  color: #0037B7 !important;
+}
+
+.search-field-center :deep(.v-field__input) {
+  display: flex !important;
+  align-items: center !important;
+}
+
+.search-field-center :deep(input) {
+  line-height: 1.5 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.search-field-center :deep(.v-field__input input) {
+  line-height: 1.5 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
 }
 </style>

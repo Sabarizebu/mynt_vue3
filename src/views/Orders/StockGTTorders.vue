@@ -1,22 +1,30 @@
 <template>
     <div>
-        <v-toolbar flat dense class="tool-sty pl-4 crd-trn my-4">
+        <!-- Toolbar -->
+        <v-toolbar flat dense class="tool-sty my-6 pl-4 crd-trn">
             <v-spacer />
-            <v-text-field style="max-width: 220px" v-model="opensearch" hide-details prepend-inner-icon="mdi-magnify"
-                label="Search" class="rounded-pill mr-4" variant="solo" density="comfortable" :bg-color="'secbg'" />
-            <v-icon class="ml-3 cursor-p" :disabled="loading" @click="getOrderbook" color="maintext"
-                size="24">mdi-reload</v-icon>
+            <v-text-field elevation="0" rounded v-model="opensearch"
+                prepend-inner-icon="mdi-magnify" placeholder="Search" variant="solo" density="compact" hide-details
+                class="rounded mr-4" style="max-width: 220px" flat bg-color="secbg" />
+            <v-icon :disabled="loading" :class="['ml-3 cursor-p', { 'reload-rotating': loading }]" @click="getOrderbook"
+                color="maintext" size="24">mdi-reload</v-icon>
         </v-toolbar>
 
+        <!-- GTT Orders Table -->
         <v-data-table fixed-header :hide-default-footer="true" :loading="loading"
-            class="mt-3 rounded-lg overflow-y-auto" style="border-radius: 4px; border: 1px solid #EBEEF0"
-            height="480" :headers="headers" :items="searchedItems" :items-per-page="-1">
+            class="holdings-table mt-3 rounded-lg overflow-y-auto"
+            style="border-radius: 8px; border: 1px solid #EBEEF0; background-color: #ffffff !important;"
+            height="480px" :headers="headers" :items="searchedItems" :items-per-page="-1"
+            :item-class="() => 'table-row'" :row-props="() => ({ class: 'table-row' })">
 
             <template #item.tsym="{ item }">
-                <p class="font-weight-medium maintext--text mb-0 table-hov-text ws-p">
-                    {{ item.tsym || '' }}
-                    <span class="ml-1 subtext--text fs-10">{{ item.exch || '' }}</span>
-                </p>
+                <div class="pos-rlt" style="min-height: 40px; padding-right: 200px;">
+                    <p class="font-weight-bold fs-13 txt-162 black--text mb-0 table-hov-text"
+                        style="margin-right: 0; white-space: nowrap;">
+                        {{ item.tsym || '' }}
+                        <span class="ml-1 subtext--text fs-10">{{ item.exch || '' }}</span>
+                    </p>
+                </div>
             </template>
 
             <template #item.trantype="{ item }">
@@ -166,20 +174,46 @@ async function getOrderbook() {
     loading.value = true
     orderbookdata.value = []
     const data = await getGttorderbook()
-    if (Array.isArray(data) && data[0] && data[0].stat === 'Ok') {
-        const mapped = data.map(d => ({
-            trigValue: d.d,
-            condition: d.ai_t?.includes('_A_O') ? '>' : d.ai_t?.includes('_B_O') ? '<' : 'Select',
-            qty: d.qty,
-            orderType: d.prd === 'C' ? 'Delivery (CNC)' : d.prd === 'M' ? 'Carry Forward (NRML)' : d.prd === 'I' ? 'Intraday' : 'Select',
-            trantype: d.trantype,
-            tsym: d.tsym,
-            exch: d.exch,
-            token: d.token,
-            al_id: d.al_id,
-            res: d,
-        }))
-        orderbookdata.value = mapped
+    // Handle different response structures:
+    // 1. Array with first element having stat === 'Ok'
+    // 2. Array of order objects directly
+    // 3. Response object with data array
+    if (Array.isArray(data)) {
+        // Check if first element has stat property (old format)
+        if (data[0] && data[0].stat === 'Ok') {
+            // Process all items in the array (skip the first one if it's just a status object)
+            const orders = data.filter(d => d.al_id) // Filter out status objects, keep only orders
+            const mapped = orders.map(d => ({
+                trigValue: d.d,
+                condition: d.ai_t?.includes('_A_O') ? '>' : d.ai_t?.includes('_B_O') ? '<' : 'Select',
+                qty: d.qty,
+                orderType: d.prd === 'C' ? 'Delivery (CNC)' : d.prd === 'M' ? 'Carry Forward (NRML)' : d.prd === 'I' ? 'Intraday' : 'Select',
+                trantype: d.trantype,
+                tsym: d.tsym,
+                exch: d.exch,
+                token: d.token,
+                al_id: d.al_id,
+                res: d,
+            }))
+            orderbookdata.value = mapped
+        } else {
+            // Direct array of orders (new format or when stat is not on first element)
+            const mapped = data
+                .filter(d => d && d.al_id) // Only process items that have al_id (actual orders)
+                .map(d => ({
+                    trigValue: d.d,
+                    condition: d.ai_t?.includes('_A_O') ? '>' : d.ai_t?.includes('_B_O') ? '<' : 'Select',
+                    qty: d.qty,
+                    orderType: d.prd === 'C' ? 'Delivery (CNC)' : d.prd === 'M' ? 'Carry Forward (NRML)' : d.prd === 'I' ? 'Intraday' : 'Select',
+                    trantype: d.trantype,
+                    tsym: d.tsym,
+                    exch: d.exch,
+                    token: d.token,
+                    al_id: d.al_id,
+                    res: d,
+                }))
+            orderbookdata.value = mapped
+        }
     }
     loading.value = false
 }
@@ -201,7 +235,7 @@ async function doCancel() {
         const tok = sessionStorage.getItem('msession')
         const resp = await setCancelGTT(`jData={"uid":"${uid}","al_id":"${item.al_id}"}&jKey=${tok}`)
         if (resp && resp.stat === 'OI deleted') {
-            appStore.showSnackbar(1, 'GTT Order has been cancelled')
+            appStore.showSnackbar(0, 'GTT Order has been cancelled')
             const idx = orderbookdata.value.findIndex(x => x.al_id === item.al_id)
             if (idx >= 0) orderbookdata.value.splice(idx, 1)
         } else {
@@ -226,7 +260,10 @@ async function setOrderrowdata(item) {
 
 function onOrderbookUpdate(e) {
     const book = e.detail
-    if (book === 'gtt' || book === 'orders') getOrderbook()
+    // Check if detail is an object with type property, or if it's a string directly
+    if ((book?.type === 'gtt' || book?.type === 'orders') || book === 'gtt' || book === 'orders') {
+        getOrderbook()
+    }
 }
 
 onMounted(() => {
@@ -238,3 +275,19 @@ onBeforeUnmount(() => {
     window.removeEventListener('orderbook-update', onOrderbookUpdate)
 })
 </script>
+
+<style scoped>
+/* Reload icon rotation animation */
+.reload-rotating {
+    animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+</style>

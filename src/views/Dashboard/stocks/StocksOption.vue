@@ -2,88 +2,104 @@
     <div>
         <div v-if="optionsStore.optionchainid" class="tvcharts">
             <v-card color="cardbg" width="100%" class="rounded-md" style="overflow: hidden">
-                <div>
-                    <!-- Toolbar Section - Migrated to Vue 3 & Vuetify 3 -->
-                    <v-toolbar flat dense class="tool-sty crd-trn pr-4">
-                        <!-- Search Button - Match old code: switchBus.$emit('option-search', optionStockSymbolInfo) -->
-                        <v-btn :readonly="optionsStore.coractloader" @click="handleOptionSearch"
-                            class="elevation-0 rounded-lg mr-2" color="transparent">
-                            <p class="font-weight-bold mb-0 lh-24 text-none">
-                                <v-icon>mdi-magnify</v-icon>
-                                {{ optionsStore.optionStockName || '' }}
-                            </p>
-                        </v-btn>
+                <div style="border-top: 1px solid #EBEEF0;">
+                    <!-- Toolbar Section - Improved UI -->
+                    <v-toolbar flat dense class="tool-sty crd-trn px-4" height="56">
+                        <div class="d-flex align-center" style="gap: 12px;">
+                            <!-- Search Button - Improved styling -->
+                            <v-btn :readonly="optionsStore.coractloader" @click="handleOptionSearch"
+                                class="elevation-0 text-none" variant="text"
+                                style="color: #000 !important; text-transform: none;">
+                                <v-icon size="20" class="mr-2">mdi-magnify</v-icon>
+                                <span class="font-weight-bold" style="font-size: 14px;">
+                                    {{ optionsStore.optionStockName || '' }}
+                                </span>
+                            </v-btn>
 
-                        <!-- Expiry Date Selector - Match old code: v-menu offset-y, color="secbg" -->
-                        <v-menu location="bottom" offset="4">
-                            <template v-slot:activator="{ props }">
-                                <div v-bind="props">
-                                    <v-btn :readonly="optionsStore.coractloader" color="secbg"
-                                        class="elevation-0 rounded-lg text-none fs-14 mr-4 px-2 text-capitalize">
-                                        {{ optionsStore.lsexdval || '' }}
-                                        <span class="ml-4 font-weight-bold fs-12">
-                                            {{ optionsStore.lsexdval && optionsStore.daydiff ? optionsStore.daydiff +
-                                                '(D)' : '' }}
+                            <!-- Expiry Date Selector - Pill-shaped -->
+                            <v-menu location="bottom" offset="4">
+                                <template v-slot:activator="{ props }">
+                                    <v-btn v-bind="props" :readonly="optionsStore.coractloader" variant="flat"
+                                        class="elevation-0 text-none" style="
+                                            background-color: #F1F3F8 !important;
+                                            color: #000 !important;
+                            
+                                            height: 36px;
+                                            font-size: 14px;
+                                            font-weight: 500;
+                                            text-transform: none;
+                                            min-width: auto;
+                                            padding: 0 16px;
+                                        ">
+                                        <span>{{ optionsStore.lsexdval || '' }}</span>
+                                        <span v-if="optionsStore.lsexdval && optionsStore.daydiff"
+                                            class="ml-2 font-weight-bold" style="font-size: 12px;">
+                                            {{ optionsStore.daydiff }}(D)
                                         </span>
-                                        <v-icon>mdi-chevron-down</v-icon>
+                                        <v-icon size="18" class="ml-2">mdi-chevron-down</v-icon>
                                     </v-btn>
-                                </div>
-                            </template>
-                            <v-list density="compact" style="max-height: 320px; overflow-y: scroll">
-                                <v-list-item-group v-model="optionsStore.lsexdfilter" active-class="primary--text"
-                                    @update:model-value="optionChainDate">
-                                    <v-list-item v-for="(item, index) in optionsStore.lsexd" :key="index"
-                                        :value="index">
-                                        <v-list-item-title>{{ item }}</v-list-item-title>
+                                </template>
+                                <v-list density="compact"
+                                    style="max-height: 320px; overflow-y: scroll; min-width: 200px;">
+                                    <v-list-item v-for="(item, index) in optionsStore.lsexd" :key="index" :value="index"
+                                        :active="optionsStore.lsexdfilter === index"
+                                        @click="optionsStore.lsexdfilter = index; optionChainDate()">
+                                        <v-list-item-title style="font-size: 14px;">{{ item }}</v-list-item-title>
                                     </v-list-item>
-                                </v-list-item-group>
-                            </v-list>
-                        </v-menu>
+                                </v-list>
+                            </v-menu>
 
-                        <!-- Chain Count Selector - Match old code: v-menu offset-y, color="secbg" -->
-                        <v-menu location="bottom" offset="4">
-                            <template v-slot:activator="{ props }">
-                                <div v-bind="props">
-                                    <v-btn :readonly="optionsStore.coractloader" color="secbg"
-                                        class="elevation-0 rounded-lg text-none fs-14 px-2 text-capitalize">
-                                        {{ optionsStore.chainCount ? (optionsStore.chainCount == '50' ? 'All' :
-                                            optionsStore.chainCount) : '' }}
-                                        <v-icon>mdi-chevron-down</v-icon>
+                            <!-- Chain Count Selector - Pill-shaped -->
+                            <v-menu location="bottom" offset="4">
+                                <template v-slot:activator="{ props }">
+                                    <v-btn v-bind="props" :readonly="optionsStore.coractloader" variant="flat"
+                                        class="elevation-0 text-none" style="
+                                            background-color: #F1F3F8 !important;
+                                            color: #000 !important;
+                                            height: 36px;
+                                            font-size: 14px;
+                                            font-weight: 500;
+                                            text-transform: none;
+                                            min-width: auto;
+                                            padding: 0 16px;
+                                        ">
+                                        <span>{{ optionsStore.chainCount ? (optionsStore.chainCount == '50' ? 'All' :
+                                            optionsStore.chainCount) : '' }}</span>
+                                        <v-icon size="18" class="ml-2">mdi-chevron-down</v-icon>
                                     </v-btn>
-                                </div>
-                            </template>
-                            <v-list density="compact">
-                                <v-list-item-group v-model="optionsStore.ccfilter" active-class="primary--text"
-                                    @update:model-value="optionChainDate">
+                                </template>
+                                <v-list density="compact" style="min-width: 120px;">
                                     <v-list-item v-for="(item, index) in ['5', '10', '15', '30', 'All']" :key="index"
-                                        :value="index">
-                                        <v-list-item-title>{{ item }}</v-list-item-title>
+                                        :value="index" :active="optionsStore.ccfilter === index"
+                                        @click="optionsStore.ccfilter = index; optionChainDate()">
+                                        <v-list-item-title style="font-size: 14px;">{{ item }}</v-list-item-title>
                                     </v-list-item>
-                                </v-list-item-group>
-                            </v-list>
-                        </v-menu>
+                                </v-list>
+                            </v-menu>
+                        </div>
 
                         <v-spacer></v-spacer>
 
-                        <!-- Basket Order Button - Match old code: tile icon -->
-                        <v-btn :readonly="optionsStore.coractloader" tile icon @click="setBaskorder('create')">
-                            <img width="24px" :src="basketOrderIcon" />
-                        </v-btn>
+                        <div class="d-flex align-center" style="gap: 8px;">
+                            <!-- Trash/Delete Button -->
+                            <v-btn :readonly="optionsStore.coractloader" icon variant="text" size="small"
+                                class="elevation-0" style="color: #666 !important;">
+                                <v-icon size="20">mdi-delete-outline</v-icon>
+                            </v-btn>
 
-                        <!-- Settings Button - Match old code: v-if="drawer == false", tile icon -->
-                        <v-btn :readonly="optionsStore.coractloader" v-if="optionsStore.drawer == false" tile icon
-                            @click="optionsStore.drawer = true">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="28" height="28">
-                                <g fill="currentColor" fill-rule="evenodd">
-                                    <path fill-rule="nonzero"
-                                        d="M14 17a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0-1a2 2 0 1 0 0-4 2 2 0 0 0 0 4z">
-                                    </path>
-                                    <path
-                                        d="M5.005 16A1.003 1.003 0 0 1 4 14.992v-1.984A.998.998 0 0 1 5 12h1.252a7.87 7.87 0 0 1 .853-2.06l-.919-.925c-.356-.397-.348-1 .03-1.379l1.42-1.42a1 1 0 0 1 1.416.007l.889.882A7.96 7.96 0 0 1 12 6.253V5c0-.514.46-1 1-1h2c.557 0 1 .44 1 1v1.253a7.96 7.96 0 0 1 2.06.852l.888-.882a1 1 0 0 1 1.416-.006l1.42 1.42a.999.999 0 0 1 .029 1.377s-.4.406-.918.926a7.87 7.87 0 0 1 .853 2.06H23c.557 0 1 .447 1 1.008v1.984A.998.998 0 0 1 23 16h-1.252a7.87 7.87 0 0 1-.853 2.06l.882.888a1 1 0 0 1 .006 1.416l-1.42 1.42a1 1 0 0 1-1.415-.007l-.889-.882a7.96 7.96 0 0 1-2.059.852v1.248c0 .56-.45 1.005-1.008 1.005h-1.984A1.004 1.004 0 0 1 12 22.995v-1.248a7.96 7.96 0 0 1-2.06-.852l-.888.882a1 1 0 0 1-1.416.006l-1.42-1.42a1 1 0 0 1 .007-1.415l.882-.888A7.87 7.87 0 0 1 6.252 16H5.005zm3.378-6.193l-.227.34A6.884 6.884 0 0 0 7.14 12.6l-.082.4H5.005C5.002 13 5 13.664 5 14.992c0 .005.686.008 2.058.008l.082.4c.18.883.52 1.71 1.016 2.453l.227.34-1.45 1.46c-.004.003.466.477 1.41 1.422l1.464-1.458.34.227a6.959 6.959 0 0 0 2.454 1.016l.399.083v2.052c0 .003.664.005 1.992.005.005 0 .008-.686.008-2.057l.399-.083a6.959 6.959 0 0 0 2.454-1.016l.34-.227 1.46 1.45c.003.004.477-.466 1.422-1.41l-1.458-1.464.227-.34A6.884 6.884 0 0 0 20.86 15.4l.082-.4h2.053c.003 0 .005-.664.005-1.992 0-.005-.686-.008-2.058-.008l-.082-.4a6.884 6.884 0 0 0-1.016-2.453l-.227-.34 1.376-1.384.081-.082-1.416-1.416-1.465 1.458-.34-.227a6.959 6.959 0 0 0-2.454-1.016L15 7.057V5c0-.003-.664-.003-1.992 0-.005 0-.008.686-.008 2.057l-.399.083a6.959 6.959 0 0 0-2.454 1.016l-.34.227-1.46-1.45c-.003-.004-.477.466-1.421 1.408l1.457 1.466z">
-                                    </path>
-                                </g>
-                            </svg>
-                        </v-btn>
+                            <!-- Basket Order Button -->
+                            <v-btn :readonly="optionsStore.coractloader" icon variant="text" size="small"
+                                class="elevation-0" @click="setBaskorder('create')">
+                                <img width="20px" height="20px" :src="basketOrderIcon" />
+                            </v-btn>
+
+                            <!-- Settings Button -->
+                            <v-btn :readonly="optionsStore.coractloader" v-if="optionsStore.drawer == false" icon
+                                variant="text" size="small" class="elevation-0" @click="optionsStore.drawer = true"
+                                style="color: #666 !important;">
+                                <v-icon size="20">mdi-cog-outline</v-icon>
+                            </v-btn>
+                        </div>
                     </v-toolbar>
                     <v-divider></v-divider>
 
@@ -533,20 +549,20 @@
                                     <tr v-if="optionsStore.chainSpotdata && optionsStore.chainSpotdata.lp"
                                         ref="chainSpotRow">
                                         <th :colspan="optionsStore.opchtablehead" class="px-0">
-                                            <v-progress-linear value="100" color="#FF720C"
-                                                height="1"></v-progress-linear>
+                                            <div style="height: 2px; background-color: #FF720C;"></div>
                                         </th>
-                                        <th id="opcenterview" colspan="4" class="text-center pa-0 opdatacalluphov">
-                                            <v-card class="white--text elevation-0" color="#FF720C" tile>
-                                                <span class="font-weight-bold body-2">
-                                                    {{ optionsStore.chainSpotdata.lp ? optionsStore.chainSpotdata.lp :
+                                        <th id="opcenterview" colspan="4" class="text-center pa-2 opdatacalluphov">
+                                            <v-card class="white--text elevation-0" color="#FF720C"
+                                                style="border-radius: 4px; padding: 4px 12px; display: inline-block;">
+                                                <span class="font-weight-bold" style="font-size: 14px;">
+                                                    {{ optionsStore.chainSpotdata.lp ?
+                                                        Number(optionsStore.chainSpotdata.lp).toFixed(2) :
                                                         '0.00' }}
                                                 </span>
                                             </v-card>
                                         </th>
                                         <th :colspan="optionsStore.opchtablehead" class="px-0">
-                                            <v-progress-linear value="100" color="#FF720C"
-                                                height="1"></v-progress-linear>
+                                            <div style="height: 2px; background-color: #FF720C;"></div>
                                         </th>
                                     </tr>
                                     <!-- Phase 6: Calls below spot (dwncallSO) -->
@@ -2453,15 +2469,18 @@ onUnmounted(() => {
 .optionhoversty {
     font-size: 12px !important;
     font-weight: 600 !important;
+    color: #666666 !important;
 }
 
 .optiondatasty {
     font-size: 12px !important;
     font-weight: 400 !important;
+    color: #000 !important;
 }
 
 .optionchsty {
     font-size: 9px !important;
+    color: inherit;
 }
 
 /* Phase 3: Settings drawer info styles */
@@ -2640,5 +2659,31 @@ tr.opdatacallupbtn {
 
 tbody tr:hover {
     background-color: transparent !important;
+}
+
+/* Improved toolbar styling */
+.tool-sty {
+    min-height: 56px !important;
+}
+
+/* Improved table header styling */
+:deep(.v-table thead) {
+    background-color: #F5F5F5 !important;
+}
+
+:deep(.v-table thead th) {
+    border-bottom: 1px solid #EBEEF0 !important;
+    padding: 8px 4px !important;
+}
+
+:deep(.v-table tbody th) {
+    padding: 4px !important;
+    border-bottom: 1px solid #F5F5F5 !important;
+}
+
+/* Better spacing for table cells */
+:deep(.v-table td),
+:deep(.v-table th) {
+    white-space: nowrap;
 }
 </style>

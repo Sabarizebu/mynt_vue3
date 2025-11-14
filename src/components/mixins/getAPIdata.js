@@ -21,6 +21,9 @@ var orderprefdata = {};
 var sllmasters = {};
 setIndicatorsidx();
 
+// Request deduplication: Track pending requests to prevent duplicate calls
+const pendingRequests = new Map();
+
 // Get app store for notifications
 function getAppStore() {
     return useAppStore();
@@ -69,12 +72,91 @@ function setHeaderauth() {
     let uid = sessionStorage.getItem('userid');
     let tok = sessionStorage.getItem('usession');
 
-    if (!myHeaders.has("clientid")) {
-        myHeaders.append("clientid", uid);
+    // Only set headers if we have valid values (not null)
+    if (uid && !myHeaders.has("clientid")) {
+        myHeaders.set("clientid", uid);
+    } else if (!uid && myHeaders.has("clientid")) {
+        // Remove clientid if uid is null
+        myHeaders.delete("clientid");
     }
-    if (!myHeaders.has("Authorization")) {
-        myHeaders.append("Authorization", tok);
+    
+    if (tok && !myHeaders.has("Authorization")) {
+        myHeaders.set("Authorization", tok);
+    } else if (!tok && myHeaders.has("Authorization")) {
+        // Remove Authorization if tok is null
+        myHeaders.delete("Authorization");
     }
+}
+
+// Helper function to create clean request options without auth headers for public APIs
+function createPublicRequestOptions() {
+    const publicHeaders = new Headers();
+    publicHeaders.append("Content-Type", "application/json");
+    return {
+        method: 'POST',
+        redirect: 'follow',
+        headers: publicHeaders
+    };
+}
+
+// Helper function to add timeout to fetch requests with proper cancellation
+// Reduced timeout to 5 seconds for faster failure detection on Firebase
+function fetchWithTimeout(url, options = {}, timeout = 5000) {
+    // Create AbortController to actually cancel the request
+    const controller = new AbortController();
+    let timeoutId;
+    
+    // Create a promise that rejects on timeout
+    const timeoutPromise = new Promise((_, reject) => {
+        timeoutId = setTimeout(() => {
+            controller.abort();
+            reject(new Error('Request timeout'));
+        }, timeout);
+    });
+    
+    // If there's an existing signal, listen to it and abort our controller if it's aborted
+    if (options.signal) {
+        if (options.signal.aborted) {
+            clearTimeout(timeoutId);
+            controller.abort();
+            return Promise.reject(new Error('Request already aborted'));
+        } else {
+            options.signal.addEventListener('abort', () => {
+                clearTimeout(timeoutId);
+                controller.abort();
+            });
+        }
+    }
+    
+    // Merge abort signal with existing options
+    const fetchOptions = {
+        ...options,
+        signal: controller.signal,
+        // Add mode and credentials to handle CORS properly
+        mode: 'cors',
+        credentials: 'omit'
+    };
+    
+    // Race between fetch and timeout
+    return Promise.race([
+        fetch(url, fetchOptions)
+            .then(response => {
+                clearTimeout(timeoutId);
+                return response;
+            })
+            .catch(error => {
+                clearTimeout(timeoutId);
+                // Handle network errors (CORS, connection refused, etc.)
+                if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                    throw new Error('Network error: Failed to fetch - possible CORS or connection issue');
+                }
+                if (error.name === 'AbortError') {
+                    throw new Error('Request timeout');
+                }
+                throw error;
+            }),
+        timeoutPromise
+    ]);
 }
 
 export async function GetAllSearchData(item, cat) {
@@ -83,7 +165,8 @@ export async function GetAllSearchData(item, cat) {
     } else {
         requestOptions['body'] = `{"text":"${item}"}`;
     }
-    var response = await FetchsearchData('http://192.168.5.180:5000/' + "search", requestOptions);
+    // Use production API endpoint instead of localhost
+    var response = await FetchsearchData(apiurl.searchapi + "search", requestOptions);
     return response
 }
 
@@ -653,22 +736,44 @@ export async function forceRefreshMLimits(format) {
 }
 
 export async function getTotpreq(val) {
+    seyCheckwebsocket()
     requestMOption['body'] = `jData={"uid":"${uid}"}&jKey=${tok}`
     var response = await fetchMyntAPI(mynturl.myntapi + (val ? "GenSecretKey" : "GetSecretKey"), requestMOption)
     return response
 }
 
 export async function getApikeyreq() {
+    seyCheckwebsocket()
     requestMOption['body'] = `jData={"uid":"${uid}"}&jKey=${tok}`
     var response = await fetchMyntAPI(mynturl.myntapi + "RequestApiKey", requestMOption)
     return response
 }
 
-export async function getUserApikeyreq(time) {
-    requestMOption['body'] = `jData={"uid":"${uid}", "valTime":"${time}"}&jKey=${tok}`
+export async function getUserApikeyreq(time, status) {
+    seyCheckwebsocket()
+    requestMOption['body'] = `jData={"uid":"${uid}", "valTime":"${time}"}${status ? `, "status":"${status}"` : ''}&jKey=${tok}`
     var response = await fetchMyntAPI(mynturl.myntapi + "GetUserApiKey", requestMOption)
     return response
 }
+
+export async function getApikeyData() {
+    seyCheckwebsocket()
+    requestMOption['body'] = `jData={"app_key":"${uid}_U"}&jKey=${tok}`
+    var response = await fetchMyntAPI(mynturl.myntapi + "GetAppKeyData", requestMOption)
+    return response
+}
+
+export async function getApiKeyStore(item) {
+    seyCheckwebsocket()
+    const ipaddrArray = [{"ipaddr": item.primaryIp}]
+    if (item.backupIp) {
+        ipaddrArray.push({"ipaddr": item.backupIp})
+    }
+    requestMOption['body'] = `jData={"app_key":"${item.clientId}","sec_code":"${item.secretCode}","red_url":"${item.url}","dname":"${uid} s apikey","ipaddr": ${JSON.stringify(ipaddrArray)},"uid": [{"uid":"${uid}"}]}&jKey=${tok}`
+    var response = await fetchMyntAPI(mynturl.myntapi + "AppKeyStore", requestMOption)
+    return response
+}
+
 
 export async function getClientDetails() {
     // Get fresh tokens from sessionStorage before making API call
@@ -731,68 +836,206 @@ export async function getPostPnL(data) {
 }
 
 export async function getssNews() {
-    requestOptions['body'] = "";
-    var response = await fetchMyntAPI(apiurl.sessapi + "newsfeedin?pagesize=5&pagecount=1&filterdate=monthly", { method: 'get' })
-    return response
+    // Create request key for deduplication
+    const requestKey = 'newsfeedin';
+    
+    // Check if same request is already pending
+    if (pendingRequests.has(requestKey)) {
+        console.log(`🔄 Reusing pending request: ${requestKey}`);
+        try {
+            return await pendingRequests.get(requestKey);
+        } catch (error) {
+            // If pending request failed, remove it and continue
+            pendingRequests.delete(requestKey);
+            throw error;
+        }
+    }
+    
+    // Create request promise
+    const requestPromise = (async () => {
+        try {
+            // Use public request options (no auth headers) for public API
+            const publicOptions = createPublicRequestOptions();
+            publicOptions['body'] = "";
+            var response = await fetchMyntAPI(apiurl.sessapi + "newsfeedin?pagesize=5&pagecount=1&filterdate=monthly", { ...publicOptions, method: 'get' });
+            pendingRequests.delete(requestKey);
+            return response;
+        } catch (error) {
+            pendingRequests.delete(requestKey);
+            throw error;
+        }
+    })();
+    
+    // Store promise in pending requests map
+    pendingRequests.set(requestKey, requestPromise);
+    
+    return await requestPromise;
 }
 
 export async function getCorporateact() {
-    requestOptions['body'] = "";
-    var response = await fetchMyntAPI(apiurl.iposapi + "getCorporateAction", requestOptions)
-    return response
+    // Create request key for deduplication
+    const requestKey = 'getCorporateAction';
+    
+    // Check if same request is already pending
+    if (pendingRequests.has(requestKey)) {
+        console.log(`🔄 Reusing pending request: ${requestKey}`);
+        try {
+            return await pendingRequests.get(requestKey);
+        } catch (error) {
+            // If pending request failed, remove it and continue
+            pendingRequests.delete(requestKey);
+            throw error;
+        }
+    }
+    
+    // Create request promise
+    const requestPromise = (async () => {
+        try {
+            // Use public request options (no auth headers) for public API
+            const publicOptions = createPublicRequestOptions();
+            publicOptions['body'] = "";
+            var response = await fetchMyntAPI(apiurl.iposapi + "getCorporateAction", publicOptions);
+            pendingRequests.delete(requestKey);
+            return response;
+        } catch (error) {
+            pendingRequests.delete(requestKey);
+            throw error;
+        }
+    })();
+    
+    // Store promise in pending requests map
+    pendingRequests.set(requestKey, requestPromise);
+    
+    return await requestPromise;
 }
 
 export async function getssDetails(item) {
-    requestOptions['body'] = `{"symbol":"${item}"}`
-    var response = await fetchMyntAPI(apiurl.eqapi + "stockFundamentalDetails", requestOptions)
+    // Use public request options (no auth headers) for public API
+    const publicOptions = createPublicRequestOptions();
+    publicOptions['body'] = `{"symbol":"${item}"}`
+    var response = await fetchMyntAPI(apiurl.eqapi + "stockFundamentalDetails", publicOptions)
     return response
 }
 
 export async function getQuotedata(item) {
-    requestOptions['body'] = `{"symbol":"${item}"}`
-    var response = await fetchMyntAPI(apiurl.eqapi + "getQuotes", requestOptions)
+    // Use public request options (no auth headers) for public API
+    const publicOptions = createPublicRequestOptions();
+    publicOptions['body'] = `{"symbol":"${item}"}`
+    var response = await fetchMyntAPI(apiurl.eqapi + "getQuotes", publicOptions)
     return response
 }
 
 export async function getSectordata() {
-    requestOptions['body'] = "";
-    var response = await fetchMyntAPI(apiurl.eqapi + "getSector", requestOptions)
+    // Use public request options (no auth headers) for public API
+    const publicOptions = createPublicRequestOptions();
+    publicOptions['body'] = "";
+    var response = await fetchMyntAPI(apiurl.eqapi + "getSector", publicOptions)
     return response
 }
 
 export async function getIndexList() {
-    requestOptions['body'] = "";
-    var response = await fetchMyntAPI(apiurl.eqapi + "GetIndexList", requestOptions)
+    // Use public request options (no auth headers) for public API
+    const publicOptions = createPublicRequestOptions();
+    publicOptions['body'] = "";
+    var response = await fetchMyntAPI(apiurl.eqapi + "GetIndexList", publicOptions)
     return response
 }
 
 export async function getTopList(item) {
-    requestOptions['body'] = `{"exch":"${item[0]}","bskt":"${item[1]}","crt":"${item[2]}"}`
-    var response = await fetchMyntAPI(apiurl.eqapi + "TopList", requestOptions)
+    // Use public request options (no auth headers) for public API
+    const publicOptions = createPublicRequestOptions();
+    publicOptions['body'] = `{"exch":"${item[0]}","bskt":"${item[1]}","crt":"${item[2]}"}`
+    var response = await fetchMyntAPI(apiurl.eqapi + "TopList", publicOptions)
     return response
 }
 
 export async function getConTentList(item) {
-    requestOptions['body'] = `{"exch":"${item[0]}","basket":"${item[1]}","condition":"${item[2]}"}`
-    var response = await fetchMyntAPI(apiurl.eqapi + "GetContentList", requestOptions)
-    return response
+    // Create request key for deduplication (include parameters to allow different calls)
+    const requestKey = `GetContentList_${item[0]}_${item[1]}_${item[2]}`;
+    
+    // Check if same request is already pending
+    if (pendingRequests.has(requestKey)) {
+        console.log(`🔄 Reusing pending request: ${requestKey}`);
+        try {
+            return await pendingRequests.get(requestKey);
+        } catch (error) {
+            // If pending request failed, remove it and continue
+            pendingRequests.delete(requestKey);
+            throw error;
+        }
+    }
+    
+    // Create request promise
+    const requestPromise = (async () => {
+        try {
+            // Use public request options (no auth headers) for public API
+            const publicOptions = createPublicRequestOptions();
+            publicOptions['body'] = `{"exch":"${item[0]}","basket":"${item[1]}","condition":"${item[2]}"}`
+            var response = await fetchMyntAPI(apiurl.eqapi + "GetContentList", publicOptions);
+            pendingRequests.delete(requestKey);
+            return response;
+        } catch (error) {
+            pendingRequests.delete(requestKey);
+            throw error;
+        }
+    })();
+    
+    // Store promise in pending requests map
+    pendingRequests.set(requestKey, requestPromise);
+    
+    return await requestPromise;
 }
 
 export async function getADindices() {
-    requestOptions['body'] = "";
-    var response = await fetchMyntAPI(apiurl.eqapi + "getadindicesAdvdec", requestOptions)
-    return response
+    // Create request key for deduplication
+    const requestKey = 'getadindicesAdvdec';
+    
+    // Check if same request is already pending
+    if (pendingRequests.has(requestKey)) {
+        console.log(`🔄 Reusing pending request: ${requestKey}`);
+        try {
+            return await pendingRequests.get(requestKey);
+        } catch (error) {
+            // If pending request failed, remove it and continue
+            pendingRequests.delete(requestKey);
+            throw error;
+        }
+    }
+    
+    // Create request promise
+    const requestPromise = (async () => {
+        try {
+            // Use public request options (no auth headers) for public API
+            const publicOptions = createPublicRequestOptions();
+            publicOptions['body'] = "";
+            var response = await fetchMyntAPI(apiurl.eqapi + "getadindicesAdvdec", publicOptions);
+            pendingRequests.delete(requestKey);
+            return response;
+        } catch (error) {
+            pendingRequests.delete(requestKey);
+            throw error;
+        }
+    })();
+    
+    // Store promise in pending requests map
+    pendingRequests.set(requestKey, requestPromise);
+    
+    return await requestPromise;
 }
 
 export async function getADindice(index) {
-    requestOptions['body'] = `{"index": "${index}"}`;
-    var response = await fetchMyntAPI(apiurl.eqapi + "getadindices", requestOptions)
+    // Use public request options (no auth headers) for public API
+    const publicOptions = createPublicRequestOptions();
+    publicOptions['body'] = `{"index": "${index}"}`;
+    var response = await fetchMyntAPI(apiurl.eqapi + "getadindices", publicOptions)
     return response
 }
 
 export async function getHLbreakers() {
-    requestOptions['body'] = "";
-    var response = await fetchMyntAPI(apiurl.eqapiD + "HLbreakers", requestOptions)
+    // Use public request options (no auth headers) for public API
+    const publicOptions = createPublicRequestOptions();
+    publicOptions['body'] = "";
+    var response = await fetchMyntAPI(apiurl.eqapiD + "HLbreakers", publicOptions)
     return response
 }
 
@@ -1135,11 +1378,34 @@ export async function getLtpdata(item) {
         return { data: null, error: 'Invalid items: missing exch, token, or tsym' }
     }
 
+    // Create a unique key for request deduplication based on the data
+    const requestKey = JSON.stringify(item.sort((a, b) => {
+        if (a.exch !== b.exch) return a.exch.localeCompare(b.exch)
+        if (a.token !== b.token) return a.token.localeCompare(b.token)
+        return a.tsym.localeCompare(b.tsym)
+    }))
+
+    // Check if there's already a pending request with the same data
+    if (pendingRequests.has(requestKey)) {
+        console.log('[API] GetLtp request already pending for same data, reusing...')
+        try {
+            return await pendingRequests.get(requestKey)
+        } catch (error) {
+            // If the pending request failed, remove it and continue with new request
+            pendingRequests.delete(requestKey)
+        }
+    }
+
     try {
         // Set authentication headers before making the API call
         setHeaderauth()
         requestOptions['body'] = `{ "data": ${JSON.stringify(item)} }`
-        var response = await fetchMyntAPI(apiurl.asvrapi + "GetLtp", requestOptions)
+        
+        // Create the promise and store it in pendingRequests
+        const requestPromise = fetchMyntAPI(apiurl.asvrapi + "GetLtp", requestOptions)
+        pendingRequests.set(requestKey, requestPromise)
+        
+        var response = await requestPromise
         
         // Handle error response (500 indicates API error from fetchMyntAPI)
         if (response === 500) {
@@ -1159,8 +1425,12 @@ export async function getLtpdata(item) {
             return { data: null, error: 'No data returned from API' }
         }
         
+        // Remove from pending requests after successful completion
+        pendingRequests.delete(requestKey)
         return response
     } catch (error) {
+        // Remove from pending requests on error
+        pendingRequests.delete(requestKey)
         console.error('Error in getLtpdata:', error)
         return { data: null, error: error.message || 'Unknown error occurred' }
     }
@@ -1172,21 +1442,47 @@ export async function getGreekoptions(item) {
     return response
 }
 
-export async function getIndicators() {
+export async function getIndicators(uid) {
     try {
-        const response = await fetch(`https://be.mynt.in/getindicators?clientCode=${uid}`);
+        // Use fetchWithTimeout to prevent indefinite hanging
+        const response = await fetchWithTimeout(`https://be.mynt.in/getindicators?clientCode=${uid}`, {
+            method: 'GET',
+            mode: 'cors',
+            credentials: 'omit'
+        }, 5000);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         return response.json();
     } catch (error) {
+        if (error.message === 'Request timeout' || error.name === 'AbortError' || error.message?.includes('timeout') || error.message?.includes('Network error')) {
+            console.warn(`⚠️ getIndicators timeout/error: returning empty`);
+        }
         throw new Error(`get symbols request error: ${error}`);
     }
 }
 
-export async function setIndicators(c) {
+export async function setIndicators(uid, c) {
     try {
-        const response = await fetch(`https://be.mynt.in/storeindicators?clientCode=${uid}&indicators=${JSON.stringify(c)}`);
+        // Use fetchWithTimeout to prevent indefinite hanging
+        const response = await fetchWithTimeout(`https://be.mynt.in/storeindicators?clientCode=${uid}&indicators=${JSON.stringify(c)}`, {
+            method: 'GET',
+            mode: 'cors',
+            credentials: 'omit'
+        }, 5000);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         return response.json();
     } catch (error) {
-        throw new Error(`get symbols request error: ${error}`);
+        if (error.message === 'Request timeout' || error.name === 'AbortError' || error.message?.includes('timeout') || error.message?.includes('Network error')) {
+            console.warn(`⚠️ setIndicators timeout/error: returning empty`);
+        }
+        throw new Error(`set symbols request error: ${error}`);
     }
 }
 
@@ -1213,7 +1509,8 @@ export async function getMasters(tsym) {
 }
 
 export async function mastermfapi() {
-    var response = await fetchMyntjson('http://192.168.5.175:5002/' + `master_file_datas`, {
+    // Use production API endpoint instead of localhost
+    var response = await fetchMyntjson(apiurl.masterfileapi + `master_file_datas`, {
         method: 'GET',
         redirect: 'follow'
     })
@@ -1224,8 +1521,68 @@ export async function fetchMyntAPI(path, reqopt, way) {
     const reqt = new Date().toLocaleString();
     const store = getAppStore();
     
+    // Set default timeout to 5 seconds (5000ms) for faster failure detection on Firebase
+    const timeout = 5000;
+    
     try {
-        const response = await fetch(path, reqopt);
+        // Use fetchWithTimeout to prevent indefinite hanging
+        const response = await fetchWithTimeout(path, reqopt, timeout);
+        
+        // Get stores early for session validation
+        const authStore = useAuthStore();
+        const sessionStore = useSessionStore();
+        
+        // Check for 401 status BEFORE parsing JSON
+        if (response.status === 401) {
+            console.error("❌ 401 Unauthorized error detected");
+            
+            // Try to parse error response body
+            let errorData = null;
+            try {
+                const errorText = await response.text();
+                if (errorText) {
+                    errorData = JSON.parse(errorText);
+                }
+            } catch (parseError) {
+                console.warn("Could not parse 401 error response:", parseError);
+            }
+            
+            // Check if error message contains "session expired : invalid session key"
+            const errorMsg = errorData?.emsg || errorData?.message || "Session expired";
+            const errorMsgLower = typeof errorMsg === 'string' ? errorMsg.toLowerCase() : '';
+            const isSessionExpired = errorMsgLower.includes('session expired') && 
+                errorMsgLower.includes('invalid session key');
+            
+            // Validate uid exists before logging out
+            if (isSessionExpired && authStore.uid) {
+                console.error("❌ Session expired detected with valid uid, logging out:", errorMsg);
+                
+                // Create error object for handleSessionError
+                const sessionError = {
+                    emsg: errorMsg || "Session expired : Invalid Session Key"
+                };
+                
+                // Handle session error immediately (logout and navigate)
+                sessionStore.handleSessionError(sessionError, authStore, store);
+                
+                // Return error to prevent further processing
+                return errorData || { stat: 'NotOk', emsg: errorMsg };
+            } else {
+                // 401 but not session expired or no uid - just show error
+                if (errorData && errorData.emsg) {
+                    store.showSnackbar(2, errorData.emsg);
+                } else if (errorMsg) {
+                    store.showSnackbar(2, errorMsg);
+                }
+                return errorData || { stat: 'NotOk', emsg: errorMsg };
+            }
+        }
+        
+        // Check if response is ok before parsing
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         let data = await response.json();
         data = JSON.stringify(data);
         data = JSON.parse(data);
@@ -1248,30 +1605,33 @@ export async function fetchMyntAPI(path, reqopt, way) {
             }
         }
 
-        // Check for session errors (exact same as old app logic)
+        // Check for session errors in response body (exact same as old app logic)
         if (data && data.emsg) {
             // Check if it's "another system" error or session expired
             const errorMsg = data.emsg;
-            const isSessionError = typeof errorMsg === 'string' && 
-                (errorMsg.includes('another system') || 
-                 errorMsg.includes('already logged in') ||
-                 errorMsg.includes('logged in on') ||
-                 errorMsg.includes('Session Expired') ||
-                 errorMsg.includes('Invalid Session Key'));
+            const errorMsgLower = typeof errorMsg === 'string' ? errorMsg.toLowerCase() : '';
+            const isSessionError = errorMsgLower.includes('another system') || 
+                 errorMsgLower.includes('already logged in') ||
+                 errorMsgLower.includes('logged in on') ||
+                 (errorMsgLower.includes('session expired') && 
+                  errorMsgLower.includes('invalid session key'));
             
             if (isSessionError) {
-                // Immediate logout when session ends or logged in on another system
-                console.error("❌ Session error detected:", errorMsg);
-                
-                // Get stores
-                const authStore = useAuthStore();
-                const sessionStore = useSessionStore();
-                
-                // Handle session error immediately (logout and navigate)
-                sessionStore.handleSessionError(data, authStore, store);
-                
-                // Return error to prevent further processing
-                return data;
+                // Validate uid exists before logging out
+                if (authStore.uid) {
+                    // Immediate logout when session ends or logged in on another system
+                    console.error("❌ Session error detected in response body:", errorMsg);
+                    
+                    // Handle session error immediately (logout and navigate)
+                    sessionStore.handleSessionError(data, authStore, store);
+                    
+                    // Return error to prevent further processing
+                    return data;
+                } else {
+                    // No uid, just show error
+                    store.showSnackbar(2, errorMsg);
+                    return data;
+                }
             }
         }
         
@@ -1286,26 +1646,75 @@ export async function fetchMyntAPI(path, reqopt, way) {
             saveApiLog(log, reqt);
         }
         
+        // Handle timeout errors gracefully - don't block UI
+        if (error.message === 'Request timeout' || error.name === 'AbortError' || error.message?.includes('timeout')) {
+            console.warn(`⚠️ API request timeout (5s): ${path} - continuing without blocking UI`);
+            // Return empty/error response instead of blocking
+            if (way) {
+                if (requestMOption.body) {
+                    delete requestMOption.body;
+                }
+            } else {
+                if (requestOptions.body) {
+                    delete requestOptions.body;
+                }
+            }
+            return { stat: 'NotOk', emsg: 'Request timeout' };
+        }
+        
+        // Handle network/CORS errors gracefully
+        if (error.message?.includes('Network error') || error.message?.includes('Failed to fetch') || error.message?.includes('CORS')) {
+            console.warn(`⚠️ Network/CORS error: ${path} - continuing without blocking UI`);
+            if (way) {
+                if (requestMOption.body) {
+                    delete requestMOption.body;
+                }
+            } else {
+                if (requestOptions.body) {
+                    delete requestOptions.body;
+                }
+            }
+            return { stat: 'NotOk', emsg: 'Network error' };
+        }
+        
         // Check for 401 errors (unauthorized - likely session expired or another system login)
         if (error.status === 401) {
-            console.error("❌ 401 Unauthorized error detected");
+            console.error("❌ 401 Unauthorized error detected in catch block");
             
             // Get stores
             const authStore = useAuthStore();
             const sessionStore = useSessionStore();
             
-            // Check if user is logged in, if so, handle as session error
+            // Check if user is logged in and validate uid
             if (authStore.uid && authStore.token) {
-                // Create error object similar to API response
-                const sessionError = {
-                    emsg: "Session has expired. Please log in again."
-                };
+                // Try to extract error message from error object
+                let errorMsg = "Session expired : Invalid Session Key";
+                if (error.message && typeof error.message === 'string') {
+                    errorMsg = error.message;
+                } else if (error.emsg) {
+                    errorMsg = error.emsg;
+                }
                 
-                // Handle session error immediately (logout and navigate)
-                sessionStore.handleSessionError(sessionError, authStore, store);
+            // Check if it's the specific session expired message
+            const errorMsgLower = typeof errorMsg === 'string' ? errorMsg.toLowerCase() : '';
+            const isSessionExpired = errorMsgLower.includes('session expired') && 
+                errorMsgLower.includes('invalid session key');
+                
+                if (isSessionExpired) {
+                    // Create error object similar to API response
+                    const sessionError = {
+                        emsg: errorMsg
+                    };
+                    
+                    // Handle session error immediately (logout and navigate)
+                    sessionStore.handleSessionError(sessionError, authStore, store);
+                } else {
+                    // 401 but not session expired - just show error
+                    store.showSnackbar(2, errorMsg);
+                }
             } else {
                 // Just show snackbar if no auth
-                store.showSnackbar(2, error);
+                store.showSnackbar(2, error.message || "Unauthorized");
             }
         }
         
@@ -1339,14 +1748,28 @@ function getDateOnly(dateString) {
     return dateString.slice(0, 10)
 }
 
-export async function fetchMyntjson(path) {
+export async function fetchMyntjson(path, options = {}) {
+    // Set default timeout to 5 seconds
+    const timeout = 5000;
+    
     try {
-        const response = await fetch(path);
+        // Use fetchWithTimeout to prevent indefinite hanging
+        const response = await fetchWithTimeout(path, options, timeout);
+        
+        // Check if response is ok before parsing
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         let data = await response.json();
         data = JSON.stringify(data);
         data = JSON.parse(data);
         return data
     } catch (error) {
+        // Handle timeout and network errors gracefully
+        if (error.message === 'Request timeout' || error.name === 'AbortError' || error.message?.includes('timeout') || error.message?.includes('Network error') || error.message?.includes('Failed to fetch')) {
+            console.warn(`⚠️ fetchMyntjson timeout/error (5s): ${path} - returning empty array`);
+        }
         let data = []
         return data
     }
@@ -1376,11 +1799,26 @@ export function setDecryption(payld) {
 }
 
 export async function FetchsearchData(path, reqopt) {
+    // Set default timeout to 5 seconds
+    const timeout = 5000;
+    
     try {
-        const response = await fetch(path, reqopt);
+        // Use fetchWithTimeout to prevent indefinite hanging
+        const response = await fetchWithTimeout(path, reqopt, timeout);
+        
+        // Check if response is ok before parsing
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         let data = await response.json();
         return data
     } catch (error) {
+        // Handle timeout and network errors gracefully
+        if (error.message === 'Request timeout' || error.name === 'AbortError' || error.message?.includes('timeout') || error.message?.includes('Network error') || error.message?.includes('Failed to fetch')) {
+            console.warn(`⚠️ FetchsearchData timeout/error (5s): ${path} - returning empty array`);
+            return [];
+        }
         return error
     }
 }

@@ -1,9 +1,13 @@
 <template>
     <div>
-        <v-dialog v-if="menudata.item" v-model="mforderdialog" persistent
+        <v-dialog v-if="menudata && menudata.item" v-model="mforderdialog" persistent
             @click:outside="!orderpoploader || !menudata.payment ? closeMenudialog('mforder') : ''"
-            :width="menudata.payment ? '640' : '400'">
-            <v-card class="pb-5 overflow-hidden" color="cardbg">
+            :width="menudata && menudata.payment ? '640' : '400'">
+            <v-card class="pb-5 overflow-hidden " style="border-radius: 15px;" color="cardbg">
+                <v-btn :disabled="orderpoploader" @click="closeMenudialog('mforder')" color="maintext" size="x-small"
+                    variant="outlined" icon style="position: absolute; top: 20px; right: 20px; z-index: 1;">
+                    <v-icon size="17">mdi-close</v-icon>
+                </v-btn>
                 <v-card class="elevation-0 pt-6 pb-2" color="secbg">
                     <P v-if="mf_tenure == null" class="font-weight-bold fs-16 maintext--text mb-2 px-4 px-md-6">Create
                         mandate </P>
@@ -16,23 +20,27 @@
 
                     <v-list-item v-if="mf_tenure != null && menudata.types != 'redem'" class="px-4 px-md-6">
                         <v-list-item-content class="py-0">
-                            <v-list-item-title class="font-weight-bold fs-16 maintext--text mb-0">{{ menudata.item ?
+                            <v-list-item-title class="font-weight-bold fs-16 maintext--text mb-1">{{ menudata.item ?
                                 menudata.item.name : "" }} </v-list-item-title>
 
-                            <v-chip-group column class="mb-1 pt-0 mt-0">
-                                <v-chip color="cardbg" x-small text-color="subtext"
-                                    style="border-radius: 5px; padding: 10px 8px !important">
-                                    <span class="font-weight-medium fs-10">
-                                        {{ menudata.item.Type }}
-                                    </span>
-                                </v-chip>
-                                <v-chip color="cardbg" x-small text-color="subtext"
-                                    style="border-radius: 5px; padding: 10px 8px !important">
-                                    <span class="font-weight-medium fs-10">
+                            <div class="d-flex align-center mt-1">
+                                <div>
+                                    <v-chip v-if="menudata.item && menudata.item.Type" size="x-small" variant="flat"
+                                        class=""
+                                        style="border-radius: 5px; background-color: #ffffff !important; color: #666666 !important;">
+                                        <span class=" fs-10">
+                                            {{ menudata.item.Type }}
+                                        </span>
+                                    </v-chip>
+                                </div>
+                                <v-chip v-if="menudata.item && menudata.item.SubType" size="x-small" variant="flat"
+                                    class="ml-2"
+                                    style="border-radius: 5px; background-color: #ffffff !important; color: #666666 !important;">
+                                    <span class=" fs-10">
                                         {{ menudata.item.SubType }}
                                     </span>
                                 </v-chip>
-                            </v-chip-group>
+                            </div>
                         </v-list-item-content>
                     </v-list-item>
                 </v-card>
@@ -46,13 +54,13 @@
                             <div
                                 v-if="mf_tenure != null && menudata.types != 'redem' && menudata.item.Purchase_Allowed == 'Y' && menudata.item.SIP_FLAG == 'Y'">
                                 <p class="font-weight-regular fs-14 subtext--text mb-2">Choose tenure</p>
-                                <div class="d-inline-flex mb-4">
-                                    <span class="fs-14 font-weight-bold mt-2"
+                                <div class="d-flex align-center mb-4">
+                                    <span class="fs-14 font-weight-bold"
                                         :class="!mf_tenure ? 'maintext--text' : 'subtext--text'">Lumpsum</span>
                                     <v-switch v-model="mf_tenure"
                                         :disabled="menudata && menudata.sipvalue == false ? true : false" hide-details
-                                        class="mx-5 cust" inset></v-switch>
-                                    <span class="fs-14 font-weight-bold mt-2"
+                                        class="mx-3 tenure-switch" inset color="black"></v-switch>
+                                    <span class="fs-14 font-weight-bold"
                                         :class="mf_tenure ? 'maintext--text' : 'subtext--text'">Monthly
                                         SIP</span>
                                 </div>
@@ -62,11 +70,10 @@
                                     Redemption units
                                     <span class="float-right">Total units : <b>{{ menudata.item.avg_qty }}</b></span>
                                 </p>
-                                <v-text-field height="40px" background-color="secbg" flat class="rounded-pill" variant="solo"
-                                    type="number" hide-details hide-spin-buttons v-model="mf_redqty"
-                                  :min="menudata.item.Minimum_Redemption_Qty"
-  :max="menudata.item.avg_qty"
-  @input="mf_invest_amt = (Number(mf_redqty || 0) * menudata.item.avg_qty).toFixed(2)">
+                                <v-text-field height="40px" background-color="secbg" flat class="rounded-pill"
+                                    variant="solo" type="number" hide-details hide-spin-buttons v-model="mf_redqty"
+                                    :min="menudata.item.Minimum_Redemption_Qty" :max="menudata.item.avg_qty"
+                                    @input="mf_invest_amt = (Number(mf_redqty || 0) * menudata.item.avg_qty).toFixed(2)">
                                     <template v-slot:append>
                                         <v-card v-if="menudata.item.avg_qty - mf_redqty > 0"
                                             @click="mf_redqty = menudata.item.avg_qty"
@@ -113,13 +120,16 @@
                                                 Number(mf_mandate.Amount).toFixed(2) : "0.00" }}</b></span>
                                     </p>
                                     <div v-if="mf_mandates.length > 0">
-                                        <v-select v-model="mf_mandate" :disabled="!mf_mandates" :items="mf_mandates"
-                                            append-icon="mdi-chevron-down" return-object background-color="secbg" flat class="rounded-pill mb-0"
+                                        <v-select bg-color="secbg" rounded dense density="comfortable"
+                                            v-model="mf_mandate" :disabled="!mf_mandates" :items="mf_mandates"
+                                            return-object background-color="secbg" flat class="rounded-pill mb-0"
                                             hide-details variant="solo" item-title="MandateId" item-value="MandateId">
                                             <template v-slot:selection="{ item }">
-                                                <span v-if="item && item.raw && item.raw.MandateId">{{ item.raw.MandateId }}</span>
+                                                <span v-if="item && item.raw && item.raw.MandateId">{{
+                                                    item.raw.MandateId }}</span>
                                                 <span v-else-if="item && item.MandateId">{{ item.MandateId }}</span>
-                                                <span v-else-if="item && typeof item === 'object'">{{ item.MandateId || '' }}</span>
+                                                <span v-else-if="item && typeof item === 'object'">{{ item.MandateId ||
+                                                    '' }}</span>
                                             </template>
                                             <template v-slot:item="{ item, props, on }">
                                                 <v-list-item v-on="on" v-bind="props">
@@ -183,8 +193,8 @@
                                             </template>
                                         </v-select>
                                         <p class="text-right mb-2"><v-btn
-                                                @click="(mf_tenure = null), setDefaultmandate()" color="primary" size="small"
-                                                class="text-none font-weight-bold" variant="text">+ Create
+                                                @click="(mf_tenure = null), setDefaultmandate()" color="primary"
+                                                size="small" class="text-none font-weight-bold" variant="text">+ Create
                                                 mandate</v-btn></p>
                                     </div>
                                     <v-btn v-else @click="mf_tenure = null" :loading="orderpoploader" color="btnclr"
@@ -193,8 +203,9 @@
                                         mandate
                                     </v-btn>
                                 </div>
-                                <v-text-field v-if="mf_sipinit" height="40px" background-color="secbg" flat
-                                    class="rounded-pill mb-4" variant="solo" type="number" hide-details hide-spin-buttons
+                                <v-text-field bg-color="secbg" rounded dense density="comfortable" v-if="mf_sipinit"
+                                    height="40px" background-color="secbg" flat class="rounded-pill mb-4" variant="solo"
+                                    type="number" hide-details hide-spin-buttons
                                     @keyup="mf_initial_amt ? (mf_initial_amt = Number(mf_initial_amt)) : mf_initial_amt >= menudata.item.Minimum_Purchase_Amount ? mf_initial_amt : menudata.item.Minimum_Purchase_Amount"
                                     :min="menudata.item.Minimum_Purchase_Amount"
                                     :step="menudata.item.Minimum_Purchase_Amount" v-model="mf_initial_amt">
@@ -220,21 +231,22 @@
                                 </v-text-field>
 
                                 <p class="font-weight-regular fs-14 subtext--text mb-2">Instalment amount</p>
-                                <v-text-field v-if="mf_frequency" height="40px" background-color="secbg" flat
-                                    class="rounded-pill" variant="solo" type="number" hide-details hide-spin-buttons
+                                <v-text-field append-icon="" bg-color="secbg" rounded dense density="comfortable"
+                                    v-if="mf_frequency" height="40px" background-color="secbg" flat class="rounded-pill"
+                                    variant="solo" type="number" hide-details hide-spin-buttons
                                     @keyup="mf_instal_amt ? (mf_instal_amt = Number(mf_instal_amt)) : mf_instal_amt >= menudata.sipvalue[mf_frequency].SIP_MINIMUM_INSTALLMENT_AMOUNT ? mf_instal_amt : menudata.sipvalue[mf_frequency].SIP_MINIMUM_INSTALLMENT_AMOUNT"
                                     :min="menudata.sipvalue[mf_frequency].SIP_MINIMUM_INSTALLMENT_AMOUNT"
                                     :max="menudata.sipvalue[mf_frequency].SIP_MAXIMUM_INSTALLMENT_AMOUNT"
                                     :step="menudata.sipvalue[mf_frequency].SIP_MINIMUM_INSTALLMENT_AMOUNT"
                                     v-model="mf_instal_amt">
-                                    <template v-slot:append>
+                                    <!-- <template v-slot:append>
                                         <v-card
                                             @click="mf_instal_amt += menudata.sipvalue[mf_frequency].SIP_MINIMUM_INSTALLMENT_AMOUNT"
                                             class="font-weight-bold subtitle-2 primary--text elevation-0 crd-trn">
                                             +
                                             {{ menudata.sipvalue[mf_frequency].SIP_MINIMUM_INSTALLMENT_AMOUNT }}
                                         </v-card>
-                                    </template>
+                                    </template> -->
 
                                     <template v-slot:prepend-inner>
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -252,35 +264,37 @@
                                     menudata.sipvalue[mf_frequency].SIP_MINIMUM_INSTALLMENT_AMOUNT : 0.0 }} (multiple of
                                     1.0)</p>
 
-                                <v-row class="pb-4">
+                                <v-row class="pb-4 mt-4">
                                     <v-col cols="8">
                                         <p class="font-weight-regular fs-14 subtext--text mb-2">Frequency</p>
-                                        <v-select v-if="mf_frequency" v-model="mf_frequency"
+                                        <v-select bg-color="secbg" rounded dense density="comfortable"
+                                            v-if="mf_frequency" v-model="mf_frequency"
                                             oninput="this.mf_frequency = mf_frequency.toUppercase()" hide-details
-                                            :items="menudata.mf_frequencys" append-icon="mdi-chevron-down"
-                                            background-color="secbg" flat class="rounded-pill" variant="solo"
+                                            :items="menudata.mf_frequencys" background-color="secbg" flat
+                                            class="rounded-pill" variant="solo"
                                             @update:model-value="(mf_instal_amt = menudata.sipvalue[mf_frequency].SIP_MINIMUM_INSTALLMENT_AMOUNT), (mf_noof_instal = menudata.sipvalue[mf_frequency].SIP_MINIMUM_INSTALLMENT_NUMBERS)">
                                         </v-select>
                                     </v-col>
                                     <v-col cols="4" class="pl-0">
                                         <p class="font-weight-regular fs-14 subtext--text mb-2">Date</p>
-                                        <v-select v-if="mf_frequency"
+                                        <v-select bg-color="secbg" rounded dense density="comfortable"
+                                            v-if="mf_frequency"
                                             :disabled="menudata.sipvalue[mf_frequency].mf_dates.length <= 1"
                                             v-model="menudata.sipvalue[mf_frequency].mf_date" hide-details
-                                            :items="menudata.sipvalue[mf_frequency].mf_dates"
-                                            append-icon="mdi-chevron-down" background-color="secbg" flat
-                                            class="rounded-pill" variant="solo"></v-select>
+                                            :items="menudata.sipvalue[mf_frequency].mf_dates" background-color="secbg"
+                                            flat class="rounded-pill" variant="solo"></v-select>
                                     </v-col>
                                 </v-row>
 
-                                <p class="font-weight-regular fs-14 subtext--text mb-2">
+                                <p class="font-weight-regular fs-14 subtext--text mb-2 mt-3">
                                     Investment duration <span class="font-weight-bold txt-FF1 float-right">{{
                                         mf_noof_instal }} {{
                                             menudata.sipvalue && mf_frequency ? menudata.sipvalue[mf_frequency].freqis : ""
                                         }}</span>
                                 </p>
-                                <v-text-field v-if="mf_frequency" height="40px" background-color="secbg" flat
-                                    class="rounded-pill mb-2" variant="solo" type="number" hide-details hide-spin-buttons
+                                <v-text-field bg-color="secbg" rounded dense density="comfortable" v-if="mf_frequency"
+                                    height="40px" background-color="secbg" flat class="rounded-pill mb-2" variant="solo"
+                                    type="number" hide-details hide-spin-buttons
                                     :max="menudata.sipvalue[mf_frequency].SIP_MAXIMUM_INSTALLMENT_NUMBERS"
                                     :min="menudata.sipvalue[mf_frequency].SIP_MINIMUM_INSTALLMENT_NUMBERS"
                                     :step="menudata.sipvalue[mf_frequency].SIP_MINIMUM_INSTALLMENT_NUMBERS"
@@ -295,18 +309,18 @@
 
                             <div v-else-if="mf_tenure == false">
                                 <p class="font-weight-regular fs-14 subtext--text mb-2">Investment amount</p>
-                                <v-text-field height="40px" background-color="secbg" flat class="rounded-pill" variant="solo"
-                                    type="number" hide-details hide-spin-buttons
+                                <v-text-field rounded small density="comfortable" bg-color="secbg" flat
+                                    class="rounded-pill" variant="solo" type="number" hide-details hide-spin-buttons
                                     @keyup="mf_invest_amt ? (mf_invest_amt = Number(mf_invest_amt)) : mf_invest_amt >= menudata.item.Minimum_Purchase_Amount ? mf_invest_amt : menudata.item.Minimum_Purchase_Amount"
                                     :min="menudata.item.Minimum_Purchase_Amount"
                                     :step="menudata.item.Minimum_Purchase_Amount" v-model="mf_invest_amt">
-                                    <template v-slot:append>
+                                    <!-- <template v-slot:append>
                                         <v-card @click="incrEment(menudata.item.Minimum_Purchase_Amount)"
                                             class="font-weight-bold subtitle-2 primary--text elevation-0 crd-trn">
                                             +
                                             {{ menudata.item.Minimum_Purchase_Amount }}
                                         </v-card>
-                                    </template>
+                                    </template> -->
 
                                     <template v-slot:prepend-inner>
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -326,17 +340,19 @@
                             </div>
                             <div v-else-if="mf_tenure == null">
                                 <p class="font-weight-regular fs-14 subtext--text mb-2">Amount *</p>
-                                <v-text-field :readonly="orderpoploader" height="40px" background-color="secbg" flat
-                                    class="rounded-pill mb-4" variant="solo" type="number" hide-details hide-spin-buttons
+                                <v-text-field bg-color="secbg" rounded dense density="comfortable"
+                                    :readonly="orderpoploader" height="40px" background-color="secbg" flat
+                                    class="rounded-pill mb-4" variant="solo" type="number" hide-details
+                                    hide-spin-buttons
                                     @keyup="creatManmfamt ? (creatManmfamt = Number(creatManmfamt)) : creatManmfamt >= 100 ? mf_initial_amt : 100"
                                     :min="100" :step="1000" v-model="creatManmfamt">
-                                    <template v-slot:append>
+                                    <!-- <template v-slot:append>
                                         <v-card @click="creatManmfamt += 1000"
                                             class="font-weight-bold subtitle-2 primary--text elevation-0 crd-trn">
                                             +
                                             {{ 1000 }}
                                         </v-card>
-                                    </template>
+                                    </template> -->
 
                                     <template v-slot:prepend-inner>
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -351,52 +367,51 @@
                                     </template>
                                 </v-text-field>
 
-                                <v-row no-gutters class="pb-4">
+                                <v-row class="pb-4">
                                     <v-col cols="6">
                                         <p class="font-weight-regular fs-14 subtext--text mb-2">Start date *</p>
 
                                         <v-menu v-model="creatManmffrommenu" :close-on-content-click="false"
-                                            transition="scale-transition" location="bottom" max-width="290px" min-width="auto">
+                                            transition="scale-transition" location="bottom" max-width="290px"
+                                            min-width="auto">
                                             <template v-slot:activator="{ props }">
-                                                <v-text-field background-color="secbg" flat class="rounded-pill" variant="solo"
-                                                    hide-details v-model="creatManmffrom" readonly v-bind="props"></v-text-field>
+                                                <v-text-field bg-color="secbg" rounded dense density="comfortable"
+                                                    background-color="secbg" flat class="rounded-pill" variant="solo"
+                                                    hide-details v-model="creatManmffrom" readonly
+                                                    v-bind="props"></v-text-field>
                                             </template>
-                                            <v-date-picker :readonly="orderpoploader"
-                                                :min="new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 2).toISOString().slice(0, 10)"
+                                            <v-date-picker :readonly="orderpoploader" :min="minStartDate"
                                                 v-model="creatManmffrommodel"
-                                                @update:model-value="(creatManmffrommenu = false), (creatManmftomodel = new Date(new Date().getFullYear() + 30, new Date(creatManmffrommodel).getMonth(), new Date().getDate()).toISOString().slice(0, 10))"></v-date-picker>
+                                                @update:model-value="handleStartDateChange"></v-date-picker>
                                         </v-menu>
                                     </v-col>
                                     <v-col cols="6">
                                         <p class="font-weight-regular fs-14 subtext--text mb-2">End date *</p>
                                         <v-menu v-model="creatManmftomenu" :close-on-content-click="false"
-                                            transition="scale-transition" location="bottom" max-width="290px" min-width="auto">
+                                            transition="scale-transition" location="bottom" max-width="290px"
+                                            min-width="auto">
                                             <template v-slot:activator="{ props }">
-                                                <v-text-field background-color="secbg" flat class="rounded-pill" variant="solo"
-                                                    hide-details v-model="creatManmfto" readonly v-bind="props"></v-text-field>
+                                                <v-text-field bg-color="secbg" rounded dense density="comfortable"
+                                                    background-color="secbg" flat class="rounded-pill" variant="solo"
+                                                    hide-details v-model="creatManmfto" readonly
+                                                    v-bind="props"></v-text-field>
                                             </template>
-                                            <v-date-picker :readonly="orderpoploader"
-                                                :min="creatManmffrommodel ? new Date(new Date().getFullYear(), new Date(creatManmffrommodel).getMonth() + 2, new Date().getDate()).toISOString().slice(0, 10) : new Date()"
+                                            <v-date-picker :readonly="orderpoploader" :min="minEndDate"
                                                 v-model="creatManmftomodel"
-                                                @update:model-value="creatManmftomenu = false"></v-date-picker>
+                                                @update:model-value="handleEndDateChange"></v-date-picker>
                                         </v-menu>
                                     </v-col>
                                 </v-row>
 
                                 <p class="font-weight-regular fs-14 subtext--text mb-2">Remarks</p>
-                                <v-text-field :readonly="orderpoploader" height="40px" background-color="secbg" flat
+                                <v-text-field bg-color="secbg" rounded dense density="comfortable"
+                                    :readonly="orderpoploader" height="40px" background-color="secbg" flat
                                     class="rounded-pill mb-8" variant="solo" type="text" hide-details hide-spin-buttons
                                     v-model="creatManmRemarks">
                                 </v-text-field>
 
                                 <v-row no-gutters>
-                                    <v-col cols="6" class="pb-1 pr-2">
-                                        <v-btn :disabled="orderpoploader" @click="mf_tenure = true" color="secbg"
-                                            class="text-none rounded-pill elevation-0 subtext--text" height="40px"
-                                            block> Cancel
-                                        </v-btn>
-                                    </v-col>
-                                    <v-col cols="6" class="pb-1 pl-2">
+                                    <v-col cols="12" class="pb-1">
                                         <v-btn @click="setCreatMandate()"
                                             :disabled="!creatManmffrommodel || !creatManmftomodel || creatManmfamt < 100"
                                             :loading="orderpoploader" color="btnclr"
@@ -409,7 +424,7 @@
 
                             <div v-if="mf_tenure != null && menudata.types != 'redem'">
                                 <p v-if="mf_tenure != null && menudata.types != 'redem'"
-                                    class="font-weight-regular fs-12 subtext--text mb-0">
+                                    class="font-weight-regular mt-4 fs-12 subtext--text mb-0">
                                     <v-icon size="16" color="#666">mdi-information-outline</v-icon> NAV will be allotted
                                     on the day funds are
                                     realised at the
@@ -424,26 +439,25 @@
                     class="tool-sty elevation-0 pt-4 mb-2 px-4 px-md-6 crd-trn" density="compact">
                     <span v-if="menudata.types != 'redem'"
                         class="font-weight-regular fs-10 subtext--text d-none d-md-block">
-                        AUM <span class="primary--text font-weight-bold">{{ Number(menudata.item.AUM /
+                        AUM <span class="text-primary font-weight-bold">{{ Number(menudata.item.AUM /
                             10000000).toFixed(2)
                         }}</span> Cr.
                         <br />
                     </span>
                     <v-spacer></v-spacer>
-                    <v-btn :disabled="orderpoploader" @click="closeMenudialog('mforder')" color="secbg"
-                        class="text-none rounded-pill elevation-0 subtext--text px-6" height="40px"> Cancel </v-btn>
-                    <v-btn @click="setmfUpiValid()" :disabled="menudata.types == 'redem'
-                        ? menudata.item.Minimum_Redemption_Qty > mf_redqty || mf_redqty > menudata.netqty
-                        : (mf_tenure
-                            ? (mf_frequency && Number(mf_noof_instal) < menudata.sipvalue[mf_frequency].SIP_MINIMUM_INSTALLMENT_NUMBERS) ||
-                            (mf_frequency && Number(mf_instal_amt) < menudata.sipvalue[mf_frequency].SIP_MINIMUM_INSTALLMENT_AMOUNT) ||
-                            Number(mf_initial_amt) < menudata.item.Minimum_Purchase_Amount ||
-                            (mf_mandate && mf_mandate.Status != 'APPROVED')
-                            : Number(mf_invest_amt) < menudata.item.Minimum_Purchase_Amount)
+                    <v-btn @click="setmfUpiValid()"
+                        style="background-color: black !important;color: #ffffff !important;" :disabled="menudata.types == 'redem'
+                            ? menudata.item.Minimum_Redemption_Qty > mf_redqty || mf_redqty > menudata.netqty
+                            : (mf_tenure
+                                ? (mf_frequency && Number(mf_noof_instal) < menudata.sipvalue[mf_frequency].SIP_MINIMUM_INSTALLMENT_NUMBERS) ||
+                                (mf_frequency && Number(mf_instal_amt) < menudata.sipvalue[mf_frequency].SIP_MINIMUM_INSTALLMENT_AMOUNT) ||
+                                Number(mf_initial_amt) < menudata.item.Minimum_Purchase_Amount ||
+                                (mf_mandate && mf_mandate.Status != 'APPROVED')
+                                : Number(mf_invest_amt) < menudata.item.Minimum_Purchase_Amount)
 
 
 
-                        " :loading="orderpoploader" color="btnclr"
+                            " :loading="orderpoploader" color="btnclr"
                         class="text-none rounded-pill elevation-0 btntext--text px-6 ml-4" height="40px">
                         {{ menudata.types == "redem" ? "Redeem" : mf_tenure ? "Pay now" : "Buy now" }}
                     </v-btn>
@@ -465,8 +479,8 @@
 
                 <p class="font-weight-regular fs-14 subtext--text mb-2 mt-4">Bank Account</p>
                 <v-select v-model="mf_accact" hide-details :items="menudata.mf_bankaccs" return-object
-                    item-title="Bank_Name" item-value="Bank_AcNo" append-icon="mdi-chevron-down" background-color="secbg"
-                    flat class="rounded-pill mb-4" placeholder="bank" variant="solo">
+                    item-title="Bank_Name" item-value="Bank_AcNo" append-icon="mdi-chevron-down"
+                    background-color="secbg" flat class="rounded-pill mb-4" placeholder="bank" variant="solo">
                     <template v-slot:item="{ item, props, on }">
                         <v-list-item v-on="on" v-bind="props">
                             <v-list-item-content class="py-1">
@@ -474,7 +488,8 @@
 
                                 </v-list-item-title>
                                 <v-list-item-subtitle class="caption">XXXX XXXX {{
-                                    item.Bank_AcNo && typeof item.Bank_AcNo === 'string' ? item.Bank_AcNo.slice(-4) : '' }}
+                                    item.Bank_AcNo && typeof item.Bank_AcNo === 'string' ? item.Bank_AcNo.slice(-4) : ''
+                                }}
                                 </v-list-item-subtitle>
                             </v-list-item-content>
                         </v-list-item>
@@ -492,27 +507,22 @@
                     <p class="font-weight-regular fs-14 subtext--text mb-2">UPI ID (Virtual payment
                         address)</p>
 
-                    <v-text-field :disabled="orderpoploader" required height="40px" density="compact" background-color="secbg" flat
-                        class="rounded-pill" variant="solo" v-model="mfpainids" @keyup="upiidfield = false"
+                    <v-text-field :disabled="orderpoploader" required height="40px" density="compact"
+                        background-color="secbg" flat class="rounded-pill" variant="solo" v-model="mfpainids"
+                        @keyup="upiidfield = false"
                         :rules="[(v) => !!v || 'Upi Id is required', (v) => /.+@.+/.test(v) || 'Upi Id must be valid']"
                         placeholder="Add UPI ID" :error-messages="upiIDerrors">
                     </v-text-field>
                 </v-form>
                 <v-toolbar class="tool-sty elevation-0 pt-4 mb-2  crd-trn" density="compact">
                     <v-row>
-                        <v-col cols="6">
-                            <v-btn :disabled="orderpoploadernew" @click="orderiniteddai = false" color="secbg"
-                                class="text-none rounded-pill elevation-0 subtext--text" height="40px" block> Cancel
-                            </v-btn>
-                        </v-col>
-                        <v-col cols="6">
+                        <v-col cols="12">
                             <v-btn @click="setmfUpiValidnew()"
                                 :disabled="!mf_accact || !mfpayinmode || (mfpayinmode === 'UPI' && !mfpainids)"
                                 :loading="orderpoploadernew" color="btnclr"
                                 class="text-none rounded-pill elevation-0 btntext--text" block height="40px"> Pay - One
                                 Time
                             </v-btn>
-
                         </v-col>
                     </v-row>
                 </v-toolbar>
@@ -526,31 +536,31 @@
                 </v-card>
                 <p class="font-weight-bold title">Awaiting UPI confirmation</p>
                 <p class="caption txt-666 mb-8">This will take a few seconds.</p>
-                <v-btn height="48px" color="#444" @click="stopPaymentCheck('manual')" variant="outlined"
-                    style="border: 2px solid #444 !important" size="small" class="text-none rounded-pill elevation-0"><span
-                        class="subtitle-1 font-weight-medium px-6">Cancel
-                        Transaction</span></v-btn>
             </v-card>
         </v-dialog>
 
-             <v-dialog v-model="paymentconfirm" persistent max-width="400">
+        <v-dialog v-model="paymentconfirm" persistent max-width="400">
             <v-card width="100%" class="elevation-0 px-5 text-center py-8 mx-auto rounded-lg" variant="outlined">
                 <v-card width="40%" class="elevation-0 mx-auto">
-                  <v-icon :color="paystausres.status == 'PAYMENT APPROVED' ? 'green' : 'red'" class="mt-3" size="50"> {{ paystausres.status == 'PAYMENT APPROVED' ?  'mdi-check-circle' : ' mdi-close-circle' }}</v-icon>
+                    <v-icon :color="paystausres.status == 'PAYMENT APPROVED' ? 'green' : 'red'" class="mt-3" size="50">
+                        {{
+                            paystausres.status == 'PAYMENT APPROVED' ? 'mdi-check-circle' : ' mdi-close-circle' }}</v-icon>
                 </v-card>
-<p class="font-weight-bold title mt-5">
-  {{ paystausres.status && typeof paystausres.status === 'string' ? (paystausres.status.charAt(0).toUpperCase() + paystausres.status.slice(1).toLowerCase()) : "---" }}
-</p>
-                <p class="subtitle-1 txt-666 mb-2">{{paystausres.name ? paystausres.statusname : '0.00'}}</p>
-                <p class="subtitle-1 txt-666 font-weight-bold mb-2">{{paystausres.OrderVal ? paystausres.OrderVal : '0.00'}}</p>
-                <p class="caption txt-666 mb-1">TransNo : {{paystausres.TransNo ? paystausres.TransNo : '0.00'}}</p>
-                <p class="caption txt-666 ">Order ID : {{paystausres.OrderId ? paystausres.OrderId : '0.00'}}</p>
+                <p class="font-weight-bold title mt-5">
+                    {{ paystausres.status && typeof paystausres.status === 'string' ?
+                        (paystausres.status.charAt(0).toUpperCase() + paystausres.status.slice(1).toLowerCase()) : "---" }}
+                </p>
+                <p class="subtitle-1 txt-666 mb-2">{{ paystausres.name ? paystausres.statusname : '0.00' }}</p>
+                <p class="subtitle-1 txt-666 font-weight-bold mb-2">{{ paystausres.OrderVal ? paystausres.OrderVal :
+                    '0.00' }}</p>
+                <p class="caption txt-666 mb-1">TransNo : {{ paystausres.TransNo ? paystausres.TransNo : '0.00' }}</p>
+                <p class="caption txt-666 ">Order ID : {{ paystausres.OrderId ? paystausres.OrderId : '0.00' }}</p>
 
 
                 <v-btn height="48px" color="#444" @click="paymentconfirm = false" variant="outlined"
-                    style="border: 2px solid #444 !important" size="small" class="text-none rounded-pill elevation-0"><span
-                        class="subtitle-1 font-weight-medium px-6">Close
-                        </span></v-btn>
+                    style="border: 2px solid #444 !important" size="small"
+                    class="text-none rounded-pill elevation-0"><span class="subtitle-1 font-weight-medium px-6">Close
+                    </span></v-btn>
             </v-card>
         </v-dialog>
 
@@ -562,6 +572,7 @@ import apiurl from "../../apiurl.js";
 import eventBus from "@/utils/eventBus.js";
 import { getMFsipvalue, getMFmandate, getMFAddmandate, getUpivpa, getMFplaceoredr, getMFallpayments, getMFBankdetails, getFundsupis, getsendpaymentrequt, getcheckpaystatus } from "../mixins/getAPIdata.js";
 export default {
+    name: 'MutualFundOrderWindow',
 
     data: () => ({
         uid: null,
@@ -615,8 +626,8 @@ export default {
         invesrtamoutcheck: "",
         paymentcheck: false,
         intervalId: null,
-        paymentconfirm:false,
-        paystausres:[]
+        paymentconfirm: false,
+        paystausres: []
     }),
 
     async mounted() {
@@ -625,7 +636,7 @@ export default {
                 this.setMenudialog(mode, itemdata);
             }
         });
-        
+
         // Listen for user login events to update uid
         eventBus.$on("user-event", () => {
             this.mtoken = sessionStorage.getItem("msession");
@@ -633,7 +644,7 @@ export default {
             this.uid = sessionStorage.getItem("userid");
             console.log("User event - UID updated:", this.uid);
         });
-        
+
         this.mtoken = sessionStorage.getItem("msession");
         this.token = sessionStorage.getItem("usession");
         this.uid = sessionStorage.getItem("userid");
@@ -670,6 +681,22 @@ export default {
             }
             return errors;
         },
+        minStartDate() {
+            const today = new Date();
+            const minDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 2);
+            return this.formatDateForPicker(minDate);
+        },
+        minEndDate() {
+            if (this.creatManmffrommodel) {
+                const startDate = this.parseDateString(this.creatManmffrommodel);
+                if (startDate && !isNaN(startDate.getTime())) {
+                    const minEnd = new Date(startDate.getFullYear(), startDate.getMonth() + 2, startDate.getDate());
+                    return this.formatDateForPicker(minEnd);
+                }
+            }
+            const today = new Date();
+            return this.formatDateForPicker(today);
+        },
     },
     methods: {
         incrEment(amt) {
@@ -683,34 +710,60 @@ export default {
             const [year, month, day] = date.split("-");
             return `${day}/${month}/${year}`;
         },
+        // Format date to YYYY-MM-DD in local time (no timezone conversion)
+        formatDateForPicker(date) {
+            if (!date) return null;
+            const d = date instanceof Date ? date : new Date(date);
+            if (isNaN(d.getTime())) return null;
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        },
+        // Parse YYYY-MM-DD string to local Date (no timezone conversion)
+        parseDateString(dateStr) {
+            if (!dateStr) return null;
+            if (typeof dateStr !== 'string') {
+                // If it's already a Date object, return it
+                if (dateStr instanceof Date) return dateStr;
+                return null;
+            }
+            // Parse YYYY-MM-DD format in local time
+            const parts = dateStr.split('T')[0].split('-');
+            if (parts.length !== 3) return null;
+            const year = parseInt(parts[0], 10);
+            const month = parseInt(parts[1], 10) - 1; // Month is 0-indexed
+            const day = parseInt(parts[2], 10);
+            return new Date(year, month, day);
+        },
         async setMenudialog(mode, itemdata) {
             eventBus.$emit("sub-loader", 1);
-            console.log("itemdataitemdata",itemdata);
-            console.log("modemodemodemode",mode);
+            console.log("itemdataitemdata", itemdata);
+            console.log("modemodemodemode", mode);
 
             // Refresh uid and token from sessionStorage
             this.mtoken = sessionStorage.getItem("msession");
             this.token = sessionStorage.getItem("usession");
             this.uid = sessionStorage.getItem("userid");
-            
+
             console.log("UID from sessionStorage:", this.uid);
             console.log("Token from sessionStorage:", this.token);
-            
+
             if (!this.uid) {
                 console.error("UID is null! Please check sessionStorage for 'userid'");
                 eventBus.$emit("snack-event", 2, "User session expired. Please login again.");
                 eventBus.$emit("sub-loader", 0);
                 return;
             }
-            
+
             this.orderpoploader = false;
-            this.menudata = [];
+            this.menudata = {};
             this.upiidfield = false;
             this.mf_tenure = mode == "sip" ? true : false;
             this.menudata["types"] = mode;
             this.menudata["item"] = itemdata;
-            console.log("   this.menudata[",   this.menudata["item"]);
-            
+            console.log("   this.menudata[", this.menudata["item"]);
+
             if (mode == "redem") {
                 this.menudata.item.Minimum_Redemption_Qty = Number(this.menudata.item.Minimum_Redemption_Qty);
                 this.menudata["netqty"] = itemdata.avg_qty;
@@ -769,8 +822,62 @@ export default {
         },
 
         setDefaultmandate() {
-            this.creatManmffrommodel = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 1).toISOString().slice(0, 10);
-            this.creatManmftomodel = new Date(new Date().getFullYear() + 30, new Date(this.creatManmffrommodel).getMonth(), new Date().getDate()).toISOString().slice(0, 10);
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            this.creatManmffrommodel = this.formatDateForPicker(tomorrow);
+
+            const endDate = new Date(tomorrow);
+            endDate.setFullYear(endDate.getFullYear() + 30);
+            this.creatManmftomodel = this.formatDateForPicker(endDate);
+        },
+        handleStartDateChange(date) {
+            // v-model already updated creatManmffrommodel
+            // Just ensure format is correct and handle side effects
+            if (date) {
+                // Normalize to YYYY-MM-DD string (v-model should already do this, but ensure)
+                const dateStr = typeof date === 'string' ? date.split('T')[0] : this.formatDateForPicker(date);
+                if (dateStr && this.creatManmffrommodel !== dateStr) {
+                    this.creatManmffrommodel = dateStr;
+                }
+            }
+
+            // Update end date to be 30 years from start date if it's before the new minimum
+            this.$nextTick(() => {
+                if (this.creatManmffrommodel) {
+                    const startDate = this.parseDateString(this.creatManmffrommodel);
+                    if (startDate && !isNaN(startDate.getTime())) {
+                        const newMinEnd = new Date(startDate.getFullYear(), startDate.getMonth() + 2, startDate.getDate());
+                        const currentEndDate = this.creatManmftomodel ? this.parseDateString(this.creatManmftomodel) : null;
+
+                        // Only update if current end date is before the new minimum
+                        if (!currentEndDate || isNaN(currentEndDate.getTime()) || currentEndDate < newMinEnd) {
+                            const newEndDate = new Date(startDate.getFullYear() + 30, startDate.getMonth(), startDate.getDate());
+                            this.creatManmftomodel = this.formatDateForPicker(newEndDate);
+                        }
+                    }
+                }
+                // Close menu after date is selected
+                setTimeout(() => {
+                    this.creatManmffrommenu = false;
+                }, 300);
+            });
+        },
+        handleEndDateChange(date) {
+            // v-model already updated creatManmftomodel
+            // Just ensure format is correct
+            if (date) {
+                // Normalize to YYYY-MM-DD string (v-model should already do this, but ensure)
+                const dateStr = typeof date === 'string' ? date.split('T')[0] : this.formatDateForPicker(date);
+                if (dateStr && this.creatManmftomodel !== dateStr) {
+                    this.creatManmftomodel = dateStr;
+                }
+            }
+            // Close menu after date is selected
+            this.$nextTick(() => {
+                setTimeout(() => {
+                    this.creatManmftomenu = false;
+                }, 300);
+            });
         },
         async setMForder() {
             // Ensure uid is set before placing order
@@ -779,14 +886,14 @@ export default {
                 this.token = sessionStorage.getItem("usession");
                 this.mtoken = sessionStorage.getItem("msession");
             }
-            
+
             if (!this.uid) {
                 console.error("UID is null! Cannot place order.");
                 eventBus.$emit("snack-event", 2, "User session expired. Please login again.");
                 this.orderpoploader = false;
                 return;
             }
-            
+
             console.log("Placing order with UID:", this.uid);
             this.orderpoploader = true;
             let data;
@@ -829,7 +936,7 @@ export default {
                 if (this.menudata.types == "redem") {
                     this.closeMenudialog("mforder");
                     this.orderpoploader = false;
-                    this.snackAlert(res.stat == 'Ok'  ? 1 :  2, res.stat == 'Ok' ? 'Redemption Order  Initiated' :  res);
+                    this.snackAlert(res.stat == 'Ok' ? 1 : 2, res.stat == 'Ok' ? 'Redemption Order  Initiated' : res);
                 } else {
                     if (this.mf_tenure) {
                         console.log("ifif 111");
@@ -978,12 +1085,12 @@ export default {
                 }, 3000);
 
             }
-            else if(res.stat == 'Ok' && res.type == 'NET BANKING'){
+            else if (res.stat == 'Ok' && res.type == 'NET BANKING') {
 
-const newTab = window.open("", "_blank");
-    newTab.document.write(res.msg);
-    newTab.document.close();
-                 this.orderiniteddai = false
+                const newTab = window.open("", "_blank");
+                newTab.document.write(res.msg);
+                newTab.document.close();
+                this.orderiniteddai = false
                 this.orderpoploadernew = false
             }
             else {
@@ -1000,21 +1107,21 @@ const newTab = window.open("", "_blank");
                 this.paystausres = []
                 let res = await getcheckpaystatus(data);
                 console.log("paymentatusapicall:", res);
-                    this.paystausres = res
+                this.paystausres = res
 
                 if (res.status === "PAYMENT APPROVED" || res.status === "PAYMENT DECLINED" || res.status == 'PAYMENT REJECTED') {
                     console.log("✅ Payment OK, stopping calls...");
                     this.stopPaymentCheck();
                     this.paymentcheck = false; // stop loader
                     this.paymentconfirm = true
-                this.orderpoploadernew = false
+                    this.orderpoploadernew = false
 
                 } else if (res.stat !== "ok") {
                     console.log("❌ Error response, stopping calls...");
                     this.stopPaymentCheck();
                     this.paymentcheck = false;
                     this.snackAlert(2, res);
-                this.orderpoploadernew = false
+                    this.orderpoploadernew = false
 
                 }
 
@@ -1035,8 +1142,8 @@ const newTab = window.open("", "_blank");
                     this.snackAlert(2, "Payment Cancel By User");
 
                 }
-                    this.paymentcheck = false;
-                    this.paymentconfirm = true
+                this.paymentcheck = false;
+                this.paymentconfirm = true
                 this.orderpoploadernew = false
 
 
@@ -1047,7 +1154,7 @@ const newTab = window.open("", "_blank");
                     this.intervalId = null;
                 }
                 this.paymentcheck = false
-                    this.paymentconfirm = true
+                this.paymentconfirm = true
                 this.orderpoploadernew = false
 
 
@@ -1098,8 +1205,51 @@ const newTab = window.open("", "_blank");
             if (type == "mforder") {
                 this.mforderdialog = false;
             }
-            this.menudata = [];
+            this.menudata = {};
         },
     },
 }
 </script>
+
+<style>
+.white-chip-dialog {
+    background-color: #b13131 !important;
+
+}
+
+
+
+
+
+.tenure-switch {
+    flex: 0 0 auto;
+}
+
+.tenure-switch .v-switch__track {
+    background-color: #E0E0E0 !important;
+    /* border-radius: 20px !important; */
+    height: 25px !important;
+    width: 56px !important;
+}
+
+.tenure-switch .v-switch__thumb {
+    background-color: #000000 !important;
+    /* border-radius: 50% !important; */
+    width: 28px !important;
+    height: 20px !important;
+    /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important; */
+}
+
+.tenure-switch.v-switch--checked .v-switch__track {
+    background-color: #000000 !important;
+}
+
+.tenure-switch.v-switch--checked .v-switch__thumb {
+    background-color: #FFFFFF !important;
+    transform: translateX(24px) !important;
+}
+
+.tenure-switch:not(.v-switch--checked) .v-switch__thumb {
+    transform: translateX(0px) !important;
+}
+</style>

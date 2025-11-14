@@ -79,8 +79,8 @@
 
                     <v-row class="px-4 mt-md-4 mt-2">
                         <v-col cols="4" class="pb-0" v-for="(t, d, l) in Fundamentalsfield" :key="l">
-                            <v-text-field class="funda-field" readonly color="maintext" :label="d"
-                                :model-value="t ? t : '-'">
+                            <v-text-field class="funda-field" variant="underlined" density="compact" readonly
+                                color="maintext" :label="d" :model-value="t ? t : '-'">
                             </v-text-field>
                         </v-col>
                     </v-row>
@@ -128,7 +128,7 @@
                             variant="flat" bg-color="secbg" label="Filter"></v-select>
                     </v-toolbar>
                 </div>
-                <v-data-table mobile item-key="name" must-sort :sort-by="[financialtab != 2 ? 'idx' : 'name']"
+                <v-data-table item-key="name" must-sort :sort-by="[financialtab != 2 ? 'idx' : 'name']"
                     :sort-desc="[false]" hide-default-footer fixed-header class="financialtabel rounded-0"
                     :headers="financialheader" :search="financialsearch"
                     :items="financialitem[fin_fiter] ? (financialtab == 0 ? financialitem[fin_fiter].incomeSheet : financialtab == 1 ? financialitem[fin_fiter].balanceSheet : financialitem[fin_fiter].cashflowSheet) : []"
@@ -208,7 +208,7 @@
                         bg-color="secbg"></v-text-field>
                 </v-toolbar>
 
-                <v-data-table mobile must-sort :sort-by="['']" :sort-desc="[false]" hide-default-footer fixed-header
+                <v-data-table must-sort :sort-by="['']" :sort-desc="[false]" hide-default-footer fixed-header
                     class="rounded-0 overflow-y-auto mt-4" :headers="peerheader" height="334px" width="800px"
                     :search="peersearch" :items="peeritem" :items-per-page="peeritem.length">
                     <template v-slot:[`header.peers`]>
@@ -331,7 +331,7 @@
                                 ).toFixed(0)}%`" class="elevation-0 rounded-0" :color="s.color" :key="b">
                                 </v-card>
                             </v-card>
-                            <v-data-table mobile hide-default-footer class="rounded-0 overflow-y-auto" fixed-header
+                            <v-data-table hide-default-footer class="rounded-0 overflow-y-auto" fixed-header
                                 :headers="holdingheader" :items="shareholdings.table">
                                 <template v-slot:[`item.investor`]="{ item }">
                                     <p class="font-weight-medium maintext--text mb-0 d-inline-flex"><v-card
@@ -388,7 +388,7 @@
                         class="rounded-pill mb-2 d-none d-md-flex" density="compact" variant="flat"
                         bg-color="secbg"></v-text-field>
                 </v-toolbar>
-                <v-data-table mobile must-sort :sort-by="['market_cap_Held']" :sort-desc="[true]" hide-default-footer
+                <v-data-table must-sort :sort-by="['market_cap_Held']" :sort-desc="[true]" hide-default-footer
                     fixed-header class="rounded-0" :headers="mfholdheader" :items="mfholdings" :search="mfsearch"
                     :items-per-page="mfholdings.length">
                     <template v-slot:[`header.mftrend`]>

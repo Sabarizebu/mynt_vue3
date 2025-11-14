@@ -1,8 +1,7 @@
 <template>
     <div>
         <div :class="!appStore.mainloader ? 'd-none' : ''" class="no-scroll no-xhide">
-            <img class="pos-cent blinkimg" width="90px"
-                :src="`/src/assets/${$vuetify.theme.dark ? 'MYNT App Logo_v2' : 'MYNT App Logo_v2'}.svg`" alt="wait" />
+            <img class="pos-cent blinkimg" width="90px" :src="myntLogo" alt="wait" />
         </div>
         <div :class="appStore.mainloader ? 'd-none' : ''">
             <AppBar />
@@ -17,18 +16,20 @@
                                 <span class="font-weight-bold fs-14" v-html="message"></span>
                             </template>
                         </v-snackbars>
-                        <v-snackbar class="d-none d-md-flex snakbar-sty rounded-pill mb-4"
-                            transition="slide-x-reverse-transition" bottom right v-model="appStore.snackbar" timeout="4000"
-                            :value="true" :color="appStore.snackcolor" absolute text-color="white">
+                        <v-snackbar class="d-none d-md-flex snakbar-sty rounded-pill"
+                            transition="slide-x-reverse-transition" top right v-model="appStore.snackbar"
+                            timeout="4000" :value="true" :color="appStore.snackcolor" absolute text-color="white"
+                            style="top: 80px !important; right: 16px !important;">
                             <v-icon class="mr-2" color="#fff">mdi-alert-outline</v-icon>
                             {{ appStore.snacktxt }}
                             <v-icon @click="appStore.hideSnackbar()" class="float-right"
                                 color="#fff">mdi-close-circle</v-icon>
                         </v-snackbar>
 
-                        <v-snackbar class="d-md-none snakbar-sty rounded-pill mb-4" transition="slide-x-reverse-transition"
-                            bottom right v-model="appStore.snackbar" timeout="4000" :value="true" :color="appStore.snackcolor"
-                            absolute text-color="white">
+                        <v-snackbar class="d-md-none snakbar-sty rounded-pill"
+                            transition="slide-x-reverse-transition" top right v-model="appStore.snackbar"
+                            timeout="4000" :value="true" :color="appStore.snackcolor" absolute text-color="white"
+                            style="top: 80px !important; right: 16px !important;">
                             <v-icon class="mr-2" color="#fff">mdi-alert-outline</v-icon>
                             {{ appStore.snacktxt }}
                             <v-icon @click="appStore.hideSnackbar()" class="float-right"
@@ -51,7 +52,7 @@
                                         class="overflow-hidden ss-login-card px-10 rounded-xl pos-rlt crd-trn d-flex"
                                         width="100%">
                                         <div class="my-auto">
-                                            <img :src="`/src/assets/products-sec/${bodytab == 'Mutual funds' ? 'mutual-funds' : bodytab == 'IPOs' ? 'ipos' : bodytab == 'Bonds' ? 'bonds' : 'Stocks-ETFs'}.png`"
+                                            <img :src="getAssetPath(`products-sec/${bodytab == 'Mutual funds' ? 'mutual-funds' : bodytab == 'IPOs' ? 'ipos' : bodytab == 'Bonds' ? 'bonds' : 'Stocks-ETFs'}.png`)"
                                                 :alt="bodytab" class="" width="100%" />
                                             <p class="font-weight-bold fs-32 mb-3">Ready to invest in {{ bodytab }}?</p>
                                             <p class="subtext--text font-weight-medium fs-2 mb-8">
@@ -63,17 +64,18 @@
                                                     @submit.prevent="getCall()">
                                                     <v-row no-gutters>
                                                         <v-col cols="10" class="pr-0">
-                                                            <v-text-field v-model="mobile"
+                                                            <v-text-field v-model="mobile" variant="plain"
                                                                 @keypress="NumberValid($event)" @keyup.enter="getCall()"
                                                                 :maxlength="10" :rules="numberis"
                                                                 oninput="this.value = this.value.toUpperCase()" required
                                                                 hide-spin-buttons flat hide-details solo
                                                                 background-color="secbg"
-                                                                class="sign-up-filed elevation-0 rounded-pill caption mb-3"
-                                                                label="Enter Client ID/Mobile to begin">
+                                                                style="background-color: #F1F3F8 !important;"
+                                                                class="sign-up-filed elevation-0 rounded-pill caption mb-3 px-3"
+                                                                placeholder="Enter Client ID/Mobile to begin">
                                                                 <template #prepend-inner>
-                                                                    <img :src="`/src/assets/phone-icon${$vuetify.theme.dark ? 'd' : ''}.svg`"
-                                                                        width="100%" alt="phone-icon" />
+                                                                    <img :src="phoneIconSrc" width="16" height="16"
+                                                                        alt="phone-icon" />
                                                                 </template>
                                                             </v-text-field>
                                                         </v-col>
@@ -86,8 +88,7 @@
                                                             </v-btn>
                                                         </v-col>
                                                     </v-row>
-                                                    <v-btn type="submit" block height="48px"
-                                                        :color="valid ? '#FFF07E' : '#FFF07E30'"
+                                                    <v-btn type="submit" block height="48px" color="#FFF07E"
                                                         class="text-none rounded-pill elevation-0"><span
                                                             class="black--text font-weight-bold">Continue</span></v-btn>
                                                 </v-form>
@@ -130,14 +131,14 @@
                                         fill="none">
                                         <path
                                             d="M14 2.26953V6.40007C14 6.96012 14 7.24015 14.109 7.45406C14.2049 7.64222 14.3578 7.7952 14.546 7.89108C14.7599 8.00007 15.0399 8.00007 15.6 8.00007H19.7305M16 13H8M16 17H8M10 9H8M14 2H8.8C7.11984 2 6.27976 2 5.63803 2.32698C5.07354 2.6146 4.6146 3.07354 4.32698 3.63803C4 4.27976 4 5.11984 4 6.8V17.2C4 18.8802 4 19.7202 4.32698 20.362C4.6146 20.9265 5.07354 21.3854 5.63803 21.673C6.27976 22 7.11984 22 8.8 22H15.2C16.8802 22 17.7202 22 18.362 21.673C18.9265 21.3854 19.3854 20.9265 19.673 20.362C20 19.7202 20 18.8802 20 17.2V8L14 2Z"
-                                            :stroke="$vuetify.theme.dark ? 'white' : 'black'" stroke-width="2"
+                                            :stroke="theme.current.value.dark ? 'white' : 'black'" stroke-width="2"
                                             stroke-linecap="round" stroke-linejoin="round" />
                                     </svg>
                                     <span class="ml-3"> Risk disclosures on derivatives </span>
                                 </v-card-title>
                                 <v-divider class="mx-4"></v-divider>
                                 <v-card-text class="px-4 px-md-8 py-7 riskpopup">
-                                    <ul :class="$vuetify.theme.dark ? 'white--text' : 'black--text'"
+                                    <ul :class="theme.current.value.dark ? 'white--text' : 'black--text'"
                                         class="subtitle-1 mb-4">
                                         <li style="line-height: 24px" class="mb-2">9 out of 10 individual traders in the
                                             equity Futures and
@@ -190,8 +191,7 @@
                                 style="position: relative; display: inline-flex; justify-content: center; align-items: center">
                                 <v-progress-circular color="primary" :size="115" :width="4" indeterminate
                                     style="position: absolute; z-index: 0"> </v-progress-circular>
-                                <img src="/src/assets/MYNT App Logo_v2.svg" alt="Logo"
-                                    style="z-index: 1; width: 100px; height: 100px" />
+                                <img :src="myntLogo" alt="Logo" style="z-index: 1; width: 100px; height: 100px" />
                             </div>
                         </v-card>
                     </div>
@@ -323,6 +323,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useTheme } from 'vuetify'
 import VSnackbars from "v-snackbars"
 import AppBar from "../AppBar.vue"
 import WatchList from "../../views/Watchlist/WatchList.vue"
@@ -340,6 +341,12 @@ import { seyCheckwebsocket } from "../mixins/webSocketstream.js"
 import { mynturl } from "../../apiurl.js"
 import apiurl from "../../apiurl.js"
 import webSocketEventBus from "../../utils/webSocketEventBus.js"
+import { getAssetPath } from '../../utils/assetHelper.js'
+
+// Import static assets for production compatibility
+import myntLogo from '@/assets/MYNT App Logo_v2.svg'
+import phoneIcon from '@/assets/phone-icon.svg'
+import phoneIconDark from '@/assets/phone-icond.svg'
 
 const appStore = useAppStore()
 // Provide v-snackbars with a shallow copy to avoid it mutating our reactive array
@@ -349,6 +356,12 @@ const authStore = useAuthStore()
 const sessionStore = useSessionStore()
 
 const route = useRoute()
+const theme = useTheme()
+
+// Computed property for phone icon based on theme
+const phoneIconSrc = computed(() => {
+    return theme.current.value.dark ? phoneIconDark : phoneIcon
+})
 
 // Reactive data
 const bodytab = ref("Stocks")
@@ -578,13 +591,13 @@ const getUserSession = async (k) => {
         } else if (authStore.uid && authStore.token && sessvalid && sessvalid.emsg) {
             // Handle error case (exactly like old app: lines 712-717)
             console.error("❌ Session validation failed:", sessvalid.emsg)
-            
+
             // Use sessionStore to handle error (exact old app behavior)
             // Old app: this.snackAlert(2, sessvalid.emsg ? sessvalid.emsg : sessvalid);
             //         eventBus.$emit("storage-reset");
             //         this.mtoken = null; this.token = null; this.uid = null;
             sessionStore.handleSessionError(sessvalid, authStore, appStore)
-            
+
             // Old app also sets mainloader = false (line 734)
             appStore.setMainLoader(false)
             appStore.hideLoader()

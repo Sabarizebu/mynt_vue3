@@ -1,74 +1,86 @@
 <template>
     <div>
-        <v-dialog v-if="menudata[0]" v-model="alertdialog" :scrim="false" width="480px">
-            <v-card class="pb-6 overflow-hidden rounded-lg" color="cardbg">
-                <v-card class="elevation-0 py-4 rounded-b-0" color="secbg">
-                    <v-toolbar class="elevation-0 px-2 crd-trn" density="compact">
-                        <v-list-item class="px-0">
-                            <v-list-item-title class="font-weight-bold fs-16 maintext--text mb-2">
+        <v-dialog v-if="menudata[0]" v-model="alertdialog" :scrim="false" width="480px" persistent>
+            <v-card class="alert-dialog-card overflow-hidden" color="cardbg">
+                <!-- Header Section -->
+                <v-card class="elevation-0 alert-dialog-header" color="secbg">
+                    <div class="d-flex align-center justify-space-between pa-4">
+                        <div class="flex-grow-1">
+                            <div class="alert-instrument-name mb-2">
                                 {{ menudata[0] ? menudata[0].tsym : "" }}
-                                <span class="ml-1 txt-999 fs-10">{{ menudata[0] ? menudata[0].exch : "" }}</span>
-                            </v-list-item-title>
-                            <v-list-item-title class="maintext--text font-weight-bold fs-14 mb-1">
-                                ₹<span id="laypopltp">{{ menudata.ltp ? menudata.ltp : "0.00" }}</span> &nbsp;
-                                <span class="fs-12" id="laypopchpclr"
+                                <span class="alert-instrument-exchange">{{ menudata[0] ? menudata[0].exch : "" }}</span>
+                            </div>
+                            <div class="alert-price-info">
+                                <span class="alert-price">₹<span id="laypopltp">{{ menudata.ltp ? menudata.ltp : "0.00"
+                                }}</span></span>
+                                <span class="alert-price-change" id="laypopchpclr"
                                     :class="menudata.ch > 0 ? 'maingreen--text' : menudata.ch < 0 ? 'mainred--text' : 'subtext--text'">
                                     <span id="laypopch">{{ menudata && menudata.ch ? `${menudata.ch}` : "0.00" }}</span>
                                     (<span id="laypopchp">{{ menudata && menudata.chp ? `${menudata.chp}` : "0.00"
                                     }}</span>%)
                                 </span>
-                            </v-list-item-title>
-                        </v-list-item>
-                        <v-spacer></v-spacer>
-                        <v-btn :disabled="alertloader" @click="closeMenudialog('alert')" size="small" icon>
-                            <v-icon color="maintext">mdi-close</v-icon>
+                            </div>
+                        </div>
+                        <v-btn :disabled="alertloader" @click="closeMenudialog('alert')" elevation="0" size="small" icon
+                            class="alert-close-btn">
+                            <v-icon color="maintext" size="20">mdi-close</v-icon>
                         </v-btn>
-                    </v-toolbar>
-                    <v-progress-linear v-if="alertloader" indeterminate></v-progress-linear>
+                    </div>
+                    <v-progress-linear v-if="alertloader" indeterminate color="primary"></v-progress-linear>
                 </v-card>
 
-                <div class="px-6 pt-4 pb-2">
-                    <p class="font-weight-bold fs-14">{{ menudata.malert ? "Modify" : "Set" }} alert Price</p>
-                    <v-row no-gutters>
-                        <v-col cols="4" class="pb-0">
-                            <p class="font-weight-bold fs-14 mb-2">Alert me</p>
+                <!-- Content Section -->
+                <div class="alert-dialog-content pa-6">
+                    <p class="alert-section-title mb-4">{{ menudata.malert ? "Modify" : "Set" }} alert Price</p>
+
+                    <v-row no-gutters class="mb-3">
+                        <v-col cols="4" class="pr-2">
+                            <p class="alert-field-label mb-2">Alert me</p>
                             <v-select density="compact" @update:model-value="handleAlertTypeChange" v-model="alertis"
-                                :items="alertitems" append-icon="mdi-chevron-down" bg-color="secbg" variant="flat"
-                                class="rounded-pill" hide-details></v-select>
+                                :items="alertitems" bg-color="secbg" variant="flat" class="alert-select-field"
+                                hide-details></v-select>
                         </v-col>
-                        <v-col cols="4" class="pb-0">
-                            <p class="font-weight-bold fs-14 mb-2">Condition</p>
+                        <v-col cols="4" class="px-1">
+                            <p class="alert-field-label mb-2">Condition</p>
                             <v-select density="compact" :disabled="alertis == 'VOLUME'" v-model="condition"
-                                :items="['>', '<']" append-icon="mdi-chevron-down" bg-color="secbg" variant="flat"
-                                class="rounded-pill" hide-details></v-select>
+                                :items="['>', '<']" bg-color="secbg" variant="flat" class="alert-select-field"
+                                hide-details></v-select>
                         </v-col>
-                        <v-col cols="4" class="pb-0">
-                            <p class="font-weight-bold fs-14 mb-2">Enter Value</p>
+                        <v-col cols="4" class="pl-2">
+                            <p class="alert-field-label mb-2">Enter Value</p>
                             <v-text-field density="compact" v-if="alertis != '52HIGH'" bg-color="secbg"
-                                v-model.number="alertvalue" variant="flat" class="rounded-pill" type="number"
+                                v-model.number="alertvalue" variant="flat" class="alert-input-field" type="number"
                                 hide-spin-buttons min="0" hide-details></v-text-field>
                             <v-text-field v-else disabled bg-color="secbg" value="NA" variant="flat"
-                                class="rounded-pill" type="text" hide-details></v-text-field>
-                        </v-col>
-                        <v-col cols="12" class="py-0">
-                            <v-divider></v-divider>
-                        </v-col>
-                        <v-col cols="4" class="pb-0">
-                            <p class="font-weight-bold fs-14 mb-2">Validity</p>
-                            <v-text-field bg-color="secbg" readonly value="Good Till Trigger" variant="flat"
-                                density="compact" class="rounded-pill" type="text" hide-details> </v-text-field>
-                        </v-col>
-                        <v-col cols="8" class="pb-0">
-                            <p class="font-weight-bold fs-14 mb-2">Remarks</p>
-                            <v-text-field bg-color="secbg" v-model="alertremarks" variant="flat" class="rounded-pill"
-                                density="compact" type="text" hide-details> </v-text-field>
+                                class="alert-input-field" type="text" hide-details></v-text-field>
                         </v-col>
                     </v-row>
-                    <v-btn @click="setAlert()" :disabled="alertis == '52HIGH' ? false : alertvalue == 0"
-                        :loading="alertloader" color="maintext"
-                        class="text-none rounded-pill elevation-0 white--text px-10 mt-4 float-right" height="40px">
-                        {{ menudata.malert ? "Modify" : "Set" }} alert
-                    </v-btn>
+
+                    <v-divider class="my-4"></v-divider>
+
+                    <v-row no-gutters class="mb-4">
+                        <v-col cols="4" class="pr-2">
+                            <p class="alert-field-label mb-2">Validity</p>
+
+                            <v-text-field density="compact" bg-color="secbg" variant="flat" class="alert-input-field"
+                                value="Good Till Trigger" readonly hide-spin-buttons min="0"
+                                hide-details></v-text-field>
+
+                        </v-col>
+                        <v-col cols="8" class="pl-2">
+                            <p class="alert-field-label mb-2">Remarks</p>
+                            <v-text-field bg-color="secbg" v-model="alertremarks" variant="flat"
+                                class="alert-input-field" density="compact" type="text" hide-details></v-text-field>
+                        </v-col>
+                    </v-row>
+
+                    <div class="d-flex justify-end mt-4">
+                        <v-btn @click="setAlert()" :disabled="alertis == '52HIGH' ? false : alertvalue == 0"
+                            :loading="alertloader" color="maintext"
+                            class="alert-submit-btn text-none elevation-0 white--text" height="40px">
+                            {{ menudata.malert ? "Modify" : "Set" }} alert
+                        </v-btn>
+                    </div>
                 </div>
             </v-card>
         </v-dialog>
@@ -94,6 +106,7 @@ const alertdialog = ref(false)
 const menudata = ref({})
 const alertloader = ref(false)
 const wsListenerAdded = ref(false)
+const isMounted = ref(false)
 
 // Handle alert type change
 const handleAlertTypeChange = (value) => {
@@ -198,11 +211,18 @@ const closeMenudialog = (type) => {
     if (type == "alert") {
         alertdialog.value = false
         // Unsubscribe from WebSocket
-        if (menudata.value[0]) {
-            setWebsocket("unsub", [menudata.value[0]], "menu")
+        if (menudata.value[0] && isMounted.value) {
+            try {
+                setWebsocket("unsub", [menudata.value[0]], "menu")
+            } catch (error) {
+                console.debug('WebSocket unsubscribe error:', error)
+            }
         }
     }
-    menudata.value = {}
+    // Only clear menudata if component is still mounted
+    if (isMounted.value) {
+        menudata.value = {}
+    }
 }
 
 // Set alert
@@ -227,7 +247,7 @@ const setAlert = async () => {
         tsym: menudata.value[0].tsym,
         ai_t: alertType,
         validity: "GTT",
-        d: alertvalue.value,
+        d: alertvalue.value.toString(),
         remarks: alertremarks.value
     }
 
@@ -241,8 +261,9 @@ const setAlert = async () => {
         if (alert.stat === "OI created" || alert.stat === "OI replaced") {
             const action = menudata.value.malert ? "modified" : "set"
             appStore.showSnackbar(1, `Alert has been ${action} for ${menudata.value[0].tsym}`)
-            // Trigger orderbook update
-            window.dispatchEvent(new CustomEvent('orderbook-update', { detail: { type: 'orders' } }))
+            // Trigger orderbook update to refresh pending alerts
+            // Dispatch event to refresh pending alerts list in AlertScreen
+            window.dispatchEvent(new CustomEvent('orderbook-update', { detail: 'orders' }))
         } else {
             appStore.showSnackbar(2, alert.emsg || alert || 'Failed to set alert')
         }
@@ -261,11 +282,13 @@ const setAlert = async () => {
 
 // Handle WebSocket data updates
 const handleWebSocketUpdate = (event) => {
-    const data = event.detail
-
-    if (alertdialog.value && menudata.value[0]) {
-        optionChainDataParse(data)
+    // Only process if component is mounted and dialog is open
+    if (!isMounted.value || !alertdialog.value || !menudata.value[0]) {
+        return
     }
+
+    const data = event.detail
+    optionChainDataParse(data)
 }
 
 // Parse WebSocket data for alert dialog
@@ -319,35 +342,47 @@ const optionChainDataParse = (data) => {
         }
 
         // Update DOM elements for immediate visual feedback
-        nextTick(() => {
-            const ltpTag = document.getElementById('laypopltp')
-            if (ltpTag) {
-                ltpTag.innerHTML = menudata.value.ltp || "0.00"
+        // Only update if component is mounted and dialog is open
+        if (isMounted.value && alertdialog.value) {
+            nextTick(() => {
+                // Double-check dialog is still open before DOM manipulation
+                if (!alertdialog.value || !isMounted.value) return
 
-                const chTag = document.getElementById('laypopch')
-                const chpTag = document.getElementById('laypopchp')
-                const chpclrTag = document.getElementById('laypopchpclr')
+                try {
+                    const ltpTag = document.getElementById('laypopltp')
+                    if (ltpTag) {
+                        ltpTag.innerHTML = menudata.value.ltp || "0.00"
 
-                if (chTag) chTag.innerHTML = menudata.value.ch || "0.00"
-                if (chpTag) chTag.innerHTML = menudata.value.chp || "0.00"
+                        const chTag = document.getElementById('laypopch')
+                        const chpTag = document.getElementById('laypopchp')
+                        const chpclrTag = document.getElementById('laypopchpclr')
 
-                // Update color class
-                if (chpclrTag) {
-                    const ch = parseFloat(menudata.value.ch) || 0
-                    const baseClasses = 'fs-12'
-                    const colorClass = ch > 0
-                        ? 'maingreen--text'
-                        : ch < 0
-                            ? 'mainred--text'
-                            : 'subtext--text'
-                    chpclrTag.className = `${baseClasses} ${colorClass}`
+                        if (chTag) chTag.innerHTML = menudata.value.ch || "0.00"
+                        if (chpTag) chpTag.innerHTML = menudata.value.chp || "0.00"
+
+                        // Update color class
+                        if (chpclrTag) {
+                            const ch = parseFloat(menudata.value.ch) || 0
+                            const baseClasses = 'fs-12'
+                            const colorClass = ch > 0
+                                ? 'maingreen--text'
+                                : ch < 0
+                                    ? 'mainred--text'
+                                    : 'subtext--text'
+                            chpclrTag.className = `${baseClasses} ${colorClass}`
+                        }
+                    }
+                } catch (error) {
+                    // Silently handle DOM errors if component is unmounting
+                    console.debug('DOM update skipped:', error)
                 }
-            }
-        })
+            })
+        }
     }
 }
 
 onMounted(() => {
+    isMounted.value = true
     // Listen for menudialog events
     if (!wsListenerAdded.value) {
         window.addEventListener('menudialog', handleMenuDialogEvent)
@@ -357,6 +392,14 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+    // Mark component as unmounting
+    isMounted.value = false
+
+    // Close dialog if open to prevent navigation issues
+    if (alertdialog.value) {
+        alertdialog.value = false
+    }
+
     // Clean up event listeners
     if (wsListenerAdded.value) {
         window.removeEventListener('menudialog', handleMenuDialogEvent)
@@ -364,13 +407,140 @@ onBeforeUnmount(() => {
         wsListenerAdded.value = false
     }
 
-    // Unsubscribe from WebSocket if dialog is open
-    if (alertdialog.value && menudata.value[0]) {
-        setWebsocket("unsub", [menudata.value[0]], "menu")
+    // Unsubscribe from WebSocket if dialog was open
+    if (menudata.value[0]) {
+        try {
+            setWebsocket("unsub", [menudata.value[0]], "menu")
+        } catch (error) {
+            console.debug('WebSocket unsubscribe error:', error)
+        }
     }
+
+    // Clear menudata
+    menudata.value = {}
 })
 </script>
 
 <style scoped>
-/* Alert dialog specific styles */
+/* Alert Dialog Styles */
+.alert-dialog-card {
+    border-radius: 8px;
+}
+
+.alert-dialog-header {
+    border-bottom: 1px solid #EBEEF0;
+}
+
+.alert-instrument-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #000;
+    line-height: 1.5;
+}
+
+.alert-instrument-exchange {
+    font-size: 10px;
+    color: #999;
+    margin-left: 4px;
+    font-weight: 400;
+}
+
+.alert-price-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.alert-price {
+    font-size: 14px;
+    font-weight: 700;
+    color: #000;
+}
+
+.alert-price-change {
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.alert-close-btn {
+    min-width: 32px;
+    width: 32px;
+    height: 32px;
+}
+
+.alert-dialog-content {
+    background-color: white;
+}
+
+.alert-section-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #000;
+    margin: 0;
+}
+
+.alert-field-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #000;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.alert-select-field :deep(.v-field) {
+    border-radius: 20px;
+    min-height: 36px;
+}
+
+.alert-select-field :deep(.v-field__input) {
+    padding: 8px 12px;
+    font-size: 13px;
+    min-height: 36px;
+}
+
+.alert-select-field :deep(.v-select__selection) {
+    font-size: 13px;
+    color: #000;
+}
+
+.alert-input-field :deep(.v-field) {
+    border-radius: 20px;
+    min-height: 36px;
+}
+
+.alert-input-field :deep(.v-field__input) {
+    padding: 8px 12px;
+    font-size: 13px;
+    min-height: 36px;
+}
+
+.alert-input-field :deep(input) {
+    font-size: 13px;
+    color: #000;
+}
+
+.alert-validity-btn {
+    width: 100%;
+    height: 36px;
+    border-radius: 20px;
+    text-transform: none;
+    font-size: 13px;
+    font-weight: 400;
+    color: #000;
+    pointer-events: none;
+}
+
+.alert-submit-btn {
+    min-width: 140px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: none;
+    padding: 0 24px;
+}
+
+.alert-submit-btn:disabled {
+    opacity: 0.5;
+}
 </style>

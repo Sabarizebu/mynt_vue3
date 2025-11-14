@@ -11,84 +11,144 @@
                 <v-icon>mdi-chevron-right</v-icon>
             </template>
         </v-breadcrumbs>
-        <v-card style="border: thin solid #EBEEF0 !important" variant="outlined"
-            class="rounded-lg mt-4 mb-8 crd-trn">
-            <v-toolbar class="elevation-0 my-4" density="compact" color="transparent">
-                <img width="40px" src="@/assets/stocks/srcm.svg" alt="srcm" class="mr-2" />
-                <p class="title font-weight-bold mb-0">Stock monitor</p>
-                <v-spacer class="d-none d-sm-flex"></v-spacer>
-                <v-select @update:model-value="getContentlistdata('yes')" :readonly="issloading" style="max-width: 180px"
-                    v-model="screent0" hide-details append-icon="mdi-chevron-down"
-                    class="rounded-pill mr-3 d-none d-sm-flex" density="compact" variant="solo" bg-color="secbg"
-                    :items="screent0item" label="Condition"></v-select>
+        <v-card style="border: thin solid #EBEEF0 !important" variant="outlined" class="rounded-lg mt-4 mb-8"
+            color="cardbg">
+            <v-toolbar ref="smcp" id="smcp" class="elevation-0 my-4 px-3" density="compact" color="transparent">
+                <img width="40px" :src="srcmIcon" alt="srcm" class="mr-2" />
+                <p class="title font-weight-bold mb-0" style="color: black;">Stock monitor</p>
+                <v-spacer></v-spacer>
 
-                <v-select @update:model-value="getContentlistdata('yes')" :readonly="issloading" style="max-width: 140px"
-                    v-model="screent1" hide-details append-icon="mdi-chevron-down" class="rounded-pill d-none d-sm-flex"
-                    density="compact" variant="solo" bg-color="secbg" :items="screent1item" label="Condition"></v-select>
+                <v-row class="d-flex align-center justify-end px-4" no-gutters>
+                    <v-select v-model="screent0" :items="screent0item" item-title="text" item-value="value"
+                        variant="flat" density="compact" hide-details menu-icon="mdi-chevron-down"
+                        :readonly="issloading" class="rounded-pill d-none d-sm-flex align-center text-center mr-3"
+                        style="
+                            max-width: 180px;
+                            height: 36px;
+                            background-color: #f1f3f8;
+                            color: #000;
+                            font-weight: 500;
+                            font-size: 14px;
+                            padding: 0 15px;
+                            text-align: center;
+                            border-radius: 9999px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                             margin-top: 0 !important;
+                        padding-top: 0 !important;
+                        
+                            " @update:model-value="getContentlistdata('yes')" />
+
+                    <v-select v-model="screent1" :items="screent1item" item-title="text" item-value="value"
+                        variant="flat" density="compact" hide-details menu-icon="mdi-chevron-down"
+                        :readonly="issloading" class="rounded-pill d-none d-sm-flex align-center text-center" style="
+                            max-width: 140px;
+                            height: 36px;
+                            background-color: #f1f3f8;
+                            color: #000;
+                            font-weight: 500;
+                            font-size: 14px;
+                            padding: 0 15px;
+                            text-align: center;
+                            border-radius: 9999px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            margin-top: 0 !important;
+                            padding-top: 0 !important;
+                        " @update:model-value="getContentlistdata('yes')" />
+                </v-row>
             </v-toolbar>
 
-            <v-toolbar class="elevation-0 my-4 d-sm-none" density="compact" color="transparent">
-                <v-select @update:model-value="getContentlistdata('yes')" :readonly="issloading" v-model="screent0" hide-details
-                    append-icon="mdi-chevron-down" class="rounded-pill mr-1" density="compact" variant="solo"
-                    bg-color="secbg" :items="screent0item" label="Condition"></v-select>
+            <v-toolbar class="elevation-0 my-4 d-sm-none px-3" density="compact" color="transparent">
+                <v-select v-model="screent0" :items="screent0item" item-title="text" item-value="value" variant="plain"
+                    density="comfortable" hide-details menu-icon="mdi-chevron-down" :readonly="issloading"
+                    class="rounded-pill mr-1" style="
+                        height: 36px;
+                        background-color: #f1f3f8;
+                        color: #000;
+                        font-weight: 500;
+                        font-size: 14px;
+                        padding: 0 15px;
+                        border-radius: 9999px;
+                        " @update:model-value="getContentlistdata('yes')" />
 
-                <v-select @update:model-value="getContentlistdata('yes')" :readonly="issloading" v-model="screent1" hide-details
-                    append-icon="mdi-chevron-down" class="rounded-pill ml-1" density="compact" variant="solo"
-                    bg-color="secbg" :items="screent1item" label="Condition"></v-select>
+                <v-select v-model="screent1" :items="screent1item" item-title="text" item-value="value" variant="plain"
+                    density="comfortable" hide-details menu-icon="mdi-chevron-down" :readonly="issloading"
+                    class="rounded-pill ml-1" style="
+                        height: 36px;
+                        background-color: #f1f3f8;
+                        color: #000;
+                        font-weight: 500;
+                        font-size: 14px;
+                        padding: 0 15px;
+                        border-radius: 9999px;
+                        " @update:model-value="getContentlistdata('yes')" />
             </v-toolbar>
             <v-divider></v-divider>
-            <v-data-table must-sort :sort-by="['chp']" :sort-desc="[true]" mobile fixed-header
+            <v-data-table must-sort :sort-by="['chp']" :sort-desc="[true]" hide-default-footer fixed-header
                 :loading="issloading" class="rounded-lg overflow-y-auto" :headers="screenheader" :search="opensearch"
                 :items="screentitems" :items-per-page="10">
                 <template v-slot:[`item.tsym`]="{ item }">
                     <span @click="setSinglestock(item.tsym.split('-')[0], item)"
-                        class="font-weight-medium text-capitalize txt-dec-cust ws-p">{{ item.tsym }}</span>
+                        class="font-weight-medium text-capitalize txt-dec-cust ws-p" style="font-size: 12px !important;"
+                        v-text="item.tsym"></span>
                 </template>
 
                 <template v-slot:[`item.ltp`]="{ item }">
                     <p class="mb-0 lh-18">
                         <span class="d-none" v-if="!uid">{{ setScrpitCH("", item, "SCR") }}</span>
 
-                        <span class="font-weight-medium maintext--text">₹<span :id="`ssdsc${item.token}ltp`">{{
-                            item.lp ? Number(item.lp).toFixed(2) : '0.00' }}</span></span> <br />
+                        <span class="font-weight-medium maintext--text black--text">₹<span :id="`ssdsc${item.token}ltp`"
+                                v-text="item.lp ? Number(item.lp).toFixed(2) : '0.00'"></span></span> <br />
                         <span class="font-weight-medium fs-12 ws-p" :id="`ssdsc${item.token}chpclr`"
-                            :class="item.ch > 0 ? 'maingreen--text' : item.ch < 0 ? 'mainred--text' : 'subtext--text'">
-                            <span :id="`ssdsc${item.token}ch`">{{ item.ch ? item.ch : '0.00' }} </span>
-                            <span :id="`ssdsc${item.token}chp`"> ({{ item.chp ? item.chp : '0.00' }}%)</span>
-                        </span>
+                            :class="item.ch > 0 ? 'maingreen--text' : item.ch < 0 ? 'mainred--text' : 'subtext--text'"
+                            :style="{ color: item.ch > 0 ? '#43A833' : item.ch < 0 ? '#FF0000' : '#666666' }">
+                            <span :id="`ssdsc${item.token}ch`" v-text="item.ch ? item.ch : '0.00'"> </span>
+                            <span :id="`ssdsc${item.token}chp`"
+                                v-text="` (${item.chp ? item.chp : '0.00'}%)`"></span></span>
                     </p>
                 </template>
 
                 <template v-slot:[`item.vol`]="{ item }">
-                    <span class="font-weight-medium maintext--text">{{ item.v ? item.v : "0.00" }}</span>
+                    <span class="font-weight-medium maintext--text black--text">{{ item.v ? item.v : "0.00" }}</span>
                 </template>
                 <template v-slot:[`item.op`]="{ item }">
-                    <span class="font-weight-medium maintext--text" :id="`ssdsc${item.token}op`">{{
-                        item.ap ? item.ap : "0.00" }}</span>
+                    <span class="font-weight-medium maintext--text black--text" :id="`ssdsc${item.token}op`">{{ item.ap
+                        ? item.ap :
+                        "0.00"
+                        }}</span>
                 </template>
                 <template v-slot:[`item.cp`]="{ item }">
-                    <span class="font-weight-medium maintext--text" :id="`ssdsc${item.token}cp`">{{
-                        item.c ? item.c : "0.00" }}</span>
+                    <span class="font-weight-medium maintext--text black--text" :id="`ssdsc${item.token}cp`">{{ item.c ?
+                        item.c :
+                        "0.00"
+                        }}</span>
                 </template>
                 <template v-slot:[`item.high`]="{ item }">
-                    <span class="font-weight-medium maintext--text" :id="`ssdsc${item.token}high`">{{
-                        item.h ? item.h : "0.00" }}</span>
+                    <span class="font-weight-medium maintext--text black--text" :id="`ssdsc${item.token}high`">{{ item.h
+                        ? item.h :
+                        "0.00"
+                        }}</span>
                 </template>
                 <template v-slot:[`item.low`]="{ item }">
-                    <span class="font-weight-medium maintext--text" :id="`ssdsc${item.token}low`">{{
-                        item.l ? item.l : "0.00" }}</span>
+                    <span class="font-weight-medium maintext--text black--text" :id="`ssdsc${item.token}low`">{{ item.l
+                        ? item.l :
+                        "0.00"
+                        }}</span>
                 </template>
 
                 <template v-slot:no-data>
                     <v-col cols="12" class="text-center pa-16">
-                        <div class="mx-auto">
-                            <img class="align-self-stretch mx-auto" width="80px"
-                                src="/src/assets/no data folder.svg" alt="no data" />
+                        <div>
+                            <img width="80px" :src="noDataFolder" alt="no data" />
                             <h5 class="txt-999 font-weight-regular">There is no data here yet!</h5>
                         </div>
                     </v-col>
                 </template>
             </v-data-table>
+            <v-divider></v-divider>
         </v-card>
     </div>
 </template>
@@ -98,6 +158,8 @@ import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../../stores/authStore'
 import { getConTentList, getLtpdata } from '@/components/mixins/getAPIdata'
+import srcmIcon from '@/assets/stocks/srcm.svg'
+import noDataFolder from '@/assets/no data folder.svg'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -172,13 +234,13 @@ const opensearch = ref(null)
 // Computed
 const screenheader = computed(() => {
     return [
-        { text: "Symbol", value: "tsym", sortable: false, class: "ws-p" },
-        { text: "Price", value: "ltp", sortable: false, align: "end", class: "ws-p" },
-        { text: "Open", value: "op", align: "end", class: "ws-p" },
-        { text: "High", value: "high", align: "end", class: "ws-p" },
-        { text: "Low", value: "low", align: "end", class: "ws-p" },
-        { text: "Close", value: "cp", align: "end", class: "ws-p" },
-        { text: "Volume", value: "vol", align: "end", class: "ws-p" },
+        { title: "Symbol", key: "tsym", sortable: false, class: "ws-p" },
+        { title: "Price", key: "ltp", sortable: false, align: "end", class: "ws-p" },
+        { title: "Open", key: "op", align: "end", class: "ws-p" },
+        { title: "High", key: "high", align: "end", class: "ws-p" },
+        { title: "Low", key: "low", align: "end", class: "ws-p" },
+        { title: "Close", key: "cp", align: "end", class: "ws-p" },
+        { title: "Volume", key: "vol", align: "end", class: "ws-p" },
     ];
 })
 
@@ -268,9 +330,9 @@ const optionChainDataParse = (data) => {
             if (chpTag) chpTag.innerHTML = ` (${screentitems.value[s].chp}%)`
             if (chpclrTag) {
                 const ch = parseFloat(screentitems.value[s].ch) || 0
-                chpclrTag.className = ch > 0 
+                chpclrTag.className = ch > 0
                     ? 'font-weight-medium fs-12 ws-p maingreen--text'
-                    : ch < 0 
+                    : ch < 0
                         ? 'font-weight-medium fs-12 ws-p mainred--text'
                         : 'font-weight-medium fs-12 ws-p subtext--text'
             }

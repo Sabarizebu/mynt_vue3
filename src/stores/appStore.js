@@ -41,29 +41,48 @@ export const useAppStore = defineStore('app', () => {
       return
     }
     
+    // Extract message text if it's an object
+    let messageText = msg
+    if (typeof msg === 'object' && msg !== null) {
+      messageText = msg.emsg || msg.message || msg.toString()
+    }
+    
+    // Check if this is a genuine session expiry message (should be shown)
+    const isSessionExpired = typeof messageText === 'string' && 
+      (messageText.toLowerCase().includes('session expired') || 
+       messageText.toLowerCase().includes('invalid session key') ||
+       messageText.toLowerCase().includes('session expired : invalid session key'))
+    
+    // Check if this is just a WebSocket connection attempt (should be hidden)
+    const isWebSocketAttempt = messageText === 'attempt' || 
+                              (typeof messageText === 'string' && 
+                               messageText.includes('attempt') && 
+                               !isSessionExpired) ||
+                              (typeof messageText === 'string' && 
+                               messageText.includes('WebSocket') && 
+                               !isSessionExpired)
+    
+    // Don't show snackbar for WebSocket connection attempts (but show session expired)
+    if (isWebSocketAttempt && !isSessionExpired) {
+      snackbar.value = false
+      return
+    }
+    
     snackbar.value = true
     
-    // Check if this is a genuine session expiry or just a WebSocket connection attempt
-    const isWebSocketAttempt = msg === 'attempt' || 
-                              (typeof msg === 'string' && msg.includes('attempt')) ||
-                              (typeof msg === 'string' && msg.includes('Invalid Session Key')) ||
-                              (typeof msg === 'string' && msg.includes('WebSocket'))
-    
-    if (msg && !isWebSocketAttempt && (msg.message == "Request failed with status code 401" || 
-        (typeof msg == "string" && msg.includes("Session Expired")) || 
-        msg == "mobile_unique not valid")) {
+    // Handle session expired messages - always show these
+    if (isSessionExpired || 
+        (msg && typeof msg === 'object' && msg.message == "Request failed with status code 401") ||
+        (typeof messageText === 'string' && messageText.includes("Session Expired")) ||
+        messageText == "mobile_unique not valid") {
       snackcolor.value = "warning"
-      snacktxt.value = "Session has expired. Please log in again."
+      snacktxt.value = isSessionExpired ? messageText : "Session has expired. Please log in again."
       setTimeout(() => {
         resetStorage()
       }, 100)
     } else if (msg && !isWebSocketAttempt) {
       snackcolor.value = color == 0 ? "error" : color == 1 ? "success" : "warning"
-      snacktxt.value = msg == "500" ? "Network/Internal Server Error" : msg
-    } else if (isWebSocketAttempt) {
-      // Don't show snackbar for WebSocket connection attempts
-      snackbar.value = false
-      return
+      snacktxt.value = messageText == "500" ? "Network/Internal Server Error" : messageText
     }
 
     if (snackbar.value) {

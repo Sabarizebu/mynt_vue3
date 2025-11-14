@@ -4,112 +4,88 @@
             <!-- Stats Cards -->
             <v-row v-if="tab !== 'portfolio'">
                 <v-col cols="12">
-                    <v-card v-if="tab === 'stocks'"
-                        class="px-2 stat-card rounded-md d-inline-flex pt-2 pb-1 overflow-hidden" width="100%">
-                        <v-list-item>
-                            <v-list-item-content class="pt-0">
-                                <v-list-item-subtitle class="txt-5E6 mb-2 font-weight-medium">Stocks
-                                    Value</v-list-item-subtitle>
-                                <v-list-item-title class="maintext--text font-weight-medium">
-                                    <span>{{ stats.stockvalue || '0.00' }}</span>
-                                </v-list-item-title>
-                            </v-list-item-content>
-                        </v-list-item>
-                        <v-list-item>
-                            <v-list-item-content class="pt-0">
-                                <v-list-item-subtitle class="txt-5E6 mb-2 font-weight-medium">Day
-                                    Change</v-list-item-subtitle>
-                                <v-list-item-title class="maintext--text font-weight-medium">
-                                    <span
-                                        :class="Number(stats.d_pnl) > 0 ? 'maingreen--text' : Number(stats.d_pnl) < 0 ? 'mainred--text' : 'subtext--text'">
-                                        <span>{{ stats.d_pnl || '0.00' }}</span>
-                                    </span>
-                                    <span class="fs-13"
-                                        :class="Number(stats.d_cpnl) > 0 ? 'maingreen--text' : Number(stats.d_cpnl) < 0 ? 'mainred--text' : 'subtext--text'">
-                                        (<span>{{ Number(stats.d_cpnl) > 0 || Number(stats.d_cpnl) < 0 ? stats.d_cpnl
-                                            : '0.00' }}</span>%)
-                                        </span>
-                                </v-list-item-title>
-                            </v-list-item-content>
-                        </v-list-item>
-                        <v-list-item>
-                            <v-list-item-content class="pt-0">
-                                <v-list-item-subtitle
-                                    class="txt-5E6 mb-2 font-weight-medium">Invested</v-list-item-subtitle>
-                                <v-list-item-title class="maintext--text font-weight-medium">
-                                    <span>{{ stats.invested || '0.00' }}</span>
-                                </v-list-item-title>
-                            </v-list-item-content>
-                        </v-list-item>
-                        <v-list-item>
-                            <v-list-item-content class="pt-0">
-                                <v-list-item-subtitle
-                                    class="txt-5E6 mb-2 font-weight-medium">Profit/Loss</v-list-item-subtitle>
-                                <v-list-item-title class="maintext--text font-weight-medium">
-                                    <span
-                                        :class="Number(stats.cpnl) > 0 ? 'maingreen--text' : Number(stats.cpnl) < 0 ? 'mainred--text' : 'subtext--text'">
-                                        <span>{{ stats.pnl || '0.00' }}</span>
-                                    </span>
-                                    <span class="fs-13"
-                                        :class="Number(stats.cpnl) > 0 ? 'maingreen--text' : Number(stats.cpnl) < 0 ? 'mainred--text' : 'subtext--text'">
-                                        (<span>{{ Number(stats.cpnl) > 0 || Number(stats.cpnl) < 0 ? stats.cpnl : '0.00'
-                                                }}</span>%)
-                                        </span>
-                                </v-list-item-title>
-                            </v-list-item-content>
-                        </v-list-item>
-                        <v-list-item>
-                            <v-list-item-content class="pb-0">
-                                <v-list-item-subtitle class="txt-5E6 mb-0 font-weight-medium">Stock
-                                    Position</v-list-item-subtitle>
-                                <v-chip-group row>
-                                    <v-chip class="mr-2 rounded-lg" color="secgreen" text-color="maingreen">
-                                        <span class="caption">{{ stats.positive || 0 }}</span>&nbsp;Positive
+                    <v-card v-if="tab === 'stocks'" class="stat-card rounded-lg pa-4" elevation="0">
+                        <div class="d-flex justify-space-between align-center flex-wrap" style="gap: 16px;">
+                            <!-- Stocks Value -->
+                            <div class="stat-item flex-grow-1" style="min-width: 120px;">
+                                <div class="stat-label txt-5E6 fs-14 mb-1">Stocks Value</div>
+                                <div class="stat-value maintext--text fs-16 font-weight-bold">
+                                    {{ stats.stockvalue || '0.00' }}
+                                </div>
+                            </div>
+
+                            <!-- Day Change -->
+                            <div class="stat-item flex-grow-1" style="min-width: 120px;">
+                                <div class="stat-label txt-5E6 fs-14 mb-1">Day Change</div>
+                                <div class="stat-value fs-16 font-weight-bold"
+                                    :class="Number(stats.d_pnl) > 0 ? 'maingreen--text' : Number(stats.d_pnl) < 0 ? 'mainred--text' : 'subtext--text'">
+                                    {{ stats.d_pnl || '0.00' }}<span class="fs-13 ml-1">({{ Number(stats.d_cpnl) > 0 ||
+                                        Number(stats.d_cpnl) < 0 ? stats.d_cpnl : '0.00' }}%)</span>
+                                </div>
+                            </div>
+
+                            <!-- Invested -->
+                            <div class="stat-item flex-grow-1" style="min-width: 120px;">
+                                <div class="stat-label txt-5E6 fs-14 mb-1">Invested</div>
+                                <div class="stat-value maintext--text fs-16 font-weight-bold">
+                                    {{ stats.invested || '0.00' }}
+                                </div>
+                            </div>
+
+                            <!-- Profit/Loss -->
+                            <div class="stat-item flex-grow-1" style="min-width: 120px;">
+                                <div class="stat-label txt-5E6 fs-14 mb-1">Profit/Loss</div>
+                                <div class="stat-value fs-16 font-weight-bold"
+                                    :class="Number(stats.cpnl) > 0 ? 'maingreen--text' : Number(stats.cpnl) < 0 ? 'mainred--text' : 'subtext--text'">
+                                    {{ stats.pnl || '0.00' }}<span class="fs-13 ml-1">({{ Number(stats.cpnl) > 0 ||
+                                        Number(stats.cpnl) < 0 ? stats.cpnl : '0.00' }}%)</span>
+                                </div>
+                            </div>
+
+                            <!-- Stock Position -->
+                            <div class="stat-item " style="min-width: 140px;">
+                                <div class="stat-label txt-5E6 fs-14 mb-1">Stock Position</div>
+                                <div class="d-flex align-center" style="gap: 8px;">
+                                    <v-chip size="large" class="rounded-lg maingreen--text">
+                                        <span class="fs-14 font-weight-medium">{{ stats.positive || 0 }} Positive</span>
                                     </v-chip>
-                                    <v-chip height="16" class="mr-2 rounded-lg" color="secred" text-color="mainred">
-                                        <span class="caption">{{ stats.negative || 0 }}</span>&nbsp;Negative
+                                    <v-chip size="large" class="rounded-lg mainred--text">
+                                        <span class="fs-14 font-weight-medium">{{ stats.negative || 0 }} Negative</span>
                                     </v-chip>
-                                </v-chip-group>
-                            </v-list-item-content>
-                        </v-list-item>
+                                </div>
+                            </div>
+                        </div>
                     </v-card>
-                    <v-card v-else class="px-2 stat-card rounded-md d-inline-flex pt-2 pb-1 overflow-hidden"
-                        width="100%">
-                        <v-list-item>
-                            <v-list-item-content class="pt-0">
-                                <v-list-item-subtitle class="txt-5E6 mb-2 font-weight-medium">Current
-                                    Value</v-list-item-subtitle>
-                                <v-list-item-title class="maintext--text font-weight-medium">
-                                    <span>{{ mfStats.totalValue || '0.00' }}</span>
-                                </v-list-item-title>
-                            </v-list-item-content>
-                        </v-list-item>
-                        <v-list-item>
-                            <v-list-item-content class="pt-0">
-                                <v-list-item-subtitle
-                                    class="txt-5E6 mb-2 font-weight-medium">Invested</v-list-item-subtitle>
-                                <v-list-item-title class="maintext--text font-weight-medium">
-                                    <span>{{ mfStats.invested || '0.00' }}</span>
-                                </v-list-item-title>
-                            </v-list-item-content>
-                        </v-list-item>
-                        <v-list-item>
-                            <v-list-item-content class="pt-0">
-                                <v-list-item-subtitle
-                                    class="txt-5E6 mb-2 font-weight-medium">Profit/Loss</v-list-item-subtitle>
-                                <v-list-item-title class="maintext--text font-weight-medium">
-                                    <span
-                                        :class="Number(mfStats.pnl) > 0 ? 'maingreen--text' : Number(mfStats.pnl) < 0 ? 'mainred--text' : 'subtext--text'">
-                                        <span>{{ mfStats.pnl || '0.00' }}</span>
-                                    </span>
-                                    <span class="fs-13"
-                                        :class="Number(mfStats.pnlPercent) > 0 ? 'maingreen--text' : Number(mfStats.pnlPercent) < 0 ? 'mainred--text' : 'subtext--text'">
-                                        (<span>{{ Number(mfStats.pnlPercent) > 0 || Number(mfStats.pnlPercent) < 0 ?
-                                            mfStats.pnlPercent : '0.00' }}</span>%)
-                                        </span>
-                                </v-list-item-title>
-                            </v-list-item-content>
-                        </v-list-item>
+
+                    <!-- Mutual Funds Stats -->
+                    <v-card v-else class="stat-card rounded-lg pa-4" elevation="0">
+                        <div class="d-flex justify-space-between align-center flex-wrap" style="gap: 16px;">
+                            <!-- Current Value -->
+                            <div class="stat-item flex-grow-1" style="min-width: 120px;">
+                                <div class="stat-label txt-5E6 fs-14 mb-1">Current Value</div>
+                                <div class="stat-value maintext--text fs-16 font-weight-bold">
+                                    {{ mfStats.totalValue || '0.00' }}
+                                </div>
+                            </div>
+
+                            <!-- Invested -->
+                            <div class="stat-item flex-grow-1" style="min-width: 120px;">
+                                <div class="stat-label txt-5E6 fs-14 mb-1">Invested</div>
+                                <div class="stat-value maintext--text fs-16 font-weight-bold">
+                                    {{ mfStats.invested || '0.00' }}
+                                </div>
+                            </div>
+
+                            <!-- Profit/Loss -->
+                            <div class="stat-item flex-grow-1" style="min-width: 120px;">
+                                <div class="stat-label txt-5E6 fs-14 mb-1">Profit/Loss</div>
+                                <div class="stat-value fs-16 font-weight-bold"
+                                    :class="Number(mfStats.pnl) > 0 ? 'maingreen--text' : Number(mfStats.pnl) < 0 ? 'mainred--text' : 'subtext--text'">
+                                    {{ mfStats.pnl || '0.00' }}<span class="fs-13 ml-1">({{ Number(mfStats.pnlPercent) >
+                                        0 || Number(mfStats.pnlPercent) < 0 ? mfStats.pnlPercent : '0.00' }}%)</span>
+                                </div>
+                            </div>
+                        </div>
                     </v-card>
                 </v-col>
             </v-row>
@@ -124,165 +100,263 @@
                 </v-tabs>
                 <v-spacer></v-spacer>
 
-                <v-text-field v-if="tab === 'stocks'" v-model="opensearch" prepend-inner-icon="mdi-magnify"
-                    label="Search" variant="solo-filled" color="primary" density="comfortable" hide-details
-                    class="rounded-pill mr-4" style="max-width: 220px; background-color: #F1F3F8;" />
+                <!-- <v-text-field rounded v-model="peersearch" hide-details prepend-inner-icon="mdi-magnify" placeholder="Search" class="rounded-pill d-none d-md-flex"
+                 density="compact" variant="solo" flat bg-color="secbg"></v-text-field> -->
+
+                <v-text-field elevation="0" rounded v-if="tab === 'stocks'" v-model="opensearch"
+                    prepend-inner-icon="mdi-magnify" placeholder="Search" variant="solo" density="compact" hide-details
+                    class="rounded mr-4" style="max-width: 220px" flat bg-color="secbg" />
 
 
-                <v-select v-if="tab === 'stocks'" style="max-width: 160px" v-model="exchtype" hide-details
+                <v-select v-if="tab === 'stocks'" style="max-width: 160px" v-model="exchtype" rounded hide-details
                     item-title="txt" item-value="val" prepend-inner-icon="mdi-format-list-bulleted"
-                    class="rounded-pill ml-4" variant="solo" density="comfortable" :bg-color="'secbg'"
-                    :items="dashitems" label="Filter" />
+                    class="rounded-pill ml-4" variant="solo" density="compact" flat bg-color="secbg" elevation="0"
+                    :items="dashitems" />
 
                 <v-btn v-if="tab === 'stocks' && edisbtn" @click="setdoEdis()"
-                    class="elevation-0 rounded-pill font-weight-bold text-none ml-4" color="primary">E-DIS</v-btn>
+                    class="elevation-0 rounded-pill font-weight-bold text-none ml-4"
+                    style="background-color: #01409F; color: #fff;">E-DIS</v-btn>
                 <v-icon v-if="tab !== 'portfolio'" :disabled="loading || mfLoading" class="ml-3 cursor-p"
                     @click="refresh" color="maintext" size="24">mdi-reload</v-icon>
             </v-toolbar>
 
             <!-- Stocks Table -->
-            <div v-if="tab === 'stocks'">
-                <v-data-table :headers="tableHeaders" :items="searchedHoldings" :loading="loading"
-                    class="mt-3 rounded-lg overflow-y-auto" style="border-radius: 4px; border: 1px solid #EBEEF0"
-                    height="480px" hide-default-footer fixed-header :item-value="'tokn'" :items-per-page="-1"
-                    @click:row="(e, { item }) => setHoldingrowdata(item?.raw || item)">
-                    <template #item.tsym="{ item }">
-                        <div class="pos-rlt">
-                            <p class="font-weight-medium maintext--text mb-0 table-hov-text mr-4">
-                                {{ item.tsym }}
-                                <span class="ml-1 subtext--text fs-10">{{ item.exch || '' }}</span>
-                            </p>
-                            <div v-if="item && item.action" @click.stop class="pos-abs table-hov"
-                                style="top: 15px; right: 0">
-                                <v-btn @click.stop="handleMenuDialog('order', item.token, item.exch, item.tsym, 'b')"
-                                    min-width="20px" color="maingreen"
-                                    class="px-0 font-weight-bold white--text elevation-0 mr-1" size="x-small"> B
-                                </v-btn>
-                                <v-btn @click.stop="handleMenuDialog('order', item.token, item.exch, item.tsym, 's')"
-                                    min-width="20px" color="mainred"
-                                    class="px-0 font-weight-bold white--text elevation-0 mr-1" size="x-small"> S
-                                </v-btn>
-                                <v-btn @click.stop="setSSDtab('chart', item.token, item.exch, item.tsym)"
-                                    style="border: 1px solid #EBEEF0" min-width="20px" color="mainbg"
-                                    class="px-0 font-weight-bold elevation-0 mr-1" size="x-small">
-                                    <v-icon size="18" color="maintext">mdi-chart-line-variant</v-icon>
-                                </v-btn>
-                                <v-tooltip location="bottom">
-                                    <template #activator="{ props }">
-                                        <div v-bind="props">
-                                            <v-btn
-                                                @click.stop="setSSDtab('exit-order', item.token, item.exch, item.tsym, item.netqty < 0 ? 'b' : 's', item)"
-                                                style="border: 1px solid #EBEEF0" min-width="20px" color="mainbg"
-                                                class="px-0 font-weight-bold elevation-0 mr-1" size="x-small">
-                                                <v-icon size="18" color="maintext">mdi-close</v-icon>
+            <v-window v-model="tab" style="z-index:0">
+                <v-window-item value="stocks">
+                    <v-data-table :headers="tableHeaders" :items="searchedHoldings" :loading="loading"
+                        class="holdings-table mt-3 rounded-lg overflow-y-auto"
+                        style="border-radius: 8px; border: 1px solid #EBEEF0; background-color: #ffffff !important;"
+                        height="480px" hide-default-footer fixed-header :item-value="'tokn'" :items-per-page="-1"
+                        :item-class="() => 'table-row'" :row-props="() => ({ class: 'table-row' })"
+                        @click:row="(e, { item }) => setHoldingrowdata(item?.raw || item)">
+                        <template #item.tsym="{ item }">
+                            <div class="pos-rlt" style="min-height: 40px; padding-right: 200px;">
+                                <p class="font-weight-bold fs-13 txt-162 black--text mb-0 table-hov-text"
+                                    style="margin-right: 0; white-space: nowrap;">
+                                    {{ item.tsym }}
+                                    <span class="ml-1 subtext--text fs-10">{{ item.exch || '' }}</span>
+                                </p>
+                                <div v-if="item" @click.stop class="pos-abs table-hov"
+                                    style="top: 50%; transform: translateY(-50%); right: 0; z-index: 10; gap: 4px; pointer-events: auto; display: flex; align-items: center;">
+                                    <v-btn
+                                        @click.stop="handleMenuDialog('order', item.token, item.exch, item.tsym, 'b')"
+                                        min-width="20px" height="20px"
+                                        style="background-color: #43A833; color: #ffffff; border-radius: 4px; min-width: 20px; padding: 0 4px;"
+                                        class="font-weight-bold elevation-0 mr-1" size="x-small"> B
+                                    </v-btn>
+                                    <v-btn
+                                        @click.stop="handleMenuDialog('order', item.token, item.exch, item.tsym, 's')"
+                                        min-width="20px" height="20px"
+                                        style="background-color: #F23645; color: #ffffff; border-radius: 4px; min-width: 20px; padding: 0 4px;"
+                                        class="font-weight-bold elevation-0 mr-1" size="x-small"> S
+                                    </v-btn>
+                                    <v-btn @click.stop="setSSDtab('chart', item.token, item.exch, item.tsym)"
+                                        style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
+                                        min-width="20px" color="mainbg" class="font-weight-bold elevation-0 mr-1"
+                                        size="x-small">
+                                        <v-icon size="14" color="#666666">mdi-chart-line-variant</v-icon>
+                                    </v-btn>
+                                    <v-tooltip location="bottom">
+                                        <template #activator="{ props }">
+                                            <div v-bind="props">
+                                                <v-btn
+                                                    @click.stop="setSSDtab('exit-order', item.token, item.exch, item.tsym, null, item)"
+                                                    style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
+                                                    min-width="20px" color="mainbg"
+                                                    class="font-weight-bold elevation-0 mr-1" size="x-small">
+                                                    <v-icon size="14" color="#666666">mdi-close</v-icon>
+                                                </v-btn>
+                                            </div>
+                                        </template>
+                                        <span>Exit</span>
+                                    </v-tooltip>
+                                    <v-menu close-on-click location="bottom" offset-y class="table-menu">
+                                        <template #activator="{ props }">
+                                            <v-btn v-bind="props"
+                                                style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
+                                                min-width="20px" color="mainbg"
+                                                class="font-weight-bold elevation-0 mr-1" size="x-small">
+                                                <v-icon size="14" color="#666666">mdi-dots-horizontal</v-icon>
                                             </v-btn>
-                                        </div>
-                                    </template>
-                                    <span>Exit</span>
-                                </v-tooltip>
-                                <v-menu close-on-click location="bottom" offset-y class="table-menu">
-                                    <template #activator="{ props }">
-                                        <v-btn v-bind="props" style="border: 1px solid #EBEEF0" min-width="20px"
-                                            color="mainbg" class="px-0 font-weight-bold elevation-0 mr-1"
-                                            size="x-small">
-                                            <v-icon size="20" color="maintext">mdi-dots-horizontal</v-icon>
-                                        </v-btn>
-                                    </template>
-                                    <v-card class="table-menu-list">
-                                        <v-list density="compact">
-                                            <template v-for="(m, k) in menulist" :key="k">
-                                                <v-list-item
-                                                    @click="m.type != '' ? setSSDtab(m.type, item.token, item.exch, item.tsym, item.netqty < 0 ? 'b' : 's', item) : setHoldingrowdata(item)"
-                                                    class="pl-3 pr-6">
-                                                    <template #prepend>
-                                                        <img v-if="typeof m.icon === 'number' && m.icon > 2"
-                                                            width="20px" class="pl-1"
-                                                            :src="`/src/assets/orderbook/${m.icon}.svg`" />
-                                                        <v-icon v-else color="#506D84">{{ m.icon }}</v-icon>
-                                                    </template>
-                                                    <v-list-item-title class="subline--text font-weight-medium fs-14">{{
-                                                        m.name }}</v-list-item-title>
-                                                </v-list-item>
-                                                <v-divider v-if="m.hr" class="mx-3"></v-divider>
-                                            </template>
-                                        </v-list>
-                                    </v-card>
-                                </v-menu>
+                                        </template>
+                                        <v-card class="table-menu-list">
+                                            <v-list density="compact">
+                                                <template v-for="(m, k) in menulist" :key="k">
+                                                    <v-list-item
+                                                        @click="m.type != '' ? setSSDtab(m.type, item.token, item.exch, item.tsym, item.netqty < 0 ? 'b' : 's', item) : setHoldingrowdata(item)"
+                                                        class="pl-3 pr-6">
+                                                        <template #prepend>
+                                                            <img v-if="typeof m.icon === 'number' && m.icon > 2"
+                                                                width="20px" class="pl-1"
+                                                                :src="`/src/assets/orderbook/${m.icon}.svg`" />
+                                                            <v-icon v-else color="#506D84">{{ m.icon }}</v-icon>
+                                                        </template>
+                                                        <v-list-item-title
+                                                            class="subline--text font-weight-medium fs-14">{{
+                                                                m.name }}</v-list-item-title>
+                                                    </v-list-item>
+                                                    <v-divider v-if="m.hr" class="mx-3"></v-divider>
+                                                </template>
+                                            </v-list>
+                                        </v-card>
+                                    </v-menu>
+                                </div>
                             </div>
-                        </div>
-                    </template>
-                    <template #item.netqty="{ item }">
-                        <v-chip v-if="item && item.plgqty > 0" small class="table-hov-prd" color="secbg"
-                            style="border-radius: 5px; padding: 10px 8px !important">
-                            <v-icon color="primary" size="12">mdi-lock</v-icon>
-                            <span class="font-weight-medium fs-12 primary--text">{{ item.plgqty }}</span>
-                        </v-chip>
-                        <v-chip v-if="item && item.btstqty > 0" small color="#FFD8B4" text-color="#E8862A"
-                            :style="`border-radius: 5px; padding: 10px 8px !important; margin-left: 4px;`">
-                            <span class="font-weight-medium fs-12">{{ `T1 ${item.btstqty}` }}</span>
-                        </v-chip>
-                        <v-chip small
-                            :color="item && item.netqty > 0 ? 'secgreen' : item && item.netqty < 0 ? 'secred' : 'secbg'"
-                            :text-color="item && item.netqty > 0 ? 'maingreen' : item && item.netqty < 0 ? 'mainred' : 'subtext'"
-                            :style="`border: 1px solid ${item && item.netqty > 0 ? '#C1E7BA' : item && item.netqty < 0 ? '#FFCDCD' : '#DDD'}; border-radius: 5px; padding: 10px 8px !important;`">
-                            <span class="font-weight-medium fs-12">{{ item && item.netqty > 0 ? `+${item.netqty}` : item
-                                && item.netqty < 0 ? `${item.netqty}` : '0' }}</span>
-                        </v-chip>
-                    </template>
-                    <template #item.rpnl="{ item }">
-                        <span
-                            :class="Number(item.rpnl) > 0 ? 'maingreen--text' : Number(item.rpnl) < 0 ? 'mainred--text' : 'subtext--text'">
-                            {{ formatMoney(item.rpnl) }}
-                        </span>
-                    </template>
-                    <template #item.invested_val="{ item }">
-                        <span>{{ formatMoney(item.invested_val) }}</span>
-                    </template>
-                    <template #item.current_val="{ item }">
-                        <span>{{ formatMoney(item.current_val) }}</span>
-                    </template>
-                    <template #item.day_pnl="{ item }">
-                        <span
-                            :class="Number(item.day_pnl) > 0 ? 'maingreen--text' : Number(item.day_pnl) < 0 ? 'mainred--text' : 'subtext--text'">
-                            {{ formatMoney(item.day_pnl) }}
-                        </span>
-                    </template>
-                    <template #item.day_pc="{ item }">
-                        <span
-                            :class="Number(item.day_pc) > 0 ? 'maingreen--text' : Number(item.day_pc) < 0 ? 'mainred--text' : 'subtext--text'">
-                            {{ formatPct(item.day_pc) }}
-                        </span>
-                    </template>
-                </v-data-table>
-            </div>
+                        </template>
+                        <template #item.netqty="{ item }">
+                            <v-chip v-if="item && item.plgqty > 0" small class="table-hov-prd maingreen--text"
+                                style="border-radius: 4px; padding: 4px 8px !important;background-color: #43A833; margin-right: 4px;">
+                                <v-icon color="#ffffff" size="12">mdi-lock</v-icon>
+                                <span class="font-weight-medium fs-12" style="color: #ffffff;">{{ item.plgqty }}</span>
+                            </v-chip>
+                            <v-chip v-if="item && item.btstqty > 0" small color="#FFD8B4" text-color="#E8862A"
+                                :style="`border-radius: 4px; padding: 4px 8px !important; margin-left: 4px;`">
+                                <span class="font-weight-medium fs-12">{{ `T1 ${item.btstqty}` }}</span>
+                            </v-chip>
+                            <v-chip size="small"
+                                style="background-color: #E6F5EA; color: #43A833; border-radius: 4px; padding: 4px 8px; font-weight: 500;"
+                                class="netqty-chip">
+                                <span class="font-weight-medium fs-12" style="color: #43A833;">{{ item && item.netqty >
+                                    0 ?
+                                    `+${item.netqty}` : item
+                                        && item.netqty < 0 ? `${item.netqty}` : '0' }}</span>
+                            </v-chip>
+                        </template>
+                        <template #item.netavgprc="{ item }">
+                            <span class=" fs-13 txt-162 black--text" style="text-align: right; display: block;">{{
+                                formatMoney(item.netavgprc ||
+                                    item.upldprc)
+                            }}</span>
+                        </template>
+                        <template #item.ltp="{ item }">
+                            <span class="font-weight-medium fs-13 txt-162 black--text"
+                                style="text-align: right; display: block;">{{ formatMoney(item.ltp) }}</span>
+                        </template>
+                        <template #item.rpnl="{ item }">
+                            <span class="font-weight-bold fs-13"
+                                style="text-align: right; display: block;color: black !important;">
+                                {{ formatMoney(item.rpnl) }}
+                            </span>
+                        </template>
+                        <template #item.invested_val="{ item }">
+                            <span class="font-weight-bold fs-13 txt-162 black--text"
+                                style="text-align: right; display: block;">{{ formatMoney(item.invested_val) }}</span>
+                        </template>
+                        <template #item.current_val="{ item }">
+                            <span class="font-weight-bold fs-13 txt-162"
+                                style="text-align: right; display: block;color: black !important;">{{
+                                    formatMoney(item.current_val) }}</span>
+                        </template>
+                        <template #item.day_pnl="{ item }">
+                            <span class="font-weight-bold fs-13"
+                                style="text-align: right; display: block;color: black !important;">
+                                {{ formatMoney(item.day_pnl) }}
+                            </span>
+                        </template>
+                        <template #item.day_pc="{ item }">
+                            <span class="font-weight-bold fs-13"
+                                :class="Number(item.day_pc) > 0 ? 'maingreen--text' : Number(item.day_pc) < 0 ? 'mainred--text' : 'subtext--text'"
+                                :style="Number(item.day_pc) > 0 ? 'color: #43A833 !important;' : Number(item.day_pc) < 0 ? 'color: #F23645 !important;' : 'color: black !important;'"
+                                style="text-align: right; display: block;">
+                                {{ formatPct(item.day_pc) }}
+                            </span>
+                        </template>
+                        <template #item.pnlc="{ item }">
+                            <span class="font-weight-bold fs-13"
+                                :class="Number(item.pnlc) > 0 ? 'maingreen--text' : Number(item.pnlc) < 0 ? 'mainred--text' : 'subtext--text'"
+                                style="text-align: right; display: block;">
+                                {{ formatPct(item.pnlc) }}
+                            </span>
+                        </template>
+                    </v-data-table>
+                </v-window-item>
 
-            <!-- MF Table -->
-            <div v-else-if="tab === 'mutual'">
-                <v-data-table :headers="mfHeaders" :items="mfholdings" :loading="mfLoading"
-                    class="mt-3 rounded-lg overflow-y-auto" style="border-radius: 4px; border: 1px solid #EBEEF0"
-                    height="480px" hide-default-footer fixed-header :items-per-page="-1"
-                    @click:row="(e, { item }) => setHoldingrowdata(item?.raw || item)">
-                    <template #item.name="{ item }">
-                        <div class="pos-rlt">
-                            <p class="font-weight-medium maintext--text mb-0 table-hov-text mr-4">
-                                {{ item.name || '-' }}
-                            </p>
-                            <div v-if="item && item.holdtype === 'mf'" @click.stop class="pos-abs table-hov"
-                                style="top: 9px; right: 0">
-                                <v-btn @click.stop="handleMenuDialog('mforder', 'redem', item)" small
-                                    class="elevation-0 rounded-pill text-none primary--text font-weight-bold"
-                                    color="secbg">Redeem</v-btn>
+                <!-- MF Table -->
+                <v-window-item value="mutual">
+                    <v-data-table :headers="mfHeaders" :items="mfholdings" :loading="mfLoading"
+                        class="holdings-table mt-3 rounded-lg overflow-y-auto"
+                        style="border-radius: 8px; border: 1px solid #EBEEF0; background-color: #ffffff !important;"
+                        height="480px" hide-default-footer fixed-header :items-per-page="-1" :item-value="'idx'"
+                        :item-class="() => 'table-row'" :row-props="() => ({ class: 'table-row' })"
+                        @click:row="(e, { item }) => setHoldingrowdata(item?.raw || item)">
+                        <template #item.name="{ item }">
+                            <div class="pos-rlt" style="min-height: 40px; padding-right: 200px;">
+                                <p class="font-weight-bold fs-13 txt-162 black--text mb-0 table-hov-text"
+                                    style="margin-right: 0; white-space: nowrap;">
+                                    {{ item.name || '-' }}
+                                </p>
+                                <div v-if="item && item.holdtype === 'mf'" @click.stop class="pos-abs table-hov"
+                                    style="top: 50%; transform: translateY(-50%); right: 0; z-index: 10; gap: 4px; pointer-events: auto; display: flex; align-items: center;">
+                                    <v-btn @click.stop="eventBus.$emit('menudialog', 'mforder', 'redem', item)"
+                                        min-width="20px" height="20px"
+                                        style="background-color: #F23645; color: #ffffff; border-radius: 4px; min-width: 20px; padding: 0 4px;"
+                                        class="font-weight-bold elevation-0 mr-1" size="x-small">Redeem
+                                    </v-btn>
+                                    <v-menu close-on-click location="bottom" offset-y class="table-menu">
+                                        <template #activator="{ props }">
+                                            <v-btn v-bind="props"
+                                                style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
+                                                min-width="20px" color="mainbg"
+                                                class="font-weight-bold elevation-0 mr-1" size="x-small">
+                                                <v-icon size="14" color="#666666">mdi-dots-horizontal</v-icon>
+                                            </v-btn>
+                                        </template>
+                                        <v-card class="table-menu-list">
+                                            <v-list density="compact">
+                                                <v-list-item @click="setHoldingrowdata(item)" class="pl-3 pr-6">
+                                                    <template #prepend>
+                                                        <v-icon color="#506D84">mdi-information-outline</v-icon>
+                                                    </template>
+                                                    <v-list-item-title
+                                                        class="subline--text font-weight-medium fs-14">Details</v-list-item-title>
+                                                </v-list-item>
+                                            </v-list>
+                                        </v-card>
+                                    </v-menu>
+                                </div>
                             </div>
-                        </div>
-                    </template>
-                    <template #item.profit_loss="{ item }">
-                        <span
-                            :class="Number(item.profit_loss) > 0 ? 'maingreen--text' : Number(item.profit_loss) < 0 ? 'mainred--text' : 'subtext--text'">
-                            {{ item.profit_loss ?? '0.00' }}
-                        </span>
-                    </template>
-                </v-data-table>
-            </div>
+                        </template>
+                        <template #item.avg_qty="{ item }">
+                            <v-chip size="small"
+                                style="background-color: #E6F5EA; color: #43A833; border-radius: 4px; padding: 4px 8px; font-weight: 500;"
+                                class="netqty-chip">
+                                <span class="font-weight-medium fs-12" style="color: #43A833;">{{ item && item.avg_qty >
+                                    0 ?
+                                    `+${item.avg_qty}` : item && item.avg_qty < 0 ? `${item.avg_qty}` : '0' }}</span>
+                            </v-chip>
+                        </template>
+                        <template #item.avg_nav="{ item }">
+                            <span class="font-weight-medium fs-13 txt-162 black--text"
+                                style="text-align: right; display: block;">{{ formatMoney(item.avg_nav) }}</span>
+                        </template>
+                        <template #item.Cur_Nav="{ item }">
+                            <span class="font-weight-medium fs-13 txt-162 black--text"
+                                style="text-align: right; display: block;">{{ formatMoney(item.Cur_Nav) }}</span>
+                        </template>
+                        <template #item.invested_value="{ item }">
+                            <span class="font-weight-bold fs-13 txt-162 black--text"
+                                style="text-align: right; display: block;">{{ formatMoney(item.invested_value) }}</span>
+                        </template>
+                        <template #item.current_value="{ item }">
+                            <span class="font-weight-bold fs-13 txt-162 black--text"
+                                style="text-align: right; display: block;">{{ formatMoney(item.current_value) }}</span>
+                        </template>
+                        <template #item.profit_loss="{ item }">
+                            <span class="font-weight-bold fs-13"
+                                style="text-align: right; display: block;color: black !important;">
+                                {{ formatMoney(item.profit_loss) }}
+                            </span>
+                        </template>
+                        <template #item.changeprofitloss="{ item }">
+                            <span class="font-weight-bold fs-13"
+                                :class="Number(item.changeprofitloss) > 0 ? 'maingreen--text' : Number(item.changeprofitloss) < 0 ? 'mainred--text' : 'subtext--text'"
+                                style="text-align: right; display: block;">
+                                {{ formatPct(item.changeprofitloss) }}
+                            </span>
+                        </template>
+                    </v-data-table>
+                </v-window-item>
+            </v-window>
         </div>
 
         <!-- Drawer -->
@@ -583,11 +657,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAppStore } from '@/stores/appStore'
 import { getMHoldings, getMMHoldings, getQuotesdata, getHsTokenapi } from '@/components/mixins/getAPIdata'
 import CryptoJS from 'crypto-js'
+import eventBus from '@/utils/eventBus.js'
+import { color } from 'echarts'
 
 const router = useRouter()
 const appStore = useAppStore()
@@ -626,25 +702,31 @@ const menulist = ref([
 
 // Vuetify 3 headers
 const preferredColumns = [
-    { key: 'tsym', text: 'Instrument' },
-    { key: 'netqty', text: 'Net Qty' },
-    { key: 'netavgprc', text: 'Avg Price', align: 'right' },
-    { key: 'ltp', text: 'LTP', align: 'right' },
-    { key: 'invested_val', text: 'Invested', align: 'right' },
-    { key: 'current_val', text: 'Current Value', align: 'right' },
-    { key: 'day_pnl', text: 'Day P&L', align: 'right' },
-    { key: 'day_pc', text: 'Day %', align: 'right' },
-    { key: 'rpnl', text: 'P&L', align: 'right' }
+    { key: 'tsym', text: 'Instrument', sortable: true },
+    { key: 'netqty', text: 'Net Qty', sortable: true },
+    { key: 'netavgprc', text: 'Avg Price', align: 'right', sortable: true },
+    { key: 'ltp', text: 'LTP', align: 'right', sortable: true },
+    { key: 'invested_val', text: 'Invested', align: 'right', sortable: true },
+    { key: 'current_val', text: 'Current Value', align: 'right', sortable: true },
+    { key: 'day_pnl', text: 'Day P&L', align: 'right', sortable: true },
+    { key: 'day_pc', text: 'Day %', align: 'right', sortable: true },
+    { key: 'rpnl', text: 'Overall P&L', align: 'right', sortable: true },
+    { key: 'pnlc', text: 'Overall %', align: 'right', sortable: true }
 ]
 
-const numericLike = new Set(['netqty', 'netavgprc', 'ltp', 'invested_val', 'current_val', 'day_pnl', 'day_pc', 'rpnl'])
+const numericLike = new Set(['netqty', 'netavgprc', 'ltp', 'invested_val', 'current_val', 'day_pnl', 'day_pc', 'rpnl', 'pnlc'])
 
 function buildHeadersFrom(items) {
     const headers = []
     const sample = items && items.length ? items[0] : null
     preferredColumns.forEach(col => {
         if (!sample || Object.prototype.hasOwnProperty.call(sample, col.key)) {
-            headers.push({ title: col.text, key: col.key, align: col.align || (numericLike.has(col.key) ? 'right' : undefined) })
+            headers.push({
+                title: col.text,
+                key: col.key,
+                align: col.align || (numericLike.has(col.key) ? 'right' : undefined),
+                sortable: col.sortable !== false
+            })
         }
     })
     return headers
@@ -756,7 +838,7 @@ function setHoldingsPayload(payload) {
     list.forEach((d, i) => {
         d.tokn = `${d.token}_${i}`
         const ltp = Number(d.ltp)
-        const prev = Number(d.close || d.prev_close_price)
+        const prev = Number(d.close || d.prev_close_price || d.previous_close || d.prevclose)
 
         if (!isFinite(d.rpnl)) {
             const qty = Number(d.netqty) || 0
@@ -769,7 +851,7 @@ function setHoldingsPayload(payload) {
         const qty = Number(d.netqty) || 0
         const avg = Number(d.netavgprc || d.upldprc) || 0
         const last = isFinite(ltp) ? ltp : avg
-        const prevClose = isFinite(prev) ? prev : last
+        const prevClose = isFinite(prev) ? prev : (isFinite(Number(d.previous_close)) ? Number(d.previous_close) : last)
         const netQtyAbs = Math.abs(qty)
 
         // New field names for compatibility
@@ -784,10 +866,37 @@ function setHoldingsPayload(payload) {
         d.pnl = (Number(d.curr) - Number(d.inv)).toFixed(2)
         d.pnlc = Number(d.inv) > 0 ? ((Number(d.pnl) / Number(d.inv)) * 100).toFixed(2) : '0.00'
 
-        // Day P&L
-        d.day_pnl = ((last - prevClose) * netQtyAbs).toFixed(2)
-        d.d_pnl = d.day_pnl
-        d.day_pc = prevClose ? (((last - prevClose) / prevClose) * 100).toFixed(2) : '0.00'
+        // Day P&L - Check if API provides it directly, otherwise calculate
+        if (d.d_pnl !== undefined && d.d_pnl !== null && d.d_pnl !== '') {
+            // Use API provided day P&L if available
+            d.day_pnl = Number(d.d_pnl).toFixed(2)
+            d.d_pnl = d.day_pnl
+        } else if (d.day_pnl !== undefined && d.day_pnl !== null && d.day_pnl !== '') {
+            // Use day_pnl if provided directly
+            d.day_pnl = Number(d.day_pnl).toFixed(2)
+            d.d_pnl = d.day_pnl
+        } else {
+            // Calculate Day P&L only if we have valid prevClose (different from last)
+            if (isFinite(prevClose) && prevClose !== last && prevClose > 0) {
+                d.day_pnl = ((last - prevClose) * netQtyAbs).toFixed(2)
+                d.d_pnl = d.day_pnl
+            } else {
+                d.day_pnl = '0.00'
+                d.d_pnl = '0.00'
+            }
+        }
+
+        // Day P&L Percentage - Check if API provides it directly, otherwise calculate
+        if (d.d_cpnl !== undefined && d.d_cpnl !== null && d.d_cpnl !== '' && Number(d.d_cpnl) !== 0) {
+            d.day_pc = Number(d.d_cpnl).toFixed(2)
+        } else if (d.day_pc !== undefined && d.day_pc !== null && d.day_pc !== '' && Number(d.day_pc) !== 0) {
+            d.day_pc = Number(d.day_pc).toFixed(2)
+        } else if (isFinite(prevClose) && prevClose > 0 && prevClose !== last) {
+            d.day_pc = (((last - prevClose) / prevClose) * 100).toFixed(2)
+        } else {
+            d.day_pc = '0.00'
+        }
+
         d.d_cpnl = Number(d.inv) > 0 ? ((Number(d.d_pnl) / Number(d.inv)) * 100).toFixed(2) : '0.00'
 
         // Keep rpnl for backward compatibility
@@ -880,22 +989,76 @@ function onTempUpdate(e) {
 }
 
 function onWsTick(e) {
-    const t = e.detail
-    if (!t?.token || !holdings.value?.length) return
+    const detail = e.detail
+    if (!detail || !holdings.value?.length) return
 
-    const idx = holdings.value.findIndex(x => x.token == t.token)
+    // CRITICAL: Only process WebSocket events for holdings, ignore watchlist and other pages
+    // Check if this event is specifically for holdings (is: 'hold')
+    let isForHoldings = false
+    let data = null
+    let token = null
+
+    // Handle object format with flow property - check is property first
+    if (detail && typeof detail === 'object' && detail.flow === 'data') {
+        // Only process if is === 'hold', ignore 'wl' (watchlist), 'pd' (pdmwdata), etc.
+        if (detail.is === 'hold') {
+            isForHoldings = true
+            data = detail.data || detail
+            token = data.token || data.tk || data.t
+        } else {
+            // This event is for another page (watchlist, pdmwdata, etc.), ignore it
+            return
+        }
+    }
+    // Handle array format: [data, page] - check if token matches holdings
+    else if (Array.isArray(detail) && detail.length >= 2) {
+        const [wsData, page] = detail
+        // Only process if page is 'holding' or if token matches holdings
+        if (page === 'holding' || (wsData && (wsData.token || wsData.tk || wsData.t))) {
+            const testToken = wsData.token || wsData.tk || wsData.t
+            // Only process if this token exists in holdings (not watchlist)
+            if (testToken && holdings.value.some(h => h.token == testToken)) {
+                // Double-check: make sure this token is NOT in watchlist to avoid conflicts
+                // If it's in holdings, process it
+                isForHoldings = true
+                data = wsData
+                token = testToken
+            }
+        }
+    }
+    // Handle direct data format - only if token matches holdings
+    else if (detail && (detail.token || detail.tk || detail.t)) {
+        const testToken = detail.token || detail.tk || detail.t
+        // Only process if this token exists in holdings
+        // This is a fallback for direct format, but we check token ownership
+        if (testToken && holdings.value.some(h => h.token == testToken)) {
+            // Make sure we're not accidentally processing watchlist tokens
+            // Only process if explicitly in holdings
+            isForHoldings = true
+            data = detail
+            token = testToken
+        }
+    }
+
+    // Early return if not for holdings or missing data
+    if (!isForHoldings || !token || !data) return
+
+    const idx = holdings.value.findIndex(x => x.token == token)
     if (idx >= 0) {
         const h = holdings.value[idx]
-        const ltp = Number(t.lp || t.ltp)
-        const prev = Number(t.close || t.prev_close_price || h.close)
+        const ltp = Number(data.lp || data.ltp || data.l)
+        const prev = Number(data.close || data.prev_close_price || data.cp || h.close || h.prev_close_price)
 
         if (isFinite(ltp)) h.ltp = ltp.toFixed(2)
-        if (isFinite(prev)) h.close = prev
+        if (isFinite(prev)) {
+            h.close = prev
+            h.prev_close_price = prev
+        }
 
         const qty = Number(h.netqty) || 0
         const avg = Number(h.netavgprc || h.upldprc) || 0
         const last = Number(h.ltp) || avg
-        const prevClose = isFinite(prev) ? prev : last
+        const prevClose = isFinite(prev) ? prev : (isFinite(Number(h.previous_close)) ? Number(h.previous_close) : last)
         const netQtyAbs = Math.abs(qty)
 
         // New field names
@@ -910,16 +1073,43 @@ function onWsTick(e) {
         h.pnl = (Number(h.curr) - Number(h.inv)).toFixed(2)
         h.pnlc = Number(h.inv) > 0 ? ((Number(h.pnl) / Number(h.inv)) * 100).toFixed(2) : '0.00'
 
-        // Day P&L
-        h.day_pnl = ((last - prevClose) * netQtyAbs).toFixed(2)
-        h.d_pnl = h.day_pnl
-        h.day_pc = prevClose ? (((last - prevClose) / prevClose) * 100).toFixed(2) : '0.00'
+        // Day P&L - Check if WebSocket data provides it directly, otherwise calculate
+        const wsDayPnl = Number(data.d_pnl || data.day_pnl || data.dpnl || '')
+        if (isFinite(wsDayPnl) && wsDayPnl !== 0) {
+            // Use WebSocket provided day P&L if available
+            h.day_pnl = wsDayPnl.toFixed(2)
+            h.d_pnl = h.day_pnl
+        } else if (isFinite(prevClose) && prevClose !== last && prevClose > 0) {
+            // Calculate Day P&L only if we have valid prevClose (different from last)
+            h.day_pnl = ((last - prevClose) * netQtyAbs).toFixed(2)
+            h.d_pnl = h.day_pnl
+        } else {
+            // Keep existing value if calculation would be invalid
+            h.day_pnl = h.day_pnl || '0.00'
+            h.d_pnl = h.d_pnl || h.day_pnl
+        }
+
+        // Day P&L Percentage - Check if WebSocket data provides it directly, otherwise calculate
+        const wsDayPc = Number(data.d_cpnl || data.day_pc || data.dpc || '')
+        if (isFinite(wsDayPc) && wsDayPc !== 0) {
+            h.day_pc = wsDayPc.toFixed(2)
+        } else if (isFinite(prevClose) && prevClose > 0 && prevClose !== last) {
+            h.day_pc = (((last - prevClose) / prevClose) * 100).toFixed(2)
+        } else {
+            h.day_pc = h.day_pc || '0.00'
+        }
+
         h.d_cpnl = Number(h.inv) > 0 ? ((Number(h.d_pnl) / Number(h.inv)) * 100).toFixed(2) : '0.00'
 
         // Keep rpnl for backward compatibility
         if (qty) h.rpnl = ((last - avg) * qty).toFixed(2)
         else h.rpnl = h.pnl
+
+        // Force Vue 3 reactivity update by reassigning the array
+        // This ensures the template and computed properties (stats) update immediately
+        holdings.value = [...holdings.value]
     }
+
     // Keep drawer details fresh (like Positions)
     if (holdingdrawer.value && singledata.value && singledata.value.tokn) {
         const si = holdings.value.findIndex(o => o.tokn === singledata.value.tokn)
@@ -954,12 +1144,25 @@ function setSSDtab(type, token, exch, tsym, trans, item) {
     } else if (type === 'cGTT') {
         handleMenuDialog('order-GTT', token, exch, tsym, 'b')
     } else if (type === 'exit-order') {
-        handleMenuDialog('exit-order', token, exch, tsym, trans, item)
+        // For exit order: if netqty > 0 (long position), sell to exit ('s')
+        // if netqty < 0 (short position), buy to cover ('b')
+        // Use trans parameter if provided, otherwise calculate from netqty
+        let exitTrans = trans
+        if (!exitTrans && item) {
+            const netqty = item.netqty ?? 0
+            exitTrans = Number(netqty) > 0 ? 's' : 'b'
+        }
+        handleMenuDialog('exit-order', token, exch, tsym, exitTrans, item)
     } else if (type === 'order') {
         handleMenuDialog('order', token, exch, tsym, item?.netqty < 0 ? 's' : 'b', item)
     } else {
-        const path = [type, token, exch, tsym]
-        router.push({ name: 'stocks details', params: { val: path } })
+        // Ensure all parameters are valid before routing
+        if (token && exch && tsym) {
+            const path = [type, token, exch, tsym]
+            router.push({ name: 'stocks details', params: { val: path } })
+        } else {
+            console.error('Missing parameters for routing:', { type, token, exch, tsym })
+        }
     }
 }
 
@@ -1050,3 +1253,14 @@ onBeforeUnmount(() => {
     window.removeEventListener('orderbook-update', onOrderbookUpdate)
 })
 </script>
+
+
+<style>
+.maingreen--text {
+    color: #43A833 !important;
+}
+
+.mainred--text {
+    color: #F23645 !important;
+}
+</style>

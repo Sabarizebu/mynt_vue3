@@ -1,50 +1,56 @@
 <template>
-    <div class="mb-4">
+    <div class="mb-2">
         <v-row>
             <v-col sm="6" cols="12">
-                <v-card class="elevation-0 px-2 pt-3 pb-4 rounded-0 stat-card rounded">
-                    <div style="display: flex; align-items: center;gap: 10px;">
+                <v-card class="elevation-0 px-2 pt-3 pb-4 px-1 rounded-0 stat-card rounded">
+                    <div style="display: flex; align-items: center;gap: 10px;" class="ml-4">
                         <v-list-item-avatar tile size="24">
                             <img src="@/assets/stocks/holdings.svg" alt="">
                         </v-list-item-avatar>
-                        <p class="font-weight-bold fs-16">Holdings</p>
+                        <p class="font-weight-bold fs-18">Holdings</p>
                     </div>
 
-                    <v-card class="elevation-0 card-border py-1 mx-4 mt-2 cardbg">
+                    <v-card class="elevation-0 card-border py-1 mx-4 mt-2 cardbg px-2 py-3">
                         <div style="display: flex; align-items: center;justify-content: space-between;padding: 0 10px;">
                             <v-list-item-content style="max-width: 22%;">
-                                <v-list-item-title class="font-weight-medium fs-16">
+                                <v-list-item-title class="font-weight-medium" style="font-size: 16px !important;">
                                     <span id="holdstatinv">0.00</span>
                                 </v-list-item-title>
-                                <v-list-item-subtitle class="fs-14 font-weight-regular">Invested</v-list-item-subtitle>
+                                <v-list-item-subtitle class="font-weight-regular"
+                                    style="font-size: 14px;">Invested</v-list-item-subtitle>
                             </v-list-item-content>
                             <v-list-item-content style="max-width: 22%;">
-                                <v-list-item-title class="font-weight-medium fs-16">
+                                <v-list-item-title class="font-weight-medium" style="font-size: 16px !important;">
                                     <span id="holdstatval">0.00</span>
                                 </v-list-item-title>
-                                <v-list-item-subtitle class="fs-14 font-weight-regular">Current</v-list-item-subtitle>
+                                <v-list-item-subtitle class="font-weight-regular"
+                                    style="font-size: 14px;">Current</v-list-item-subtitle>
                             </v-list-item-content>
                             <v-list-item-content style="max-width: 30%;">
-                                <v-list-item-title class="font-weight-medium fs-16">
+                                <v-list-item-title class="font-weight-medium" style="font-size: 16px !important;">
                                     <span id="holdstatpnlcclr" class="subtext--text">
                                         <span id="holdstatpnl">0.00</span>
                                     </span>
-                                    <span class="fs-14 subtext--text">
+                                    <span class="subtext--text" style="font-size: 14px !important;">
                                         (<span id="holdstatpnlc">0.00</span>%)
                                     </span>
                                 </v-list-item-title>
-                                <v-list-item-subtitle class="fs-14 font-weight-regular">Total P&L</v-list-item-subtitle>
+                                <v-list-item-subtitle class="font-weight-regular"
+                                    style="font-size: 14px !important;">Total
+                                    P&L</v-list-item-subtitle>
                             </v-list-item-content>
                             <v-list-item-content style="max-width: 26%;">
-                                <v-list-item-title class="font-weight-medium fs-16">
+                                <v-list-item-title class="font-weight-medium" style="font-size: 16px !important;">
                                     <span id="holdstatdpnlcclr" class="subtext--text">
                                         <span id="holdstatdpnl">0.00</span>
                                     </span>
-                                    <span class="fs-13 subtext--text">
+                                    <span class="subtext--text" style="font-size: 14px !important;">
                                         (<span id="holdstatdpnlc">0.00</span>%)
                                     </span>
                                 </v-list-item-title>
-                                <v-list-item-subtitle class="fs-14 font-weight-regular">Today P&L</v-list-item-subtitle>
+                                <v-list-item-subtitle class="font-weight-regular"
+                                    style="font-size: 14px !important;">Today
+                                    P&L</v-list-item-subtitle>
                             </v-list-item-content>
                         </div>
                     </v-card>
@@ -80,61 +86,67 @@
                             </v-card>
                         </v-card>
                     </div>
-                    <div class="px-4 pb-2 d-flex justify-start align-center">
-                        <v-chip small class="mr-2" color="success" outlined>
-                            <img src="@/assets/stocks/pos-icon.svg" alt="">
-                            <span id="positiveHoldings">0</span> Positive
+                    <div class="px-4 pb-2 d-flex justify-start align-center mt-3">
+                        <v-chip small class="mr-2" color="success" style="border: 1px solid #43A833;" outlined>
+                            <img src="@/assets/stocks/pos-icon.svg" class="mr-1" alt="">
+                            <span id="positiveHoldings" class="mr-1">0</span> Positive
                         </v-chip>
-                        <v-chip small color="error" outlined>
-                            <img src="@/assets/stocks/neg-icon.svg" alt="">
-                            <span id="negativeHoldings">0</span> Negative
+                        <v-chip small color="error" style="border: 1px solid #F23645;" outlined>
+                            <img src="@/assets/stocks/neg-icon.svg" class="mr-1" alt="">
+                            <span id="negativeHoldings" class="mr-1">0</span> Negative
                         </v-chip>
                     </div>
                 </v-card>
 
             </v-col>
             <v-col sm="6" cols="12">
-                <v-card class="elevation-0 px-2 pt-3 pb-4 rounded-0 stat-card rounded">
-                    <div style="display: flex; align-items: center;gap: 10px;">
-                        <v-list-item-avatar tile size="24">
-                            <img src="@/assets/stocks/position.svg" alt="">
+                <v-card class="elevation-0 px-2 pt-3 pb-4 px-1 rounded-0 stat-card rounded">
+                    <div style="display: flex; align-items: center;gap: 10px;" class="ml-4">
+                        <v-list-item-avatar tile size="20">
+                            <img src="@/assets/stocks/position.svg" width="22" alt="">
                         </v-list-item-avatar>
-                        <p class="font-weight-bold fs-16">Position </p>
+                        <p class="font-weight-bold fs-18">Position </p>
                     </div>
 
-                    <v-card class="elevation-0 card-border py-1 mx-4 mt-2 cardbg">
+                    <v-card class="elevation-0 card-border py-1 mx-4 mt-2 cardbg px-2 py-3">
 
                         <div style="display: flex; align-items: center;justify-content: space-between;padding: 0 10px;">
                             <v-list-item-content style="max-width: 22%;">
-                                <v-list-item-title class="font-weight-medium fs-16">
+                                <v-list-item-title class="font-weight-medium" style="font-size: 16px !important;">
                                     <span id="poststatval">0.00</span>
                                 </v-list-item-title>
-                                <v-list-item-subtitle class="fs-14 font-weight-regular">Trade
+                                <v-list-item-subtitle class="font-weight-regular"
+                                    style="font-size: 14px !important;">Trade
                                     value</v-list-item-subtitle>
                             </v-list-item-content>
                             <v-list-item-content style="max-width: 22%;">
-                                <v-list-item-title class="font-weight-medium fs-16">
+                                <v-list-item-title class="font-weight-medium" style="font-size: 16px !important;">
                                     <span id="poststatmtmclr" class="subtext--text">
                                         <span id="poststatmtm">0.00</span>
                                     </span>
                                 </v-list-item-title>
-                                <v-list-item-subtitle class="fs-14 font-weight-regular">MTM</v-list-item-subtitle>
+                                <v-list-item-subtitle class="font-weight-regular"
+                                    style="font-size: 14px !important;">MTM</v-list-item-subtitle>
                             </v-list-item-content>
                             <v-list-item-content style="max-width: 30%;">
-                                <v-list-item-title class="font-weight-medium fs-16">
+                                <v-list-item-title class="font-weight-medium" style="font-size: 16px !important;">
                                     <span id="poststatpnlclr" class="subtext--text">
                                         <span id="poststatpnl">0.00</span>
                                     </span>
                                 </v-list-item-title>
-                                <v-list-item-subtitle class="fs-14 font-weight-regular">Total P&L</v-list-item-subtitle>
+                                <v-list-item-subtitle class="font-weight-regular"
+                                    style="font-size: 14px !important;">Total
+                                    P&L</v-list-item-subtitle>
                             </v-list-item-content>
                             <v-list-item-content style="max-width: 26%;">
-                                <v-list-item-title class="font-weight-medium fs-16">
+                                <v-list-item-title class="font-weight-medium" style="font-size: 16px !important;">
                                     <span id="poststatopnlclr" class="subtext--text">
                                         <span id="poststatopnl">0.00</span>
                                     </span>
                                 </v-list-item-title>
-                                <v-list-item-subtitle class="fs-14 font-weight-regular">Open P&L</v-list-item-subtitle>
+                                <v-list-item-subtitle class="font-weight-regular"
+                                    style="font-size: 14px !important;">Open
+                                    P&L</v-list-item-subtitle>
                             </v-list-item-content>
                         </div>
 
@@ -171,14 +183,14 @@
                             </v-card>
                         </v-card>
                     </div>
-                    <div class="px-4 pb-2 d-flex justify-start align-center">
-                        <v-chip small class="mr-2" color="success" outlined>
-                            <img src="@/assets/stocks/pos-icon.svg" alt="">
-                            <span id="positivePositions">0</span>Positive
+                    <div class="px-4 pb-2 d-flex justify-start align-center mt-3">
+                        <v-chip small class="mr-2" color="success" style="border: 1px solid #43A833;" outlined>
+                            <img src="@/assets/stocks/pos-icon.svg" class="mr-1" alt="">
+                            <span id="positivePositions" class="mr-1">0</span>Positive
                         </v-chip>
-                        <v-chip small color="error" outlined>
-                            <img src="@/assets/stocks/neg-icon.svg" alt="">
-                            <span id="negativePositions">0</span> Negative
+                        <v-chip small color="error" style="border: 1px solid #F23645;" outlined>
+                            <img src="@/assets/stocks/neg-icon.svg" class="mr-1" alt="">
+                            <span id="negativePositions" class="mr-1">0</span> Negative
                         </v-chip>
                     </div>
                 </v-card>
@@ -193,7 +205,8 @@
                                 <img src="@/assets/stocks/orders.svg" alt="">
                             </v-list-item-avatar>
                             <v-list-item-content>
-                                <v-list-item-title class="font-weight-medium fs-18">Orders</v-list-item-title>
+                                <v-list-item-title class="font-weight-medium"
+                                    style="font-size: 18px !important;">Orders</v-list-item-title>
                             </v-list-item-content>
                         </div>
                         <v-list-item-content>
@@ -206,25 +219,26 @@
                     <v-card class="elevation-0 card-border py-3 mx-4 mt-2 cardbg">
                         <v-row>
                             <v-col cols="4">
-                                <div class="text-center">
+                                <div class="text-center cursor-pointer" @click="navigateToOrders('orders', null)">
                                     <p class="fs-16 font-weight-bold mb-0">
-                                        <span id="statorders-0">0</span>
+                                        {{ orderCounts.open }}
                                     </p>
                                     <span class="fs-14 font-weight-regular">Open Orders</span>
                                 </div>
                             </v-col>
                             <v-col cols="4">
-                                <div class="text-center">
+                                <div class="text-center cursor-pointer" @click="navigateToOrders('executed', null)">
                                     <p class="fs-16 font-weight-bold mb-0">
-                                        <span id="statorders-1">0</span>
+                                        {{ orderCounts.executed }}
                                     </p>
                                     <span class="fs-14 font-weight-regular">Execute Orders</span>
                                 </div>
                             </v-col>
                             <v-col cols="4">
-                                <div class="text-center">
+                                <div class="text-center cursor-pointer"
+                                    @click="navigateToOrders('executed', 'REJECTED')">
                                     <p class="fs-16 font-weight-bold mb-0">
-                                        <span id="statorders-2">0</span>
+                                        {{ orderCounts.rejected }}
                                     </p>
                                     <span class="fs-14 font-weight-regular">Rejected</span>
                                 </div>
@@ -241,7 +255,8 @@
                                 <img src="@/assets/stocks/margin.svg" alt="">
                             </v-list-item-avatar>
                             <v-list-item-content>
-                                <v-list-item-title class="font-weight-medium fs-18">Margins</v-list-item-title>
+                                <v-list-item-title class="font-weight-medium"
+                                    style="font-size: 18px !important;">Margins</v-list-item-title>
                             </v-list-item-content>
                         </div>
                         <v-list-item-content>
@@ -257,13 +272,14 @@
                                 <v-tooltip top color="black">
                                     <template v-slot:activator="{ on, attrs }">
                                         <div v-bind="attrs" v-on="on" class="text-center">
-                                            <p id="statmargins-avbma-clr" class="fs-16 font-weight-bold mb-0">
-                                                <span id="statmargins-avbma">0.00</span>
+                                            <p style="color: black !important;"
+                                                :class="['fs-16 font-weight-bold mb-0', margins.avbma < 0 ? 'mainred--text' : 'subtext--text']">
+                                                {{ formattedAvbma }}
                                             </p>
                                             <span class="fs-14 font-weight-regular">Available balance</span>
                                         </div>
                                     </template>
-                                    <span id="statmargins-avbma-tooltip">0.00</span>
+                                    <span>{{ formattedAvbma }}</span>
                                 </v-tooltip>
                             </v-col>
                             <v-col cols="4">
@@ -271,12 +287,12 @@
                                     <template v-slot:activator="{ on, attrs }">
                                         <div v-bind="attrs" v-on="on" class="text-center">
                                             <p class="fs-16 font-weight-bold mb-0">
-                                                <span id="statmargins-total">0.00</span>
+                                                {{ formattedTotal }}
                                             </p>
                                             <span class="fs-14 font-weight-regular">Total credits</span>
                                         </div>
                                     </template>
-                                    <span id="statmargins-total-tooltip">0.00</span>
+                                    <span>{{ formattedTotal }}</span>
                                 </v-tooltip>
                             </v-col>
                             <v-col cols="4">
@@ -284,12 +300,12 @@
                                     <template v-slot:activator="{ on, attrs }">
                                         <div v-bind="attrs" v-on="on" class="text-center">
                                             <p class="fs-16 font-weight-bold mb-0">
-                                                <span id="statmargins-marginused">0.00</span>
+                                                {{ formattedMarginused }}
                                             </p>
                                             <span class="fs-14 font-weight-regular">Margin used</span>
                                         </div>
                                     </template>
-                                    <span id="statmargins-marginused-tooltip">0.00</span>
+                                    <span>{{ formattedMarginused }}</span>
                                 </v-tooltip>
                             </v-col>
                         </v-row>
@@ -301,8 +317,23 @@
 </template>
 
 <script setup>
-import { onMounted, onBeforeUnmount, nextTick, ref } from 'vue'
+import { onMounted, onBeforeUnmount, nextTick, ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { useOrderStore } from '@/stores/orderStore'
+import { useMarginsStore } from '@/stores/marginsStore'
 import { getMHoldings, getMPosotion, getMOrderbook, getMLimits } from '../../components/mixins/getAPIdata'
+import { storeToRefs } from 'pinia'
+
+const router = useRouter()
+const orderStore = useOrderStore()
+const marginsStore = useMarginsStore()
+const { orderCounts } = storeToRefs(orderStore)
+const { margins } = storeToRefs(marginsStore)
+
+// Computed formatted values for margins
+const formattedAvbma = computed(() => marginsStore.formattedAvbma)
+const formattedTotal = computed(() => marginsStore.formattedTotal)
+const formattedMarginused = computed(() => marginsStore.formattedMarginused)
 
 const holdingsList = ref([])
 let holdingIndexByToken = {}
@@ -342,8 +373,24 @@ async function reloadAllStats() {
         }
 
         // Process orders
-        if (ordersData && ordersData.stat && Array.isArray(ordersData.stat)) {
-            setTimeout(() => { handleTempEvent({ detail: ordersData }) }, 200)
+        if (ordersData) {
+            // Update store immediately when orders are reloaded
+            if (ordersData.stat && Array.isArray(ordersData.stat) && ordersData.stat.length >= 3) {
+                orderStore.setOrderCounts(ordersData.stat)
+            } else if (ordersData.openorders || ordersData.execorders || ordersData.response) {
+                // Calculate counts from order arrays if stat is not available
+                const all = ordersData.response || []
+                const openorders = ordersData.openorders || all.filter(o => o.way === 'open' || o.status === 'PENDING' || o.status === 'OPEN' || o.status === 'TRIGGER_PENDING')
+                const execorders = ordersData.execorders || all.filter(o => o.way !== 'open')
+                const openCount = openorders.length
+                const execCount = execorders.filter(o => o.status === 'COMPLETE').length
+                const rejectedCount = execorders.filter(o => o.status === 'REJECTED' || o.status === 'CANCELED').length
+                orderStore.setOrderCounts([openCount, execCount, rejectedCount])
+            }
+            // Also trigger event handler for consistency
+            if (ordersData.stat && Array.isArray(ordersData.stat)) {
+                setTimeout(() => { handleTempEvent({ detail: ordersData }) }, 200)
+            }
         }
 
         // NOTE: Removed automatic margin refresh - Limits API called only once on initial load
@@ -422,7 +469,7 @@ const handleTempEvent = (evt) => {
             // Positions payload
             updatePositionsStats(payload)
             // NOTE: Removed automatic margin refresh - Limits API called only once on initial load
-        } else if (payload.stat) {
+        } else if (payload.stat && Array.isArray(payload.stat)) {
             // Orders payload (has stat array: [open, execute, rejected])
             updateOrdersStats(payload.stat)
             // NOTE: Removed automatic margin refresh - Limits API called only once on initial load
@@ -449,10 +496,10 @@ const updateText = (id, text) => {
 
 const formatMoney = (amt) => {
     const n = toNumber(amt);
-    if (n >= 1_00_00_000) return `₹${(n / 1_00_00_000).toFixed(2)}Cr`;
-    if (n >= 1_00_000) return `₹${(n / 1_00_000).toFixed(2)}L`;
-    if (n >= 1_000) return `₹${(n / 1_000).toFixed(2)}K`;
-    return `₹${n.toFixed(2)}`;
+    if (n >= 1_00_00_000) return `${(n / 1_00_00_000).toFixed(2)}Cr`;
+    if (n >= 1_00_000) return `${(n / 1_00_000).toFixed(2)}L`;
+    if (n >= 1_000) return `${(n / 1_000).toFixed(2)}K`;
+    return `${n.toFixed(2)}`;
 };
 
 const updateHoldingsStats = (list) => {
@@ -645,72 +692,15 @@ const updatePositionsStats = (posPayload) => {
 const updateOrdersStats = (stat) => {
     try {
         if (!Array.isArray(stat) || stat.length < 3) return
-        updateText('statorders-0', String(stat[0] || 0))
-        updateText('statorders-1', String(stat[1] || 0))
-        updateText('statorders-2', String(stat[2] || 0))
+        // Update the store with order counts
+        orderStore.setOrderCounts(stat)
     } catch (_) { }
 }
 
 const updateMarginsStats = (limits) => {
     try {
-        console.log('📊 Updating margins stats with limits:', limits)
-
-        // Always recalculate from raw fields if they exist (more reliable)
-        // This matches the logic in getMLimits
-        let avbma, total, marginused
-
-        if (limits.collateral !== undefined || limits.cash !== undefined) {
-            // Recalculate from raw fields (like getMLimits does)
-            const collateral = toNumber(limits.collateral)
-            const brkcollamt = toNumber(limits.brkcollamt)
-            const cash = toNumber(limits.cash)
-            const payin = toNumber(limits.payin)
-            const daycash = toNumber(limits.daycash)
-            marginused = toNumber(limits.marginused)
-
-            // Calculate total: collateral + brkcollamt + cash + payin - |daycash|
-            total = collateral + brkcollamt + cash + payin - Math.abs(daycash)
-
-            // Calculate avbma: collateral + brkcollamt + cash - marginused + payin - |daycash|
-            avbma = collateral + brkcollamt + cash - marginused + payin - Math.abs(daycash)
-
-            console.log('📊 Calculated from raw fields:', {
-                collateral, brkcollamt, cash, payin, daycash, marginused,
-                calculated: { avbma, total, marginused }
-            })
-        } else {
-            // Fallback to provided computed values
-            avbma = toNumber(limits.avbma)
-            total = toNumber(limits.total)
-            marginused = toNumber(limits.marginused)
-            console.log('📊 Using provided computed values:', { avbma, total, marginused })
-        }
-
-        console.log('📊 Final margin values:', { avbma, total, marginused })
-
-        // Use nextTick to ensure DOM is ready
-        nextTick(() => {
-            updateText('statmargins-avbma', formatMoney(avbma))
-            updateText('statmargins-total', formatMoney(total))
-            updateText('statmargins-marginused', formatMoney(marginused))
-
-            // Update tooltips with full precision
-            const tooltipElAvbma = document.getElementById('statmargins-avbma-tooltip')
-            if (tooltipElAvbma) tooltipElAvbma.innerText = formatMoney(avbma)
-            const tooltipElTotal = document.getElementById('statmargins-total-tooltip')
-            if (tooltipElTotal) tooltipElTotal.innerText = formatMoney(total)
-            const tooltipElMargin = document.getElementById('statmargins-marginused-tooltip')
-            if (tooltipElMargin) tooltipElMargin.innerText = formatMoney(marginused)
-
-            // Update color for available balance (negative = red)
-            const avbmaEl = document.getElementById('statmargins-avbma-clr')
-            if (avbmaEl) {
-                avbmaEl.classList.remove('mainred--text', 'subtext--text')
-                avbmaEl.classList.add(avbma < 0 ? 'mainred--text' : 'subtext--text')
-            }
-
-            console.log('✅ Margins updated successfully in DOM')
-        })
+        // Update the store with margins data
+        marginsStore.setMargins(limits)
     } catch (err) {
         console.error('❌ Error updating margins stats:', err)
     }
@@ -718,6 +708,14 @@ const updateMarginsStats = (limits) => {
 
 let sessionPoll = null
 let initialLoaded = false
+
+// Navigate to orders page with appropriate filter
+function navigateToOrders(tab, filterType) {
+    // Set the filter in the store
+    orderStore.setOrderFilter(tab, filterType)
+    // Navigate to orders page
+    router.push('/orders/book')
+}
 
 async function loadAll() {
     if (initialLoaded) return
@@ -739,17 +737,32 @@ async function loadAll() {
 
     try {
         const ordersData = await getMOrderbook(true)
-        if (ordersData && ordersData.stat && Array.isArray(ordersData.stat)) {
-            setTimeout(() => { handleTempEvent({ detail: ordersData }) }, 250)
+        if (ordersData) {
+            // Update store immediately when orders are loaded
+            if (ordersData.stat && Array.isArray(ordersData.stat) && ordersData.stat.length >= 3) {
+                orderStore.setOrderCounts(ordersData.stat)
+            } else if (ordersData.openorders || ordersData.execorders || ordersData.response) {
+                // Calculate counts from order arrays if stat is not available
+                const all = ordersData.response || []
+                const openorders = ordersData.openorders || all.filter(o => o.way === 'open' || o.status === 'PENDING' || o.status === 'OPEN' || o.status === 'TRIGGER_PENDING')
+                const execorders = ordersData.execorders || all.filter(o => o.way !== 'open')
+                const openCount = openorders.length
+                const execCount = execorders.filter(o => o.status === 'COMPLETE').length
+                const rejectedCount = execorders.filter(o => o.status === 'REJECTED' || o.status === 'CANCELED').length
+                orderStore.setOrderCounts([openCount, execCount, rejectedCount])
+            }
+            // Also trigger event handler for consistency
+            if (ordersData.stat && Array.isArray(ordersData.stat)) {
+                setTimeout(() => { handleTempEvent({ detail: ordersData }) }, 250)
+            }
         }
     } catch (_) { }
 
     try {
         const marginsData = await getMLimits(false)
-        console.log('📊 Initial margin load:', marginsData)
         if (marginsData && marginsData.stat === 'Ok') {
-            // Call updateMarginsStats directly to ensure it updates
-            updateMarginsStats(marginsData)
+            // Update store immediately when margins are loaded
+            marginsStore.setMargins(marginsData)
             // Also trigger event handler for consistency
             setTimeout(() => { handleTempEvent({ detail: marginsData }) }, 300)
         }
@@ -842,3 +855,14 @@ const handleWsUpdate = (event) => {
     } catch (_) { }
 }
 </script>
+
+<style scoped>
+.cursor-pointer {
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.cursor-pointer:hover {
+    opacity: 0.7;
+}
+</style>
