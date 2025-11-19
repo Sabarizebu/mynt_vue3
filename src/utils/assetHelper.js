@@ -31,7 +31,7 @@ export const getAssetPath = (assetPath) => {
         // Production fallback: try direct path
         return `/assets/${assetPath}`
     } catch (e) {
-        console.warn('Asset path error:', e, assetPath)
+        // console.warn('Asset path error:', e, assetPath)
         return `/assets/${assetPath}`
     }
 }

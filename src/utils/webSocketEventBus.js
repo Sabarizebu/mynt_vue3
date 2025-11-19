@@ -39,7 +39,7 @@ class WebSocketEventBus {
                 try {
                     callback(...args);
                 } catch (error) {
-                    console.error(`Error in WebSocket event listener for ${event}:`, error);
+                    // console.error(`Error in WebSocket event listener for ${event}:`, error);
                 }
             });
         }
@@ -126,13 +126,19 @@ class WebSocketEventBus {
                         }
                     }
 
-                    // Add to rawdata if not present
+                    // Add to rawdata if not present (for orders, positions, etc.)
+                    // This ensures LTP updates work for all subscribed tokens
                     const rawExists = this.wsstocksdata.rawdata.some(o => o.token === item.token);
                     if (!rawExists) {
                         this.wsstocksdata.rawdata.push(info);
                     }
                 }
             });
+
+            // Set the current page for tracking (important for order book LTP updates)
+            if (page && page !== "watchlist") {
+                this.wsstocksdata.raw = page;
+            }
 
             this.setWebsocket(flow, data, is);
         } else if (flow === "sub") {
@@ -190,7 +196,7 @@ class WebSocketEventBus {
                     await websocketUnsubscriptionChain(unsubscribeList);
                 }
             } catch (error) {
-                console.error("Error in WebSocket subscription:", error);
+                // console.error("Error in WebSocket subscription:", error);
             }
         } else {
             // Retry if WebSocket not ready
@@ -217,13 +223,22 @@ class WebSocketEventBus {
             eventData = data;
         }
         
+        // Extract token to check which pages need this update
+        const token = eventData?.token || eventData?.tk || eventData?.t;
+        if (!token) return;
+        
+        // Get the current active page
+        const currentPage = this.wsstocksdata.raw;
+        
+        // Check if this token is subscribed for orders
+        const isOrderToken = this.wsstocksdata.rawdata && this.wsstocksdata.rawdata.some(item => 
+            item && item.token == token
+        );
+        
         // Emit web-scoketConn event with the current page (like old LayoutSrc.vue line 840)
         // Old code: eventBus.$emit("web-scoketConn", data[0].v, this.wsstocksdata.raw);
-        if (eventData && this.wsstocksdata && this.wsstocksdata.tok && this.wsstocksdata.rawdata) {
-            const currentPage = this.wsstocksdata.raw;
-            const token = eventData.token || eventData.tk;
-            
-            // Emit for the current page (like old code)
+        if (eventData) {
+            // Always emit for the current page if set
             if (currentPage) {
                 const event = new CustomEvent('web-scoketConn', {
                     detail: [eventData, currentPage]
@@ -234,17 +249,20 @@ class WebSocketEventBus {
                 this.emit("web-scoketConn", eventData, currentPage);
             }
             
+            // If token is in orders subscription, also emit specifically for 'orders' page
+            // This ensures order book LTP updates work even if currentPage is different
+            if (isOrderToken) {
+                const ordersEvent = new CustomEvent('web-scoketConn', {
+                    detail: [eventData, 'orders']
+                });
+                window.dispatchEvent(ordersEvent);
+            }
+            
             // Also emit for watchlist (backward compatibility)
             const watchlistEvent = new CustomEvent('web-scoketConn', {
                 detail: [eventData, 'watchlist']
             });
             window.dispatchEvent(watchlistEvent);
-        } else if (eventData) {
-            // Fallback: emit for watchlist if no page is tracked
-            const event = new CustomEvent('web-scoketConn', {
-                detail: [eventData, 'watchlist']
-            });
-            window.dispatchEvent(event);
         }
     }
 }

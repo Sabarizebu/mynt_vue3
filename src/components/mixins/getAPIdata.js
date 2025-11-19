@@ -230,7 +230,7 @@ export async function getActiveSession(item) {
             }
         }).catch((error) => {
             source = "WEB"
-            console.error(error);
+            // console.error(error);
         });
         var soc = new URL(window.location.href).searchParams.get("src");
         var mainsoc = soc ? soc : sessionStorage.getItem(`socsrc`);
@@ -436,7 +436,7 @@ export async function getQuotesdata(item) {
     tok = currentTok || tok;
     
     if (!currentUid || !currentTok) {
-        console.error('getQuotesdata: uid or token not available from sessionStorage');
+        // console.error('getQuotesdata: uid or token not available from sessionStorage');
         return { stat: 'Not Ok', emsg: 'Authentication required' };
     }
     
@@ -484,6 +484,7 @@ export async function getOrderMargin(item) {
 export async function getBSKMargin(item) {
     requestMOption['body'] = `jData=${JSON.stringify(item)}&jKey=${tok}`
     var response = await fetchMyntAPI(mynturl.myntapi + "GetBasketMargin", requestMOption)
+    // console.log('GetBasketMargin response:', response)
     return response
 }
 
@@ -651,19 +652,19 @@ export async function getMLimits(format, forceRefresh = false) {
     // STRICT "CALL ONLY ONCE" LOGIC:
     // If API has already been called once and this is not a forced refresh, return cached data
     if (limitsApiState.hasBeenCalledOnce && !forceRefresh) {
-        console.log('🚫 Limits API already called once. Returning cached data. Use forceRefreshMLimits() for manual refresh.');
+        // console.log('🚫 Limits API already called once. Returning cached data. Use forceRefreshMLimits() for manual refresh.');
         return limitsApiState.cachedData || { stat: 'Error', emsg: 'Limits data not yet loaded' };
     }
     
     // If there's a pending call, return the same promise (prevent concurrent calls)
     if (limitsApiState.isPending && limitsApiState.pendingPromise) {
-        console.log('🔄 Limits API call already in progress, reusing existing promise...');
+        // console.log('🔄 Limits API call already in progress, reusing existing promise...');
         return await limitsApiState.pendingPromise;
     }
     
     // Check cache (return cached data if available and not forcing refresh)
     if (limitsApiState.cachedData && !forceRefresh) {
-        console.log('💾 Returning cached Limits data');
+        // console.log('💾 Returning cached Limits data');
         return limitsApiState.cachedData;
     }
     
@@ -730,7 +731,7 @@ export async function getMLimits(format, forceRefresh = false) {
 
 // Force refresh Limits API (for manual refresh only)
 export async function forceRefreshMLimits(format) {
-    console.log('🔄 Force refreshing Limits API...');
+    // console.log('🔄 Force refreshing Limits API...');
     limitsApiState.hasBeenCalledOnce = false; // Reset flag to allow refresh
     return await getMLimits(format, true);
 }
@@ -841,7 +842,7 @@ export async function getssNews() {
     
     // Check if same request is already pending
     if (pendingRequests.has(requestKey)) {
-        console.log(`🔄 Reusing pending request: ${requestKey}`);
+        // console.log(`🔄 Reusing pending request: ${requestKey}`);
         try {
             return await pendingRequests.get(requestKey);
         } catch (error) {
@@ -878,7 +879,7 @@ export async function getCorporateact() {
     
     // Check if same request is already pending
     if (pendingRequests.has(requestKey)) {
-        console.log(`🔄 Reusing pending request: ${requestKey}`);
+        // console.log(`🔄 Reusing pending request: ${requestKey}`);
         try {
             return await pendingRequests.get(requestKey);
         } catch (error) {
@@ -955,7 +956,7 @@ export async function getConTentList(item) {
     
     // Check if same request is already pending
     if (pendingRequests.has(requestKey)) {
-        console.log(`🔄 Reusing pending request: ${requestKey}`);
+        // console.log(`🔄 Reusing pending request: ${requestKey}`);
         try {
             return await pendingRequests.get(requestKey);
         } catch (error) {
@@ -992,7 +993,7 @@ export async function getADindices() {
     
     // Check if same request is already pending
     if (pendingRequests.has(requestKey)) {
-        console.log(`🔄 Reusing pending request: ${requestKey}`);
+        // console.log(`🔄 Reusing pending request: ${requestKey}`);
         try {
             return await pendingRequests.get(requestKey);
         } catch (error) {
@@ -1367,14 +1368,14 @@ export async function getInvHoldings(item) {
 export async function getLtpdata(item) {
     // Validate input
     if (!item || !Array.isArray(item) || item.length === 0) {
-        console.warn('getLtpdata: Invalid input - item must be a non-empty array')
+        // console.warn('getLtpdata: Invalid input - item must be a non-empty array')
         return { data: null, error: 'Invalid input: item must be a non-empty array' }
     }
 
     // Validate each item in the array has required fields
     const invalidItems = item.filter(i => !i || !i.exch || !i.token || !i.tsym)
     if (invalidItems.length > 0) {
-        console.warn('getLtpdata: Invalid items in array - missing exch, token, or tsym', invalidItems)
+        // console.warn('getLtpdata: Invalid items in array - missing exch, token, or tsym', invalidItems)
         return { data: null, error: 'Invalid items: missing exch, token, or tsym' }
     }
 
@@ -1387,7 +1388,7 @@ export async function getLtpdata(item) {
 
     // Check if there's already a pending request with the same data
     if (pendingRequests.has(requestKey)) {
-        console.log('[API] GetLtp request already pending for same data, reusing...')
+        // console.log('[API] GetLtp request already pending for same data, reusing...')
         try {
             return await pendingRequests.get(requestKey)
         } catch (error) {
@@ -1409,19 +1410,19 @@ export async function getLtpdata(item) {
         
         // Handle error response (500 indicates API error from fetchMyntAPI)
         if (response === 500) {
-            console.error('Error in getLtpdata: API returned 500 error')
+            // console.error('Error in getLtpdata: API returned 500 error')
             return { data: null, error: 'API Error: Server returned 500' }
         }
         
         // Handle error message in response
         if (response && response.emsg) {
-            console.error('Error in getLtpdata:', response.emsg)
+            // console.error('Error in getLtpdata:', response.emsg)
             return { data: null, error: response.emsg }
         }
         
         // Handle empty or invalid response
         if (!response || (Array.isArray(response) && response.length === 0)) {
-            console.warn('getLtpdata: Empty or invalid response')
+            // console.warn('getLtpdata: Empty or invalid response')
             return { data: null, error: 'No data returned from API' }
         }
         
@@ -1431,7 +1432,7 @@ export async function getLtpdata(item) {
     } catch (error) {
         // Remove from pending requests on error
         pendingRequests.delete(requestKey)
-        console.error('Error in getLtpdata:', error)
+        // console.error('Error in getLtpdata:', error)
         return { data: null, error: error.message || 'Unknown error occurred' }
     }
 }
@@ -1458,7 +1459,7 @@ export async function getIndicators(uid) {
         return response.json();
     } catch (error) {
         if (error.message === 'Request timeout' || error.name === 'AbortError' || error.message?.includes('timeout') || error.message?.includes('Network error')) {
-            console.warn(`⚠️ getIndicators timeout/error: returning empty`);
+            // console.warn(`⚠️ getIndicators timeout/error: returning empty`);
         }
         throw new Error(`get symbols request error: ${error}`);
     }
@@ -1480,7 +1481,7 @@ export async function setIndicators(uid, c) {
         return response.json();
     } catch (error) {
         if (error.message === 'Request timeout' || error.name === 'AbortError' || error.message?.includes('timeout') || error.message?.includes('Network error')) {
-            console.warn(`⚠️ setIndicators timeout/error: returning empty`);
+            // console.warn(`⚠️ setIndicators timeout/error: returning empty`);
         }
         throw new Error(`set symbols request error: ${error}`);
     }
@@ -1522,19 +1523,21 @@ export async function fetchMyntAPI(path, reqopt, way) {
     const store = getAppStore();
     
     // Set default timeout to 5 seconds (5000ms) for faster failure detection on Firebase
-    const timeout = 5000;
+    // No timeout for mutual fund watchlist operations - wait indefinitely for response
+    const isMFWatchlist = path && path.includes('watchlist_for_mobile');
     
     try {
-        // Use fetchWithTimeout to prevent indefinite hanging
-        const response = await fetchWithTimeout(path, reqopt, timeout);
-        
+        // Use regular fetch for mutual fund watchlist (no timeout), fetchWithTimeout for others
+        const response = isMFWatchlist 
+            ? await fetch(path, { ...reqopt, mode: 'cors', credentials: 'omit' })
+            : await fetchWithTimeout(path, reqopt, 5000);
         // Get stores early for session validation
         const authStore = useAuthStore();
         const sessionStore = useSessionStore();
         
         // Check for 401 status BEFORE parsing JSON
         if (response.status === 401) {
-            console.error("❌ 401 Unauthorized error detected");
+            // console.error("❌ 401 Unauthorized error detected");
             
             // Try to parse error response body
             let errorData = null;
@@ -1544,7 +1547,7 @@ export async function fetchMyntAPI(path, reqopt, way) {
                     errorData = JSON.parse(errorText);
                 }
             } catch (parseError) {
-                console.warn("Could not parse 401 error response:", parseError);
+                // console.warn("Could not parse 401 error response:", parseError);
             }
             
             // Check if error message contains "session expired : invalid session key"
@@ -1555,7 +1558,7 @@ export async function fetchMyntAPI(path, reqopt, way) {
             
             // Validate uid exists before logging out
             if (isSessionExpired && authStore.uid) {
-                console.error("❌ Session expired detected with valid uid, logging out:", errorMsg);
+                // console.error("❌ Session expired detected with valid uid, logging out:", errorMsg);
                 
                 // Create error object for handleSessionError
                 const sessionError = {
@@ -1580,7 +1583,32 @@ export async function fetchMyntAPI(path, reqopt, way) {
         
         // Check if response is ok before parsing
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            // Try to parse error response body to get actual error message
+            let errorData = null;
+            try {
+                const errorText = await response.text();
+                if (errorText) {
+                    try {
+                        errorData = JSON.parse(errorText);
+                    } catch (parseError) {
+                        // If JSON parsing fails, create error object with the text
+                        errorData = { 
+                            stat: 'NotOk', 
+                            emsg: errorText || `HTTP error! status: ${response.status}`,
+                            remarks: errorText || `HTTP error! status: ${response.status}`
+                        };
+                    }
+                }
+            } catch (textError) {
+                // console.warn("Could not read error response body:", textError);
+            }
+            
+            // Return error data if we successfully parsed it, otherwise throw
+            if (errorData) {
+                return errorData;
+            } else {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
         }
         
         let data = await response.json();
@@ -1620,7 +1648,7 @@ export async function fetchMyntAPI(path, reqopt, way) {
                 // Validate uid exists before logging out
                 if (authStore.uid) {
                     // Immediate logout when session ends or logged in on another system
-                    console.error("❌ Session error detected in response body:", errorMsg);
+                    // console.error("❌ Session error detected in response body:", errorMsg);
                     
                     // Handle session error immediately (logout and navigate)
                     sessionStore.handleSessionError(data, authStore, store);
@@ -1648,7 +1676,7 @@ export async function fetchMyntAPI(path, reqopt, way) {
         
         // Handle timeout errors gracefully - don't block UI
         if (error.message === 'Request timeout' || error.name === 'AbortError' || error.message?.includes('timeout')) {
-            console.warn(`⚠️ API request timeout (5s): ${path} - continuing without blocking UI`);
+            // console.warn(`⚠️ API request timeout (5s): ${path} - continuing without blocking UI`);
             // Return empty/error response instead of blocking
             if (way) {
                 if (requestMOption.body) {
@@ -1664,7 +1692,7 @@ export async function fetchMyntAPI(path, reqopt, way) {
         
         // Handle network/CORS errors gracefully
         if (error.message?.includes('Network error') || error.message?.includes('Failed to fetch') || error.message?.includes('CORS')) {
-            console.warn(`⚠️ Network/CORS error: ${path} - continuing without blocking UI`);
+            // console.warn(`⚠️ Network/CORS error: ${path} - continuing without blocking UI`);
             if (way) {
                 if (requestMOption.body) {
                     delete requestMOption.body;
@@ -1679,7 +1707,7 @@ export async function fetchMyntAPI(path, reqopt, way) {
         
         // Check for 401 errors (unauthorized - likely session expired or another system login)
         if (error.status === 401) {
-            console.error("❌ 401 Unauthorized error detected in catch block");
+            // console.error("❌ 401 Unauthorized error detected in catch block");
             
             // Get stores
             const authStore = useAuthStore();
@@ -1768,7 +1796,7 @@ export async function fetchMyntjson(path, options = {}) {
     } catch (error) {
         // Handle timeout and network errors gracefully
         if (error.message === 'Request timeout' || error.name === 'AbortError' || error.message?.includes('timeout') || error.message?.includes('Network error') || error.message?.includes('Failed to fetch')) {
-            console.warn(`⚠️ fetchMyntjson timeout/error (5s): ${path} - returning empty array`);
+            // console.warn(`⚠️ fetchMyntjson timeout/error (5s): ${path} - returning empty array`);
         }
         let data = []
         return data
@@ -1816,7 +1844,7 @@ export async function FetchsearchData(path, reqopt) {
     } catch (error) {
         // Handle timeout and network errors gracefully
         if (error.message === 'Request timeout' || error.name === 'AbortError' || error.message?.includes('timeout') || error.message?.includes('Network error') || error.message?.includes('Failed to fetch')) {
-            console.warn(`⚠️ FetchsearchData timeout/error (5s): ${path} - returning empty array`);
+            // console.warn(`⚠️ FetchsearchData timeout/error (5s): ${path} - returning empty array`);
             return [];
         }
         return error

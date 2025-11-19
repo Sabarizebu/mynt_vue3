@@ -9,9 +9,9 @@
                             <!-- Stocks Value -->
                             <div class="stat-item flex-grow-1" style="min-width: 120px;">
                                 <div class="stat-label txt-5E6 fs-14 mb-1">Stocks Value</div>
-                                <div class="stat-value maintext--text fs-16 font-weight-bold">
+                                <dv class="stat-value maintext--text fs-16 font-weight-bold">
                                     {{ stats.stockvalue || '0.00' }}
-                                </div>
+                                </dv>
                             </div>
 
                             <!-- Day Change -->
@@ -91,7 +91,7 @@
             </v-row>
 
             <!-- Toolbar -->
-            <v-toolbar flat dense class="tool-sty my-6 pl-4 crd-trn">
+            <v-toolbar flat dense class="tool-sty my-0 pl-4 crd-trn">
                 <v-tabs v-model="tab" color="primary" fixed show-arrows density="compact">
                     <v-tab value="stocks" class="font-weight-bold subtitle-1 mb-0 text-none">Stocks ({{ holdings.length
                         }})</v-tab>
@@ -105,7 +105,8 @@
 
                 <v-text-field elevation="0" rounded v-if="tab === 'stocks'" v-model="opensearch"
                     prepend-inner-icon="mdi-magnify" placeholder="Search" variant="solo" density="compact" hide-details
-                    class="rounded mr-4" style="max-width: 220px" flat bg-color="secbg" />
+                    class="rounded mr-4" style="max-width: 220px !important;font-size: 14px !important;" flat
+                    bg-color="secbg" />
 
 
                 <v-select v-if="tab === 'stocks'" style="max-width: 160px" v-model="exchtype" rounded hide-details
@@ -130,8 +131,8 @@
                         :item-class="() => 'table-row'" :row-props="() => ({ class: 'table-row' })"
                         @click:row="(e, { item }) => setHoldingrowdata(item?.raw || item)">
                         <template #item.tsym="{ item }">
-                            <div class="pos-rlt" style="min-height: 40px; padding-right: 200px;">
-                                <p class="font-weight-bold fs-13 txt-162 black--text mb-0 table-hov-text"
+                            <div class="pos-rlt" style="min-height: 40px; padding-right: 30px;">
+                                <p class="font-weight-medium fs-13 txt-162 black--text mb-0 table-hov-text"
                                     style="margin-right: 0; white-space: nowrap;">
                                     {{ item.tsym }}
                                     <span class="ml-1 subtext--text fs-10">{{ item.exch || '' }}</span>
@@ -139,18 +140,19 @@
                                 <div v-if="item" @click.stop class="pos-abs table-hov"
                                     style="top: 50%; transform: translateY(-50%); right: 0; z-index: 10; gap: 4px; pointer-events: auto; display: flex; align-items: center;">
                                     <v-btn
-                                        @click.stop="handleMenuDialog('order', item.token, item.exch, item.tsym, 'b')"
+                                        @click.stop="handleMenuDialog('order', item.token, item.exch || item.exchs, item.tsym, 'b')"
                                         min-width="20px" height="20px"
                                         style="background-color: #43A833; color: #ffffff; border-radius: 4px; min-width: 20px; padding: 0 4px;"
                                         class="font-weight-bold elevation-0 mr-1" size="x-small"> B
                                     </v-btn>
                                     <v-btn
-                                        @click.stop="handleMenuDialog('order', item.token, item.exch, item.tsym, 's')"
+                                        @click.stop="handleMenuDialog('order', item.token, item.exch || item.exchs, item.tsym, 's')"
                                         min-width="20px" height="20px"
                                         style="background-color: #F23645; color: #ffffff; border-radius: 4px; min-width: 20px; padding: 0 4px;"
                                         class="font-weight-bold elevation-0 mr-1" size="x-small"> S
                                     </v-btn>
-                                    <v-btn @click.stop="setSSDtab('chart', item.token, item.exch, item.tsym)"
+                                    <v-btn
+                                        @click.stop="setSSDtab('chart', item.token, item.exch || item.exchs, item.tsym, null, item)"
                                         style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
                                         min-width="20px" color="mainbg" class="font-weight-bold elevation-0 mr-1"
                                         size="x-small">
@@ -160,7 +162,7 @@
                                         <template #activator="{ props }">
                                             <div v-bind="props">
                                                 <v-btn
-                                                    @click.stop="setSSDtab('exit-order', item.token, item.exch, item.tsym, null, item)"
+                                                    @click.stop="setSSDtab('exit-order', item.token, item.exch || item.exchs, item.tsym, 's', item)"
                                                     style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
                                                     min-width="20px" color="mainbg"
                                                     class="font-weight-bold elevation-0 mr-1" size="x-small">
@@ -180,19 +182,23 @@
                                             </v-btn>
                                         </template>
                                         <v-card class="table-menu-list">
-                                            <v-list density="compact">
+                                            <v-list density="compact" class="pa-0">
                                                 <template v-for="(m, k) in menulist" :key="k">
                                                     <v-list-item
-                                                        @click="m.type != '' ? setSSDtab(m.type, item.token, item.exch, item.tsym, item.netqty < 0 ? 'b' : 's', item) : setHoldingrowdata(item)"
-                                                        class="pl-3 pr-6">
+                                                        @click="m.type != '' ? setSSDtab(m.type, item.token, item.exch || item.exchs, item.tsym, item.netqty < 0 ? 'b' : 's', item) : setHoldingrowdata(item)"
+                                                        class="px-3 py-2">
                                                         <template #prepend>
-                                                            <img v-if="typeof m.icon === 'number' && m.icon > 2"
-                                                                width="20px" class="pl-1"
-                                                                :src="`/src/assets/orderbook/${m.icon}.svg`" />
-                                                            <v-icon v-else color="#506D84">{{ m.icon }}</v-icon>
+                                                            <div class="d-flex align-center justify-center"
+                                                                style="min-width: 24px;">
+                                                                <img v-if="typeof m.icon === 'number' && m.icon > 2"
+                                                                    width="20px" height="20px"
+                                                                    :src="getOrderbookIconUrl(m.icon)" />
+                                                                <v-icon v-else color="#506D84" size="20">{{ m.icon
+                                                                    }}</v-icon>
+                                                            </div>
                                                         </template>
                                                         <v-list-item-title
-                                                            class="subline--text font-weight-medium fs-14">{{
+                                                            class="subline--text font-weight-medium fs-14 ml-2">{{
                                                                 m.name }}</v-list-item-title>
                                                     </v-list-item>
                                                     <v-divider v-if="m.hr" class="mx-3"></v-divider>
@@ -229,32 +235,34 @@
                             }}</span>
                         </template>
                         <template #item.ltp="{ item }">
-                            <span class="font-weight-medium fs-13 txt-162 black--text"
-                                style="text-align: right; display: block;">{{ formatMoney(item.ltp) }}</span>
+                            <span class="font-weight-medium fs-13 txt-162"
+                                style="text-align: right; display: block;color: black !important;">{{
+                                    formatMoney(item.ltp) }}</span>
                         </template>
                         <template #item.rpnl="{ item }">
-                            <span class="font-weight-bold fs-13"
+                            <span class="font-weight-medium fs-13"
                                 style="text-align: right; display: block;color: black !important;">
                                 {{ formatMoney(item.rpnl) }}
                             </span>
                         </template>
                         <template #item.invested_val="{ item }">
-                            <span class="font-weight-bold fs-13 txt-162 black--text"
-                                style="text-align: right; display: block;">{{ formatMoney(item.invested_val) }}</span>
+                            <span class="font-weight-medium fs-13 txt-162"
+                                style="text-align: right; display: block;color: black !important;">{{
+                                    formatMoney(item.invested_val) }}</span>
                         </template>
                         <template #item.current_val="{ item }">
-                            <span class="font-weight-bold fs-13 txt-162"
+                            <span class="font-weight-medium fs-13 txt-162"
                                 style="text-align: right; display: block;color: black !important;">{{
                                     formatMoney(item.current_val) }}</span>
                         </template>
                         <template #item.day_pnl="{ item }">
-                            <span class="font-weight-bold fs-13"
+                            <span class="font-weight-medium fs-13"
                                 style="text-align: right; display: block;color: black !important;">
                                 {{ formatMoney(item.day_pnl) }}
                             </span>
                         </template>
                         <template #item.day_pc="{ item }">
-                            <span class="font-weight-bold fs-13"
+                            <span class="font-weight-medium fs-13"
                                 :class="Number(item.day_pc) > 0 ? 'maingreen--text' : Number(item.day_pc) < 0 ? 'mainred--text' : 'subtext--text'"
                                 :style="Number(item.day_pc) > 0 ? 'color: #43A833 !important;' : Number(item.day_pc) < 0 ? 'color: #F23645 !important;' : 'color: black !important;'"
                                 style="text-align: right; display: block;">
@@ -262,7 +270,7 @@
                             </span>
                         </template>
                         <template #item.pnlc="{ item }">
-                            <span class="font-weight-bold fs-13"
+                            <span class="font-weight-medium fs-13"
                                 :class="Number(item.pnlc) > 0 ? 'maingreen--text' : Number(item.pnlc) < 0 ? 'mainred--text' : 'subtext--text'"
                                 style="text-align: right; display: block;">
                                 {{ formatPct(item.pnlc) }}
@@ -288,9 +296,10 @@
                                 <div v-if="item && item.holdtype === 'mf'" @click.stop class="pos-abs table-hov"
                                     style="top: 50%; transform: translateY(-50%); right: 0; z-index: 10; gap: 4px; pointer-events: auto; display: flex; align-items: center;">
                                     <v-btn @click.stop="eventBus.$emit('menudialog', 'mforder', 'redem', item)"
-                                        min-width="20px" height="20px"
-                                        style="background-color: #F23645; color: #ffffff; border-radius: 4px; min-width: 20px; padding: 0 4px;"
-                                        class="font-weight-bold elevation-0 mr-1" size="x-small">Redeem
+                                        rounded="pill"
+                                        style="background-color: #F1F3F8; color: blue; padding: 5px  10px !important;"
+                                        class="font-weight-bold elevation-0 mr-1 text-none ">
+                                        Redeem
                                     </v-btn>
                                     <v-menu close-on-click location="bottom" offset-y class="table-menu">
                                         <template #activator="{ props }">
@@ -341,14 +350,19 @@
                             <span class="font-weight-bold fs-13 txt-162 black--text"
                                 style="text-align: right; display: block;">{{ formatMoney(item.current_value) }}</span>
                         </template>
+                        <template #item.overall_pnl="{ item }">
+                            <span class="font-weight-medium fs-13 "
+                                style="text-align: right; display: block;color: black !important;">{{
+                                    formatMoney(item.overall_pnl) }}</span>
+                        </template>
                         <template #item.profit_loss="{ item }">
-                            <span class="font-weight-bold fs-13"
+                            <span class="font-weight-medium fs-13"
                                 style="text-align: right; display: block;color: black !important;">
                                 {{ formatMoney(item.profit_loss) }}
                             </span>
                         </template>
                         <template #item.changeprofitloss="{ item }">
-                            <span class="font-weight-bold fs-13"
+                            <span class="font-weight-medium fs-13"
                                 :class="Number(item.changeprofitloss) > 0 ? 'maingreen--text' : Number(item.changeprofitloss) < 0 ? 'mainred--text' : 'subtext--text'"
                                 style="text-align: right; display: block;">
                                 {{ formatPct(item.changeprofitloss) }}
@@ -360,8 +374,8 @@
         </div>
 
         <!-- Drawer -->
-        <v-navigation-drawer v-model="holdingdrawer" location="right" temporary :scrim="true" width="360" color="cardbg"
-            class="pt-2">
+        <v-navigation-drawer v-model="holdingdrawer" location="right" temporary :scrim="false" width="360"
+            color="cardbg">
             <!-- Header -->
             <template #prepend>
                 <v-toolbar density="compact" class="nav-drawer crd-trn">
@@ -376,12 +390,14 @@
             </template>
 
             <!-- Main content -->
-            <v-list-item v-if="singledata && Object.keys(singledata).length > 0" class="py-3">
-                <v-list-item-title v-if="singledata.holdtype === 'mf'" class="font-weight-medium maintext--text mb-3">
+            <v-list-item v-if="singledata && Object.keys(singledata).length > 0" class="pt-3">
+                <v-list-item-title v-if="singledata.holdtype === 'mf'" style="font-size: 20px !important;"
+                    class="font-weight-medium fs-20 maintext--text mb-3 pt-3 ">
                     {{ singledata.name || '' }}
                 </v-list-item-title>
 
-                <v-list-item-title v-else class="font-weight-medium maintext--text mb-3">
+                <v-list-item-title v-else class=" maintext--text mb-0 py-3 "
+                    style="font-size: 16 !important;font-weight: 500;">
                     {{ singledata.tsym || '' }}
                     <span class="ml-1 subtext--text fs-10">
                         {{ singledata.exchs || singledata.exch || '' }}
@@ -415,7 +431,7 @@
 
             <div class="px-4" v-if="singledata && Object.keys(singledata).length > 0">
                 <!-- EDIS / Exit Buttons -->
-                <div class="pb-6" v-if="['NSE', 'BSE', 'MCX'].includes(singledata.exch)">
+                <div class="pb-6" v-if="['NSE', 'BSE', 'MCX'].includes(singledata.exch || singledata.exchs)">
                     <v-row>
                         <v-col cols="6">
                             <v-btn v-if="edisbtn" class="elevation-0 rounded-pill font-weight-bold text-none"
@@ -433,9 +449,9 @@
                             <v-btn @click="setSSDtab(
                                 'exit-order',
                                 singledata.token,
-                                singledata.exch,
+                                singledata.exch || singledata.exchs,
                                 singledata.tsym,
-                                singledata.netqty < 0 ? 'b' : 's',
+                                's',
                                 singledata
                             )" class="rounded-pill text-none font-weight-bold" block height="40" variant="outlined">
                                 <v-icon size="20">mdi-close</v-icon> Exit
@@ -444,48 +460,27 @@
                     </v-row>
                 </div>
 
-                <v-divider></v-divider>
-
                 <!-- Quantity -->
-                <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">
+                <v-list-item-title class="maintext--text font-weight-bold fs-14 py-3"
+                    style="border-bottom: 1px solid #EBEEF0;">
                     Quantity
                     <p class="float-right mb-0">
-                        <v-chip v-if="singledata.holdtype === 'mf'" small :color="Number(singledata.avg_qty) > 0
-                            ? 'secgreen'
-                            : Number(singledata.avg_qty) < 0
-                                ? 'secred'
-                                : 'secbg'" :text-color="Number(singledata.avg_qty) > 0
-                                    ? 'maingreen'
-                                    : Number(singledata.avg_qty) < 0
-                                        ? 'mainred'
-                                        : 'subtext'" :style="`border: 1px solid ${Number(singledata.avg_qty) > 0
-                                            ? '#C1E7BA'
-                                            : Number(singledata.avg_qty) < 0
-                                                ? '#FFCDCD'
-                                                : '#DDD'
-                                            }; border-radius: 5px; padding: 10px 8px !important;`">
-                            <span class="font-weight-medium fs-12">
+                        <v-chip v-if="singledata.holdtype === 'mf'" small
+                            :style="`background-color: ${Number(singledata.avg_qty) > 0 ? '#E6F5EA' : Number(singledata.avg_qty) < 0 ? '#FCF3F3' : '#F5F5F5'}; color: ${Number(singledata.avg_qty) > 0 ? '#43A833' : Number(singledata.avg_qty) < 0 ? '#F23645' : '#666666'}; border-radius: 4px; padding: 4px 8px; font-weight: 500;`"
+                            class="netqty-chip">
+                            <span class="font-weight-medium fs-12"
+                                :style="`color: ${Number(singledata.avg_qty) > 0 ? '#43A833' : Number(singledata.avg_qty) < 0 ? '#F23645' : '#666666'};`">
                                 {{
                                     Number(singledata.avg_qty) > 0
                                         ? `+${singledata.avg_qty}`
                                         : Number(singledata.avg_qty) < 0 ? `${singledata.avg_qty}` : '0' }} </span>
                         </v-chip>
 
-                        <v-chip v-else small :color="Number(singledata.netqty) > 0
-                            ? 'secgreen'
-                            : Number(singledata.netqty) < 0
-                                ? 'secred'
-                                : 'secbg'" :text-color="Number(singledata.netqty) > 0
-                                    ? 'maingreen'
-                                    : Number(singledata.netqty) < 0
-                                        ? 'mainred'
-                                        : 'subtext'" :style="`border: 1px solid ${Number(singledata.netqty) > 0
-                                            ? '#C1E7BA'
-                                            : Number(singledata.netqty) < 0
-                                                ? '#FFCDCD'
-                                                : '#DDD'
-                                            }; border-radius: 5px; padding: 10px 8px !important;`">
-                            <span class="font-weight-medium fs-12">
+                        <v-chip v-else small
+                            :style="`background-color: ${Number(singledata.netqty) > 0 ? '#E6F5EA' : Number(singledata.netqty) < 0 ? '#FCF3F3' : '#F5F5F5'}; color: ${Number(singledata.netqty) > 0 ? '#43A833' : Number(singledata.netqty) < 0 ? '#F23645' : '#666666'}; border-radius: 4px; padding: 4px 8px; font-weight: 500;`"
+                            class="netqty-chip">
+                            <span class="font-weight-medium fs-12"
+                                :style="`color: ${Number(singledata.netqty) > 0 ? '#43A833' : Number(singledata.netqty) < 0 ? '#F23645' : '#666666'};`">
                                 {{
                                     Number(singledata.netqty) > 0
                                         ? `+${singledata.netqty}`
@@ -494,11 +489,9 @@
                     </p>
                 </v-list-item-title>
 
-                <v-divider></v-divider>
-
                 <!-- Pledged Qty (stocks only) -->
                 <v-list-item-title v-if="singledata.holdtype !== 'mf'"
-                    class="maintext--text font-weight-bold fs-14 py-4">
+                    class="maintext--text font-weight-bold fs-14 py-3" style="border-bottom: 1px solid #EBEEF0;">
                     Pledged Qty
                     <p class="float-right mb-0">
                         <v-chip v-if="Number(singledata.plgqty) > 0" small class="table-hov-prd" text-color="#666"
@@ -509,38 +502,37 @@
                         <span v-else>0</span>
                     </p>
                 </v-list-item-title>
-                <v-divider v-if="singledata.holdtype !== 'mf'"></v-divider>
 
                 <!-- Avg NAV (MF) / Avg price (Stocks) -->
                 <v-list-item-title v-if="singledata.holdtype === 'mf'"
-                    class="maintext--text font-weight-bold fs-14 py-4">
+                    class="maintext--text font-weight-bold fs-14 py-3" style="border-bottom: 1px solid #EBEEF0;">
                     Avg NAV
                     <p class="float-right mb-0">{{ singledata.avg_nav ? Number(singledata.avg_nav).toLocaleString() :
                         '0.00' }}
                     </p>
                 </v-list-item-title>
-                <v-list-item-title v-else class="maintext--text font-weight-bold fs-14 py-4">
+                <v-list-item-title v-else class="maintext--text font-weight-bold fs-14 py-3"
+                    style="border-bottom: 1px solid #EBEEF0;">
                     Avg price
                     <p class="float-right mb-0">{{ singledata.upldprc || singledata.netavgprc ?
                         Number(singledata.upldprc || singledata.netavgprc).toLocaleString() : '0.00' }}</p>
                 </v-list-item-title>
-                <v-divider></v-divider>
 
                 <!-- NAV (MF) / Last trade price (Stocks) -->
                 <v-list-item-title v-if="singledata.holdtype === 'mf'"
-                    class="maintext--text font-weight-bold fs-14 py-4">
+                    class="maintext--text font-weight-bold fs-14 py-3" style="border-bottom: 1px solid #EBEEF0;">
                     NAV
                     <p class="float-right mb-0">{{ singledata.Cur_Nav || '0.00' }}</p>
                 </v-list-item-title>
-                <v-list-item-title v-else class="maintext--text font-weight-bold fs-14 py-4">
+                <v-list-item-title v-else class="maintext--text font-weight-bold fs-14 py-3"
+                    style="border-bottom: 1px solid #EBEEF0;">
                     Last trade price
                     <p class="float-right mb-0">{{ singledata.ltp || '0.00' }}</p>
                 </v-list-item-title>
-                <v-divider></v-divider>
 
                 <!-- Overall P&L -->
                 <v-list-item-title v-if="singledata.holdtype === 'mf'"
-                    class="maintext--text font-weight-bold fs-14 py-4">
+                    class="maintext--text font-weight-bold fs-14 py-3" style="border-bottom: 1px solid #EBEEF0;">
                     Overall P&L
                     <p class="float-right mb-0">
                         {{ singledata.profit_loss || '0.00' }} <span class="fs-12"
@@ -548,7 +540,8 @@
                             ({{ singledata.changeprofitloss || '0.00' }}%)</span>
                     </p>
                 </v-list-item-title>
-                <v-list-item-title v-else class="maintext--text font-weight-bold fs-14 py-4">
+                <v-list-item-title v-else class="maintext--text font-weight-bold fs-14 py-3"
+                    style="border-bottom: 1px solid #EBEEF0;">
                     Overall P&L
                     <p class="float-right mb-0">
                         {{ singledata.pnl || '0.00' }} <span class="fs-12"
@@ -556,11 +549,10 @@
                             ({{ singledata.pnlc || '0.00' }}%)</span>
                     </p>
                 </v-list-item-title>
-                <v-divider v-if="singledata.holdtype !== 'mf'"></v-divider>
 
                 <!-- Day P&L (stocks only) -->
                 <v-list-item-title v-if="singledata.holdtype !== 'mf'"
-                    class="maintext--text font-weight-bold fs-14 py-4">
+                    class="maintext--text font-weight-bold fs-14 py-3" style="border-bottom: 1px solid #EBEEF0;">
                     Day P&L
                     <p class="float-right mb-0">
                         {{ singledata.d_pnl || singledata.day_pnl || '0.00' }} <span class="fs-12"
@@ -568,46 +560,44 @@
                             ({{ singledata.d_cpnl || singledata.day_pc || '0.00' }}%)</span>
                     </p>
                 </v-list-item-title>
-                <v-divider></v-divider>
 
                 <!-- Investment -->
-                <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">
+                <v-list-item-title class="maintext--text font-weight-bold fs-14 py-3"
+                    style="border-bottom: 1px solid #EBEEF0;">
                     Investment
                     <p class="float-right mb-0" v-if="singledata.holdtype === 'mf'">{{ singledata.invested_value || ''
-                    }}</p>
+                        }}</p>
                     <p class="float-right mb-0" v-else>{{ singledata.inv || singledata.invested_val || '' }}</p>
                 </v-list-item-title>
-                <v-divider></v-divider>
 
                 <!-- Current value -->
-                <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">
+                <v-list-item-title class="maintext--text font-weight-bold fs-14 py-3"
+                    style="border-bottom: 1px solid #EBEEF0;">
                     Current value
                     <p class="float-right mb-0" v-if="singledata.holdtype === 'mf'">{{ singledata.current_value || '' }}
                     </p>
                     <p class="float-right mb-0" v-else>{{ singledata.curr || singledata.current_val || '' }}</p>
                 </v-list-item-title>
-                <v-divider v-if="singledata.holdtype !== 'mf'"></v-divider>
 
                 <!-- Product (stocks only) -->
                 <v-list-item-title v-if="singledata.holdtype !== 'mf'"
-                    class="maintext--text font-weight-bold fs-14 py-4">
+                    class="maintext--text font-weight-bold fs-14 py-3" style="border-bottom: 1px solid #EBEEF0;">
                     Product
                     <p class="float-right mb-0">{{ singledata.prd ? (singledata.prd === 'I' ? 'INTRADAY' :
                         singledata.prd
                             === 'C' ? 'DELIVERY' : 'MARKET') : '' }}</p>
                 </v-list-item-title>
-                <v-divider v-if="singledata.holdtype !== 'mf'"></v-divider>
 
                 <!-- Order type (stocks only) -->
                 <v-list-item-title v-if="singledata.holdtype !== 'mf'"
-                    class="maintext--text font-weight-bold fs-14 py-4">
+                    class="maintext--text font-weight-bold fs-14 py-3" style="border-bottom: 1px solid #EBEEF0;">
                     Order type
                     <p class="float-right mb-0">{{ singledata.s_prdt_ali || '-' }}</p>
                 </v-list-item-title>
-                <v-divider v-if="singledata.holdtype !== 'mf'"></v-divider>
 
                 <!-- ISIN -->
-                <v-list-item-title class="maintext--text font-weight-bold fs-14 py-4">
+                <v-list-item-title class="maintext--text font-weight-bold fs-14 py-3"
+                    style="border-bottom: 1px solid #EBEEF0;">
                     ISIN
                     <p class="float-right mb-0" v-if="singledata.holdtype === 'mf'">{{ singledata.ISIN || '-' }}</p>
                     <p class="float-right mb-0" v-else>{{ singledata.isin || '-' }}</p>
@@ -616,29 +606,25 @@
 
             <!-- Footer -->
             <template #append
-                v-if="singledata && Object.keys(singledata).length && ['NSE', 'BSE', 'MCX'].includes(singledata.exch)">
+                v-if="singledata && Object.keys(singledata).length && ['NSE', 'BSE', 'MCX'].includes(singledata.exch || singledata.exchs)">
                 <v-divider></v-divider>
                 <div class="pa-4">
                     <v-btn @click="handleMenuDialog(
                         'order',
                         singledata.token,
-                        singledata.exch,
+                        singledata.exch || singledata.exchs,
                         singledata.tsym,
                         singledata.netqty > 0 ? 'b' : 's'
-                    )" class="rounded-pill text-none font-weight-bold elevation-0" :color="Number(singledata.netqty) > 0
-                        ? 'secgreen'
-                        : Number(singledata.netqty) < 0
-                            ? 'secred'
-                            : 'secbg'" :text-color="Number(singledata.netqty) > 0
-                                ? 'maingreen'
-                                : Number(singledata.netqty) < 0
-                                    ? 'mainred'
-                                    : 'subtext'" block height="40" :style="`border: 2px solid ${Number(singledata.netqty) > 0
-                                        ? '#C1E7BA'
-                                        : Number(singledata.netqty) < 0
-                                            ? '#FFCDCD'
-                                            : '#DDD'
-                                        };`">
+                    )" class="rounded-pill text-none font-weight-bold elevation-0"
+                        style="background-color: #ECF8F1 !important;color: black !important;" :color="Number(singledata.netqty) > 0
+                            ? 'secgreen'
+                            : Number(singledata.netqty) < 0
+                                ? 'secred'
+                                : 'secbg'" :text-color="Number(singledata.netqty) > 0
+                                    ? 'maingreen'
+                                    : Number(singledata.netqty) < 0
+                                        ? 'mainred'
+                                        : 'subtext'" block height="40">
                         <v-icon size="20">mdi-plus</v-icon> Add
                     </v-btn>
                 </div>
@@ -667,6 +653,10 @@ import { color } from 'echarts'
 
 const router = useRouter()
 const appStore = useAppStore()
+
+const getOrderbookIconUrl = (iconName) => {
+    return new URL(`/src/assets/orderbook/${iconName}.svg`, import.meta.url).href
+}
 
 const loading = ref(false)
 const holdings = ref([])
@@ -716,23 +706,20 @@ const preferredColumns = [
 
 const numericLike = new Set(['netqty', 'netavgprc', 'ltp', 'invested_val', 'current_val', 'day_pnl', 'day_pc', 'rpnl', 'pnlc'])
 
-function buildHeadersFrom(items) {
+function buildHeadersFrom() {
     const headers = []
-    const sample = items && items.length ? items[0] : null
     preferredColumns.forEach(col => {
-        if (!sample || Object.prototype.hasOwnProperty.call(sample, col.key)) {
-            headers.push({
-                title: col.text,
-                key: col.key,
-                align: col.align || (numericLike.has(col.key) ? 'right' : undefined),
-                sortable: col.sortable !== false
-            })
-        }
+        headers.push({
+            title: col.text,
+            key: col.key,
+            align: col.align || (numericLike.has(col.key) ? 'right' : undefined),
+            sortable: col.sortable !== false
+        })
     })
     return headers
 }
 
-const tableHeaders = computed(() => buildHeadersFrom(holdings.value))
+const tableHeaders = computed(() => buildHeadersFrom())
 
 const mfHeaders = computed(() => [
     { title: 'Instrument', key: 'name' },
@@ -944,7 +931,7 @@ async function fetchHoldings() {
             try {
                 setHoldingsPayload(JSON.parse(cached))
             } catch (e) {
-                console.error('Failed to load cached holdings', e)
+                // console.error('Failed to load cached holdings', e)
             }
         }
     }
@@ -967,7 +954,7 @@ async function fetchMfHoldings() {
                 const parsed = JSON.parse(cached)
                 mfholdings.value = parsed.data ? parsed.data.map((d, idx) => ({ ...d, idx, holdtype: 'mf' })) : []
             } catch (e) {
-                console.error('Failed to load cached MF holdings', e)
+                // console.error('Failed to load cached MF holdings', e)
             }
         }
     }
@@ -1127,7 +1114,7 @@ function onWsTick(e) {
 }
 
 function handleMenuDialog(type, token, exch, tsym, trans, item) {
-    console.log("handleMenuDialog", type, token, exch, tsym, trans, item);
+    // console.log("handleMenuDialog", type, token, exch, tsym, trans, item);
     holdingdrawer.value = false
     window.dispatchEvent(new CustomEvent('menudialog', {
         detail: { type, token, exch, tsym, trantype: trans, item }
@@ -1135,7 +1122,7 @@ function handleMenuDialog(type, token, exch, tsym, trans, item) {
 }
 
 function setSSDtab(type, token, exch, tsym, trans, item) {
-    console.log("setSSDtab", type, token, exch, tsym, trans, item);
+    // console.log("setSSDtab", type, token, exch, tsym, trans, item);
 
     holdingdrawer.value = false
 
@@ -1144,30 +1131,110 @@ function setSSDtab(type, token, exch, tsym, trans, item) {
     } else if (type === 'cGTT') {
         handleMenuDialog('order-GTT', token, exch, tsym, 'b')
     } else if (type === 'exit-order') {
-        // For exit order: if netqty > 0 (long position), sell to exit ('s')
-        // if netqty < 0 (short position), buy to cover ('b')
-        // Use trans parameter if provided, otherwise calculate from netqty
-        let exitTrans = trans
-        if (!exitTrans && item) {
-            const netqty = item.netqty ?? 0
-            exitTrans = Number(netqty) > 0 ? 's' : 'b'
+        // For holdings: holdings are always long positions (netqty > 0), so to exit we always sell ('s')
+        // Check for BO/CO orders (matching Positions page logic)
+        if (item && (item.s_prdt_ali === 'BO' || item.s_prdt_ali === 'CO')) {
+            appStore.showSnackbar(2, 'Cover/Bracket orders can\'t exist here; exit on the order book.')
+            return
         }
-        handleMenuDialog('exit-order', token, exch, tsym, exitTrans, item)
+
+        // For holdings exit: always sell to exit (holdings are long positions)
+        // Always use 's' (sell) for holdings exit, regardless of netqty
+        const exitTrans = 's'
+
+        // CRITICAL: Set item.trantype to 'S' so StockOrderWindow uses it correctly
+        // StockOrderWindow checks item.trantype for exit-order, so we must set it
+        const exitItem = item ? { ...item, trantype: 'S' } : null
+
+        // Emit menudialog event to open order window (matching Positions page behavior)
+        handleMenuDialog('exit-order', token, exch, tsym, exitTrans, exitItem)
     } else if (type === 'order') {
         handleMenuDialog('order', token, exch, tsym, item?.netqty < 0 ? 's' : 'b', item)
+    } else if (type === 'chart' || type === 'depth' || type === 'Funda') {
+        // Navigate to stock details page with proper validation (matching Positions page)
+        try {
+            // Validate and convert token to string (it might be a number)
+            const validToken = token ? String(token).trim() : null
+            // Handle both 'exch' and 'exchs' field names (holdings might use either)
+            const validExch = (exch || (item && (item.exch || item.exchs))) ? String(exch || item.exch || item.exchs).trim() : null
+            const validTsym = tsym ? String(tsym).trim() : null
+
+            // Validate all required fields are present and non-empty
+            if (!validToken || !validExch || !validTsym) {
+                appStore.showSnackbar(2, 'Invalid stock data. Cannot open stock details.')
+                // console.error('Invalid stock data for navigation:', { token: validToken, exch: validExch, tsym: validTsym, item })
+                return
+            }
+
+            // Create path array with validated values
+            const path = [type, validToken, validExch, validTsym]
+
+            // Store params in localStorage for persistence (required by StocksDetails)
+            localStorage.setItem('ssdParams', JSON.stringify(path))
+            localStorage.setItem('ssdtsym', `${validExch}:${validTsym}`)
+            localStorage.setItem('ssdtoken', validToken)
+
+            // Check if already on stocks details page
+            const currentRoute = router.currentRoute.value
+            if (currentRoute.name === 'stocks details') {
+                // If already on page, dispatch ssd-event to update chart/depth/fundamentals
+                window.dispatchEvent(new CustomEvent('ssd-event', {
+                    detail: { type, token: validToken, exch: validExch, tsym: validTsym }
+                }))
+                // Also dispatch array format for compatibility
+                window.dispatchEvent(new CustomEvent('ssd-event', {
+                    detail: path
+                }))
+            } else {
+                // Navigate to stocks details page with params and query
+                router.push({
+                    name: 'stocks details',
+                    params: { val: path },
+                    query: { type, token: validToken, exch: validExch, tsym: validTsym }
+                }).catch((error) => {
+                    // console.error('Navigation error:', error)
+                    appStore.showSnackbar(2, 'Failed to open stock details page')
+                })
+            }
+        } catch (error) {
+            // console.error('Error in setSSDtab for chart/depth/Funda:', error)
+            appStore.showSnackbar(2, 'Failed to open stock details page')
+        }
     } else {
-        // Ensure all parameters are valid before routing
-        if (token && exch && tsym) {
-            const path = [type, token, exch, tsym]
-            router.push({ name: 'stocks details', params: { val: path } })
-        } else {
-            console.error('Missing parameters for routing:', { type, token, exch, tsym })
+        // Fallback for other types - ensure all parameters are valid before routing
+        try {
+            const validToken = token ? String(token).trim() : null
+            const validExch = (exch || (item && (item.exch || item.exchs))) ? String(exch || item.exch || item.exchs).trim() : null
+            const validTsym = tsym ? String(tsym).trim() : null
+
+            if (!validToken || !validExch || !validTsym) {
+                appStore.showSnackbar(2, 'Invalid stock data. Cannot open stock details.')
+                // console.error('Missing parameters for routing:', { type, token: validToken, exch: validExch, tsym: validTsym })
+                return
+            }
+
+            const path = [type, validToken, validExch, validTsym]
+            localStorage.setItem('ssdParams', JSON.stringify(path))
+            localStorage.setItem('ssdtsym', `${validExch}:${validTsym}`)
+            localStorage.setItem('ssdtoken', validToken)
+
+            router.push({
+                name: 'stocks details',
+                params: { val: path },
+                query: { type, token: validToken, exch: validExch, tsym: validTsym }
+            }).catch((error) => {
+                // console.error('Navigation error:', error)
+                appStore.showSnackbar(2, 'Failed to open stock details page')
+            })
+        } catch (error) {
+            // console.error('Error in setSSDtab fallback:', error)
+            appStore.showSnackbar(2, 'Failed to open stock details page')
         }
     }
 }
 
 async function setHoldingrowdata(item) {
-    holdingdrawer.value = true
+    holdingdrawer.value = !holdingdrawer.value
     if (!item) return
     const src = item && item.raw ? item.raw : item
     if (!src || !Object.keys(src).length) return
@@ -1177,7 +1244,7 @@ async function setHoldingrowdata(item) {
             const quotes = await getQuotesdata(`${src.exch}|${src.token}`)
             singledata.value.quotes = quotes
         } catch (e) {
-            console.error('Failed to fetch quotes', e)
+            // console.error('Failed to fetch quotes', e)
         }
     }
 }
@@ -1193,7 +1260,7 @@ async function setdoEdis() {
             appStore.showSnackbar(2, data && data.emsg ? data.emsg : 'Failed to get E-DIS token')
         }
     } catch (e) {
-        console.error('E-DIS error', e)
+        // console.error('E-DIS error', e)
         appStore.showSnackbar(2, 'Failed to open E-DIS')
     }
 }
@@ -1226,7 +1293,7 @@ onMounted(() => {
                 setHoldingsPayload(parsed)
             }
         } catch (e) {
-            console.error('Failed to load cached holdings', e)
+            // console.error('Failed to load cached holdings', e)
         }
     }
 
@@ -1262,5 +1329,20 @@ onBeforeUnmount(() => {
 
 .mainred--text {
     color: #F23645 !important;
+}
+
+/* Make table rows clickable */
+:deep(.table-row) {
+    cursor: pointer;
+}
+
+:deep(.table-row:hover) {
+    background-color: rgba(0, 0, 0, 0.02) !important;
+}
+</style>
+
+<style scoped>
+:deep(.v-text-field input) {
+    font-size: 14px !important;
 }
 </style>

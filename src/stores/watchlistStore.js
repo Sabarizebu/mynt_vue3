@@ -181,7 +181,7 @@ export const useWatchlistStore = defineStore('watchlist', {
           }
         }
       } catch (error) {
-        console.error('Error fetching watchlists:', error)
+        // console.error('Error fetching watchlists:', error)
       }
     },
     
@@ -228,7 +228,7 @@ export const useWatchlistStore = defineStore('watchlist', {
           this.watchlistData = 'no data'
         }
       } catch (error) {
-        console.error('Error fetching watchlist data:', error)
+        // console.error('Error fetching watchlist data:', error)
         this.watchlistData = 'no data'
       } finally {
         this.isLoading = false
@@ -253,7 +253,7 @@ export const useWatchlistStore = defineStore('watchlist', {
         }
         return false
       } catch (error) {
-        console.error('Error adding symbol:', error)
+        // console.error('Error adding symbol:', error)
         return false
       }
     },
@@ -276,7 +276,7 @@ export const useWatchlistStore = defineStore('watchlist', {
         }
         return false
       } catch (error) {
-        console.error('Error removing symbol:', error)
+        // console.error('Error removing symbol:', error)
         return false
       }
     },
@@ -299,7 +299,7 @@ export const useWatchlistStore = defineStore('watchlist', {
         }
         return false
       } catch (error) {
-        console.error('Error creating watchlist:', error)
+        // console.error('Error creating watchlist:', error)
         return false
       }
     },
@@ -326,7 +326,7 @@ export const useWatchlistStore = defineStore('watchlist', {
         }
         return false
       } catch (error) {
-        console.error('Error deleting watchlist:', error)
+        // console.error('Error deleting watchlist:', error)
         return false
       }
     },
@@ -355,7 +355,7 @@ export const useWatchlistStore = defineStore('watchlist', {
                 }
               }
             } catch (error) {
-              console.error('Error loading holdings data:', error)
+              // console.error('Error loading holdings data:', error)
             }
           }
           
@@ -375,7 +375,7 @@ export const useWatchlistStore = defineStore('watchlist', {
           }
         }
       } catch (error) {
-        console.error('Error setting predefined watchlist:', error)
+        // console.error('Error setting predefined watchlist:', error)
         this.watchlistData = 'no data'
       } finally {
         this.isLoading = false
@@ -432,7 +432,7 @@ export const useWatchlistStore = defineStore('watchlist', {
           this.nodata = "noooo"
         }
       } catch (error) {
-        console.error('Search error:', error)
+        // console.error('Search error:', error)
         this.items = []
         this.nodata = "noooo"
       } finally {
@@ -471,7 +471,7 @@ export const useWatchlistStore = defineStore('watchlist', {
             return parsed.data
           }
         } catch (e) {
-          console.error('Error parsing watchlist cache:', e)
+          // console.error('Error parsing watchlist cache:', e)
         }
       }
       return null

@@ -31,7 +31,7 @@ export const useSessionStore = defineStore('session', () => {
             source.value = "WEB"
           }
         }).catch((error) => {
-          console.error(error)
+          // console.error(error)
           firebaseConfig.value = 'WEB'
           source.value = "WEB"
         })
@@ -46,7 +46,7 @@ export const useSessionStore = defineStore('session', () => {
           sessionStorage.setItem(`socsrc`, source.value)
         }
       } catch (error) {
-        console.error('Error initializing config:', error)
+        // console.error('Error initializing config:', error)
         firebaseConfig.value = 'WEB'
         source.value = "WEB"
       }
@@ -54,7 +54,7 @@ export const useSessionStore = defineStore('session', () => {
   }
 
   const updateMyntUrl = (config) => {
-    console.log("🔄 updateMyntUrl called with config:", config)
+    // console.log("🔄 updateMyntUrl called with config:", config)
     mynturl.value = {
       ...mynturl.value,
       myntapi: config.url,
@@ -68,28 +68,28 @@ export const useSessionStore = defineStore('session', () => {
     if (config.clientid) {
       sessionStorage.setItem(`mynturl_${config.clientid}`, JSON.stringify(mynturl.value))
     } else {
-      console.error("❌ No clientid provided, cannot save to sessionStorage")
+      // console.error("❌ No clientid provided, cannot save to sessionStorage")
     }
   }
   
   const loadMyntUrl = (uid) => {
     const stored = sessionStorage.getItem(`mynturl_${uid}`)
-    console.log("🔍 Looking for mynturl in sessionStorage with key:", `mynturl_${uid}`)
-    console.log("🔍 Stored value exists:", !!stored)
+    // console.log("🔍 Looking for mynturl in sessionStorage with key:", `mynturl_${uid}`)
+    // console.log("🔍 Stored value exists:", !!stored)
     if (stored) {
-      console.log("🔍 Stored value content:", stored.substring(0, 100))
+      // console.log("🔍 Stored value content:", stored.substring(0, 100))
     }
     if (stored) {
       try {
         mynturl.value = JSON.parse(stored)
         apiurl.mynturl = mynturl.value
-        console.log("✅ Successfully loaded mynturl with stat:", mynturl.value.stat)
+        // console.log("✅ Successfully loaded mynturl with stat:", mynturl.value.stat)
         return true
       } catch (e) {
-        console.error("Error loading mynturl from sessionStorage:", e)
+        // console.error("Error loading mynturl from sessionStorage:", e)
       }
     }
-    console.log("❌ No mynturl found in sessionStorage for uid:", uid)
+    // console.log("❌ No mynturl found in sessionStorage for uid:", uid)
     return false
   }
 
@@ -124,7 +124,7 @@ export const useSessionStore = defineStore('session', () => {
       }
     } catch (error) {
       sessionStatus.value = 'error'
-      console.error('Session check error:', error)
+      // console.error('Session check error:', error)
       return { valid: false, error: error.message }
     }
   }
@@ -141,7 +141,7 @@ export const useSessionStore = defineStore('session', () => {
        errorMsg.includes('Session Expired') ||
        errorMsg.includes('Invalid Session Key'))
     
-    console.log("🔄 Session error detected, logging out user:", errorMsg);
+    // console.log("🔄 Session error detected, logging out user:", errorMsg);
     
     // IMPORTANT: Clear sessionStorage FIRST so components reading from it get null immediately
     sessionStorage.removeItem("c3RhdHVz")
@@ -172,25 +172,24 @@ export const useSessionStore = defineStore('session', () => {
       
       // Immediate navigation to stocks page
       // This ensures user is logged out immediately and navigated to the page shown before login
-      console.log("🔄 Immediate logout and navigation to stocks page due to session end");
+      // console.log("🔄 Immediate logout and navigation to stocks page due to session end");
       
       // Navigate immediately to stocks page (the page shown before login)
       router.push('/stocks').catch((err) => {
         // Ignore navigation errors (e.g., already on stocks page)
         if (err.name !== 'NavigationDuplicated') {
-          console.error('Navigation error:', err);
+          // console.error('Navigation error:', err);
         }
       });
     }, 100);
     
-    // Force reload if navigation didn't work (fallback)
+    // Refresh the app after a short delay to ensure complete reset
     // This ensures UI is completely reset to initial state
     setTimeout(() => {
-      if (authStore.uid) {
-        // If still logged in, force reload
-        window.location.href = '/stocks';
-      }
-    }, 100);
+      // console.log("🔄 Refreshing app due to session expiration or invalid key");
+      // Force full page reload to reset all app state
+      window.location.reload();
+    }, 500);
   }
 
   // Note: Old app does NOT have periodic session monitoring
@@ -200,12 +199,12 @@ export const useSessionStore = defineStore('session', () => {
   const startSessionMonitoring = (uid, authStore, appStore) => {
     // Old app does NOT have periodic monitoring
     // Only check on login, not periodically
-    console.log("ℹ️ Session monitoring not used - old app only checks on login")
+    // console.log("ℹ️ Session monitoring not used - old app only checks on login")
   }
 
   const stopSessionMonitoring = () => {
     // Old app does NOT have periodic monitoring
-    console.log("ℹ️ Session monitoring not used - old app only checks on login")
+    // console.log("ℹ️ Session monitoring not used - old app only checks on login")
   }
 
   return {

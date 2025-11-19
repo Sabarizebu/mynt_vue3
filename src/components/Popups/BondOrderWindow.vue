@@ -185,7 +185,7 @@ async function setMenudialog(itemdata, mode) {
     const ledgerRes = await getBondLedger([uid.value, token.value])
     menudata.value.ledger = ledgerRes && ledgerRes.total > 0 ? Number(ledgerRes.total).toFixed(2) : null
   } catch (error) {
-    console.error('Error fetching ledger:', error)
+    // console.error('Error fetching ledger:', error)
     menudata.value.ledger = null
   }
 
@@ -254,7 +254,7 @@ async function setBondorder(mode, item) {
       snackAlert(2, errorMsg)
     }
   } catch (error) {
-    console.error('Error placing bond order:', error)
+    // console.error('Error placing bond order:', error)
     orderpoploader.value = false
     snackAlert(2, error.message || "Failed to place order")
   }

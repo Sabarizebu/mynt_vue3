@@ -219,7 +219,7 @@ export const useOptionsStore = defineStore('options', () => {
         }
       }
     } catch (error) {
-      console.error('Error loading column settings:', error)
+      // console.error('Error loading column settings:', error)
     }
   }
   
@@ -305,7 +305,7 @@ export const useOptionsStore = defineStore('options', () => {
       localStorage.setItem(`${uid}_opdatstrue`, opdatstrue)
       localStorage.setItem(`${uid}_opvalstrue`, opvalstrue)
     } catch (error) {
-      console.error('Error saving column settings:', error)
+      // console.error('Error saving column settings:', error)
     }
   }
   

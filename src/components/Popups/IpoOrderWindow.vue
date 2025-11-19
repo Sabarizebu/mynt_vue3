@@ -75,7 +75,8 @@
             <p class="font-weight-medium fs-14 maintext--text mb-2">Category</p>
             <v-autocomplete @update:model-value="ipoCalcs('cate')" return-object item-title="val"
               v-model="menudata.category" :items="menudata.categorys" append-inner-icon="" bg-color="secbg" flat
-              class="small-input mb-4" rounded="pill" density="compact" hide-details variant="solo"></v-autocomplete>
+              class="small-input mb-4 text-left" rounded="pill" density="compact" hide-details
+              variant="solo"></v-autocomplete>
           </div>
           <div v-for="(b, i) in iposbids" :key="i">
             <div v-if="b.bitis">
@@ -471,42 +472,45 @@ const ipoQtymultiper = (i) => {
 }
 
 const ipoCalcs = (key) => {
-  var i = null
-  var r = null
-  var m = null
-  if (iposbids.value[0].bitis) {
-    if (key == "cate") {
-      iposbids.value[0].qty = menudata.value.lotSize
+  let i = null;
+  let r = null;
+  let m = null;
+
+  // Loop through all bids
+  iposbids.value.forEach((bid, index) => {
+    if (bid.bitis) {
+      i = index;
+
+      // Only set qty to lotSize if it's empty AND key is 'cate'
+      if (key === "cate" && (bid.qty === null || bid.qty === undefined)) {
+        bid.qty = menudata.value.lotSize;
+      }
+
+      // Calculate total
+      bid.total = bid.qty * bid.price;
+
+      // Check price range
+      r = r || !(bid.price >= menudata.value.minPrice && bid.price <= menudata.value.maxPrice);
+
+      // Check minimum quantity
+      m = m || bid.qty < menudata.value.minBidQuantity;
     }
-    iposbids.value[0]["total"] = iposbids.value[0].qty * iposbids.value[0].price
-    i = 0
-    r = iposbids.value[0].price >= menudata.value.minPrice && iposbids.value[0].price <= menudata.value.maxPrice ? false : true
-    m = iposbids.value[0].qty < menudata.value.minBidQuantity ? true : false
+  });
+
+  if (i !== null) {
+    // Update summary values in menudata
+    menudata.value.ipostotal = iposbids.value[i].total;
+    menudata.value.iposmax =
+      iposbids.value[i].total >= (
+        menudata.value.category?.data?.maxUpiLimit && Number(menudata.value.category.data.maxUpiLimit) > 0
+          ? menudata.value.category.data.maxUpiLimit
+          : menudata.value.flow === 1 ? 200000 : 500000
+      );
+    menudata.value.iposrange = r;
+    menudata.value.iposminqty = m;
   }
-  if (iposbids.value[1].bitis) {
-    if (key == "cate") {
-      iposbids.value[1].qty = menudata.value.lotSize
-    }
-    iposbids.value[1]["total"] = iposbids.value[1].qty * iposbids.value[1].price
-    i = 1
-    r = r ? r : iposbids.value[1].price >= menudata.value.minPrice && iposbids.value[1].price <= menudata.value.maxPrice ? false : true
-    m = m ? m : iposbids.value[1].qty < menudata.value.minBidQuantity ? true : false
-  }
-  if (iposbids.value[2].bitis) {
-    if (key == "cate") {
-      iposbids.value[2].qty = menudata.value.lotSize
-    }
-    iposbids.value[2]["total"] = iposbids.value[2].qty * iposbids.value[2].price
-    i = 2
-    r = r ? r : iposbids.value[2].price >= menudata.value.minPrice && iposbids.value[2].price <= menudata.value.maxPrice ? false : true
-    m = m ? m : iposbids.value[2].qty < menudata.value.minBidQuantity ? true : false
-  }
-  menudata.value["ipostotal"] = iposbids.value[i]["total"]
-  menudata.value["iposmax"] =
-    iposbids.value[i]["total"] >= (menudata.value.category && menudata.value.category.data && menudata.value.category.data.maxUpiLimit && Number(menudata.value.category.data.maxUpiLimit) > 0 ? menudata.value.category.data.maxUpiLimit : menudata.value.flow == 1 ? 200000 : 500000)
-  menudata.value["iposrange"] = r
-  menudata.value["iposminqty"] = m
-}
+};
+
 
 const handleScroll = () => {
 }

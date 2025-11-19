@@ -644,7 +644,8 @@
                     <!-- After Market Order -->
                     <div class="d-flex align-center mt-0" style="border-top: 1px solid #e0e0e0;"
                         v-if="orderType !== 1 && orderType !== 3 && orderType !== 2">
-                        <v-checkbox color="maintext" v-model="afterMarket" hide-details>
+                        <v-checkbox color="maintext" v-model="afterMarket" hide-details
+                            :disabled="orderContextType === 're-order' || orderContextType === 'mod-order'">
                             <template #label>
                                 <p class="font-weight-regular fs-14 subtext--text mb-0">After market order (AMO)</p>
                             </template>
@@ -1304,7 +1305,7 @@ async function computeMarginAndBrokerage() {
         }
     } catch (e) {
         // silent - don't show error on every input change
-        console.debug('[StockOrderWindow] Margin calculation error:', e)
+        // console.debug('[StockOrderWindow] Margin calculation error:', e)
     } finally {
         // Reset flag
         isComputingMargin = false
@@ -1358,7 +1359,7 @@ function onOrderTypeChanged() {
             // Keep trigger price when switching TO SL orders - only set default if truly empty
             if (priceType.value !== 'SL-LMT' && priceType.value !== 'SL-MKT') {
                 // Switching away from SL orders - clear trigger
-                console.log('[GTT onOrderTypeChanged] Clearing trigger - switching away from SL orders', { priceType: priceType.value })
+                // console.log('[GTT onOrderTypeChanged] Clearing trigger - switching away from SL orders', { priceType: priceType.value })
                 gttTriggerPrice.value = null
             } else {
                 // Switching TO SL orders - only set default if trigger is truly empty (null, undefined, empty string, or exactly 0)
@@ -1370,21 +1371,21 @@ function onOrderTypeChanged() {
                     currentTrigger === '' ||
                     (typeof currentTrigger === 'number' && currentTrigger === 0))
 
-                console.log('[GTT onOrderTypeChanged] Checking trigger for SL orders', {
-                    currentTrigger,
-                    type: typeof currentTrigger,
-                    isTriggerEmpty,
-                    priceType: priceType.value
-                })
+                // console.log('[GTT onOrderTypeChanged] Checking trigger for SL orders', {
+                //     currentTrigger,
+                //     type: typeof currentTrigger,
+                //     isTriggerEmpty,
+                //     priceType: priceType.value
+                // })
 
                 if (isTriggerEmpty) {
                     const ltp = Number(menudata.value[0]?.lp || menudata.value[0]?.ltp || 0)
                     if (ltp > 0) {
-                        console.log('[GTT onOrderTypeChanged] Setting trigger to LTP', { ltp })
+                        // console.log('[GTT onOrderTypeChanged] Setting trigger to LTP', { ltp })
                         gttTriggerPrice.value = ltp
                     }
                 } else {
-                    console.log('[GTT onOrderTypeChanged] Preserving user-entered trigger value', { currentTrigger })
+                    // console.log('[GTT onOrderTypeChanged] Preserving user-entered trigger value', { currentTrigger })
                 }
                 // If trigger has a value (even if it's a string that needs conversion), preserve it
             }
@@ -1445,9 +1446,9 @@ function onOrderTypeChanged() {
             // 1. Detect the query params
             // 2. Switch to SIP tab (index 4)
             // 3. Trigger siporder-trigger event which opens the dialog
-            console.log('[SIP Tab] Navigation to orders page completed')
+            // console.log('[SIP Tab] Navigation to orders page completed')
         }).catch((error) => {
-            console.error('[SIP Tab] Navigation error:', error)
+            // console.error('[SIP Tab] Navigation error:', error)
             // Fallback: If navigation fails, try to trigger directly
             // This ensures the dialog opens even if navigation has issues
             window.dispatchEvent(new CustomEvent('order-tab', {
@@ -1526,7 +1527,15 @@ async function handleMenuDialogEvent(event) {
     // Handle cancel order directly (no dialog needed)
     if (type === 'cancel-order' && item) {
         isOpeningDialog.value = false
-        await cancelOrder(item)
+        const skipMessage = event.detail?.skipMessage || false
+        const result = await cancelOrder(item, skipMessage)
+
+        // If skipMessage is true, dispatch result event for batch cancellation
+        if (skipMessage && result) {
+            window.dispatchEvent(new CustomEvent('cancel-order-result', {
+                detail: { item, result }
+            }))
+        }
         return
     }
 
@@ -1554,7 +1563,10 @@ async function handleMenuDialogEvent(event) {
         investType.value = (exch === 'NSE' || exch === 'BSE') ? 'C' : 'I'
         priceType.value = 'LMT'
         orderType.value = 0
-        quantity.value = 1 // Default, will be updated
+        // Don't set default quantity if it's modify/re-order - let the prefill logic handle it
+        if (!item || (type !== 'mod-order' && type !== 're-order' && type !== 'exit-order')) {
+            quantity.value = 1 // Default, will be updated
+        }
         price.value = 0 // Will be updated when quote loads
         triggerPrice.value = 0
         stopLossPrice.value = 0
@@ -1584,7 +1596,7 @@ async function handleMenuDialogEvent(event) {
         // This ensures dialog opens instantly while data loads
         Promise.all([
             getQuotesdata(`${exch}|${token}`).catch(err => {
-                console.error('Error fetching quote:', err)
+                // console.error('Error fetching quote:', err)
                 return null
             }),
             // Security data will be fetched after quote if needed
@@ -1599,8 +1611,14 @@ async function handleMenuDialogEvent(event) {
                 }
 
                 // Update quantity and price with real data
-                quantity.value = Number(q?.ls || 1)
-                price.value = Number(q?.lp || 0)
+                // Don't overwrite quantity if it's modify/re-order - let the prefill logic handle it
+                if (!item || (type !== 'mod-order' && type !== 're-order' && type !== 'exit-order')) {
+                    quantity.value = Number(q?.ls || 1)
+                }
+                // Only update price if not already set by modify/re-order logic
+                if (!item || (type !== 'mod-order' && type !== 're-order' && type !== 'exit-order') || price.value === 0) {
+                    price.value = Number(q?.lp || 0)
+                }
 
                 // Fetch security data if needed (non-blocking)
                 if (q && q.instname !== 'UNDIND' && q.instname !== 'COM') {
@@ -1614,7 +1632,7 @@ async function handleMenuDialogEvent(event) {
                             }
                         }
                     }).catch(err => {
-                        console.error('Error fetching security:', err)
+                        // console.error('Error fetching security:', err)
                     })
                 }
 
@@ -1627,22 +1645,91 @@ async function handleMenuDialogEvent(event) {
         // Note: This will be updated when quote data loads, but set defaults now
         if (item && (type === 'mod-order' || type === 're-order' || type === 'exit-order')) {
             priceType.value = item.prctyp || 'LMT'
-            // Use item data for quantity calculation (will be refined when quote loads)
-            const itemQty = Math.abs(item.qty) || 1
-            quantity.value = itemQty
+            // Store raw quantity from item (this is the actual order quantity in raw units)
+            const rawItemQty = Math.abs(Number(item.qty) || 0)
+
+            // Set initial quantity based on exchange and item lot size
+            // Old app logic: divide by lot size for MCX, divide by 1 for others
+            // Use item.ls if available, otherwise use exchange-based logic
+            const itemLotSize = item.ls ? Number(item.ls) : (exch === 'MCX' ? 1 : 1)
+            const initialLotSize = (exch === 'MCX') ? itemLotSize : 1
+            const displayQty = rawItemQty > 0 ? Number(rawItemQty / initialLotSize) : 1
+            quantity.value = displayQty || 1
+
             price.value = (priceType.value === 'MKT' || priceType.value === 'SL-MKT') ? 0 : Number(item.prc || 0)
             triggerPrice.value = (priceType.value === 'SL-LMT' || priceType.value === 'SL-MKT') ? Number(item.trgprc || 0) : 0
             buyOrSellIsSell.value = (item.trantype || '').toUpperCase() === 'S'
 
+            // Set product type (delivery/intraday) from item for modify and re-order
+            if (type === 'mod-order' || type === 're-order') {
+                // Use prd field if available, otherwise map from s_prdt_ali
+                if (item.prd) {
+                    investType.value = item.prd
+                } else if (item.s_prdt_ali) {
+                    const productMap = {
+                        'CNC': 'C',
+                        'MIS': 'I',
+                        'NRML': 'M',
+                        'C': 'C',
+                        'I': 'I',
+                        'M': 'M'
+                    }
+                    investType.value = productMap[item.s_prdt_ali.toUpperCase()] || investType.value
+                }
+                // Set AMO value from item
+                afterMarket.value = item.amo === 'Yes' || item.amo === true
+            }
+
+            // console.log('[StockOrderWindow] Pre-filling order data:', {
+            //     type,
+            //         rawItemQty,
+            //         initialQuantity: quantity.value,
+            //             itemLotSize,
+            //             initialLotSize,
+            //             displayQty: quantity.value,
+            //                 fullItem: item,
+            //                     itemFields: {
+            //         qty: item.qty,
+            //             fillshares: item.fillshares,
+            //                 ls: item.ls,
+            //                     exch: item.exch,
+            //                         tsym: item.tsym
+            //     }
+            // })
+
             // Update quantity with lot size when quote loads
+            // Match old app logic: divide by lot size for MCX, divide by 1 for others
             Promise.all([
                 getQuotesdata(`${exch}|${token}`).catch(() => null)
             ]).then(([q]) => {
                 if (q && item) {
-                    quantity.value = Number(Math.abs(item.qty) / Number(q?.ls || 1)) || Number(q?.ls || 1)
+                    // Old app logic: Number(Math.abs(item.qty) / Number(exch == "MCX" ? this.menudata[1].ls : 1))
+                    // item.qty is in raw units, divide by lot size only for MCX, otherwise divide by 1
+                    const lotSize = (exch === 'MCX') ? Number(q?.ls || 1) : 1
+                    const displayQty = rawItemQty > 0 ? Number(rawItemQty / lotSize) : 1
+                    quantity.value = displayQty || 1
+
+                    // console.log('[StockOrderWindow] Updated quantity after quote load:', {
+                    // rawItemQty,
+                    //     exch,
+                    //     lotSize,
+                    //     displayQty: quantity.value,
+                    //     quoteData: q
+                    // })
+
                     if (priceType.value !== 'MKT' && priceType.value !== 'SL-MKT' && !price.value) {
                         price.value = Number(item.prc || q?.lp || 0)
                     }
+                } else {
+                    // If quote fails to load, use old app logic: divide by 1 for non-MCX, or assume lot size = 1
+                    const lotSize = (exch === 'MCX') ? 1 : 1 // Default to 1 if quote not available
+                    const displayQty = rawItemQty > 0 ? Number(rawItemQty / lotSize) : 1
+                    quantity.value = displayQty || 1
+                    // console.warn('[StockOrderWindow] Quote data not available, using default lot size calculation:', {
+                    //     rawItemQty,
+                    //     exch,
+                    //     displayQty: quantity.value
+                    // })
                 }
             })
         }
@@ -1732,8 +1819,14 @@ async function handleMenuDialogEvent(event) {
                 if (pref.quickord !== undefined) isQuickOrder.value = pref.quickord
                 if (pref.ordsrcpop !== undefined) isStickyDialog.value = pref.ordsrcpop
                 if (pref.investype) investType.value = pref.investype
-                if (pref.prc) priceType.value = pref.prc
-                if (pref.ordqty) quantity.value = Number(pref.ordqty) || quantity.value
+                // Don't overwrite price type if it's modify/re-order - it's already set from item
+                if (pref.prc && (!item || (type !== 'mod-order' && type !== 're-order' && type !== 'exit-order'))) {
+                    priceType.value = pref.prc
+                }
+                // Don't overwrite quantity if it's modify/re-order - it's already set from item
+                if (pref.ordqty && (!item || (type !== 'mod-order' && type !== 're-order' && type !== 'exit-order'))) {
+                    quantity.value = Number(pref.ordqty) || quantity.value
+                }
             }
         }).catch(() => { })
 
@@ -1760,7 +1853,7 @@ async function handleMenuDialogEvent(event) {
                 })
                 window.dispatchEvent(wsEvent)
             } catch (e) {
-                console.error('[StockOrderWindow] Error subscribing to websocket:', e)
+                // console.error('[StockOrderWindow] Error subscribing to websocket:', e)
             }
         }
 
@@ -1785,7 +1878,7 @@ async function handleMenuDialogEvent(event) {
                     })
                     window.dispatchEvent(wsEvent)
                 } catch (e) {
-                    console.error('[StockOrderWindow] Error re-subscribing to websocket:', e)
+                    // console.error('[StockOrderWindow] Error re-subscribing to websocket:', e)
                 }
             }
         })
@@ -1799,7 +1892,7 @@ async function handleMenuDialogEvent(event) {
         }
     } catch (e) {
         appStore.showSnackbar(2, 'Failed to open order window')
-        console.error('[StockOrderWindow] Error opening dialog:', e)
+        // console.error('[StockOrderWindow] Error opening dialog:', e)
     } finally {
         // Clear the opening flag after a short delay
         setTimeout(() => {
@@ -1809,14 +1902,29 @@ async function handleMenuDialogEvent(event) {
 }
 
 // Cancel order function - handles cancel-order directly without opening dialog
-async function cancelOrder(item) {
+// Returns: { success: boolean, message: string } or null on error
+async function cancelOrder(item, skipMessage = false) {
     if (!item || !item.norenordno) {
-        appStore.showSnackbar(2, 'Invalid order data')
-        return
+        if (!skipMessage) {
+            appStore.showSnackbar(2, 'Invalid order data')
+        }
+        return { success: false, message: 'Invalid order data' }
     }
 
     try {
         isPlacingOrder.value = true
+
+        // Call GetQuotes API first (like old app) to get quote data for snackbar message
+        let quotesData = null
+        try {
+            const exch = item.exch || item.exchs || ''
+            const token = item.token || ''
+            if (exch && token) {
+                quotesData = await getQuotesdata(`${exch}|${token}`)
+            }
+        } catch (quoteError) {
+            // Continue even if GetQuotes fails - use item data as fallback
+        }
 
         // Determine cancel type: 'can' for regular cancel, 'can-ex' for exit order
         const cancelType = item.exord ? 'can-ex' : 'can'
@@ -1839,17 +1947,44 @@ async function cancelOrder(item) {
         const res = await getPlaceOrder(cancelItem, cancelType)
 
         if (res?.stat !== 'Ok') {
-            appStore.showSnackbar(2, res?.emsg || 'Failed to cancel order')
+            const errorMessage = res?.emsg || 'Failed to cancel order'
+            if (!skipMessage) {
+                appStore.showSnackbar(2, errorMessage)
+            }
+            return { success: false, message: errorMessage }
         } else {
-            appStore.showSnackbar(0, cancelType === 'can-ex' ? 'Order exited successfully' : 'Order cancelled successfully')
-            // Trigger orderbook update to refresh the orders list
-            try {
-                window.dispatchEvent(new CustomEvent('orderbook-update', { detail: { type: 'orders' } }))
-            } catch (_) { }
+            // Format snackbar message like old app: "Your BUY order 25111700041237 for CIPLA-EQ in NSE is CANCELED"
+            const orderType = item.trantype === 'B' || item.trantype === 'b' ? 'BUY' : 'SELL'
+            const norenordno = item.norenordno || ''
+            // Use quotesData if available, otherwise fallback to item data
+            const tsym = quotesData?.tsym || item.tsym || ''
+            const exch = quotesData?.exch || item.exch || item.exchs || ''
+
+            const message = `Your ${orderType} order ${norenordno} for ${tsym} in ${exch} is CANCELED`
+
+            // Only show message immediately if not skipping (single order cancellation)
+            if (!skipMessage) {
+                appStore.showSnackbar(0, message)
+
+                // Trigger orderbook update to refresh the orders list (only for single cancellation)
+                // For batch cancellation, the parent component handles the update
+                try {
+                    window.dispatchEvent(new CustomEvent('orderbook-update', { detail: { type: 'orders' } }))
+                    // Removed order-cancelled event to prevent duplicate API calls
+                } catch (_) { }
+            }
+            // For batch cancellation (skipMessage=true), don't trigger orderbook update here
+            // The parent component (StocksOrderBook) will trigger it once after all cancellations
+
+            return { success: true, message }
         }
     } catch (e) {
-        appStore.showSnackbar(2, 'Failed to cancel order')
-        console.error('Cancel order error:', e)
+        const errorMessage = 'Failed to cancel order'
+        if (!skipMessage) {
+            appStore.showSnackbar(2, errorMessage)
+        }
+        // console.error('Cancel order error:', e)
+        return { success: false, message: errorMessage }
     } finally {
         isPlacingOrder.value = false
     }
@@ -2070,7 +2205,7 @@ async function placeSliceOrder() {
                     successCount++
                 } catch (e) {
                     failCount++
-                    console.error(`Slice ${i + 1} failed:`, e)
+                    // console.error(`Slice ${i + 1} failed:`, e)
                 }
 
                 // Small delay between orders (like old code uses 0ms timeout)
@@ -2086,7 +2221,7 @@ async function placeSliceOrder() {
         placeSliceSequentially()
     } catch (e) {
         appStore.showSnackbar(2, 'Failed to place slice order')
-        console.error('Slice order error:', e)
+        // console.error('Slice order error:', e)
         isPlacingOrder.value = false
     }
 }
@@ -2122,7 +2257,7 @@ function closeOrderDialog() {
             })
             window.dispatchEvent(wsEvent)
         } catch (e) {
-            console.error('[StockOrderWindow] Error unsubscribing from websocket:', e)
+            // console.error('[StockOrderWindow] Error unsubscribing from websocket:', e)
         }
     }
 
@@ -2343,20 +2478,20 @@ function validateOrder() {
             const triggerValue = gttTriggerPrice.value
 
             // Debug logging
-            console.log('[GTT Trigger Validation]', {
-                triggerValue,
-                type: typeof triggerValue,
-                priceType: priceType.value,
-                orderType: orderType.value,
-                isNull: triggerValue === null,
-                isUndefined: triggerValue === undefined,
-                isEmptyString: triggerValue === '',
-                isZero: triggerValue === 0
-            })
+            // console.log('[GTT Trigger Validation]', {
+            //     triggerValue,
+            //     type: typeof triggerValue,
+            //     priceType: priceType.value,
+            //     orderType: orderType.value,
+            //     isNull: triggerValue === null,
+            //     isUndefined: triggerValue === undefined,
+            //     isEmptyString: triggerValue === '',
+            //     isZero: triggerValue === 0
+            // })
 
             // First, check if the value is truly empty (null, undefined, empty string)
             if (triggerValue === null || triggerValue === undefined || triggerValue === '') {
-                console.log('[GTT Trigger Validation] Failed: Value is empty')
+                // console.log('[GTT Trigger Validation] Failed: Value is empty')
                 return 'Trigger cannot be empty'
             }
 
@@ -2365,28 +2500,28 @@ function validateOrder() {
             if (typeof triggerValue === 'string') {
                 const trimmed = triggerValue.trim()
                 if (trimmed === '' || trimmed === '0') {
-                    console.log('[GTT Trigger Validation] Failed: String is empty or "0"')
+                    // console.log('[GTT Trigger Validation] Failed: String is empty or "0"')
                     return 'Trigger cannot be empty'
                 }
                 triggerNum = parseFloat(trimmed)
-                console.log('[GTT Trigger Validation] String conversion:', { trimmed, triggerNum })
+                // console.log('[GTT Trigger Validation] String conversion:', { trimmed, triggerNum })
             } else {
                 triggerNum = Number(triggerValue)
-                console.log('[GTT Trigger Validation] Number conversion:', { triggerValue, triggerNum })
+                // console.log('[GTT Trigger Validation] Number conversion:', { triggerValue, triggerNum })
             }
 
             // Check if conversion resulted in NaN, or if value is 0 or negative
             // Only show error if the value is actually invalid (not just 0 from empty input)
             if (isNaN(triggerNum) || !isFinite(triggerNum)) {
-                console.log('[GTT Trigger Validation] Failed: Invalid number', { triggerNum, isNaN: isNaN(triggerNum), isFinite: isFinite(triggerNum) })
+                // console.log('[GTT Trigger Validation] Failed: Invalid number', { triggerNum, isNaN: isNaN(triggerNum), isFinite: isFinite(triggerNum) })
                 return 'Trigger must be a valid number'
             }
             if (triggerNum <= 0) {
-                console.log('[GTT Trigger Validation] Failed: Value <= 0', { triggerNum })
+                // console.log('[GTT Trigger Validation] Failed: Value <= 0', { triggerNum })
                 return 'Trigger must be greater than zero'
             }
 
-            console.log('[GTT Trigger Validation] Success:', { triggerNum })
+            // console.log('[GTT Trigger Validation] Success:', { triggerNum })
         }
 
         // Validate OCO fields if OCO panel is open
@@ -2792,9 +2927,16 @@ async function placeOrder(loop, fqty = null) {
                 appStore.showSnackbar(1, 'Order placed successfully')
             }
 
-            // Trigger orderbook update
+            // Trigger orderbook update and specific event based on order type
             try {
                 window.dispatchEvent(new CustomEvent('orderbook-update', { detail: { type: 'orders' } }))
+
+                // Dispatch specific event for better granularity
+                if (typeArg === 'place' || typeArg === 're') {
+                    window.dispatchEvent(new CustomEvent('order-placed'))
+                } else if (typeArg === 'mod') {
+                    window.dispatchEvent(new CustomEvent('order-modified'))
+                }
             } catch (_) { }
 
             // Save preferences on successful order
@@ -2812,7 +2954,7 @@ async function placeOrder(loop, fqty = null) {
         }
     } catch (e) {
         appStore.showSnackbar(2, 'Failed to place order')
-        console.error('Order placement error:', e)
+        // console.error('Order placement error:', e)
     } finally {
         isPlacingOrder.value = false
         // Only close order dialog if not opening slice dialog
@@ -3009,7 +3151,7 @@ onBeforeUnmount(() => {
             })
             window.dispatchEvent(wsEvent)
         } catch (e) {
-            console.error('[StockOrderWindow] Error unsubscribing on unmount:', e)
+            // console.error('[StockOrderWindow] Error unsubscribing on unmount:', e)
         }
     }
 

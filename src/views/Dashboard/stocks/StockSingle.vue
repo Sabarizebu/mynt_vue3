@@ -5,7 +5,7 @@
                 <v-card color="secbg" class="elevation-0 rounded-0 pt-2 px-md-0 px-3">
                     <v-row no-gutters style="background-color: #F1F3F8 !important;">
                         <v-col cols="12" md="7" class="pb-1 pb-md-2">
-                            <div class="d-flex align-center px-0 px-md-4 pt-3 pb-0">
+                            <div class="d-flex align-center px-0 px-md-4 pt-3 pb-2">
                                 <!-- Left Avatar Section -->
                                 <v-avatar color="#fbfbfb" size="56" class="my-0">
                                     <img v-if="imageicon" :src="imageicon" @error="imageLoadError" class="pa-1"
@@ -28,18 +28,27 @@
 
                                     <!-- Chips Row -->
                                     <v-chip-group class="my-0 py-0 d-flex flex-wrap align-center" column>
-                                        <v-chip label size="small" color="white" class="font-weight-medium fs-10"
-                                            style="color: var(--v-theme-subtext, #555) !important;">
-                                            {{ menudata.f && menudata.f.industry ? menudata.f.industry : "Industry" }}
+                                        <v-chip size="x-small" variant="flat"
+                                            style="border-radius: 5px; background-color: #ffffff !important; color: #666666 !important;"
+                                            class="fs-10">
+                                            <span class="fs-10">
+                                                {{ menudata.f && menudata.f.industry ? menudata.f.industry : "Industry"
+                                                }}
+                                            </span>
                                         </v-chip>
 
-                                        <v-chip label size="small" color="white" class="font-weight-medium fs-10"
-                                            style="color: var(--v-theme-subtext, #555) !important;">
-                                            {{ menudata.f && menudata.f.market_cap_type ? menudata.f.market_cap_type :
-                                                "Marketcap type" }}
+                                        <v-chip size="x-small" variant="flat"
+                                            style="border-radius: 5px; background-color: #ffffff !important; color: #666666 !important;"
+                                            class="fs-10">
+                                            <span class="fs-10">
+                                                {{ menudata.f && menudata.f.market_cap_type ? menudata.f.market_cap_type
+                                                    :
+                                                    "Marketcap type" }}
+                                            </span>
                                         </v-chip>
 
-                                        <v-chip v-if="menudata[0]?.sucase" label size="small" color="white"
+                                        <v-chip v-if="menudata[0]?.sucase" size="x-small" variant="flat"
+                                            style="border-radius: 5px; background-color: #ffffff !important; color: #666666 !important;"
                                             class="font-weight-medium px-2">
                                             <span class="d-flex align-center">
                                                 <img width="14px" src="/src/assets/suitcase.svg"
@@ -64,10 +73,10 @@
                         </v-col>
                     </v-row>
                 </v-card>
-                <div class="py-3 py-md-6">
-                    <v-toolbar class="nav-drawer elevation-0 px-0 crd-trn" density="compact">
+                <div class="py-3 py-md-1">
+                    <v-toolbar class="nav-drawer elevation-0  crd-trn pa-3" density="compact">
                         <v-list-item class="px-0">
-                            <v-list-item-title class="font-weight-bold title mb-2">Fundamental
+                            <v-list-item-title class="font-weight-bold title mb-1 ">Fundamental
                                 ratios</v-list-item-title>
                             <v-list-item-subtitle class="maintext--text font-weight-medium fs-12">
                                 Fundamental breakdown of
@@ -78,8 +87,8 @@
                     </v-toolbar>
 
                     <v-row class="px-4 mt-md-4 mt-2">
-                        <v-col cols="4" class="pb-0" v-for="(t, d, l) in Fundamentalsfield" :key="l">
-                            <v-text-field class="funda-field" variant="underlined" density="compact" readonly
+                        <v-col cols="4" class="pb-0 fs-13" v-for="(t, d, l) in Fundamentalsfield" :key="l">
+                            <v-text-field class="funda-field fs-13 " variant="underlined" density="compact" readonly
                                 color="maintext" :label="d" :model-value="t ? t : '-'">
                             </v-text-field>
                         </v-col>
@@ -87,9 +96,9 @@
                 </div>
             </v-card>
             <v-card id="fin" class="crd-trn ss-cards overflow-hidden mb-md-6" width="100%">
-                <div class="pt-md-6 pt-4 px-4">
+                <div class="pt-md-4  px-4">
                     <v-list-item class="px-0 pt-0">
-                        <v-list-item-title class="font-weight-bold title mb-2">Financial</v-list-item-title>
+                        <v-list-item-title class="font-weight-bold title mb-1">Financial</v-list-item-title>
                         <v-list-item-subtitle class="maintext--text font-weight-medium fs-12">
                             Financial breakdown of
                             {{ menudata[0] ? menudata[0].symname : "" }}
@@ -120,12 +129,12 @@
                         </v-list-item>
                         <v-spacer></v-spacer>
 
-                        <v-select @update:model-value="setFinchartdata()" hide-details append-icon="mdi-chevron-down"
+                        <v-select @update:model-value="setFinchartdata()" hide-details rounded="pill"
                             v-model="fin_fiter" :items="[
                                 { key: 'Standalone', val: 'stockFinancialsStandalone' },
                                 { key: 'Consolidated', val: 'stockFinancialsConsolidated' },
-                            ]" item-title="key" item-value="val" class="rounded-pill max-w-160" density="compact"
-                            variant="flat" bg-color="secbg" label="Filter"></v-select>
+                            ]" item-title="key" item-value="val" class=" max-w-160" density="compact" variant="flat"
+                            bg-color="secbg" label="Filter"></v-select>
                     </v-toolbar>
                 </div>
                 <v-data-table item-key="name" must-sort :sort-by="[financialtab != 2 ? 'idx' : 'name']"
@@ -133,52 +142,71 @@
                     :headers="financialheader" :search="financialsearch"
                     :items="financialitem[fin_fiter] ? (financialtab == 0 ? financialitem[fin_fiter].incomeSheet : financialtab == 1 ? financialitem[fin_fiter].balanceSheet : financialitem[fin_fiter].cashflowSheet) : []"
                     :items-per-page="-1">
-                    <template v-slot:[`header.y0`]>
-                        <v-select hide-details append-icon="mdi-chevron-down" v-model="fin_table"
-                            :items="financialheader.slice(1, 6)" item-title="title" item-value="key"
-                            class="rounded-pill" density="compact" variant="flat"></v-select>
+                    <template v-slot:[`header.exp`]>
+                        <th class="text-left pl-4">
+                            <span class="font-weight-bold">Financial Years</span>
+                        </th>
+                    </template>
+                    <template v-slot:[`header.y1`]>
+                        <th class="text-left pl-4">
+                            <span>{{ financialHeaderDates.y1 }}</span>
+                        </th>
+                    </template>
+                    <template v-slot:[`header.y2`]>
+                        <th class="text-left pl-4">
+                            <span>{{ financialHeaderDates.y2 }}</span>
+                        </th>
+                    </template>
+                    <template v-slot:[`header.y3`]>
+                        <th class="text-left pl-4">
+                            <span>{{ financialHeaderDates.y3 }}</span>
+                        </th>
+                    </template>
+                    <template v-slot:[`header.y4`]>
+                        <th class="text-left pl-4">
+                            <span>{{ financialHeaderDates.y4 }}</span>
+                        </th>
+                    </template>
+                    <template v-slot:[`header.y5`]>
+                        <th class="text-left pl-4 pr-4">
+                            <span>{{ financialHeaderDates.y5 }}</span>
+                        </th>
                     </template>
                     <template v-slot:[`item.exp`]="{ item }">
                         <td class="pl-4">
-                            <span class="font-weight-medium maintext--text text-capitalize"
+                            <span class="font-weight-medium  text-capitalize txt-000"
                                 :class="finKeyname(item.name).includes('-') ? 'txt-red' : ''">{{ finKeyname(item.name)
                                 }}</span>
                         </td>
                     </template>
                     <template v-slot:[`item.y1`]="{ item }">
-                        <td class="pr-4 text-right d-none d-md-table-cell" :class="item.y1 < 0 ? 'txt-red' : ''">
+                        <td class="pl-4 d-none d-md-table-cell txt-000" :class="item.y1 < 0 ? 'txt-red' : ''">
                             {{ item.sym == "₹" ? item.sym : "" }}{{ item.y1 }}
                             {{ item.sym == "%" ? item.sym : "" }}
                         </td>
                     </template>
 
                     <template v-slot:[`item.y2`]="{ item }">
-                        <td class="text-right d-none d-md-table-cell" :class="item.y2 < 0 ? 'txt-red' : ''">
+                        <td class="pl-4 d-none d-md-table-cell txt-000" :class="item.y2 < 0 ? 'txt-red' : ''">
                             {{ item.sym == "₹" ? item.sym : "" }}{{ item.y2 }}
                             {{ item.sym == "%" ? item.sym : "" }}
                         </td>
                     </template>
                     <template v-slot:[`item.y3`]="{ item }">
-                        <td class="text-right d-none d-md-table-cell" :class="item.y3 < 0 ? 'txt-red' : ''">
+                        <td class="pl-4 d-none d-md-table-cell txt-000" :class="item.y3 < 0 ? 'txt-red' : ''">
                             {{ item.sym == "₹" ? item.sym : "" }}{{ item.y3 }}
                             {{ item.sym == "%" ? item.sym : "" }}
                         </td>
                     </template>
                     <template v-slot:[`item.y4`]="{ item }">
-                        <td class="text-right d-none d-md-table-cell" :class="item.y4 < 0 ? 'txt-red' : ''">
+                        <td class="pl-4 d-none d-md-table-cell txt-000" :class="item.y4 < 0 ? 'txt-red' : ''">
                             {{ item.sym == "₹" ? item.sym : "" }}{{ item.y4 }}
                             {{ item.sym == "%" ? item.sym : "" }}
                         </td>
                     </template>
                     <template v-slot:[`item.y5`]="{ item }">
-                        <td class="text-right d-none d-md-table-cell" :class="item.y5 < 0 ? 'txt-red' : ''">
+                        <td class="pl-4 pr-4 d-none d-md-table-cell txt-000" :class="item.y5 < 0 ? 'txt-red' : ''">
                             {{ item.sym == "₹" ? item.sym : "" }}{{ item.y5 }}
-                            {{ item.sym == "%" ? item.sym : "" }}
-                        </td>
-                    </template>
-                    <template v-slot:[`item.y0`]="{ item }">
-                        <td class="pr-4 text-right d-md-none" :class="item[fin_table] < 0 ? 'txt-red' : ''">
-                            {{ item.sym == "₹" ? item.sym : "" }}{{ item[fin_table] }}
                             {{ item.sym == "%" ? item.sym : "" }}
                         </td>
                     </template>
@@ -194,81 +222,82 @@
                 </v-data-table>
                 <v-divider class="d-md-none"></v-divider>
             </v-card>
-            <v-card id="peers" class="crd-trn ss-cards overflow-hidden mb-md-6 pt-6" width="100%">
+            <v-card id="peers" class="crd-trn ss-cards overflow-hidden mb-md-4 pt-3" width="100%">
                 <v-toolbar class="elevation-0 px-0 crd-trn" density="compact">
-                    <v-list-item class="px-0">
-                        <v-list-item-title class="font-weight-bold title mb-2">Peers Comparison</v-list-item-title>
+                    <v-list-item class="pa-4">
+                        <v-list-item-title class="font-weight-bold title mb-1">Peers Comparison</v-list-item-title>
                         <v-list-item-subtitle class="maintext--text font-weight-medium fs-12">Peers Comparison
                             breakdown of {{
                                 peeritem[0] ? peeritem[0].industry : "" }} information</v-list-item-subtitle>
                     </v-list-item>
                     <v-spacer></v-spacer>
-                    <v-text-field v-model="peersearch" hide-details prepend-inner-icon="mdi-magnify" label="Search"
-                        class="rounded-pill mb-2 d-none d-md-flex" density="compact" variant="flat"
-                        bg-color="secbg"></v-text-field>
+                    <v-text-field rounded="pill" v-model="peersearch" hide-details prepend-inner-icon="mdi-magnify"
+                        label="Search" class="pwidth rounded-pill mr-4 d-none d-md-flex search-field-center"
+                        density="compact" variant="flat" bg-color="secbg"></v-text-field>
                 </v-toolbar>
 
                 <v-data-table must-sort :sort-by="['']" :sort-desc="[false]" hide-default-footer fixed-header
                     class="rounded-0 overflow-y-auto mt-4" :headers="peerheader" height="334px" width="800px"
                     :search="peersearch" :items="peeritem" :items-per-page="peeritem.length">
-                    <template v-slot:[`header.peers`]>
-                        <v-select hide-details append-icon="mdi-chevron-down" v-model="peer_table"
-                            :items="peerheader.slice(1, 9)" item-title="title" item-value="key" class="rounded-pill"
-                            density="compact" variant="flat"></v-select>
-                    </template>
+
                     <template v-slot:[`item.company_name`]="{ item }">
-                        <td class="pl-4 font-weight-medium maintext--text text-capitalize">
-                            {{ item.SYMBOL.split(":")[1] }}
+                        <td class="pl-0">
+                            <span class="txt-000 font-weight-medium text-capitalize">
+                                {{ item.SYMBOL.split(":")[1] }}
+                            </span>
                         </td>
                     </template>
                     <template v-slot:[`item.ltp`]="{ item }">
-                        <td class="text-right d-none d-md-table-cell">
-                            {{ item.ltp && item.ltp.lp ? Number(item.ltp.lp).toFixed(2) : "0.00" }}
+                        <td class="pl-0 d-none d-md-table-cell">
+                            <span class="txt-000">{{ item.ltp && item.ltp.lp ? Number(item.ltp.lp).toFixed(2) : "0.00"
+                            }}</span>
                         </td>
                     </template>
                     <template v-slot:[`item.market_cap`]="{ item }">
-                        <td class="text-right d-none d-md-table-cell">
-                            {{ item.market_cap ? item.market_cap.toFixed(2) : "0.00" }}
+                        <td class="pl-0 d-none d-md-table-cell">
+                            <span class="txt-000">{{ item.market_cap ? item.market_cap.toFixed(2) : "0.00" }}</span>
                         </td>
                     </template>
                     <template v-slot:[`item.pe`]="{ item }">
-                        <td class="text-right d-none d-md-table-cell">
-                            {{ item.pe ? item.pe : "0.00" }}
+                        <td class=" d-none d-md-table-cell">
+                            <span class="txt-000">{{ item.pe ? item.pe : "0.00" }}</span>
                         </td>
                     </template>
                     <template v-slot:[`item.price_book_value`]="{ item }">
-                        <td class="text-right d-none d-md-table-cell">
-                            {{ item.price_book_value ? item.price_book_value : "0.00" }}
+                        <td class=" d-none d-md-table-cell">
+                            <span class="txt-000">{{ item.price_book_value ? item.price_book_value : "0.00" }}</span>
                         </td>
                     </template>
                     <template v-slot:[`item.roce_percent`]="{ item }">
-                        <td class="text-right d-none d-md-table-cell">
-                            {{ item.roce_percent ? item.roce_percent : "0.00" }}
+                        <td class="d-none d-md-table-cell">
+                            <span class="txt-000">{{ item.roce_percent ? item.roce_percent : "0.00" }}</span>
                         </td>
                     </template>
                     <template v-slot:[`item.ev_ebitda`]="{ item }">
-                        <td class="text-right d-none d-md-table-cell">
-                            {{ item.ev_ebitda ? item.ev_ebitda : "0.00" }}
+                        <td class=" d-none d-md-table-cell">
+                            <span class="txt-000">{{ item.ev_ebitda ? item.ev_ebitda : "0.00" }}</span>
                         </td>
                     </template>
                     <template v-slot:[`item.debt_to_equity`]="{ item }">
-                        <td class="text-right d-none d-md-table-cell">
-                            {{ item.debt_to_equity ? item.debt_to_equity : "0.00" }}
+                        <td class=" d-none d-md-table-cell">
+                            <span class="txt-000">{{ item.debt_to_equity ? item.debt_to_equity : "0.00" }}</span>
                         </td>
                     </template>
                     <template v-slot:[`item.dividend_yield_percent`]="{ item }">
-                        <td class="pr-4 text-right d-none d-md-table-cell">
-                            <span>{{ item.dividend_yield_percent ? `${item.dividend_yield_percent}%` : "---" }}</span>
+                        <td class=" d-none d-md-table-cell">
+                            <span class="txt-000">{{ item.dividend_yield_percent ? `${item.dividend_yield_percent}%` :
+                                "---" }}</span>
                         </td>
                     </template>
                     <template v-slot:[`item.peers`]="{ item }">
-                        <td class="pr-4 text-right d-md-none">
-                            <span v-if="peer_table == 'dividend_yield_percent'"> {{ item.dividend_yield_percent ?
-                                `${item.dividend_yield_percent}%` : "---" }}</span>
-                            <span v-else-if="peer_table == 'ltp'">
+                        <td class=" d-md-none">
+                            <span class="txt-000" v-if="peer_table == 'dividend_yield_percent'">{{
+                                item.dividend_yield_percent ?
+                                    `${item.dividend_yield_percent}%` : "---" }}</span>
+                            <span class="txt-000" v-else-if="peer_table == 'ltp'">
                                 {{ item.ltp && item.ltp.lp ? Number(item.ltp.lp).toFixed(2) : "0.00" }}
                             </span>
-                            <span v-else>{{ item[peer_table] ? item[peer_table] : "" }}</span>
+                            <span class="txt-000" v-else>{{ item[peer_table] ? item[peer_table] : "" }}</span>
                         </td>
                     </template>
                     <template v-slot:no-data>
@@ -283,11 +312,11 @@
                 </v-data-table>
                 <v-divider class="d-md-none"></v-divider>
             </v-card>
-            <v-card id="price" class="crd-trn ss-cards overflow-hidden mb-md-6" width="100%">
-                <div class="pt-6 pb-4 pl-4">
+            <v-card id="price" class="crd-trn ss-cards overflow-hidden mb-md-4" width="100%">
+                <div class="pt-4 pb-2 pl-4">
                     <v-toolbar flat density="compact" class="tool-sty mb-5 crd-trn">
                         <v-list-item class="px-0">
-                            <v-list-item-title class="font-weight-bold title mb-2">Price
+                            <v-list-item-title class="font-weight-bold title mb-1">Price
                                 Comparison</v-list-item-title>
                             <v-list-item-subtitle class="subtext--text font-weight-medium fs-12">
                                 Compare <span class="primary--text">{{ menudata[0] ? menudata[0].symname : "" }}
@@ -302,10 +331,10 @@
                 </div>
             </v-card>
             <v-card id="hold" class="crd-trn ss-cards overflow-hidden mb-md-6" width="100%">
-                <div class="pt-6 pb-md-4 pb-8 px-7">
+                <div class="pt-4 pb-md-4 pb-8 px-4  ">
                     <v-row no-gutters>
                         <v-col cols="12" md="7" class="pa-0">
-                            <p class="font-weight-bold title mb-md-2 mb-0">Holdings</p>
+                            <p class="font-weight-bold fs-20 title mb-md-2 mb-0">Holdings</p>
                             <v-chip-group v-if="shareholdings.all" v-model="holdtab" mandatory class="mb-2"
                                 @update:model-value="shareholdings.x = holdtab">
                                 <v-chip v-for="(h, j) in shareholdings.all" variant="outlined"
@@ -321,7 +350,7 @@
                                     }}
                                 </v-chip>
                             </v-chip-group>
-                            <p class="font-weight-bold subtitle-1 font-weight-medium mb-2">Shareholding Breakdown</p>
+                            <p class="font-weight-bold fs-16   mb-2">Shareholding Breakdown</p>
                             <v-card width="100%" color="secbg" height="36px"
                                 class="d-inline-flex elevation-0 rounded-0 mb-3">
                                 <v-card v-for="(s, b) in shareholdings.table" height="36px" :width="`${(
@@ -334,12 +363,12 @@
                             <v-data-table hide-default-footer class="rounded-0 overflow-y-auto" fixed-header
                                 :headers="holdingheader" :items="shareholdings.table">
                                 <template v-slot:[`item.investor`]="{ item }">
-                                    <p class="font-weight-medium maintext--text mb-0 d-inline-flex"><v-card
+                                    <p class="font-weight-medium maintext--text txt-000 mb-0 d-inline-flex"><v-card
                                             :color="item.color" class="mt-1 mr-2 elevation-0" width="12px"
                                             height="12px"></v-card> {{ item.investor }}</p>
                                 </template>
                                 <template v-slot:[`item.holding`]="{ item }">
-                                    <span class="maintext--text">{{ shareholdings.table && item.shares ?
+                                    <span class="maintext--text txt-000">{{ shareholdings.table && item.shares ?
                                         shareholdings.all[shareholdings.x][item.shares].toFixed(2) : "0.00" }} %</span>
                                 </template>
                                 <template v-slot:no-data>
@@ -356,16 +385,20 @@
                             <v-divider class="d-md-none"></v-divider>
                         </v-col>
                         <v-col cols="12" md="5" class="pr-md-0 pl-md-4 px-0 pb-0">
-                            <v-card variant="outlined" class="crd-trn pa-3 rounded-lg">
-                                <p class="font-weight-bold subtitle-1 font-weight-medium mb-1">Shareholding History</p>
-                                <p class="subtext--text font-weight-medium fs-12">Select a segment from the breakdowns
+                            <v-card variant="outlined" class="bordercss pa-3 rounded-lg">
+                                <p class="font-weight-bold fs-16  mb-1">Shareholding History</p>
+                                <p class="subtext--text mb-4 fs-12">Select a segment from the breakdowns
                                     to see its
                                     pattern here</p>
-                                <v-select @update:model-value="setHoldchartdata()" hide-details
-                                    append-icon="mdi-chevron-down" v-model="shareholdings.y"
-                                    :items="shareholdings.table" item-title="investor" item-value="shares" block
-                                    class="rounded-pill" density="compact" variant="flat" bg-color="secbg"
-                                    label="Filter"></v-select>
+                                <v-select hide-details v-model="shareholdings.y" rounded="pill"
+                                    :items="shareholdings.table || []" item-title="investor" item-value="shares" block
+                                    class="mt-2 text-left" density="compact" variant="flat" bg-color="secbg"
+                                    label="Filter" @update:model-value="setHoldchartdata()">
+                                    <template v-slot:selection="{ item }">
+                                        <span style="text-align: left; width: 100%; display: block; padding-left: 0;">{{
+                                            item.raw?.investor || item.title }}</span>
+                                    </template>
+                                </v-select>
                                 <v-card height="294px" width="100%" id="holdchart"
                                     class="crd-trn rounded-lg elevation-0"> </v-card>
                             </v-card>
@@ -375,7 +408,7 @@
                 <v-divider class="my-4 d-none d-md-flex"></v-divider>
                 <v-toolbar flat density="compact" class="tool-sty px-4 mb-4 crd-trn">
                     <v-list-item class="px-0">
-                        <v-list-item-title class="font-weight-bold fs-16 mb-2">Mutual Funds Holding
+                        <v-list-item-title class="font-weight-bold fs-16 mb-1">Mutual Funds Holding
                             Trend</v-list-item-title>
                         <v-list-item-subtitle class="subtext--text mb-0 font-weight-medium fs-12">In last 3 months,
                             mutual fund
@@ -384,48 +417,48 @@
                             company has almost stayed constant</v-list-item-subtitle>
                     </v-list-item>
                     <v-spacer></v-spacer>
-                    <v-text-field v-model="mfsearch" hide-details prepend-inner-icon="mdi-magnify" label="Search"
-                        class="rounded-pill mb-2 d-none d-md-flex" density="compact" variant="flat"
-                        bg-color="secbg"></v-text-field>
+                    <v-text-field rounded="pill" v-model="mfsearch" hide-details prepend-inner-icon="mdi-magnify"
+                        label="Search" class="pwidth rounded-pill mr-4 d-none d-md-flex search-field-center"
+                        density="compact" variant="flat" bg-color="secbg"></v-text-field>
                 </v-toolbar>
+
                 <v-data-table must-sort :sort-by="['market_cap_Held']" :sort-desc="[true]" hide-default-footer
                     fixed-header class="rounded-0" :headers="mfholdheader" :items="mfholdings" :search="mfsearch"
                     :items-per-page="mfholdings.length">
-                    <template v-slot:[`header.mftrend`]>
-                        <v-select hide-details append-icon="mdi-chevron-down" v-model="mf_table"
-                            :items="mfholdheader.slice(1, 4)" item-title="title" item-value="key" class="rounded-pill"
-                            density="compact" variant="flat"></v-select>
-                    </template>
                     <template v-slot:[`item.mutual_fund`]="{ item }">
-                        <td class="pl-4">
-                            <span class="font-weight-medium maintext--text text-capitalize"> {{
+                        <td class="">
+                            <span class="txt-000 font-weight-medium text-capitalize"> {{
                                 item.mutual_fund.split("-") ? item.mutual_fund.split("-")[0] : item.mutual_fund
                                 }}</span>
                         </td>
                     </template>
                     <template v-slot:[`item.market_cap_Held`]="{ item }">
-                        <td class="text-right d-none d-md-table-cell">
-                            <span>{{ item.market_cap_Held ? `${item.market_cap_Held.toFixed(4)}` : "0.0000" }}%</span>
+                        <td class="text-right  d-none d-md-table-cell">
+                            <span class="txt-000">{{ item.market_cap_Held ? `${item.market_cap_Held.toFixed(4)}` :
+                                "0.0000" }}%</span>
                         </td>
                     </template>
                     <template v-slot:[`item.mf_holding_percent`]="{ item }">
                         <td class="pr-4 text-right d-none d-md-table-cell">
-                            <span>{{ item.mf_holding_percent ? `${item.mf_holding_percent.toFixed(2)}` : "0.00"
-                                }}%</span>
+                            <span class="txt-000">{{ item.mf_holding_percent ? `${item.mf_holding_percent.toFixed(2)}` :
+                                "0.00"
+                            }}%</span>
                         </td>
                     </template>
                     <template v-slot:[`item.mf_aum`]="{ item }">
-                        <td class="text-right d-none d-md-table-cell">
-                            <span>{{ item.mf_aum ? `${item.mf_aum.toFixed(2)}` : "0.00" }}</span>
+                        <td class="text-right pr-4 d-none d-md-table-cell">
+                            <span class="txt-000">{{ item.mf_aum ? `${item.mf_aum.toFixed(2)}` : "0.00" }}</span>
                         </td>
                     </template>
                     <template v-slot:[`item.mftrend`]="{ item }">
                         <td class="pr-4 text-right d-md-none">
-                            <span v-if="mf_table == 'market_cap_Held'"> {{ item.market_cap_Held ?
+                            <span v-if="mf_table == 'market_cap_Held'" class="txt-000"> {{ item.market_cap_Held ?
                                 `${item.market_cap_Held.toFixed(4)}` : "0.0000" }}%</span>
-                            <span v-else-if="mf_table == 'mf_holding_percent'"> {{ item.mf_holding_percent ?
-                                `${item.mf_holding_percent.toFixed(2)}` : "0.00" }}% </span>
-                            <span v-else>{{ item[mf_table] ? item[mf_table].toFixed(2) : "0.00" }}</span>
+                            <span v-else-if="mf_table == 'mf_holding_percent'" class="txt-000"> {{
+                                item.mf_holding_percent ?
+                                    `${item.mf_holding_percent.toFixed(2)}` : "0.00" }}% </span>
+                            <span v-else class="txt-000">{{ item[mf_table] ? item[mf_table].toFixed(2) : "0.00"
+                            }}</span>
                         </td>
                     </template>
                     <template v-slot:no-data>
@@ -451,19 +484,33 @@
                             {{ b }}
                         </v-chip>
                     </v-chip-group>
+
                     <div v-if="menudata.events && menudata.events[eventchip] && menudata.events[eventchip].length > 0">
-                        <v-card variant="outlined" v-for="(d, e, f) in menudata.events[eventchip]" :key="f"
-                            class="mb-3 rounded-lg" color="secbg">
-                            <v-list-item v-for="(g, h, i) in d" :key="i">
-                                <v-list-item-subtitle class="txt-5E6 mb-2 font-weight-medium fs-13 text-capitalize">{{
-                                    finKeyname(h) }}</v-list-item-subtitle>
-                                <v-list-item-title class="txt-000 font-weight-medium fs-14 text-capitalize">
-                                    <span v-if="h.includes('date')"> {{ new Date(g).toISOString().slice(0, 10)
-                                        }}</span>
-                                    <span v-else>{{ g }}</span>
-                                </v-list-item-title>
-                            </v-list-item>
+                        <v-card style="background-color: #F1F3F8;" variant="outlined"
+                            v-for="(d, e, f) in menudata.events[eventchip]" :key="f" class="mb-3 rounded-lg px-4 py-3"
+                            color="secbg">
+                            <v-row align="start">
+                                <v-col v-for="(g, h, i) in d" :key="i" :cols="12 / Object.keys(d).length"
+                                    class="d-flex flex-column">
+                                    <!-- Header -->
+                                    <div class="txt-5E6 font-weight-medium fs-13 text-capitalize mb-1">
+                                        {{ finKeyname(h) }}
+                                    </div>
+
+                                    <!-- Value -->
+                                    <div class="txt-000 font-weight-medium fs-14 text-capitalize">
+                                        <template v-if="h.includes('date')">
+                                            {{ new Date(g).toISOString().slice(0, 10) }}
+                                        </template>
+                                        <template v-else>
+                                            {{ truncateText(g) }}
+                                        </template>
+                                    </div>
+                                </v-col>
+                            </v-row>
                         </v-card>
+
+
                     </div>
                     <div v-else>
                         <v-col cols="12" class="text-center pa-16">
@@ -639,7 +686,7 @@ const totalnews = ref(0)
 const allnews = ref([])
 const newstab = ref(0)
 const newschip = ref({})
-const newsloading = ref(null)
+const newsloading = ref(false)
 
 const stockreturns = ref([])
 const dataloaded = ref(true)
@@ -652,28 +699,27 @@ const myChartr = ref(null)
 // Computed properties
 const financialheader = computed(() => {
     return [
-        { title: 'Financial Years', key: 'exp', filter: setFinexpand, sortable: false, class: 'fin-w-head pl-4' },
-        { title: financialHeaderDates.y5, key: 'y5', sortable: false, align: 'end', class: 'd-none d-md-table-cell' },
-        { title: financialHeaderDates.y4, key: 'y4', sortable: false, align: 'end', class: 'd-none d-md-table-cell' },
-        { title: financialHeaderDates.y3, key: 'y3', sortable: false, align: 'end', class: 'd-none d-md-table-cell' },
-        { title: financialHeaderDates.y2, key: 'y2', sortable: false, align: 'end', class: 'd-none d-md-table-cell' },
-        { title: financialHeaderDates.y1, key: 'y1', sortable: false, align: 'end', class: ' pr-4 d-none d-md-table-cell' },
-        { title: financialHeaderDates.y1, key: 'y0', sortable: false, align: 'end', class: 'pr-4 d-md-none' }
+        { title: 'Financial Years', key: 'exp', filter: setFinexpand, sortable: false, align: 'start', class: 'fin-w-head pl-4' },
+        { title: financialHeaderDates.y1, key: 'y1', sortable: false, align: 'start', class: 'd-none d-md-table-cell pl-4' },
+        { title: financialHeaderDates.y2, key: 'y2', sortable: false, align: 'start', class: 'd-none d-md-table-cell pl-4' },
+        { title: financialHeaderDates.y3, key: 'y3', sortable: false, align: 'start', class: 'd-none d-md-table-cell pl-4' },
+        { title: financialHeaderDates.y4, key: 'y4', sortable: false, align: 'start', class: 'd-none d-md-table-cell pl-4' },
+        { title: financialHeaderDates.y5, key: 'y5', sortable: false, align: 'start', class: 'pl-4 pr-4 d-none d-md-table-cell' }
     ]
 })
 
 const peerheader = computed(() => {
     return [
-        { title: 'Stocks', key: 'company_name', sortable: false, class: 'peer-w-head pl-4' },
-        { title: 'LTP', key: 'ltp', sortable: false, align: 'end', class: 'd-none d-md-table-cell' },
-        { title: 'Mkt. Cap', key: 'market_cap', sortable: false, align: 'end', class: 'ws-p d-none d-md-table-cell' },
-        { title: 'PE Ratio', key: 'pe', sortable: false, align: 'end', class: 'ws-p d-none d-md-table-cell' },
-        { title: 'PB Ratio', key: 'price_book_value', sortable: false, align: 'end', class: 'ws-p d-none d-md-table-cell' },
-        { title: 'ROCE%', key: 'roce_percent', sortable: false, align: 'end', class: 'd-none d-md-table-cell' },
-        { title: 'Evebitda', key: 'ev_ebitda', sortable: false, align: 'end', class: 'd-none d-md-table-cell' },
-        { title: 'Debt to EQ', key: 'debt_to_equity', sortable: false, align: 'end', class: 'ws-p d-none d-md-table-cell' },
-        { title: 'Div yield', key: 'dividend_yield_percent', sortable: false, align: 'end', class: ' pr-4 ws-p d-none d-md-table-cell' },
-        { title: 'Peers', key: 'peers', sortable: false, align: 'end', class: ' pr-4 ws-p d-md-none' }
+        { title: 'Stocks', key: 'company_name', sortable: false, align: 'start', class: 'peer-w-head pl-4' },
+        { title: 'LTP', key: 'ltp', sortable: false, align: 'start', class: 'd-none d-md-table-cell pl-4' },
+        { title: 'Mkt. Cap', key: 'market_cap', sortable: false, align: 'start', class: 'ws-p d-none d-md-table-cell pl-4' },
+        { title: 'PE Ratio', key: 'pe', sortable: false, align: 'start', class: 'ws-p d-none d-md-table-cell pl-4' },
+        { title: 'PB Ratio', key: 'price_book_value', sortable: false, align: 'start', class: 'ws-p d-none d-md-table-cell pl-4' },
+        { title: 'ROCE%', key: 'roce_percent', sortable: false, align: 'start', class: 'd-none d-md-table-cell pl-4' },
+        { title: 'Evebitda', key: 'ev_ebitda', sortable: false, align: 'start', class: 'd-none d-md-table-cell pl-4' },
+        { title: 'Debt to EQ', key: 'debt_to_equity', sortable: false, align: 'start', class: 'ws-p d-none d-md-table-cell pl-4' },
+        { title: 'Div yield', key: 'dividend_yield_percent', sortable: false, align: 'start', class: 'pl-4 ws-p d-none d-md-table-cell' },
+        // { title: 'Peers', key: 'peers', sortable: false, align: 'start', class: 'pl-4 ws-p d-md-none' }
     ]
 })
 
@@ -686,11 +732,11 @@ const holdingheader = computed(() => {
 
 const mfholdheader = computed(() => {
     return [
-        { title: 'Funds', key: 'mutual_fund', sortable: false, class: 'mf-w-head pl-4' },
-        { title: 'Mkt. cap held%', key: 'market_cap_Held', sortable: false, align: 'end', class: 'ws-p d-none d-md-table-cell' },
-        { title: 'AUM', key: 'mf_aum', sortable: false, align: 'end', class: 'd-none d-md-table-cell' },
-        { title: 'Weight%', key: 'mf_holding_percent', sortable: false, align: 'end', class: ' pr-4 d-none d-md-table-cell' },
-        { title: 'Trend', key: 'mftrend', sortable: false, align: 'end', class: 'pr-4 d-md-none' }
+        { title: 'Funds', key: 'mutual_fund', sortable: false, align: 'start', class: 'mf-w-head pl-4' },
+        { title: 'Mkt. cap held%', key: 'market_cap_Held', sortable: false, align: 'start', class: 'ws-p d-none d-md-table-cell pr-4' },
+        { title: 'AUM', key: 'mf_aum', sortable: false, align: 'start', class: 'd-none d-md-table-cell pr-4' },
+        { title: 'Weight%', key: 'mf_holding_percent', sortable: false, align: 'start', class: 'pr-4 d-none d-md-table-cell' },
+        // { title: 'Trend', key: 'mftrend', sortable: false, align: 'end', class: 'pr-4 d-md-none' }
     ]
 })
 
@@ -788,6 +834,10 @@ const setSingleData = async (token, exch, tsym) => {
         financialitem.stockFinancialsStandalone = {}
 
         for (const [keysss, valuesss] of Object.entries(financialitem)) {
+            // Skip if the value is not an object (e.g., chart: false)
+            if (typeof valuesss !== 'object' || valuesss === null || Array.isArray(valuesss)) {
+                continue
+            }
             financialitem[keysss].balanceSheet = []
             financialitem[keysss].cashflowSheet = []
             financialitem[keysss].incomeSheet = []
@@ -873,7 +923,7 @@ const setSingleData = async (token, exch, tsym) => {
         })
         let ltpraws = await getLtpdata(peers)
         data.peersComparison.peers.map((element) => {
-            element.ltp = element.zebuToken ? ltpraws.data[element.zebuToken] : null
+            element.ltp = (element.zebuToken && ltpraws && ltpraws.data && ltpraws.data[element.zebuToken]) ? ltpraws.data[element.zebuToken] : null
         })
         peeritem.value = data.peersComparison.peers
         if (data.peersComparison.stock && data.peersComparison.stock[0]) {
@@ -890,28 +940,37 @@ const setSingleData = async (token, exch, tsym) => {
         pricecompar.closes = []
         var colors = ['#148564', '#7CD36E', '#F9CD6C', '#FDEBC4', '#DEDEDE']
         Object.entries(data.peerComparisonChart).forEach(([key, value], i) => {
-            pricecompar.script.push(key.split(':')[1].split('-')[0])
-            if (value.date.length == 61 && pricecompar.dates.length != 61) {
-                value.date.map((ele) => {
-                    pricecompar.dates.push(new Date(ele).toLocaleString('default', { month: 'short', year: '2-digit' }))
-                })
+            if (!value || !value.date || !Array.isArray(value.date) || !value.close || !Array.isArray(value.close)) {
+                return
             }
-            pricecompar.closes.push({
-                name: key.split(':')[1].split('-')[0],
-                type: 'line',
-                symbol: 'none',
-                sampling: 'lttb',
-                data: value.close.slice(1),
-                color: colors[i],
-                areaStyle: {
-                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                        { offset: 0, color: colors[i] + '20' },
-                        { offset: 1, color: colors[i] }
-                    ])
+            try {
+                pricecompar.script.push(key.split(':')[1].split('-')[0])
+                if (value.date.length == 61 && pricecompar.dates.length != 61) {
+                    value.date.map((ele) => {
+                        pricecompar.dates.push(new Date(ele).toLocaleString('default', { month: 'short', year: '2-digit' }))
+                    })
                 }
-            })
+                pricecompar.closes.push({
+                    name: key.split(':')[1].split('-')[0],
+                    type: 'line',
+                    symbol: 'none',
+                    sampling: 'lttb',
+                    data: value.close.slice(1),
+                    color: colors[i] || '#148564',
+                    areaStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: (colors[i] || '#148564') + '20' },
+                            { offset: 1, color: colors[i] || '#148564' }
+                        ])
+                    }
+                })
+            } catch (e) {
+                console.error('Error processing peer comparison chart data:', e)
+            }
         })
-        setPricechart()
+        if (pricecompar.closes.length > 0) {
+            setPricechart()
+        }
     } else {
         pricecompar.dates = []
         pricecompar.script = []
@@ -1029,6 +1088,55 @@ const setFinancialchart = (dates, values) => {
     }
     myChartr.value = echarts.init(chartEl)
 
+    // Ensure dates is an array
+    const validDates = Array.isArray(dates) && dates.length > 0 ? dates : []
+
+    // Build series array with valid data only
+    const seriesArray = []
+
+    // Series 1
+    if (values && Array.isArray(values[0]) && values[0].length > 0) {
+        seriesArray.push({
+            name: financialtab.value == 0 ? 'Revenue' : financialtab.value == 1 ? 'Assets' : 'Operating',
+            type: 'bar',
+            label: { show: false },
+            emphasis: {
+                focus: 'series'
+            },
+            data: values[0]
+        })
+    }
+
+    // Series 2
+    if (values && Array.isArray(values[1]) && values[1].length > 0) {
+        seriesArray.push({
+            name: financialtab.value == 0 ? 'Expenditure' : financialtab.value == 1 ? 'Liabilities' : 'Investing',
+            type: 'bar',
+            label: { show: false },
+            emphasis: {
+                focus: 'series'
+            },
+            data: values[1]
+        })
+    }
+
+    // Series 3 (only for tab 0 and 2, not tab 1)
+    if (financialtab.value != 1 && values && Array.isArray(values[2]) && values[2].length > 0) {
+        seriesArray.push({
+            name: financialtab.value == 0 ? 'Profit After Tax' : 'Financing',
+            type: financialtab.value == 2 ? 'bar' : 'line',
+            label: { show: false },
+            emphasis: {
+                focus: 'series'
+            },
+            data: values[2]
+        })
+    }
+
+    if (seriesArray.length === 0 || validDates.length === 0) {
+        return
+    }
+
     var option = {
         grid: {
             left: 64,
@@ -1058,7 +1166,7 @@ const setFinancialchart = (dates, values) => {
             {
                 type: 'category',
                 axisTick: { show: false },
-                data: dates ? dates : false
+                data: validDates
             }
         ],
         yAxis: [
@@ -1069,40 +1177,50 @@ const setFinancialchart = (dates, values) => {
                 }
             }
         ],
-        series: [
-            {
-                name: financialtab.value == 0 ? 'Revenue' : financialtab.value == 1 ? 'Assets' : 'Operating',
-                type: 'bar',
-                label: false,
-                emphasis: {
-                    focus: 'series'
-                },
-                data: values && values[0] ? values[0] : false
-            },
-            {
-                name: financialtab.value == 0 ? 'Expenditure' : financialtab.value == 1 ? 'Liabilities' : 'Investing',
-                type: 'bar',
-                label: false,
-                emphasis: {
-                    focus: 'series'
-                },
-                data: values && values[1] ? values[1] : false
-            },
-            {
-                name: financialtab.value == 0 ? 'Profit After Tax' : financialtab.value == 1 ? 'Debt to assets' : 'Financing',
-                type: financialtab.value == 2 ? 'bar' : 'line',
-                label: false,
-                emphasis: {
-                    focus: 'series'
-                },
-                data: financialtab.value != 1 ? (values && values[2] ? values[2] : []) : false
-            }
-        ]
+        series: seriesArray
     }
-    myChartr.value.setOption(option)
 
-    const resizeHandler = () => { if (myChartr.value) myChartr.value.resize() }
-    window.addEventListener('resize', resizeHandler)
+    try {
+        // Use notMerge to completely replace old option and avoid undefined series
+        myChartr.value.setOption(option, { notMerge: true })
+    } catch (e) {
+        console.error('Error setting financial chart option:', e)
+    }
+
+    // Remove old resize handler if it exists
+    if (window._financialChartResizeHandler) {
+        window.removeEventListener('resize', window._financialChartResizeHandler)
+    }
+
+    // Add new resize handler with error handling
+    window._financialChartResizeHandler = () => {
+        try {
+            // Validate chart instance exists and is not disposed
+            if (!myChartr.value) return
+
+            // Check if chart element still exists in DOM
+            const chartEl = document.getElementById('financialchart')
+            if (!chartEl) return
+
+            // Verify chart is not disposed by checking if it has internal state
+            // ECharts throws error if we try to access disposed chart
+            try {
+                // Try to get option to verify chart is still valid
+                const option = myChartr.value.getOption()
+                if (!option || !option.series) return
+            } catch {
+                // Chart is disposed or invalid, don't resize
+                return
+            }
+
+            // All checks passed, safe to resize
+            myChartr.value.resize()
+        } catch (e) {
+            // Silently handle resize errors - chart might be in invalid state
+            // Don't log to avoid console spam
+        }
+    }
+    window.addEventListener('resize', window._financialChartResizeHandler)
 }
 
 const putFinancialUpdates = (dates, values) => {
@@ -1119,6 +1237,33 @@ const setPricechart = () => {
 
     if (!myCharto.value) return
 
+    // Filter out any undefined or invalid series entries
+    const validSeries = pricecompar.closes.filter(series =>
+        series &&
+        typeof series === 'object' &&
+        series.type &&
+        Array.isArray(series.data) &&
+        series.data.length > 0
+    )
+
+    // Ensure dates array is valid
+    const validDates = Array.isArray(pricecompar.dates) && pricecompar.dates.length > 1
+        ? pricecompar.dates.slice(1)
+        : []
+
+    // If no valid data, clear the chart
+    if (validSeries.length === 0 || validDates.length === 0) {
+        try {
+            // Clear the chart by setting an empty option
+            myCharto.value.setOption({
+                series: []
+            }, { notMerge: true, lazyUpdate: true })
+        } catch (e) {
+            console.error('Error clearing price chart:', e)
+        }
+        return
+    }
+
     var option = {
         grid: {
             left: 44,
@@ -1132,7 +1277,7 @@ const setPricechart = () => {
             }
         },
         legend: {
-            data: pricecompar.script,
+            data: pricecompar.script || [],
             orient: 'horizontal',
             bottom: 240,
             top: 'bottom'
@@ -1145,7 +1290,7 @@ const setPricechart = () => {
         },
         xAxis: {
             type: 'category',
-            data: pricecompar.dates.slice(1)
+            data: validDates
         },
         yAxis: {
             type: 'value',
@@ -1153,16 +1298,55 @@ const setPricechart = () => {
                 formatter: '{value} %'
             }
         },
-        series: pricecompar.closes
+        series: validSeries
     }
-    myCharto.value.setOption(option)
 
-    const resizeHandler = () => {
-        if (myCharto.value) {
-            myCharto.value.resize()
+    try {
+        // Use notMerge to completely replace old option and avoid undefined series
+        myCharto.value.setOption(option, { notMerge: true, lazyUpdate: false })
+    } catch (e) {
+        console.error('Error setting price chart option:', e)
+        // If setting option fails, try to clear the chart
+        try {
+            myCharto.value.setOption({ series: [] }, { notMerge: true })
+        } catch (clearError) {
+            console.error('Error clearing price chart after failure:', clearError)
         }
     }
-    window.addEventListener('resize', resizeHandler)
+
+    // Remove old resize handler if it exists
+    if (window._priceChartResizeHandler) {
+        window.removeEventListener('resize', window._priceChartResizeHandler)
+    }
+
+    // Add new resize handler with error handling and validation
+    window._priceChartResizeHandler = () => {
+        try {
+            // Validate chart instance exists and is not disposed
+            if (!myCharto.value) return
+
+            // Check if chart element still exists in DOM
+            const chartEl = document.getElementById('pricechart')
+            if (!chartEl) return
+
+            // Verify chart is not disposed by checking if it has internal state
+            try {
+                // Try to get option to verify chart is still valid
+                const option = myCharto.value.getOption()
+                if (!option || !option.series) return
+            } catch {
+                // Chart is disposed or invalid, don't resize
+                return
+            }
+
+            // All checks passed, safe to resize
+            myCharto.value.resize()
+        } catch (e) {
+            // Silently handle resize errors - chart might be in invalid state
+            // Don't log to avoid console spam
+        }
+    }
+    window.addEventListener('resize', window._priceChartResizeHandler)
 }
 
 const setHoldchartdata = () => {
@@ -1191,11 +1375,29 @@ const setHoldingchart = (dates, values, clr) => {
 
     if (!myChartt.value) return
 
+    // Validate data
+    const validDates = Array.isArray(dates) ? dates : []
+    const validValues = Array.isArray(values) ? values : []
+    const validColor = clr || '#148564'
+
+    // If no valid data, clear the chart
+    if (validDates.length === 0 || validValues.length === 0) {
+        try {
+            // Clear the chart by setting an empty option
+            myChartt.value.setOption({
+                series: []
+            }, { notMerge: true, lazyUpdate: true })
+        } catch (e) {
+            console.error('Error clearing holdings chart:', e)
+        }
+        return
+    }
+
     var option = {
-        color: clr,
+        color: validColor,
         xAxis: {
             type: 'category',
-            data: dates,
+            data: validDates,
             splitLine: {
                 show: false
             },
@@ -1225,7 +1427,7 @@ const setHoldingchart = (dates, values, clr) => {
         },
         series: [
             {
-                data: values,
+                data: validValues,
                 type: 'bar',
                 label: {
                     show: true,
@@ -1237,14 +1439,53 @@ const setHoldingchart = (dates, values, clr) => {
             }
         ]
     }
-    myChartt.value.setOption(option)
 
-    const resizeHandler = () => {
-        if (myChartt.value) {
-            myChartt.value.resize()
+    try {
+        // Use notMerge to completely replace old option and avoid undefined series
+        myChartt.value.setOption(option, { notMerge: true, lazyUpdate: false })
+    } catch (e) {
+        console.error('Error setting holdings chart option:', e)
+        // If setting option fails, try to clear the chart
+        try {
+            myChartt.value.setOption({ series: [] }, { notMerge: true })
+        } catch (clearError) {
+            console.error('Error clearing holdings chart after failure:', clearError)
         }
     }
-    window.addEventListener('resize', resizeHandler)
+
+    // Remove old resize handler if it exists
+    if (window._holdingsChartResizeHandler) {
+        window.removeEventListener('resize', window._holdingsChartResizeHandler)
+    }
+
+    // Add new resize handler with error handling and validation
+    window._holdingsChartResizeHandler = () => {
+        try {
+            // Validate chart instance exists and is not disposed
+            if (!myChartt.value) return
+
+            // Check if chart element still exists in DOM
+            const chartEl = document.getElementById('holdchart')
+            if (!chartEl) return
+
+            // Verify chart is not disposed by checking if it has internal state
+            try {
+                // Try to get option to verify chart is still valid
+                const option = myChartt.value.getOption()
+                if (!option || !option.series) return
+            } catch {
+                // Chart is disposed or invalid, don't resize
+                return
+            }
+
+            // All checks passed, safe to resize
+            myChartt.value.resize()
+        } catch (e) {
+            // Silently handle resize errors - chart might be in invalid state
+            // Don't log to avoid console spam
+        }
+    }
+    window.addEventListener('resize', window._holdingsChartResizeHandler)
 }
 
 const putHoldingUpdates = (dates, values, clr) => {
@@ -1252,25 +1493,38 @@ const putHoldingUpdates = (dates, values, clr) => {
 }
 
 const getNews = async () => {
-    newsloading.value = true
+    try {
+        newsloading.value = true
 
-    if (window.storenews && window.storenews.data) {
-        allnews.value = window.storenews.data
-        totalnews.value = window.storenews.newsCount || 0
-        newsloading.value = false
-    } else {
+        if (window.storenews && window.storenews.data) {
+            allnews.value = window.storenews.data
+            totalnews.value = window.storenews.newsCount || 0
+            newsloading.value = false
+        } else {
+            allnews.value = []
+            totalnews.value = 0
+
+            let config = await getssNews()
+            if (config && config.data && config.data.length > 0) {
+                let data = config.data
+                for (let v = 0; v < data.length; v++) {
+                    if (data[v].pubDate) {
+                        data[v].isdate = `${new Date(data[v].pubDate).toDateString().slice(3)} ${new Date(data[v].pubDate).toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })} IST`
+                    }
+                    allnews.value.push(data[v])
+                }
+                totalnews.value = config.newsCount || 0
+            } else {
+                console.warn('[StockSingle] getssNews returned no data:', config)
+                allnews.value = []
+                totalnews.value = 0
+            }
+            newsloading.value = false
+        }
+    } catch (error) {
+        console.error('[StockSingle] Error fetching news:', error)
         allnews.value = []
         totalnews.value = 0
-
-        let config = await getssNews()
-        if (config.data && config.data.length > 0) {
-            let data = config.data
-            for (let v = 0; v < data.length; v++) {
-                data[v].isdate = `${new Date(data[v].pubDate).toDateString().slice(3)} ${new Date(data[v].pubDate).toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })} IST`
-                allnews.value.push(data[v])
-            }
-            totalnews.value = config.newsCount || 0
-        }
         newsloading.value = false
     }
 }
@@ -1302,6 +1556,13 @@ const finKeyname = (key) => {
     abc = abc.replace(/[._-]/g, ' ')
     abc = abc.replace(/less|total/gi, '')
     return abc
+}
+
+const truncateText = (text, maxWords = 5) => {
+    if (!text || typeof text !== 'string') return text
+    const words = text.trim().split(/\s+/)
+    if (words.length <= maxWords) return text
+    return words.slice(0, maxWords).join(' ') + '...'
 }
 
 const setFinexpand = (value) => {
@@ -1376,11 +1637,27 @@ onMounted(() => {
     window.addEventListener('web-scoketConn', handleWebSocketConnection)
 
     newschip.value = newstypes[0]
+    // Load news on component mount
+    getNews()
 })
 
 onBeforeUnmount(() => {
     window.removeEventListener('ssd-event', handleSSDEvent)
     window.removeEventListener('web-scoketConn', handleWebSocketConnection)
+
+    // Remove resize handlers
+    if (window._financialChartResizeHandler) {
+        window.removeEventListener('resize', window._financialChartResizeHandler)
+        window._financialChartResizeHandler = null
+    }
+    if (window._priceChartResizeHandler) {
+        window.removeEventListener('resize', window._priceChartResizeHandler)
+        window._priceChartResizeHandler = null
+    }
+    if (window._holdingsChartResizeHandler) {
+        window.removeEventListener('resize', window._holdingsChartResizeHandler)
+        window._holdingsChartResizeHandler = null
+    }
 
     // Unsubscribe from live quotes for current symbol
     if (menudata[0] && menudata[0].token) {
@@ -1389,15 +1666,27 @@ onBeforeUnmount(() => {
 
     // Dispose ECharts instances
     if (myChartr.value) {
-        myChartr.value.dispose()
+        try {
+            myChartr.value.dispose()
+        } catch (e) {
+            console.error('Error disposing financial chart:', e)
+        }
         myChartr.value = null
     }
     if (myCharto.value) {
-        myCharto.value.dispose()
+        try {
+            myCharto.value.dispose()
+        } catch (e) {
+            console.error('Error disposing price chart:', e)
+        }
         myCharto.value = null
     }
     if (myChartt.value) {
-        myChartt.value.dispose()
+        try {
+            myChartt.value.dispose()
+        } catch (e) {
+            console.error('Error disposing holdings chart:', e)
+        }
         myChartt.value = null
     }
 })
@@ -1425,141 +1714,6 @@ watch(() => shareholdings.y, () => {
 </script>
 
 <style scoped>
-.pos-rlt {
-    position: relative;
-}
-
-.pos-abs {
-    position: absolute;
-}
-
-.pos-cent {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.cursor-p {
-    cursor: pointer;
-}
-
-.ws-p {
-    white-space: nowrap;
-}
-
-.fs-10 {
-    font-size: 10px;
-}
-
-.fs-12 {
-    font-size: 12px;
-}
-
-.fs-13 {
-    font-size: 13px;
-}
-
-.fs-14 {
-    font-size: 14px;
-}
-
-.fs-16 {
-    font-size: 16px;
-}
-
-.fs-18 {
-    font-size: 18px;
-}
-
-.lh-14 {
-    line-height: 14px;
-}
-
-.lh-16 {
-    line-height: 16px;
-}
-
-.lh-20 {
-    line-height: 20px;
-}
-
-.lh-24 {
-    line-height: 24px;
-}
-
-.txt-999 {
-    color: #999;
-}
-
-.txt-gre {
-    color: #43A833;
-}
-
-.txt-red {
-    color: #F23645;
-}
-
-.txt-444 {
-    color: #444;
-}
-
-.txt-5E6 {
-    color: #5E6;
-}
-
-.txt-000 {
-    color: #000;
-}
-
-.txt-trn {
-    color: transparent;
-}
-
-.maingreen--text {
-    color: #43A833 !important;
-}
-
-.mainred--text {
-    color: #F23645 !important;
-}
-
-.maintext--text {
-    color: #000 !important;
-}
-
-.subtext--text {
-    color: #666666 !important;
-}
-
-.no-scroll {
-    overflow: hidden;
-}
-
-.crd-trn {
-    background-color: transparent !important;
-}
-
-.ss-cards {
-    border: thin solid #EBEEF0 !important;
-    border-radius: 8px !important;
-    box-shadow: none !important;
-    background-color: #ffffff !important;
-}
-
-.text-rap-l2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.funda-field {
-    font-size: 12px;
-}
-
 .financialtabel {
     height: auto;
     max-height: 500px;
@@ -1622,9 +1776,39 @@ watch(() => shareholdings.y, () => {
     overflow-y: auto;
 }
 
+/* Force left alignment for financial table headers */
+.financialtabel :deep(.v-data-table__th) {
+    text-align: left !important;
+}
+
+.financialtabel :deep(.v-data-table__th.text-left) {
+    text-align: left !important;
+}
+
 /* List item styling for Vuetify 3 */
 :deep(.v-list-item__content) {
     padding: 0;
+}
+
+/* Ensure select text is left-aligned */
+:deep(.v-select .v-field__input) {
+    text-align: left !important;
+    padding-left: 12px !important;
+}
+
+:deep(.v-select .v-field__input input) {
+    text-align: left !important;
+}
+
+:deep(.v-select .v-select__selection) {
+    text-align: left !important;
+    justify-content: flex-start !important;
+    width: 100%;
+}
+
+:deep(.v-select .v-field__input .v-select__selection-text) {
+    text-align: left !important;
+    width: 100%;
 }
 
 /* Ensure proper alignment for text fields */
@@ -1653,5 +1837,25 @@ watch(() => shareholdings.y, () => {
     overflow: hidden;
     text-overflow: ellipsis;
     word-break: break-word;
+}
+
+/* Vertically center text in peer search input */
+.peer-search-input :deep(.v-field) {
+    display: flex;
+    align-items: center;
+}
+
+.peer-search-input :deep(.v-field__input) {
+    display: flex;
+    align-items: center;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.peer-search-input :deep(.v-field__input input) {
+    line-height: 1.5;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin: 0;
 }
 </style>

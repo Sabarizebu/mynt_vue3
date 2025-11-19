@@ -83,7 +83,7 @@
                                         </v-card>
                                     </template>
                                 </v-text-field>
-                                <p class="fs-10 subtext--text ml-6 mt-1">Min. redemption uints {{ menudata.item ?
+                                <p class="fs-10 subtext--text ml-0 mt-1">Min. redemption uints {{ menudata.item ?
                                     menudata.item.Minimum_Redemption_Qty : 0 }}</p>
                             </div>
 
@@ -135,7 +135,7 @@
                                                 <v-list-item v-on="on" v-bind="props">
                                                     <v-list-item-content>
                                                         <v-list-item-title class="font-weight-medium">{{ item.MandateId
-                                                        }}
+                                                            }}
 
                                                             <v-tooltip location="top" color="black">
                                                                 <template v-slot:activator="{ props }">
@@ -183,7 +183,7 @@
                                                                 <span>{{ item.Status }}</span>
                                                             </v-tooltip>
                                                             <span class="float-right">{{ Number(item.Amount).toFixed(2)
-                                                            }}</span>
+                                                                }}</span>
                                                         </v-list-item-title>
                                                         <v-list-item-subtitle class="caption">reg date : {{
                                                             item.RegnDate }}
@@ -260,7 +260,7 @@
                                         </svg>
                                     </template>
                                 </v-text-field>
-                                <p class="fs-10 subtext--text ml-6 mt-1">Min. ₹{{ menudata.sipvalue && mf_frequency ?
+                                <p class="fs-10 subtext--text ml-0 mt-1">Min. ₹{{ menudata.sipvalue && mf_frequency ?
                                     menudata.sipvalue[mf_frequency].SIP_MINIMUM_INSTALLMENT_AMOUNT : 0.0 }} (multiple of
                                     1.0)</p>
 
@@ -300,7 +300,7 @@
                                     :step="menudata.sipvalue[mf_frequency].SIP_MINIMUM_INSTALLMENT_NUMBERS"
                                     v-model="mf_noof_instal">
                                 </v-text-field>
-                                <p class="fs-10 subtext--text ml-6 mt-1">Min. duration {{ menudata.sipvalue &&
+                                <p class="fs-10 subtext--text ml-0 mt-1">Min. duration {{ menudata.sipvalue &&
                                     mf_frequency ?
                                     menudata.sipvalue[mf_frequency].SIP_MINIMUM_INSTALLMENT_NUMBERS : 0 }} {{
                                         menudata.sipvalue &&
@@ -334,7 +334,7 @@
                                         </svg>
                                     </template>
                                 </v-text-field>
-                                <p class="fs-10 subtext--text ml-6 mt-1">Min. ₹{{ menudata.item ?
+                                <p class="fs-10 subtext--text ml-0 mt-1">Min. ₹{{ menudata.item ?
                                     menudata.item.Minimum_Purchase_Amount :
                                     0.0 }} (multiple of 1.0)</p>
                             </div>
@@ -441,7 +441,7 @@
                         class="font-weight-regular fs-10 subtext--text d-none d-md-block">
                         AUM <span class="text-primary font-weight-bold">{{ Number(menudata.item.AUM /
                             10000000).toFixed(2)
-                        }}</span> Cr.
+                            }}</span> Cr.
                         <br />
                     </span>
                     <v-spacer></v-spacer>
@@ -489,7 +489,7 @@
                                 </v-list-item-title>
                                 <v-list-item-subtitle class="caption">XXXX XXXX {{
                                     item.Bank_AcNo && typeof item.Bank_AcNo === 'string' ? item.Bank_AcNo.slice(-4) : ''
-                                }}
+                                    }}
                                 </v-list-item-subtitle>
                             </v-list-item-content>
                         </v-list-item>
@@ -642,13 +642,13 @@ export default {
             this.mtoken = sessionStorage.getItem("msession");
             this.token = sessionStorage.getItem("usession");
             this.uid = sessionStorage.getItem("userid");
-            console.log("User event - UID updated:", this.uid);
+            // console.log("User event - UID updated:", this.uid);
         });
 
         this.mtoken = sessionStorage.getItem("msession");
         this.token = sessionStorage.getItem("usession");
         this.uid = sessionStorage.getItem("userid");
-        console.log("Mounted - Initial UID:", this.uid);
+        // console.log("Mounted - Initial UID:", this.uid);
     },
     beforeUnmount() {
         eventBus.$off("menudialog");
@@ -738,19 +738,19 @@ export default {
         },
         async setMenudialog(mode, itemdata) {
             eventBus.$emit("sub-loader", 1);
-            console.log("itemdataitemdata", itemdata);
-            console.log("modemodemodemode", mode);
+            // console.log("itemdataitemdata", itemdata);
+            // console.log("modemodemodemode", mode);
 
             // Refresh uid and token from sessionStorage
             this.mtoken = sessionStorage.getItem("msession");
             this.token = sessionStorage.getItem("usession");
             this.uid = sessionStorage.getItem("userid");
 
-            console.log("UID from sessionStorage:", this.uid);
-            console.log("Token from sessionStorage:", this.token);
+            // console.log("UID from sessionStorage:", this.uid);
+            // console.log("Token from sessionStorage:", this.token);
 
             if (!this.uid) {
-                console.error("UID is null! Please check sessionStorage for 'userid'");
+                // console.error("UID is null! Please check sessionStorage for 'userid'");
                 eventBus.$emit("snack-event", 2, "User session expired. Please login again.");
                 eventBus.$emit("sub-loader", 0);
                 return;
@@ -762,7 +762,7 @@ export default {
             this.mf_tenure = mode == "sip" ? true : false;
             this.menudata["types"] = mode;
             this.menudata["item"] = itemdata;
-            console.log("   this.menudata[", this.menudata["item"]);
+            // console.log("   this.menudata[", this.menudata["item"]);
 
             if (mode == "redem") {
                 this.menudata.item.Minimum_Redemption_Qty = Number(this.menudata.item.Minimum_Redemption_Qty);
@@ -888,13 +888,13 @@ export default {
             }
 
             if (!this.uid) {
-                console.error("UID is null! Cannot place order.");
+                // console.error("UID is null! Cannot place order.");
                 eventBus.$emit("snack-event", 2, "User session expired. Please login again.");
                 this.orderpoploader = false;
                 return;
             }
 
-            console.log("Placing order with UID:", this.uid);
+            // console.log("Placing order with UID:", this.uid);
             this.orderpoploader = true;
             let data;
             if (this.mf_tenure && this.menudata.types != "redem") {
@@ -930,7 +930,7 @@ export default {
             let res = await getMFplaceoredr(url, JSON.stringify(data));
 
             if (res.stat == "Ok") {
-                console.log("iffff elseeee order");
+                // console.log("iffff elseeee order");
                 this.mf_tenure = true
 
                 if (this.menudata.types == "redem") {
@@ -939,15 +939,15 @@ export default {
                     this.snackAlert(res.stat == 'Ok' ? 1 : 2, res.stat == 'Ok' ? 'Redemption Order  Initiated' : res);
                 } else {
                     if (this.mf_tenure) {
-                        console.log("ifif 111");
+                        // console.log("ifif 111");
 
                         if (this.mf_sipinit) {
-                            console.log("ifif sip");
-                            console.log("############")
+                            // console.log("ifif sip");
+                            // console.log("############")
 
                             this.setMfpayment(this.mf_initial_amt, res.OrderNumber);
                         } else {
-                            console.log("ifif elseee");
+                            // console.log("ifif elseee");
 
                             this.orderpoploader = false;
                             this.snackAlert(res.stat == "Ok" ? 1 : 0, (res.Remarks == 'Order Confirmed From STARMF' && res.status == 'PAYMENT NOT INITIATED') ? "Order Initiated successful" : res.error ? res.error : res);
@@ -958,14 +958,14 @@ export default {
                         }
                         this.closeMenudialog("mforder");
                     } else {
-                        console.log("1234@@@@@@@@@");
+                        // console.log("1234@@@@@@@@@");
 
                         this.setMfpayment(this.mf_invest_amt, res.order_number);
 
                     }
                 }
             } else {
-                console.log("elseeee order");
+                // console.log("elseeee order");
 
                 this.closeMenudialog("mforder");
                 this.orderpoploader = false;
@@ -1071,7 +1071,7 @@ export default {
                 "vpa_id": this.mfpainids
             })
             let res = await getsendpaymentrequt(data)
-            console.log("res", res);
+            // console.log("res", res);
             if (res.stat == 'Ok' && res.type == 'UPI') {
                 this.orderiniteddai = false
                 this.paymentcheck = true
@@ -1106,18 +1106,18 @@ export default {
             try {
                 this.paystausres = []
                 let res = await getcheckpaystatus(data);
-                console.log("paymentatusapicall:", res);
+                // console.log("paymentatusapicall:", res);
                 this.paystausres = res
 
                 if (res.status === "PAYMENT APPROVED" || res.status === "PAYMENT DECLINED" || res.status == 'PAYMENT REJECTED') {
-                    console.log("✅ Payment OK, stopping calls...");
+                    // console.log("✅ Payment OK, stopping calls...");
                     this.stopPaymentCheck();
                     this.paymentcheck = false; // stop loader
                     this.paymentconfirm = true
                     this.orderpoploadernew = false
 
                 } else if (res.stat !== "ok") {
-                    console.log("❌ Error response, stopping calls...");
+                    // console.log("❌ Error response, stopping calls...");
                     this.stopPaymentCheck();
                     this.paymentcheck = false;
                     this.snackAlert(2, res);
@@ -1126,7 +1126,7 @@ export default {
                 }
 
             } catch (err) {
-                console.error("API error:", err);
+                // console.error("API error:", err);
                 this.stopPaymentCheck();
                 this.paymentcheck = false;
                 this.snackAlert(2, "Something went wrong");

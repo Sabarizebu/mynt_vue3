@@ -17,8 +17,8 @@
                             </template>
                         </v-snackbars>
                         <v-snackbar class="d-none d-md-flex snakbar-sty rounded-pill"
-                            transition="slide-x-reverse-transition" top right v-model="appStore.snackbar"
-                            timeout="4000" :value="true" :color="appStore.snackcolor" absolute text-color="white"
+                            transition="slide-x-reverse-transition" top right v-model="appStore.snackbar" timeout="4000"
+                            :value="true" :color="appStore.snackcolor" absolute text-color="white"
                             style="top: 80px !important; right: 16px !important;">
                             <v-icon class="mr-2" color="#fff">mdi-alert-outline</v-icon>
                             {{ appStore.snacktxt }}
@@ -26,9 +26,9 @@
                                 color="#fff">mdi-close-circle</v-icon>
                         </v-snackbar>
 
-                        <v-snackbar class="d-md-none snakbar-sty rounded-pill"
-                            transition="slide-x-reverse-transition" top right v-model="appStore.snackbar"
-                            timeout="4000" :value="true" :color="appStore.snackcolor" absolute text-color="white"
+                        <v-snackbar class="d-md-none snakbar-sty rounded-pill" transition="slide-x-reverse-transition"
+                            top right v-model="appStore.snackbar" timeout="4000" :value="true"
+                            :color="appStore.snackcolor" absolute text-color="white"
                             style="top: 80px !important; right: 16px !important;">
                             <v-icon class="mr-2" color="#fff">mdi-alert-outline</v-icon>
                             {{ appStore.snacktxt }}
@@ -175,9 +175,10 @@
                                 <v-divider class="mx-4"></v-divider>
                                 <v-card-actions class="mt-3">
                                     <v-spacer></v-spacer>
-                                    <v-btn color="#0037B7" dark
+                                    <v-btn color="#0037B7" dark variant="elevated"
                                         class="elevation-0 text-none font-weight-bold rounded-pill px-4"
-                                        @click="closeRisk()"> I Understand </v-btn>
+                                        @click="closeRisk()"> I Understand
+                                    </v-btn>
                                 </v-card-actions>
                             </v-card>
                         </v-dialog>
@@ -443,7 +444,7 @@ const goSso = (flow) => {
 
 const setTabway = () => {
     const pathname = route.path
-    console.log(pathname, "-------------------")
+    // console.log(pathname, "-------------------")
     if (pathname.includes("stocks")) {
         bodytab.value = "Stocks"
         apptab.value = 0
@@ -477,12 +478,12 @@ const closeRisk = () => {
 
 // WebSocket data parsing method (similar to old implementation)
 const optionChainDataParse = (data) => {
-    console.log("📊 optionChainDataParse called with:", data)
+    // console.log("📊 optionChainDataParse called with:", data)
     if (webSocketEventBus.wsstocksdata && webSocketEventBus.wsstocksdata.tok && webSocketEventBus.wsstocksdata.rawdata) {
         // Emit web-scoketConn event with actual data (similar to old implementation)
         const eventData = Array.isArray(data) ? data[0]?.v : data
         const currentPage = webSocketEventBus.wsstocksdata.raw
-        console.log("📡 Emitting web-scoketConn with data:", eventData, "page:", currentPage)
+        // console.log("📡 Emitting web-scoketConn with data:", eventData, "page:", currentPage)
         webSocketEventBus.emit("web-scoketConn", eventData, currentPage)
     }
 }
@@ -493,7 +494,7 @@ const getPublicIP = async () => {
         const data = await response.json()
         localStorage.setItem("uuidipadd", data.ip)
     } catch (error) {
-        console.error(error)
+        // console.error(error)
     }
 }
 
@@ -501,10 +502,10 @@ const getUserSession = async (k) => {
     appStore.showLoader()
     if (authStore.uid) {
         let sessvalid = await getActiveSession(authStore.uid)
-        console.log("🔍 Session validation result:", sessvalid)
+        // console.log("🔍 Session validation result:", sessvalid)
 
         if (sessvalid && sessvalid.stat == "Ok" && sessvalid.apitoken && sessvalid.token) {
-            console.log("✅ Session valid, proceeding...")
+            // console.log("✅ Session valid, proceeding...")
 
             // IMPORTANT: Update mynturl BEFORE calling seyCheckwebsocket
             // Ensure clientid is added if not in sessvalid
@@ -520,14 +521,14 @@ const getUserSession = async (k) => {
 
             // Set up WebSocket data handling similar to old implementation
             webSocketEventBus.on("web-scoketOn", (flow, data, is, page) => {
-                console.log("📡 WebSocket Event Bus received:", { flow, data, is, page })
+                // console.log("📡 WebSocket Event Bus received:", { flow, data, is, page })
                 webSocketEventBus.handleWebSocketRequest(flow, data, is, page)
             })
 
             // Listen for custom WebSocket events from components
             window.addEventListener('web-scoketOn', (event) => {
                 const { flow, data, is, page } = event.detail
-                console.log("📡 Custom WebSocket event received:", { flow, data, is, page })
+                // console.log("📡 Custom WebSocket event received:", { flow, data, is, page })
                 webSocketEventBus.handleWebSocketRequest(flow, data, is, page)
             })
 
@@ -542,7 +543,7 @@ const getUserSession = async (k) => {
             if (sessvalid.apitoken) {
                 // Don't update msession - it should remain as the original sess from URL
                 // authStore.mtoken should also remain as the original msession value
-                console.log("✅ Session validated with apitoken:", sessvalid.apitoken)
+                // console.log("✅ Session validated with apitoken:", sessvalid.apitoken)
             }
 
             if (k) {
@@ -575,10 +576,10 @@ const getUserSession = async (k) => {
             }
 
             // Hide loader after successful session validation
-            console.log("✅ Hiding loader...")
+            // console.log("✅ Hiding loader...")
             appStore.setMainLoader(false)
             appStore.hideLoader()
-            console.log("✅ Loader hidden, mainloader value:", appStore.mainloader)
+            // console.log("✅ Loader hidden, mainloader value:", appStore.mainloader)
 
             // Clear the loader timeout since we've successfully loaded
             if (window.__loaderTimeout) {
@@ -590,7 +591,7 @@ const getUserSession = async (k) => {
             // It only checks session on login, not periodically
         } else if (authStore.uid && authStore.token && sessvalid && sessvalid.emsg) {
             // Handle error case (exactly like old app: lines 712-717)
-            console.error("❌ Session validation failed:", sessvalid.emsg)
+            // console.error("❌ Session validation failed:", sessvalid.emsg)
 
             // Use sessionStore to handle error (exact old app behavior)
             // Old app: this.snackAlert(2, sessvalid.emsg ? sessvalid.emsg : sessvalid);
@@ -608,7 +609,7 @@ const getUserSession = async (k) => {
                 delete window.__loaderTimeout
             }
         } else {
-            console.log("⚠️ No valid session found")
+            // console.log("⚠️ No valid session found")
             // Only clear session status if we have credentials but they're invalid
             if (authStore.token && authStore.uid) {
                 sessionStorage.removeItem("c3RhdHVz")
@@ -644,7 +645,7 @@ const getUserSession = async (k) => {
 
 // Lifecycle
 onMounted(async () => {
-    console.log("🚀 LayoutSrc onMounted starting...")
+    // console.log("🚀 LayoutSrc onMounted starting...")
     // Don't remove session status here - only remove it on logout
     // sessionStorage.removeItem("c3RhdHVz")
 
@@ -668,7 +669,7 @@ onMounted(async () => {
 
     // Fail-safe: Always hide loader after 30 seconds to prevent infinite loading
     window.__loaderTimeout = setTimeout(() => {
-        console.warn("⚠️ Loader timeout - force hiding loader")
+        // console.warn("⚠️ Loader timeout - force hiding loader")
         appStore.setMainLoader(false)
         appStore.hideLoader()
     }, 30000)
@@ -681,24 +682,24 @@ onMounted(async () => {
     var suser = url.searchParams.get("sUserId")
     var stoken = url.searchParams.get("sToken")
 
-    console.log("🔍 Checking for shared session parameters:", { suser, stoken })
+    // console.log("🔍 Checking for shared session parameters:", { suser, stoken })
 
     if (typeof suser == "string" && typeof stoken == "string") {
-        console.log("📡 Found shared session, calling redirect API...")
+        // console.log("📡 Found shared session, calling redirect API...")
         let sessvalid = await getReSession([suser, stoken, url.pathname])
-        console.log("📡 Redirect API response:", sessvalid)
+        // console.log("📡 Redirect API response:", sessvalid)
 
         if (sessvalid && sessvalid.stat == "Ok" && sessvalid.apitoken && sessvalid.token) {
             const redirectUrl = `${url.origin}${url.pathname}?uid=${sessvalid.clientid}&sess=${sessvalid.apitoken}&token=${sessvalid.token}&imei=${sessvalid.timei}&src=${sessvalid.source}`
-            console.log("✅ Redirecting to:", redirectUrl)
+            // console.log("✅ Redirecting to:", redirectUrl)
             window.location.assign(redirectUrl)
             return // Exit early to prevent further execution
         } else {
-            console.error("❌ Redirect API failed:", sessvalid.emsg)
+            // console.error("❌ Redirect API failed:", sessvalid.emsg)
             appStore.showSnackbar(2, sessvalid.emsg ? sessvalid.emsg : sessvalid)
         }
     } else {
-        console.log("✅ No shared session parameters found")
+        // console.log("✅ No shared session parameters found")
     }
 
     // Check for regular session parameters - Same logic as old app
@@ -707,7 +708,7 @@ onMounted(async () => {
     var sess = url.searchParams.get("sess")
 
     if (typeof actid == "string" && typeof token == "string") {
-        console.log("📥 Fresh login detected, setting up session...")
+        // console.log("📥 Fresh login detected, setting up session...")
         // Clear cached profile data
         localStorage.removeItem("profile_data")
 
@@ -741,15 +742,15 @@ onMounted(async () => {
         const sessionStatus = sessionStorage.getItem("c3RhdHVz")
 
         if (uid && token && sessionStatus === "dmFsaWR1c2Vy") {
-            console.log("✅ Valid session found, loading data without validation...")
+            // console.log("✅ Valid session found, loading data without validation...")
 
             // Load mynturl from sessionStorage first
             const mynturlLoaded = sessionStore.loadMyntUrl(uid)
-            console.log("📦 mynturl loaded from sessionStorage:", mynturlLoaded ? "Yes" : "No")
+            // console.log("📦 mynturl loaded from sessionStorage:", mynturlLoaded ? "Yes" : "No")
 
             // If mynturl wasn't loaded, we need to fetch it
             if (!mynturlLoaded) {
-                console.log("⚠️ mynturl not in sessionStorage, calling getUserSession to fetch it...")
+                // console.log("⚠️ mynturl not in sessionStorage, calling getUserSession to fetch it...")
                 await getUserSession(uid)
                 return // Exit here, getUserSession will handle everything
             }
@@ -764,7 +765,7 @@ onMounted(async () => {
                     log = JSON.parse(log)
                     appStore.snackalerts = log && log.length > 0 ? log : []
                 } catch (e) {
-                    console.error("Error parsing alerts:", e)
+                    // console.error("Error parsing alerts:", e)
                     appStore.snackalerts = []
                 }
             }
@@ -776,14 +777,14 @@ onMounted(async () => {
             }
 
             // IMPORTANT: Initialize WebSocket event bus for existing sessions too
-            console.log("🔌 Initializing WebSocket Event Bus for existing session...")
+            // console.log("🔌 Initializing WebSocket Event Bus for existing session...")
             webSocketEventBus.on("web-scoketOn", (flow, data, is, page) => {
-                console.log("📡 WebSocket Event Bus received:", { flow, data, is, page })
+                // console.log("📡 WebSocket Event Bus received:", { flow, data, is, page })
                 webSocketEventBus.handleWebSocketRequest(flow, data, is, page)
             })
 
             // IMPORTANT: Load order preferences API (this was being skipped!)
-            console.log("📥 Loading order preferences...")
+            // console.log("📥 Loading order preferences...")
 
             // Update global uid variable for API calls
             await seyCheckwebsocket() // This updates the global uid variable
@@ -792,7 +793,7 @@ onMounted(async () => {
             const { seyCheckwebsocket: seyCheckwebsocketAPI } = await import("../mixins/getAPIdata.js")
             await seyCheckwebsocketAPI() // This updates uid in getAPIdata.js
 
-            console.log("✅ WebSocket session checked, mynturl stat:", apiurl.mynturl?.stat)
+            // console.log("✅ WebSocket session checked, mynturl stat:", apiurl.mynturl?.stat)
 
             var ordpre = await setOrdprefApi()
             if (!(ordpre && ordpre.metadata && ordpre.metadata.mainpreitems)) {
@@ -806,7 +807,7 @@ onMounted(async () => {
                 }
                 await setOrdprefApi({ "clientid": uid, "metadata": data, "source": "WEB" }, true)
             }
-            console.log("✅ Order preferences loaded")
+            // console.log("✅ Order preferences loaded")
 
             // Note: Old app does NOT check session on page refresh
             // It only checks session on login, not when loading from sessionStorage
@@ -880,7 +881,7 @@ watch(
 
 // Cleanup on unmount
 onUnmounted(() => {
-    console.log("🧹 LayoutSrc unmounting, stopping session monitoring...")
+    // console.log("🧹 LayoutSrc unmounting, stopping session monitoring...")
     // Stop session monitoring
     sessionStore.stopSessionMonitoring()
 })

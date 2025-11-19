@@ -6,6 +6,7 @@ import { userid, usession, makeApiRequest } from './apiConnectionPool'
 import Datafeed from "./feedFactory";
 import { useAppStore } from '../../stores/appStore'
 import { useSessionStore } from '../../stores/sessionStore'
+import { useAuthStore } from '../../stores/authStore'
 import moment from 'moment';
 
 let appStore = null;
@@ -133,11 +134,11 @@ function seyCheckwebsocketInternal(type) {
     if (res == "dmFsaWR1c2Vy" && userId && mynturlStat == 1) {
         establishSocketConnection(type);
     } else {
-        console.log("⚠️ WebSocket conditions not met:", { 
-            sessionStatus: res, 
-            userId: !!userId, 
-            mynturlStat: mynturlStat 
-        })
+        // console.log("⚠️ WebSocket conditions not met:", { 
+        //     sessionStatus: res, 
+        //     userId: !!userId, 
+        //     mynturlStat: mynturlStat 
+        // })
         
         // Only retry a limited number of times to avoid infinite loops
         if (!window.wsRetryCount) window.wsRetryCount = 0;
@@ -147,7 +148,7 @@ function seyCheckwebsocketInternal(type) {
                 seyCheckwebsocketInternal(type);
             }, 100)
         } else {
-            console.error("❌ WebSocket connection failed after maximum retries")
+            // console.error("❌ WebSocket connection failed after maximum retries")
             window.wsRetryCount = 0; // Reset for next attempt
         }
         sessionStorage.removeItem('wsstat')
@@ -164,7 +165,7 @@ function establishSocketConnection(type) {
     const wssUrl = params ? myntappurl.wss : sessionStore.mynturl?.wss;
     
     if (!wssUrl) {
-        console.error('WebSocket URL not found');
+        // console.error('WebSocket URL not found');
         return;
     }
 
@@ -183,7 +184,7 @@ function establishSocketConnection(type) {
             connectionStatus = true
             // Reset retry counter on successful connection
             window.wsRetryCount = 0;
-            console.log("✅ WebSocket connection established successfully")
+            // console.log("✅ WebSocket connection established successfully")
             
             if (params) {
                 var url = new URL(window.location.href).searchParams;
@@ -203,7 +204,13 @@ function establishSocketConnection(type) {
             logMessage("!==========[Socket Session Invalid]============!")
             if (!params) {
                 sessionStorage.removeItem('wsstat');
-                store.showSnackbar(2, "Session Expired :  Invalid Session Key");
+                // Use full session error handling to refresh the app
+                const authStore = useAuthStore()
+                const sessionStore = getSessionStore()
+                const sessionError = {
+                    emsg: "Session Expired : Invalid Session Key"
+                }
+                sessionStore.handleSessionError(sessionError, authStore, store)
             }
         }
         
@@ -303,12 +310,12 @@ async function send(msg) {
         try {
             socket.send(msg);
         } catch (err) {
-            console.error("socket send error : ", err);
+            // console.error("socket send error : ", err);
         }
     } else if (!!socket && !!socket.readyState && socket.readyState == 0) {
         setTimeout(() => { socket.send(msg); }, 900);
     } else if (!!socket && !!socket.readyState && socket.readyState == 3) {
-        console.warn("Socket closed. Attempting to reconnect...");
+        // console.warn("Socket closed. Attempting to reconnect...");
         establishSocketConnection('attempt')
     } else {
         logMessage("[socket send] socket connection is undefined", 2)
@@ -502,7 +509,7 @@ function _setChannelMap(symbol, channelString, onRealtimeCallback, subscribeUID,
     }
     guidToSubscription.set(subscribeUID, channelString)
     if (!guidToSubscription.has(subscribeUID)) {
-        console.error("guid fail")
+        // console.error("guid fail")
     }
 }
 
@@ -707,7 +714,7 @@ function ProcessPacketString(responseFeed) {
                     try {
                         handler.handler.callback([quote])
                     } catch (err) {
-                        console.info(err)
+                        // console.info(err)
                     }
                 }
 
@@ -720,7 +727,7 @@ function ProcessPacketString(responseFeed) {
                 try {
                     handler.handler.callback(quote)
                 } catch (err) {
-                    console.info(err)
+                    // console.info(err)
                 }
             } else if (handler.type == 'bar') {
                 const lastDailyBar = handler.lastDailyBar;
@@ -898,7 +905,7 @@ function ProcessPacketString(responseFeed) {
         });
 
     } catch (e) {
-        console.error("Error processing packet:", e);
+        // console.error("Error processing packet:", e);
     }
 }
 

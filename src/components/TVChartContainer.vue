@@ -177,7 +177,7 @@ export default {
             indicators = res;
           }
           catch (e) {
-            console.log(e);
+            // console.log(e);
           }
         }
       }, 5000);

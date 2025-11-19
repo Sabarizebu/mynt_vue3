@@ -337,13 +337,13 @@ router.beforeEach(async (to, from) => {
     
     // If session status is missing but user has credentials, session might have ended
     if (!sessionStatus || sessionStatus !== "dmFsaWR1c2Vy") {
-      console.log("⚠️ Session status missing on route change, checking session...")
+      // console.log("⚠️ Session status missing on route change, checking session...")
       
       // Check session immediately
       const result = await sessionStore.checkSession(authStore.uid)
       
       if (!result || !result.valid) {
-        console.error("❌ Session invalid on route change, logging out immediately")
+        // console.error("❌ Session invalid on route change, logging out immediately")
         // Handle session error immediately (logout and navigate)
         sessionStore.handleSessionError(result?.data || { emsg: "Session has expired. Please log in again." }, authStore, appStore)
         // Prevent navigation to the target route
@@ -359,13 +359,13 @@ router.afterEach((to) => {
       logEvent(analytics, "page_view", { page_path: to.fullPath })
     }
   } catch (error) {
-    console.error('Firebase analytics error:', error)
+    // console.error('Firebase analytics error:', error)
   }
 })
 
 // Handle navigation errors
 router.onError((error) => {
-  console.error('Router navigation error:', error)
+  // console.error('Router navigation error:', error)
 })
 
 export default router

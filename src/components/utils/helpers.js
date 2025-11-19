@@ -5,12 +5,12 @@ export function logMessage(message, level = 0) {
         const now = new Date();
         // tslint:disable-next-line:no-console
         if (level == 0) {
-            console.info(`${now.toLocaleTimeString()}.${now.getMilliseconds()}> ${message}`);
+            // console.info(`${now.toLocaleTimeString()}.${now.getMilliseconds()}> ${message}`);
         } else if (level == 1) {
-            console.warn(`${now.toLocaleTimeString()}.${now.getMilliseconds()}> ${message}`)
+            // console.warn(`${now.toLocaleTimeString()}.${now.getMilliseconds()}> ${message}`)
         }
         else if (level == 2) {
-            console.error(`${now.toLocaleTimeString()}.${now.getMilliseconds()}> ${message}`)
+            // console.error(`${now.toLocaleTimeString()}.${now.getMilliseconds()}> ${message}`)
         }
     }
 }

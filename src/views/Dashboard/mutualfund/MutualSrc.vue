@@ -289,7 +289,7 @@
               <span>
                 <v-badge :model-value="mfcategorie.cat" dot> Category </v-badge>
                 <span class="float-right mr-3 fs-12">{{ mfcategorie.cats ? Object.keys(mfcategorie.cats).length : ""
-                  }}</span>
+                }}</span>
               </span>
             </v-expansion-panel-title>
             <v-expansion-panel-text class="px-0">
@@ -313,7 +313,7 @@
               <span>
                 <v-badge :model-value="mfcategorie.sub" dot> Sub category </v-badge>
                 <span class="float-right mr-3 fs-12">{{ mfcategorie.subs ? Object.keys(mfcategorie.subs).length : ""
-                  }}</span>
+                }}</span>
               </span>
             </v-expansion-panel-title>
             <v-expansion-panel-text class="px-0">
@@ -336,7 +336,7 @@
               <span>
                 <v-badge :model-value="mfcategorie.amc" dot> AMC </v-badge>
                 <span class="float-right mr-3 fs-12">{{ mfcategorie.amcs ? Object.keys(mfcategorie.amcs).length : ""
-                  }}</span>
+                }}</span>
               </span>
             </v-expansion-panel-title>
             <v-expansion-panel-text class="px-0">
@@ -446,7 +446,7 @@
               <span>
                 <v-badge :model-value="mfcategorie.cat" dot> Category </v-badge>
                 <span class="float-right mr-3 fs-12">{{ mfcategorie.cats ? Object.keys(mfcategorie.cats).length : ""
-                  }}</span>
+                }}</span>
               </span>
             </v-expansion-panel-title>
             <v-expansion-panel-text class="px-0">
@@ -470,7 +470,7 @@
               <span>
                 <v-badge :model-value="mfcategorie.sub" dot> Sub category </v-badge>
                 <span class="float-right mr-3 fs-12">{{ mfcategorie.subs ? Object.keys(mfcategorie.subs).length : ""
-                  }}</span>
+                }}</span>
               </span>
             </v-expansion-panel-title>
             <v-expansion-panel-text class="px-0">
@@ -493,7 +493,7 @@
               <span>
                 <v-badge :model-value="mfcategorie.amc" dot> AMC </v-badge>
                 <span class="float-right mr-3 fs-12">{{ mfcategorie.amcs ? Object.keys(mfcategorie.amcs).length : ""
-                  }}</span>
+                }}</span>
               </span>
             </v-expansion-panel-title>
             <v-expansion-panel-text class="px-0">
@@ -763,7 +763,7 @@ export default {
           getMFnofdata()
         ]);
 
-        console.log("API Responses:", { bestMFRes, topSchemesRes, categoryRes, nfoRes });
+        // console.log("API Responses:", { bestMFRes, topSchemesRes, categoryRes, nfoRes });
 
         // Process NFO count
         if (nfoRes) {
@@ -895,7 +895,7 @@ export default {
         this.mftableloader = false;
         this.mfcatloader = false;
       } catch (error) {
-        console.error("Error loading MF data:", error);
+        // console.error("Error loading MF data:", error);
         eventBus.$emit("snack-event", 0, `Error loading mutual fund data: ${error.message || error}`);
         this.mftableloader = false;
         this.mfcatloader = false;
@@ -951,7 +951,7 @@ export default {
       return name && name.length > 30 ? `${name.slice(0, 30)}...` : name;
     },
     setSinglepage(item) {
-      console.log("Navigating to single page with item:", item);
+      // console.log("Navigating to single page with item:", item);
       // Store item data in sessionStorage for the single page
       if (item) {
         sessionStorage.setItem('mf_single_data', JSON.stringify(item));
@@ -964,7 +964,7 @@ export default {
           params: { ISIN: identifier }
         });
       } else {
-        console.error("No ISIN or Scheme_Code found in item:", item);
+        // console.error("No ISIN or Scheme_Code found in item:", item);
         eventBus.$emit("snack-event", 0, "Unable to navigate: Missing fund identifier");
       }
     },
@@ -1065,5 +1065,9 @@ export default {
   line-height: 1.5 !important;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
+}
+
+:deep(.v-text-field input) {
+  font-size: 14px !important;
 }
 </style>

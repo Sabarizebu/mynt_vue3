@@ -326,13 +326,13 @@ const menuOpen = ref(false)
 
 // Handle user ID click
 const handleUserIdClick = (event) => {
-    console.log('🔵 User ID/Client ID clicked:', {
-        uid: authStore.uid,
-        clientId: authStore.clientdata?.CLIENT_ID,
-        clientName: authStore.clientdata?.CLIENT_NAME,
-        displayedValue: authStore.clientdata?.CLIENT_ID || authStore.uid || "-",
-        timestamp: new Date().toISOString()
-    })
+    // console.log('🔵 User ID/Client ID clicked:', {
+    //     uid: authStore.uid,
+    //     clientId: authStore.clientdata?.CLIENT_ID,
+    //     clientName: authStore.clientdata?.CLIENT_NAME,
+    //     displayedValue: authStore.clientdata?.CLIENT_ID || authStore.uid || "-",
+    //     timestamp: new Date().toISOString()
+    // })
 
     // Show tooltip on click
     tooltipVisible.value = true
@@ -412,32 +412,32 @@ const decryptionFunction = (payld) => {
 }
 
 const getUserdata = async (data) => {
-    console.log("📥 AppBar: Getting user data...")
-    console.log("📥 Parameters being sent:", {
-        data,
-        uid: authStore.uid,
-        token: authStore.token ? "***" : "undefined"
-    })
+    // console.log("📥 AppBar: Getting user data...")
+    // console.log("📥 Parameters being sent:", {
+    //     data,
+    //     uid: authStore.uid,
+    //     token: authStore.token ? "***" : "undefined"
+    // })
 
     const cachedConfig = localStorage.getItem("profile_data")
-    console.log("📦 Cached profile_data:", cachedConfig ? "Exists" : "None")
+    // console.log("📦 Cached profile_data:", cachedConfig ? "Exists" : "None")
 
     let config = cachedConfig || await getProfiledata([data, authStore.uid, authStore.token])
 
 
     config = config?.includes?.('str') ? JSON.parse(config) : config
 
-    console.log("🔍 Config after parse:", config)
-    console.log("🔍 config.emsg:", config?.emsg)
-    console.log("🔍 config.str:", config?.str ? "Exists" : "Missing")
+    // console.log("🔍 Config after parse:", config)
+    // console.log("🔍 config.emsg:", config?.emsg)
+    // console.log("🔍 config.str:", config?.str ? "Exists" : "Missing")
 
     if (config?.str && config.emsg !== "invalid token") {
         const res = JSON.parse(decryptionFunction(config.str))
-        console.log("✅ User data decrypted:", res)
-        console.log("📋 client_data:", res?.client_data)
+        // console.log("✅ User data decrypted:", res)
+        // console.log("📋 client_data:", res?.client_data)
 
         if (res?.client_data) {
-            console.log("✅ Setting clientdata with:", res.client_data)
+            // console.log("✅ Setting clientdata with:", res.client_data)
             authStore.setClientdata(res.client_data)
             authStore.setUserdata(res)
             config['uid'] = authStore.uid
@@ -447,19 +447,19 @@ const getUserdata = async (data) => {
                 uid: authStore.uid,
                 data: res.client_data
             }))
-            console.log("✅ User data set in authStore")
-            console.log("✅ clientdata.CLIENT_NAME:", authStore.clientdata?.CLIENT_NAME)
-            console.log("✅ clientdata.CLIENT_ID:", authStore.clientdata?.CLIENT_ID)
+            // console.log("✅ User data set in authStore")
+            // console.log("✅ clientdata.CLIENT_NAME:", authStore.clientdata?.CLIENT_NAME)
+            // console.log("✅ clientdata.CLIENT_ID:", authStore.clientdata?.CLIENT_ID)
         } else {
             authStore.setUserdata(null)
             authStore.setClientdata({})
             localStorage.removeItem("client_data")
-            console.log("⚠️ No client_data in response")
+            // console.log("⚠️ No client_data in response")
         }
     } else {
-        console.log("⚠️ No valid profile data")
+        // console.log("⚠️ No valid profile data")
     }
-    console.log("✅ Setting loading to false")
+    // console.log("✅ Setting loading to false")
     authStore.setLoading(false)
 }
 
@@ -504,12 +504,12 @@ const setConnection = () => {
 }
 
 const checkUserSession = async () => {
-    console.log("🔍 AppBar: Checking user session...")
+    // console.log("🔍 AppBar: Checking user session...")
     let res = sessionStorage.getItem("c3RhdHVz")
-    console.log("🔍 Session status:", res)
+    // console.log("🔍 Session status:", res)
 
     if (res == "dmFsaWR1c2Vy") {
-        console.log("✅ Valid session found, loading user data...")
+        // console.log("✅ Valid session found, loading user data...")
         authStore.token = sessionStorage.getItem("usession")
         authStore.mtoken = sessionStorage.getItem("msession")
         authStore.uid = sessionStorage.getItem("userid")
@@ -527,11 +527,11 @@ const checkUserSession = async () => {
 
             await getUserdata(data)
         } else {
-            console.log("✅ Clientdata already loaded:", authStore.clientdata?.CLIENT_NAME)
+            // console.log("✅ Clientdata already loaded:", authStore.clientdata?.CLIENT_NAME)
             authStore.setLoading(false)
         }
     } else {
-        console.log("❌ No valid session, setting loading to false")
+        // console.log("❌ No valid session, setting loading to false")
         authStore.setLoading(false)
     }
 }
@@ -557,7 +557,7 @@ onMounted(() => {
     sessionCheckInterval = setInterval(() => {
         const sessionStatus = sessionStorage.getItem("c3RhdHVz")
         if (sessionStatus === "dmFsaWR1c2Vy" && authStore.uid && !authStore.clientdata?.CLIENT_ID) {
-            console.log("🔔 Session status is valid, checking user session...")
+            // console.log("🔔 Session status is valid, checking user session...")
             checkUserSession()
             // Clear interval once we've checked and found valid session
             if (sessionCheckInterval) {

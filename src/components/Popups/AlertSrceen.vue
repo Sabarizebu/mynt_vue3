@@ -200,7 +200,7 @@ const setMenudialog = async (type, token, exch, item) => {
         menudata.value["ch"] = Number(quotesdata.ch || 0).toFixed(2)
         menudata.value["chp"] = Number(quotesdata.chp || 0).toFixed(2)
     } catch (error) {
-        console.error('Error setting menu dialog:', error)
+        // console.error('Error setting menu dialog:', error)
         appStore.hideLoader()
         appStore.showSnackbar(2, 'Failed to load alert data')
     }
@@ -215,7 +215,7 @@ const closeMenudialog = (type) => {
             try {
                 setWebsocket("unsub", [menudata.value[0]], "menu")
             } catch (error) {
-                console.debug('WebSocket unsubscribe error:', error)
+                // console.debug('WebSocket unsubscribe error:', error)
             }
         }
     }
@@ -268,7 +268,7 @@ const setAlert = async () => {
             appStore.showSnackbar(2, alert.emsg || alert || 'Failed to set alert')
         }
     } catch (error) {
-        console.error('Error setting alert:', error)
+        // console.error('Error setting alert:', error)
         appStore.showSnackbar(2, 'Failed to set alert')
     } finally {
         closeMenudialog("alert")
@@ -374,7 +374,7 @@ const optionChainDataParse = (data) => {
                     }
                 } catch (error) {
                     // Silently handle DOM errors if component is unmounting
-                    console.debug('DOM update skipped:', error)
+                    // console.debug('DOM update skipped:', error)
                 }
             })
         }
@@ -412,7 +412,7 @@ onBeforeUnmount(() => {
         try {
             setWebsocket("unsub", [menudata.value[0]], "menu")
         } catch (error) {
-            console.debug('WebSocket unsubscribe error:', error)
+            // console.debug('WebSocket unsubscribe error:', error)
         }
     }
 

@@ -1,46 +1,61 @@
 <template>
     <div>
-        <div class="my-6">
+        <div>
             <!-- Toolbar -->
-            <v-toolbar flat dense class="tool-sty my-6 pl-4 crd-trn">
-                <v-tabs v-model="bodytab" color="primary" fixed show-arrows density="compact"
-                    @update:model-value="onTabChange">
-                    <v-tab :value="0" class="font-weight-bold subtitle-1 mb-0 text-none">Orders Book</v-tab>
-                    <v-tab :value="1" class="font-weight-bold subtitle-1 mb-0 text-none">Trade Book</v-tab>
-                    <v-tab :value="2" class="font-weight-bold subtitle-1 mb-0 text-none">GTT Order</v-tab>
-                    <v-tab :value="3" class="font-weight-bold subtitle-1 mb-0 text-none">Basket Order</v-tab>
-                    <v-tab :value="4" class="font-weight-bold subtitle-1 mb-0 text-none">SIP Order</v-tab>
-                    <v-tab :value="5" class="font-weight-bold subtitle-1 mb-0 text-none">Mutual funds</v-tab>
-                    <v-tab :value="6" class="font-weight-bold subtitle-1 mb-0 text-none">IPOs</v-tab>
-                    <v-tab :value="7" class="font-weight-bold subtitle-1 mb-0 text-none">Bonds</v-tab>
+            <v-toolbar variant="flat" density="compact" class="tool-sty pl-4 crd-trn order-main-toolbar"
+                style="border-bottom: 1px solid #EBEEF0;">
+                <v-tabs v-model="bodytab" color="black" fixed show-arrows density="compact"
+                    @update:model-value="onTabChange" class="order-main-tabs">
+                    <v-tab :value="0" density="compact" class="font-weight-regular ma-0 text-none flex-grow-1"
+                        style="padding:0px 10px 0px !important ;letter-spacing: 0px;line-height: 1.2;font-size: 15px !important;">Orders
+                        Book</v-tab>
+                    <v-tab :value="1" density="compact" class="font-weight-regular ma-0 text-none flex-grow-1"
+                        style="padding:0px 10px 0px !important ;letter-spacing: 0px;line-height: 1.2;font-size: 15px !important;">Trade
+                        Book</v-tab>
+                    <v-tab :value="2" density="compact" class="font-weight-regular ma-0 text-none flex-grow-1"
+                        style="padding:0px 10px 0px !important ;letter-spacing: 0px;line-height: 1.2;font-size: 15px !important;">GTT
+                        Order</v-tab>
+                    <v-tab :value="3" density="compact" class="font-weight-regular ma-0 text-none flex-grow-1"
+                        style="padding:0px 10px 0px !important ;letter-spacing: 0px;line-height: 1.2;font-size: 15px !important;">Basket
+                        Order</v-tab>
+                    <v-tab :value="4" density="compact" class="font-weight-regular ma-0 text-none flex-grow-1"
+                        style="padding:0px 10px 0px !important ;letter-spacing: 0px;line-height: 1.2;font-size: 15px !important;">SIP
+                        Order</v-tab>
+                    <v-tab :value="5" density="compact" class="font-weight-regular ma-0 text-none flex-grow-1"
+                        style="padding:0px 10px 0px !important ;letter-spacing: 0px;line-height: 1.2;font-size: 15px !important;">Mutual
+                        funds</v-tab>
+                    <v-tab :value="6" density="compact" class="font-weight-regular ma-0 text-none flex-grow-1"
+                        style="padding:0px 10px 0px !important ;letter-spacing: 0px;line-height: 1.2;font-size: 15px !important;">IPOs</v-tab>
+                    <v-tab :value="7" density="compact" class="font-weight-regular ma-0 text-none flex-grow-1"
+                        style="padding:0px 10px 0px !important ;letter-spacing: 0px;line-height: 1.2;font-size: 15px !important;">Bonds</v-tab>
                 </v-tabs>
             </v-toolbar>
 
             <v-window v-model="bodytab" style="z-index:0">
-            <v-window-item :value="0">
-                <StocksOrderBook />
-            </v-window-item>
-            <v-window-item :value="1">
-                <StocksTradeBook />
-            </v-window-item>
-            <v-window-item :value="2">
-                <StockGTTorders />
-            </v-window-item>
-            <v-window-item :value="3">
-                <StockBSKorders />
-            </v-window-item>
-            <v-window-item :value="4">
-                <StockSIPorders />
-            </v-window-item>
-            <v-window-item :value="5">
-                <MutualOrderbook />
-            </v-window-item>
-            <v-window-item :value="6">
-                <IpoOrderbook />
-            </v-window-item>
-            <v-window-item :value="7">
-                <BondsOrderbook />
-            </v-window-item>
+                <v-window-item :value="0">
+                    <StocksOrderBook />
+                </v-window-item>
+                <v-window-item :value="1">
+                    <StocksTradeBook />
+                </v-window-item>
+                <v-window-item :value="2">
+                    <StockGTTorders />
+                </v-window-item>
+                <v-window-item :value="3">
+                    <StockBSKorders />
+                </v-window-item>
+                <v-window-item :value="4">
+                    <StockSIPorders />
+                </v-window-item>
+                <v-window-item :value="5">
+                    <MutualOrderbook />
+                </v-window-item>
+                <v-window-item :value="6">
+                    <IpoOrderbook />
+                </v-window-item>
+                <v-window-item :value="7">
+                    <BondsOrderbook />
+                </v-window-item>
             </v-window>
         </div>
     </div>
@@ -74,11 +89,11 @@ function handleRouteParams() {
     // Check if route has params or query (from buy/sell dialog navigation)
     const params = route.params
     const query = route.query
-    
+
     // Combine params and query for security data (exclude timestamp _t)
     const { _t, ...queryWithoutTimestamp } = query
     const securityData = { ...params, ...queryWithoutTimestamp }
-    
+
     // Check if security data contains token or tsym
     if (securityData && (securityData.token || securityData.tsym)) {
         // Store security data for later use
@@ -89,14 +104,14 @@ function handleRouteParams() {
             ls: securityData.ls || 1, // Lot size
             ...securityData // Include any other params/query
         }
-        
+
         // Also store in window object so StockSIPorders can check it on mount
         if (typeof window !== 'undefined') {
             window.__pendingSIPData = pendingSIPData
         }
-        
-        console.log('[StockOrderSrc] SIP data detected, switching to SIP tab:', pendingSIPData)
-        
+
+        // console.log('[StockOrderSrc] SIP data detected, switching to SIP tab:', pendingSIPData)
+
         // Switch to SIP tab (index 4)
         // The watch on bodytab will trigger the event once tab becomes active
         bodytab.value = 4
@@ -107,62 +122,73 @@ function handleRouteParams() {
 }
 
 function onTabChange() {
-    // reserved for future behaviors
+    // Dispatch event to close all drawers when switching tabs
+    // This prevents drawers from showing stale data during tab transitions
+    window.dispatchEvent(new CustomEvent('close-all-order-drawers', {
+        detail: { source: 'tab-change' }
+    }))
 }
 
 function onOrderTab(e) {
     const tab = e?.detail
-    if ([0,1,2,3,4,5,6,7].includes(tab)) bodytab.value = tab
+    if ([0, 1, 2, 3, 4, 5, 6, 7].includes(tab)) bodytab.value = tab
 }
 
 // Phase 8: Watch for route changes to handle SIP tab navigation
 watch(() => [route.params, route.query, route.path], () => {
-    console.log('[StockOrderSrc] Route changed:', { path: route.path, params: route.params, query: route.query })
+    // console.log('[StockOrderSrc] Route changed:', { path: route.path, params: route.params, query: route.query })
     handleRouteParams()
 }, { deep: true, immediate: true })
 
 // Phase 8: Watch for tab changes to trigger SIP dialog when tab becomes active
 watch(bodytab, async (newTab, oldTab) => {
+    // Close all drawers when switching tabs to prevent glitches
+    if (newTab !== oldTab && oldTab !== undefined) {
+        window.dispatchEvent(new CustomEvent('close-all-order-drawers', {
+            detail: { source: 'tab-watch', newTab, oldTab }
+        }))
+    }
+
     // If SIP tab (4) becomes active and we have pending SIP data, trigger dialog
     if (newTab === 4 && pendingSIPData) {
-        console.log('[StockOrderSrc] SIP tab activated, triggering dialog with data:', pendingSIPData)
-        
+        // console.log('[StockOrderSrc] SIP tab activated, triggering dialog with data:', pendingSIPData)
+
         // Wait for Vue to update the DOM and render the SIP component
         await nextTick()
-        
+
         // Wait a bit more to ensure StockSIPorders component is fully mounted and event listener is registered
         // Use multiple nextTick calls to ensure component is ready
         await new Promise(resolve => setTimeout(resolve, 100))
         await nextTick()
-        
+
         // Additional delay to ensure SIP component event listener is ready
         setTimeout(() => {
             if (pendingSIPData) {
-                console.log('[StockOrderSrc] Dispatching siporder-trigger event with data:', pendingSIPData)
-                
+                // console.log('[StockOrderSrc] Dispatching siporder-trigger event with data:', pendingSIPData)
+
                 // Dispatch the event
                 const event = new CustomEvent('siporder-trigger', {
                     detail: pendingSIPData
                 })
                 window.dispatchEvent(event)
-                
+
                 // Store data temporarily before clearing for retry
                 const dataToRetry = { ...pendingSIPData }
-                
+
                 // Clear after use to prevent duplicate events
                 pendingSIPData = null
                 if (typeof window !== 'undefined') {
                     window.__pendingSIPData = null
                 }
-                
+
                 // Also try dispatching after a small delay as fallback (in case component wasn't ready)
                 setTimeout(() => {
-                    console.log('[StockOrderSrc] Retry dispatching siporder-trigger event')
+                    // console.log('[StockOrderSrc] Retry dispatching siporder-trigger event')
                     window.dispatchEvent(new CustomEvent('siporder-trigger', {
                         detail: dataToRetry
                     }))
                 }, 500)
-                
+
                 // Clear URL query params after dialog is opened (clean URL)
                 setTimeout(() => {
                     if (route.path === '/orders' && Object.keys(route.query).length > 0) {
@@ -170,11 +196,11 @@ watch(bodytab, async (newTab, oldTab) => {
                             path: '/orders',
                             query: {} // Clear all query params
                         })
-                        console.log('[StockOrderSrc] Cleared URL query params')
+                        // console.log('[StockOrderSrc] Cleared URL query params')
                     }
                 }, 1000) // Wait 1 second to ensure dialog is fully opened
-                
-                console.log('[StockOrderSrc] SIP dialog trigger sent, cleared pending data')
+
+                // console.log('[StockOrderSrc] SIP dialog trigger sent, cleared pending data')
             }
         }, 800) // Increased delay to 800ms to ensure component is mounted
     }
@@ -183,7 +209,7 @@ watch(bodytab, async (newTab, oldTab) => {
 onMounted(() => {
     // Phase 8: Handle route params on mount
     handleRouteParams()
-    
+
     // support external triggers similar to old EventBus
     window.addEventListener('order-tab', onOrderTab)
 })
@@ -192,3 +218,20 @@ onBeforeUnmount(() => {
     window.removeEventListener('order-tab', onOrderTab)
 })
 </script>
+
+<style scoped>
+/* Make selected tab text black - ONLY for the main order toolbar */
+.order-main-toolbar :deep(.v-tab--selected) {
+    color: #000000 !important;
+}
+
+/* Make tab slider/indicator black - ONLY for the main order toolbar */
+.order-main-toolbar :deep(.v-tab-slider) {
+    background-color: #000000 !important;
+}
+
+/* Alternative: target the v-tabs slider bar - ONLY for the main order toolbar */
+.order-main-toolbar :deep(.v-tabs-slider) {
+    background-color: #000000 !important;
+}
+</style>

@@ -34,7 +34,7 @@ export async function makeApiRequest(path, request) {
         
         // Check for 401 status BEFORE parsing JSON
         if (response.status === 401) {
-            console.error("❌ 401 Unauthorized error detected in makeApiRequest");
+            // console.error("❌ 401 Unauthorized error detected in makeApiRequest");
             
             // Get stores for session validation
             const authStore = useAuthStore();
@@ -49,7 +49,7 @@ export async function makeApiRequest(path, request) {
                     errorData = JSON.parse(errorText);
                 }
             } catch (parseError) {
-                console.warn("Could not parse 401 error response:", parseError);
+                // console.warn("Could not parse 401 error response:", parseError);
             }
             
             // Check if error message contains "session expired : invalid session key"
@@ -60,7 +60,7 @@ export async function makeApiRequest(path, request) {
             
             // Validate uid exists before logging out
             if (isSessionExpired && authStore.uid) {
-                console.error("❌ Session expired detected with valid uid, logging out:", errorMsg);
+                // console.error("❌ Session expired detected with valid uid, logging out:", errorMsg);
                 
                 // Create error object for handleSessionError
                 const sessionError = {
@@ -89,7 +89,7 @@ export async function makeApiRequest(path, request) {
     } catch (error) {
         // Check for 401 in catch block as well
         if (error.status === 401) {
-            console.error("❌ 401 Unauthorized error detected in makeApiRequest catch block");
+            // console.error("❌ 401 Unauthorized error detected in makeApiRequest catch block");
             
             const authStore = useAuthStore();
             const sessionStore = useSessionStore();

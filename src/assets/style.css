@@ -1955,22 +1955,30 @@ tr:hover,
 
 .table-row:hover .table-hov,
 .futtable.v-data-table>.v-data-table__wrapper>table>tbody>tr:hover .futtable-hov,
-.holdings-table.v-data-table .v-data-table__wrapper table tbody tr:hover .table-hov,
-.holdings-table.v-data-table .v-data-table__wrapper table tbody tr.table-row:hover .table-hov,
-.holdings-table.v-data-table .v-data-table__wrapper table tbody tr:hover .pos-abs.table-hov,
-.holdings-table.v-data-table .v-data-table__wrapper table tbody tr:hover .table-hov.d-flex,
-.holdings-table.v-data-table table tbody tr:hover .table-hov,
-.holdings-table.v-data-table table tbody tr.table-row:hover .table-hov,
-.holdings-table table tbody tr:hover .table-hov,
-.holdings-table tbody tr:hover .table-hov,
-tr.table-row:hover .table-hov,
-tr:hover .table-hov {
+.futtable.v-data-table>.v-data-table__wrapper>table>tbody>tr:hover .futtable-hov,
+.futtable.v-data-table .v-data-table__wrapper table tbody tr:hover .futtable-hov,
+.futtable.v-data-table .v-data-table__wrapper table tbody tr:hover td .futtable-hov,
+.futtable tbody tr:hover .futtable-hov,
+.futtable tbody tr:hover td .futtable-hov,
+.futtable .v-data-table__wrapper tbody tr:hover .futtable-hov,
+.futtable .v-data-table__wrapper tbody tr:hover td .futtable-hov,
+.futtable tbody tr:hover .pos-rlt .futtable-hov,
+.futable.v-data-table>.v-data-table__wrapper>table>tbody>tr:hover .futtable-hov,
+.futable.v-data-table .v-data-table__wrapper table tbody tr:hover .futtable-hov,
+.futable.v-data-table .v-data-table__wrapper table tbody tr:hover td .futtable-hov,
+.futable.v-data-table .v-data-table__wrapper table tbody tr:hover td .pos-rlt .futtable-hov,
+.futable tbody tr:hover .futtable-hov,
+.futable tbody tr:hover td .futtable-hov,
+.futable tbody tr:hover td .pos-rlt .futtable-hov,
+.futable .v-data-table__wrapper tbody tr:hover .futtable-hov,
+.futable .v-data-table__wrapper tbody tr:hover td .futtable-hov,
+.futable .v-data-table__wrapper tbody tr:hover td .pos-rlt .futtable-hov,
+.futable tbody tr:hover .pos-rlt .futtable-hov {
   display: flex !important;
   align-items: center !important;
   opacity: 1 !important;
   visibility: visible !important;
 }
-
 /* Ensure table cells don't clip hover buttons */
 .holdings-table.v-data-table .v-data-table__wrapper table tbody tr td {
   overflow: visible !important;
@@ -2139,4 +2147,65 @@ tr:hover .table-hov {
   border-bottom: 1px solid #EBEEF0 !important;
   vertical-align: middle !important;
   background-color: #ffffff !important;
+}
+
+.search-field-center .v-field__input {
+  display: flex !important;
+  align-items: center !important;
+}
+
+.search-field-center input {
+  line-height: 1.5 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.search-field-center .v-field__input input {
+  line-height: 1.5 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+
+
+bg-color {
+  background-color: #0037b7d0 !important;
+}
+
+/* MIS/NRML Switch Styling */
+.mis-nrml-switch .v-switch__track {
+  background-color: #E0E0E0 !important;
+  opacity: 1 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+}
+
+.mis-nrml-switch .v-switch__thumb {
+  background-color: #000000 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+}
+
+.mis-nrml-switch.v-switch--density-compact .v-switch__track {
+  height: 20px !important;
+  width: 36px !important;
+}
+
+.mis-nrml-switch.v-switch--density-compact .v-switch__thumb {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.crd-trn .v-slider-track__background,
+.crd-trn .v-slider-track__fill {
+  height: 3px !important;
+  /* thinner track */
+  border-radius: 1.5px !important;
+
+}
+
+.crd-trn .v-slider-thumb {
+  width: 2px !important;
+  /* smaller thumb */
+  height: 2px !important;
+  margin-top: -4px !important;
+  /* vertically center thumb with track */
 }

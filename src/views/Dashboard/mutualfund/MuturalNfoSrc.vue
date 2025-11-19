@@ -607,7 +607,7 @@ export default {
       return name && name.length > 30 ? `${name.slice(0, 30)}...` : name;
     },
     setSinglepage(item) {
-      console.log("Navigating to single page with item:", item);
+      // console.log("Navigating to single page with item:", item);
       // Store item data in sessionStorage for the single page
       if (item) {
         sessionStorage.setItem('mf_single_data', JSON.stringify(item));
@@ -620,7 +620,7 @@ export default {
           params: { ISIN: identifier }
         });
       } else {
-        console.error("No ISIN or Scheme_Code found in item:", item);
+        // console.error("No ISIN or Scheme_Code found in item:", item);
         eventBus.$emit("snack-event", 0, "Unable to navigate: Missing fund identifier");
       }
     },
@@ -629,7 +629,7 @@ export default {
         this.mftableloader = true;
 
         let res1 = await getMFnofdata();
-        console.log("NFO API Response:", res1);
+        // console.log("NFO API Response:", res1);
 
         let res = null;
 
@@ -646,8 +646,8 @@ export default {
           }
         }
 
-        console.log("Processed NFO data:", res);
-        console.log("NFO data length:", res?.length || 0);
+        // console.log("Processed NFO data:", res);
+        // console.log("NFO data length:", res?.length || 0);
 
         if (res && Array.isArray(res) && res.length > 0) {
           // Process each item
@@ -673,17 +673,17 @@ export default {
           }
 
           this.mftabledata = res;
-          console.log("Final NFO data:", this.mftabledata.length, "items");
-          console.log("First item:", this.mftabledata[0]);
+          // console.log("Final NFO data:", this.mftabledata.length, "items");
+          // console.log("First item:", this.mftabledata[0]);
         } else {
           this.mftabledata = [];
-          console.warn("No NFO data found or empty array");
+          // console.warn("No NFO data found or empty array");
         }
 
         this.mftableloader = false;
         this.mfallsearchloader = false;
       } catch (error) {
-        console.error("Error loading NFO data:", error);
+        // console.error("Error loading NFO data:", error);
         eventBus.$emit("snack-event", 0, `Error loading NFO data: ${error.message || error}`);
         this.mftableloader = false;
         this.mfallsearchloader = false;

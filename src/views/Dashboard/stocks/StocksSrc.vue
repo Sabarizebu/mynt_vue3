@@ -231,7 +231,7 @@
                                                 <span :id="`ssdad${i.data.token}ltp`">₹{{
                                                     advdecitems.wsdata[i.data.token].ltp
                                                     || '0.00'
-                                                }}</span> &nbsp;<span class="fs-12"
+                                                    }}</span> &nbsp;<span class="fs-12"
                                                     :class="getSectorColorClass(i.data.token)"
                                                     :id="`ssdad${i.data.token}chpclr`"><span
                                                         :id="`ssdad${i.data.token}ch`">{{
@@ -464,7 +464,7 @@
                     <p class="mb-0 lh-18">
                         <span class="d-none" v-if="!uid">{{ setScrpitCH("", item,
                             "SCR")
-                        }}</span>
+                            }}</span>
 
                         <span class="font-weight-medium maintext--text black--text">₹<span :id="`ssdsc${item.token}ltp`"
                                 v-text="item.lp ? Number(item.lp).toFixed(2) : '0.00'"></span></span> <br />
@@ -484,25 +484,25 @@
                     <span class="font-weight-medium maintext--text black--text" :id="`ssdsc${item.token}op`">{{ item.ap
                         ? item.ap :
                         "0.00"
-                    }}</span>
+                        }}</span>
                 </template>
                 <template v-slot:[`item.cp`]="{ item }">
                     <span class="font-weight-medium maintext--text black--text" :id="`ssdsc${item.token}cp`">{{ item.c ?
                         item.c :
                         "0.00"
-                    }}</span>
+                        }}</span>
                 </template>
                 <template v-slot:[`item.high`]="{ item }">
                     <span class="font-weight-medium maintext--text black--text" :id="`ssdsc${item.token}high`">{{ item.h
                         ? item.h :
                         "0.00"
-                    }}</span>
+                        }}</span>
                 </template>
                 <template v-slot:[`item.low`]="{ item }">
                     <span class="font-weight-medium maintext--text black--text" :id="`ssdsc${item.token}low`">{{ item.l
                         ? item.l :
                         "0.00"
-                    }}</span>
+                        }}</span>
                 </template>
 
                 <template v-slot:no-data>
@@ -559,7 +559,7 @@
                                         </p>
                                         <p class="maintext--text mb-0 font-weight-medium fs-10 text-capitalize">{{
                                             d.registrar }} <span class="fs-10">({{ d.issueType
-                                            }})</span></p>
+                                                }})</span></p>
                                     </v-col>
 
                                     <v-col cols="4" class="pa-3">
@@ -577,7 +577,7 @@
                                         </p>
                                         <p class="maintext--text mb-0 font-weight-medium fs-10 text-capitalize">₹{{
                                             d.minPrice ? Number(d.minPrice).toFixed(2) : "0.00"
-                                        }}</p>
+                                            }}</p>
                                     </v-col>
                                 </v-row>
                             </v-card>
@@ -599,7 +599,7 @@
                         <div v-else>
                             <v-container fill-height>
                                 <v-card class="crd-trn elevation-0 mx-auto py-16 text-center">
-                                    <div class="mx-auto">
+                                    <div class="mx-auto d-flex align-center justify-center">
                                         <img class="align-self-stretch mx-auto" width="80px"
                                             src="@/assets/no data folder.svg" alt="no data" />
                                         <h5 class="txt-999 font-weight-regular">There is no data here yet!</h5>
@@ -622,7 +622,7 @@
                         <p class="font-weight-bold title mb-md-4 mb-6">News ({{ allnews && allnews.length > 0 ?
                             allnews.length :
                             ".."
-                        }})</p>
+                            }})</p>
                         <div v-if="newsloading">
                             <v-container fill-height>
                                 <v-card class="crd-trn elevation-0 mx-auto py-16">
@@ -647,7 +647,7 @@
                                                     {{ n.title }}
                                                 </p>
                                                 <v-list-item-subtitle class="fs-12 font-weight-regular">{{ n.isdate
-                                                }}</v-list-item-subtitle>
+                                                    }}</v-list-item-subtitle>
                                             </v-list-item-content>
                                         </v-list-item>
                                     </v-col>
@@ -1000,7 +1000,7 @@ onMounted(() => {
         // After fresh data is loaded, cache will be updated with fresh data
         // This ensures next refresh will have recent cache, but we still fetch fresh data
     }).catch((error) => {
-        console.error('Error fetching initial indices data:', error);
+        // console.error('Error fetching initial indices data:', error);
         // Retry after a short delay
         setTimeout(() => {
             fetchInitialIndicesData(true);
@@ -1219,21 +1219,21 @@ onMounted(() => {
                 uid.value = null;
                 mtoken.value = null;
                 stoken.value = null;
-                console.log("🔄 User logged out, cleared local uid ref");
+                // console.log("🔄 User logged out, cleared local uid ref");
             }
         },
         { immediate: false }
     );
-    
+
     // Listen for storage-reset event (triggered on session expiry)
     storageResetHandler = () => {
         // Clear local uid ref when storage is reset
         uid.value = null;
         mtoken.value = null;
         stoken.value = null;
-        console.log("🔄 Storage reset event received, cleared local uid ref");
+        // console.log("🔄 Storage reset event received, cleared local uid ref");
     };
-    
+
     window.addEventListener('storage-reset', storageResetHandler);
 
     // Also listen for sessionStorage changes (fallback)
@@ -1509,7 +1509,7 @@ const handleWebSocketConnection = (event) => {
                         updateSectorData(mappedData);
                     }
                 } else {
-                    console.warn('handleWebSocketConnection: WebSocket feed token not found in pdmwdata', tokenStr);
+                    // console.warn('handleWebSocketConnection: WebSocket feed token not found in pdmwdata', tokenStr);
                 }
             }
         } else {
@@ -1682,7 +1682,7 @@ const fetchInitialIndicesData = async (forceRefresh = false) => {
             }
         }
     } catch (error) {
-        console.error('fetchInitialIndicesData: Error fetching initial indices data:', error);
+        // console.error('fetchInitialIndicesData: Error fetching initial indices data:', error);
         // Try to load from cache on error, but only if cache is recent
         try {
             const cache = loadPdmwdataCache();
@@ -1690,7 +1690,7 @@ const fetchInitialIndicesData = async (forceRefresh = false) => {
                 updatePdmwdataFromCache();
             }
         } catch (cacheError) {
-            console.error('fetchInitialIndicesData: Error loading cache:', cacheError);
+            // console.error('fetchInitialIndicesData: Error loading cache:', cacheError);
         }
     } finally {
         // Reset pending flag
@@ -1795,7 +1795,7 @@ const getADlistdata = async () => {
 
                 // Log missing data for debugging
                 if (!data[sector.key]) {
-                    console.warn(`Missing API data for sector: ${sector.key} (${sector.title})`);
+                    // console.warn(`Missing API data for sector: ${sector.key} (${sector.title})`);
                 }
             });
 
@@ -1807,7 +1807,7 @@ const getADlistdata = async () => {
 
                 // Log missing data for debugging
                 if (!data[thematic.key]) {
-                    console.warn(`Missing API data for thematic: ${thematic.key} (${thematic.title})`);
+                    // console.warn(`Missing API data for thematic: ${thematic.key} (${thematic.title})`);
                 }
             });
 
@@ -1864,7 +1864,7 @@ const getADlistdata = async () => {
                                 });
                             }
                         } catch (error) {
-                            console.error('Error fetching LTP data for sectors:', error);
+                            // console.error('Error fetching LTP data for sectors:', error);
                         }
                     }
                 }
@@ -1883,14 +1883,14 @@ const getADlistdata = async () => {
             advdecitems.Sectors.sort((a, b) => Number(b.data?.marketCap || 0) - Number(a.data?.marketCap || 0));
             advdecitems.Thematic.sort((a, b) => Number(b.data?.marketCap || 0) - Number(a.data?.marketCap || 0));
         } else {
-            console.warn('getADlistdata: Invalid response from getADindices API:', data);
+            // console.warn('getADlistdata: Invalid response from getADindices API:', data);
         }
         // Initialize tab only if not yet chosen
         if (advdectab.value === null || advdectab.value === undefined) {
             advdectab.value = 'sectors';
         }
     } catch (error) {
-        console.error('getADlistdata: Error loading sectors/thematic data:', error);
+        // console.error('getADlistdata: Error loading sectors/thematic data:', error);
     }
 }
 
@@ -2169,10 +2169,10 @@ const getNews = async () => {
             }
             totalnews.value = config.newsCount || 0;
         } else {
-            console.warn('[StocksSrc] getssNews returned no data:', config);
+            // console.warn('[StocksSrc] getssNews returned no data:', config);
         }
     } catch (error) {
-        console.error('[StocksSrc] Error fetching news:', error);
+        // console.error('[StocksSrc] Error fetching news:', error);
         allnews.value = [];
         totalnews.value = 0;
     } finally {
@@ -2208,10 +2208,10 @@ const setSSDtab = (type, token, exch, tsym) => {
                     tsym: tsym
                 }
             }).catch((error) => {
-                console.error('[StocksSrc] Navigation error:', error);
+                // console.error('[StocksSrc] Navigation error:', error);
             });
         } catch (error) {
-            console.error('[StocksSrc] Navigation exception:', error);
+            // console.error('[StocksSrc] Navigation exception:', error);
         }
     }
 }
@@ -2349,7 +2349,7 @@ const optionChainDataParse = (data) => {
     // Handle token from data.token or data.tk
     const token = data.token || data.tk;
     if (!token) {
-        console.warn('optionChainDataParse: No token found in data', data);
+        // console.warn('optionChainDataParse: No token found in data', data);
         return;
     }
 

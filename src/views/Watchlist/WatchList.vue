@@ -1,7 +1,7 @@
 <template>
     <div class="modern-watchlist">
         <!-- Search Header (hidden on mutual funds page) -->
-        <div v-if="!panel" class="search-header">
+        <div v-if="!panel && !optchainbasket" class="search-header">
             <div class="search-container">
                 <v-icon class="search-icon">mdi-magnify</v-icon>
                 <input v-model="search" @input="onSearchInput" placeholder="Search script"
@@ -61,9 +61,9 @@
                 <v-card density="compact" min-width="100" class="py-2">
                     <div v-for="(item, index) in mwfilters" :key="index" @click="mwfilter = item.key; setMWfilter()"
                         :class="mwfilter === item.key ? 'primary--text bg-primary-lighten-5' : ''"
-                        class="px-4 py-2 cursor-pointer">
+                        class="px-4 py-2 cursor-pointer" style="font-size: 10px !important;">
                         <p :class="mwfilter === item.key ? 'font-weight-bold' : ''"
-                            style="font-size: 12px !important;font-weight: 600 !important;padding-block: 2px !important;">
+                            style="font-size: 10px !important;padding-block: 2px !important;">
                             {{ item.text }}
                         </p>
                         <v-icon v-if="mwfilter === item.key" color="primary" size="small">mdi-check</v-icon>
@@ -160,14 +160,17 @@
         </v-card>
 
         <!-- Options Chain Basket Section -->
+        <!-- Merged Basket Options Component -->
         <div v-if="optchainbasket" class="options-basket-section">
             <v-toolbar flat density="compact" class="tool-sty crd-trn pl-1">
-                <p class="font-weight-bold mb-0 lh-16">Basket Options({{ optchainbasketdata.length }})</p>
+                <p class="font-weight-bold mb-0 lh-16">Basket Options ({{ optchainbasketdata.length }})</p>
                 <v-spacer></v-spacer>
-                <v-card color="secbg" class="px-2 py-0 elevation-0 rounded-xl">
-                    <v-switch hide-details v-model="prdordplace" density="compact" class="mt-n01">
+
+                <v-card class="px-2 py-0 elevation-0 rounded-xl" style="background-color: transparent !important;">
+                    <v-switch hide-details v-model="prdordplace" color="black" density="compact"
+                        class="mt-n01 mis-nrml-switch">
                         <template #label>
-                            <p class="pl-1 fw-6 fs-13 maintext--text mb-0 pt-1">{{ prdordplace ? " MIS" : " NRML" }}</p>
+                            <p class="pl-1 fw-6 fs-13 maintext--text mb-0 pt-1">{{ prdordplace ? "MIS" : "NRML" }}</p>
                         </template>
                     </v-switch>
                 </v-card>
@@ -190,91 +193,85 @@
                     </v-tooltip>
                 </v-btn>
             </v-toolbar>
+
             <v-divider></v-divider>
 
-            <!-- Basket Items List -->
-            <div v-if="optchainbasketdata && optchainbasketdata.length > 0" style="height: calc(100vh - 124px)"
+            <!-- Basket Items -->
+            <div v-if="optchainbasketdata && optchainbasketdata.length > 0" style="height: calc(100vh - 250px)"
                 class="overflow-y-auto overflow-x-hidden no-scroll">
                 <div v-for="(item, o) in optchainbasketdata" :key="o" class="pt-2 px-1">
                     <p class="maintext--text mb-0 fs-13">
                         <v-icon @click="(item.checkbox = !item.checkbox), getOBMargin()" color="primary" size="14">
                             {{ !item.checkbox ? "mdi-checkbox-blank-outline" : "mdi-checkbox-marked" }}
                         </v-icon>
-                        <span class="table-hov-text">{{ item.tsyms ? item.tsyms : item.tsym ? item.tsym : '' }}</span>
-                        <span class="subtext--text">{{ item.exp ? item.exp : '' }}</span>
-                        <span class="subtext--text fs-10">{{ item.ser ? item.ser : '' }}</span>
+                        <span class="table-hov-text">{{ item.tsyms || item.tsym || '' }}</span>
+                        <span class="subtext--text">{{ item.exp || '' }}</span>
+                        <span class="subtext--text fs-10">{{ item.ser || '' }}</span>
+
                         <span class="float-right maintext--text fs-13">
                             <v-icon @click="setBskmodify(o, 'delete')" color="maintext" class="font-weight-bold"
-                                size="16">
-                                mdi-close
-                            </v-icon>
+                                size="16">mdi-close</v-icon>
                         </span>
                     </p>
 
                     <v-row no-gutters>
-                        <v-col cols="3" class="px-1 pt-2">
+                        <!-- BUY / SELL -->
+                        <v-col cols="2" class="px-1 pt-1">
                             <v-tooltip location="top" color="black">
                                 <template v-slot:activator="{ props }">
-                                    <v-btn-toggle v-bind="props" v-model="item.buySell" mandatory density="compact"
-                                        class="elevation-0 rounded-lg"
-                                        @update:model-value="setBskmodify(o, 'buySell', item.buySell); getOBMargin()">
-                                        <v-btn value="BUY" size="x-small" :disabled="!item.checkbox"
-                                            :color="item.buySell == 'BUY' ? 'maingreen' : 'secbg'"
-                                            :class="item.buySell == 'BUY' ? 'white--text' : 'maintext--text'">
-                                            BUY
-                                        </v-btn>
-                                        <v-btn value="SELL" size="x-small" :disabled="!item.checkbox"
-                                            :color="item.buySell == 'SELL' ? 'mainred' : 'secbg'"
-                                            :class="item.buySell == 'SELL' ? 'white--text' : 'maintext--text'">
-                                            SELL
-                                        </v-btn>
-                                    </v-btn-toggle>
+                                    <div v-bind="props">
+                                        <v-chip :disabled="!item.checkbox"
+                                            :style="item.buySell == 'BUY' ? 'background-color:#E8F5E9!important;color:#43A833!important' : 'background-color:#FFEBEE!important;color:#F23645!important'"
+                                            style="height: 15px;" label class="px-2 mt-2 fs-10"
+                                            @click="setBskmodify(o, 'buySell', item.buySell == 'BUY' ? 'SELL' : 'BUY'); getOBMargin()">
+                                            {{ item.buySell }}
+                                        </v-chip>
+                                    </div>
                                 </template>
-                                <span>Buy/Sell</span>
+                                <span>Click to change <b
+                                        :class="item.buySell != 'BUY' ? 'maingreen--text' : 'mainred--text'">{{
+                                            item.buySell == 'BUY' ? 'SELL' : 'BUY' }}</b></span>
                             </v-tooltip>
                         </v-col>
 
-                        <v-col cols="3" class="px-1 pt-2">
+                        <!-- MKT / LMT -->
+                        <v-col cols="2" class="px-1 pt-1">
                             <v-tooltip location="top" color="black">
                                 <template v-slot:activator="{ props }">
-                                    <v-btn-toggle v-bind="props" v-model="item.ordvai" mandatory density="compact"
-                                        class="elevation-0 rounded-lg"
-                                        @update:model-value="setBskmodify(o, 'ordvai', item.ordvai); getOBMargin()">
-                                        <v-btn value="MKT" size="x-small" :disabled="!item.checkbox"
-                                            :color="item.ordvai == 'MKT' ? 'primary' : 'secbg'"
-                                            :class="item.ordvai == 'MKT' ? 'white--text' : 'maintext--text'">
-                                            MKT
-                                        </v-btn>
-                                        <v-btn value="LMT" size="x-small" :disabled="!item.checkbox"
-                                            :color="item.ordvai == 'LMT' ? 'primary' : 'secbg'"
-                                            :class="item.ordvai == 'LMT' ? 'white--text' : 'maintext--text'">
-                                            LMT
-                                        </v-btn>
-                                    </v-btn-toggle>
+                                    <div v-bind="props">
+                                        <v-chip :disabled="!item.checkbox"
+                                            style="background-color:#F5F5F5!important;color:#000!important;height:15px;"
+                                            label class="px-2 mt-2 fs-10"
+                                            @click="setBskmodify(o, 'ordvai', item.ordvai == 'MKT' ? 'LMT' : 'MKT'); getOBMargin()">
+                                            {{ item.ordvai }}
+                                        </v-chip>
+                                    </div>
                                 </template>
-                                <span>Market/Limit</span>
+                                <span>Click to change <b>{{ item.ordvai == 'MKT' ? 'LMT' : 'MKT' }}</b></span>
                             </v-tooltip>
                         </v-col>
 
-                        <v-col cols="3" class="px-1 pt-2">
+                        <!-- QTY -->
+                        <v-col cols="3" class="px-1 pt-0">
                             <v-tooltip location="top" color="black">
                                 <template v-slot:activator="{ props }">
-                                    <v-text-field v-bind="props" :disabled="!item.checkbox" @keyup="getOBMargin()"
-                                        prefix="📦" class="fs-12 bskfield" height="20px" v-model="item.ordlot"
-                                        type="number" min="1" hide-spin-buttons hide-details density="compact"
-                                        variant="outlined"></v-text-field>
+                                    <v-text-field v-bind="props" :disabled="!item.checkbox" prefix="📦"
+                                        class="fs-12 bskfield" height="10px" v-model="item.ordlot" type="number" min="1"
+                                        hide-spin-buttons hide-details density="compact" variant="underlined"
+                                        @keyup="getOBMargin()"></v-text-field>
                                 </template>
                                 <span>QTY: {{ item.ordlot }} * MLot {{ item.ls }}</span>
                             </v-tooltip>
                         </v-col>
 
-                        <v-col cols="3" class="px-1 pt-2">
+                        <!-- PRICE -->
+                        <v-col cols="3" class="px-1 pt-0">
                             <v-tooltip location="top" color="black">
                                 <template v-slot:activator="{ props }">
-                                    <v-text-field v-bind="props" @keyup="getOBMargin()" prefix="₹"
-                                        :disabled="item.ordvai == 'MKT' || !item.checkbox" class="fs-12 bskfield"
-                                        height="20px" v-model="item.ordprc" type="number" min="0.1" hide-spin-buttons
-                                        hide-details density="compact" variant="outlined"></v-text-field>
+                                    <v-text-field v-bind="props" prefix="₹"
+                                        :disabled="item.ordvai == 'MKT' || !item.checkbox" class="fs-12" height="10px"
+                                        v-model="item.ordprc" type="number" min="0.1" hide-spin-buttons hide-details
+                                        density="compact" variant="underlined" @keyup="getOBMargin()"></v-text-field>
                                 </template>
                                 <span>Price</span>
                             </v-tooltip>
@@ -288,39 +285,39 @@
                 <img class="align-self-stretch mx-auto" width="70px"
                     :src="getAssetPath(`searcha-icon${$vuetify.theme.dark ? 'd' : ''}.svg`)" />
                 <p class="subtext--text fs-14 mb-1">Hmmm, Looks like no Strikes — why not add some? Choose from the
-                    option
-                    chain.</p>
+                    option chain.</p>
             </v-card>
 
-            <!-- Margin & Place Order Section -->
-            <div v-if="optchainbasketdata && optchainbasketdata.length > 0">
+            <!-- Margin + Place Order -->
+            <div v-if="optchainbasketdata && optchainbasketdata.length > 0"
+                style="position: sticky; bottom: 0; background-color: white; z-index: 100;">
                 <v-divider></v-divider>
                 <v-toolbar class="tool-sty elevation-0 crd-trn pt-1 pl-1" density="compact">
                     <v-list-item class="px-0">
                         <v-list-item-title class="font-weight-medium fs-12 subtext--text mb-2">
                             Margin:
-                            <span class="ml-1 primary--text">
-                                <b>₹{{ Number(totalmargin) ? totalmargin.toFixed(2) : "0.00" }}</b>
-                            </span>
-                            <v-icon class="ml-1 cursor-p" @click="getOBMargin()" color="maintext" size="12">
-                                mdi-reload
-                            </v-icon>
+                            <span class="ml-1 primary--text"><b>₹{{ Number(totalmargin).toFixed(2) }}</b></span>
+                            <v-icon class="ml-1 cursor-p" @click="getOBMargin()" color="maintext"
+                                size="12">mdi-reload</v-icon>
                         </v-list-item-title>
+
                         <v-list-item-title class="font-weight-medium fs-12 subtext--text mb-0">
                             Post margin:
-                            <span class="ml-1 primary--text">
-                                <b>₹{{ Number(postTrademargin) ? postTrademargin.toFixed(2) : "0.00" }}</b>
-                            </span>
+                            <span class="ml-1 primary--text"><b>₹{{ Number(postTrademargin).toFixed(2) }}</b></span>
                         </v-list-item-title>
                     </v-list-item>
+
                     <v-spacer></v-spacer>
-                    <v-btn @click="setBfoPlaceorder(0)" color="primary" :loading="orderloader"
+
+                    <v-btn @click="setBfoPlaceorder(0)"
+                        style="background-color: #0037B7 !important; color: white !important;" :loading="orderloader"
                         class="text-none rounded-pill elevation-0 white--text px-6" height="40px">
                         Place order
                     </v-btn>
                 </v-toolbar>
             </div>
         </div>
+
 
         <!-- Floating Basket Button (when minimized) -->
         <div v-if="!optchainbasket && optchainbasketdata && optchainbasketdata.length > 0" class="pos-abs"
@@ -350,8 +347,8 @@
 
             <!-- Mutual Fund Toolbar -->
             <v-toolbar v-if="!addscript" flat density="compact" class="tool-sty crd-trn">
-                <v-btn variant="text" readonly
-                    class="elevation-0 rounded-lg text-none fs-14 d-inline-flex px-2 text-capitalize" max-width="220px">
+                <v-btn variant="text" readonly class="elevation-0 rounded-lg text-none fs-14 d-inline-flex px-2 "
+                    max-width="220px">
                     My watchlist
                     <span class="ml-2 font-weight-bold fs-12">({{ mfuseritem ? mfuseritem.length : "0" }})</span>
                 </v-btn>
@@ -370,8 +367,15 @@
                                 </template>
                                 <v-list density="compact">
                                     <v-list-item v-for="(item, index) in mffilters" :key="index"
-                                        @click="mffilter = index; setMFFilter()">
-                                        <v-list-item-title>{{ item.text }}</v-list-item-title>
+                                        @click="mffilter = item.key; setMFFilter()"
+                                        :class="mffilter === item.key ? 'primary--text bg-primary-lighten-5' : ''"
+                                        class="py-0">
+                                        <v-list-item-title :class="mffilter === item.key ? 'font-weight-bold' : ''"
+                                            class="fs-13 txt-000">{{
+                                                item.text }}</v-list-item-title>
+                                        <template v-slot:append v-if="mffilter === item.key">
+                                            <v-icon color="primary" size="small">mdi-check</v-icon>
+                                        </template>
                                     </v-list-item>
                                 </v-list>
                             </v-menu>
@@ -389,7 +393,7 @@
             <div v-if="addscript">
                 <v-divider></v-divider>
                 <div v-if="mfwatchlistdata && mfwatchlistdata.length > 0">
-                    <p class="subtext--text fs-14 mt-2 mb-1">{{ mfwatchlistdata.length }} search result by you</p>
+                    <p class="subtext--text fs-14 mt-2 mb-2">{{ mfwatchlistdata.length }} search result by you</p>
                     <v-divider></v-divider>
                 </div>
             </div>
@@ -404,50 +408,82 @@
                     <v-card v-for="(item, o) in mfuseritem" :key="o"
                         class="elevation-0 rounded-0 table-row overflow-hidden crd-trn">
                         <div class="table-row pos-rlt">
-                            <di class="pa-0 py-1">
+                            <div class="pa-1">
+
+                                <!-- TITLE + 3YR (ROW 1) -->
                                 <v-list-item-title class="fs-13 font-weight-medium mb-1 maintext--text table-hov-text">
-                                    <span class="txt-dec-cust cursor-pointer" @click="setSinglepage(item)">
-                                        {{ item.name ? item.name : "" }}
-                                    </span>
-                                    <p class="mb-0 float-right fs-12 subtext--text font-weight-regular">
-                                        3yr:
-                                        <span class="font-weight-medium maintext--text">
-                                            {{ item["3Year"] ? Number(item["3Year"]).toFixed(2) : "0.00" }}
+                                    <div class="d-flex justify-space-between align-center w-100">
+                                        <span class="txt-dec-cust cursor-pointer mt-1" @click="setSinglepage(item)">
+                                            {{ item.name || "" }}
                                         </span>
-                                    </p>
+
+                                        <span class="fs-12 subtext--text font-weight-regular">
+                                            3yr:
+                                            <span class="font-weight-medium txt-000">
+                                                {{ item["3Year"] ? Number(item["3Year"]).toFixed(2) : "0.00" }}
+                                            </span>
+                                        </span>
+                                    </div>
                                 </v-list-item-title>
-                                <v-list-item-subtitle>
-                                    <v-chip color="secbg" class="table-hide" size="x-small" variant="flat"
-                                        style="border-radius: 4px; padding: 10px 8px !important">
-                                        <span class="font-weight-medium fs-9">
-                                            {{ item.splito ? item.splito : "" }}
-                                        </span>
-                                    </v-chip>
-                                    <v-chip color="secbg" class="table-hide mx-2" size="x-small" variant="flat"
-                                        style="border-radius: 4px; padding: 10px 8px !important">
-                                        <span class="font-weight-medium fs-9">
-                                            {{ item.splitt ? item.splitt.replace("SCHEME", "") : "" }}
-                                        </span>
-                                    </v-chip>
-                                    <span class="mb-0 fs-10 subtext--text float-right font-weight-regular mt-1">
-                                        AUM:
-                                        <span class="font-weight-medium maintext--text">
-                                            {{ item.AUM ? Number(item.AUM).toFixed(2) : "0.00" }}
-                                        </span>
-                                    </span>
+
+
+                                <!-- AUM + CHIPS (ROW 2, SAME LINE) -->
+                                <v-list-item-subtitle class="mt-1">
+                                    <div class="d-flex justify-space-between align-center w-100">
+
+                                        <!-- LEFT: CHIPS -->
+                                        <div class="d-flex align-center">
+                                            <v-chip class="table-hide mr-1" size="x-small" variant="flat" :style="{
+                                                backgroundColor: '#F1F3F8',
+                                                color: 'black',
+                                                borderRadius: '5px',
+                                                height: '20px'
+                                            }">
+                                                <span class="fs-10">
+                                                    {{ item.splito || "" }}
+                                                </span>
+                                            </v-chip>
+
+                                            <v-chip class="table-hide" size="x-small" variant="flat" :style="{
+                                                backgroundColor: '#F1F3F8',
+                                                color: 'black',
+                                                borderRadius: '5px',
+                                                height: '20px'
+                                            }">
+                                                <span class="fs-10">
+                                                    {{ item.splitt ? item.splitt.replace('SCHEME', '') : '' }}
+                                                </span>
+                                            </v-chip>
+                                        </div>
+
+                                        <!-- RIGHT: AUM -->
+                                        <div>
+                                            <span class="fs-10  text-right">
+                                                AUM:
+                                                <span class=" fs-10 font-weight-bold txt-000">
+                                                    {{ item.AUM ? Number(item.AUM).toFixed(2) : "0.00" }}
+                                                </span>
+                                            </span>
+                                        </div>
+
+                                    </div>
                                 </v-list-item-subtitle>
-                            </di>
+
+                            </div>
+
                             <v-divider></v-divider>
                         </div>
                         <!-- Phase 2: Add key to force re-render when uid or PreDefinedMW.is changes -->
                         <div @click.stop class="pos-abs table-hov" :key="`hover-mf-${uid}-${PreDefinedMW.is}`"
                             style="bottom: 8px; left: 50%; transform: translate(-50%, 0);">
-                            <v-btn @click="putMForder(item, 'buy')" size="x-small"
-                                class="elevation-0 text-none maingreen--text font-weight-bold mr-1" color="secgreen">
+                            <v-btn v-if="item.Purchase_Allowed == 'Y'" @click="putMForder(item, 'buy')" size="x-small"
+                                class="elevation-0 text-none font-weight-bold mr-1"
+                                style="background-color: #E8F5E9 !important; color: #148564 !important;">
                                 Buy
                             </v-btn>
-                            <v-btn @click="putMForder(item, 'sip')" size="x-small"
-                                class="elevation-0 text-none primary--text font-weight-bold" color="#F1F3F8">
+                            <v-btn v-if="item.SIP_FLAG == 'Y'" @click="putMForder(item, 'sip')" size="x-small"
+                                class="elevation-0 text-none font-weight-bold"
+                                style="background-color: #E3F2FD !important; color: #0037B7 !important; border: 1px solid #BBDEFB !important;">
                                 SIP
                             </v-btn>
                             <v-btn v-if="!PreDefinedMW.is" @click="deleteuserMutual(item)"
@@ -520,23 +556,24 @@
         <div v-if="!panel && !optchainbasket && !addscript && !watchsecti" class="predefined-watchlist-cards mb-3">
             <v-card id="pdcard" color="cardbg" class="elevation-0">
                 <v-row no-gutters>
-                    <v-col v-for="(s, l) in pdmwdata" :key="l" cols="6" class="pa-1 pdmwlists">
-                        <v-card class="elevation-0 crd-trn pos-rlt cursor-p" style="background-color: white !important;"
+                    <v-col v-for="(s, l) in pdmwdata" :key="l" cols="6" class="px-1 pdmwlists">
+                        <v-card class="elevation-0 crd-trn pos-rlt cursor-p px-1"
+                            style="background-color: white !important;"
                             :class="watchlistis == s.key ? 'pdmw-card-selected' : ''"
                             :style="watchlistis == s.key
                                 ? 'border: none !important;background-color: #F1F3F8 !important;border-radius: 5px !important;'
                                 : 'border: none !important;background-color: #F1F3F8 !important;border-radius: 5px !important;'"
                             @click="uid ? setSSDtab(l, s.token, s.exch, s.tsym) : null">
-                            <div
-                                style="display: flex;justify-content: space-between;align-content: center !important;padding: 0px !important;">
-                                <v-list-item-title class="maintext--text font-weight-medium fs-12 pa-1 pdmw-card-text">
+                            <div class="pt-1"
+                                style="display: flex;justify-content: space-between;align-content: center !important;">
+                                <div class="maintext--text font-weight-medium fs-12 px-1 pt-1 pdmw-card-text">
                                     {{ s.tsym ? s.tsym : '' }}
-                                </v-list-item-title>
+                                </div>
 
                                 <span class="text-right">
                                     <span class="maintext--text font-weight-medium fs-12 pdmw-card-text">
                                         ₹<span :id="`p${s.token}ltp`" class="pdmw-card-text">{{ s.ltp ? s.ltp : "0.00"
-                                            }}</span>
+                                        }}</span>
                                     </span>
                                 </span>
                             </div>
@@ -639,13 +676,13 @@
                             @click="uid ? setSSDtab('detail', item.token, item.exch, item.tsym || item.tsyms) : null">
                             <p class="maintext--text mb-1 px-1" style="font-size: 13px !important;">
                                 <span class="table-hov-text">{{ item.tsyms ? item.tsyms : item.tsym ? item.tsym : ''
-                                    }}</span>
+                                }}</span>
                                 <span class="subtext--text">{{ item.exp ? item.exp : '' }}</span>
                                 <span v-if="item.weekly"
                                     style="border-radius: 4px; padding: 0px 4px; background-color: #F1F3F8 !important"
                                     class="ml-1">
                                     <span class="font-weight-medium fs-10 lh-16">{{ item.weekly ? item.weekly : ''
-                                        }}</span>
+                                    }}</span>
                                 </span>
                                 <span class="float-right maintext--text fs-14">
                                     ₹<span :id="`${item.token}ltp`">{{ item.ltp ? item.ltp : '0.00' }}</span>
@@ -658,7 +695,7 @@
                                         item.exch ? item.exch : '' }}</span>
                                 </span>
                                 <span v-html="setHoldbadge(item.token)"></span>
-                                <span class="subtext--text fs-11">{{ item.ser ? item.ser : '' }}</span>
+                                <span class="subtext--text fs-10">{{ item.ser ? item.ser : '' }}</span>
                                 <span class="float-right fw-6 fs-12" :id="`${item.token}chpclr`"
                                     :class="item.ch > 0 ? 'maingreen--text' : item.ch < 0 ? 'mainred--text' : 'subtext--text'">
                                     <span :id="`${item.token}ch`">{{ item.ch ? item.ch : '0.00' }}</span>
@@ -877,7 +914,7 @@
                 </p>
                 <span class="body-2 mb-5 grey--text"> {{ nodata == null ? "Eg. for Nifty Type: Nif" :
                     "Search for another name."
-                    }}</span>
+                }}</span>
             </v-card>
         </div>
 
@@ -992,6 +1029,7 @@
 </template>
 
 <script setup>
+import eventBus from '@/utils/eventBus.js'
 import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAppStore } from '../../stores/appStore'
@@ -1054,12 +1092,16 @@ const initializeWatchlistsFromStorage = () => {
                     return data
                 }
             } catch (error) {
-                console.error('Error parsing local watchlists on init:', error)
+                // console.error('Error parsing local watchlists on init:', error)
             }
         }
     }
     return []
 }
+
+// const putMForder = (item, type) => {
+//     eventBus.$emit("menudialog", "mforder", type, item)
+// }
 
 const watchlist = ref(initializeWatchlistsFromStorage())
 const watchlistis = ref(null)
@@ -1267,7 +1309,7 @@ const ensureSessionReady = async () => {
         if (isLoggedIn) {
             // Use console.warn instead of console.error to reduce noise
             // Only log if this is a real issue (user logged in but session not ready)
-            console.warn("⚠️ API URL not available yet, session may still be initializing")
+            // console.warn("⚠️ API URL not available yet, session may still be initializing")
             // Only show snackbar if user is actively trying to use a feature
             // Don't show on initial mount - wait for user action
         }
@@ -1420,7 +1462,7 @@ const performSearch = async () => {
             nodata.value = "noooo"
         }
     } catch (error) {
-        console.error('Search error:', error)
+        // console.error('Search error:', error)
         appStore.showSnackbar(0, 'Search failed')
         items.value = []
     } finally {
@@ -1486,7 +1528,7 @@ const addToWatchlist = async (item, index) => {
             appStore.showSnackbar(0, res.emsg || 'Failed to add to watchlist')
         }
     } catch (error) {
-        console.error('Add to watchlist error:', error)
+        // console.error('Add to watchlist error:', error)
         appStore.showSnackbar(0, 'Failed to add to watchlist')
     }
 }
@@ -1512,7 +1554,7 @@ const setPDwatchlist = async () => {
             try {
                 PreDefinedMWRef.value = await getPreDefinedMW()
             } catch (err) {
-                console.log('PreDefinedMW load error in setPDwatchlist:', err)
+                // console.log('PreDefinedMW load error in setPDwatchlist:', err)
                 isLoading.value = false
                 return
             }
@@ -1557,7 +1599,7 @@ const setPDwatchlist = async () => {
                         }
                     }
                 } catch (error) {
-                    console.error('Error loading holdings data:', error)
+                    // console.error('Error loading holdings data:', error)
                 }
             }
 
@@ -1680,7 +1722,7 @@ const setPDwatchlist = async () => {
         // Phase 2: PreDefinedMW.is is now computed from isPreDefinedWatchlist
         // No need to set it manually - it's reactive based on watchlistis.value
     } catch (error) {
-        console.error('Set predefined watchlist error:', error)
+        // console.error('Set predefined watchlist error:', error)
         // Try to keep cached data on error
         const cached = loadWatchlistFromCache(watchlistis.value)
         if (!cached || !Array.isArray(cached) || cached.length === 0) {
@@ -1721,7 +1763,7 @@ const createWatchlist = async () => {
         createMWdialog.value = false
         newWatchlistName.value = ''
     } catch (error) {
-        console.error('Create watchlist error:', error)
+        // console.error('Create watchlist error:', error)
         appStore.showSnackbar(0, 'Failed to create watchlist')
     }
 }
@@ -1786,10 +1828,10 @@ const deleteWatchlist = async () => {
                 )
 
                 if (deleteScriptsRes && deleteScriptsRes.stat !== "Ok") {
-                    console.warn('Failed to delete all scripts from watchlist:', deleteScriptsRes.emsg)
+                    // console.warn('Failed to delete all scripts from watchlist:', deleteScriptsRes.emsg)
                 }
             } catch (e) {
-                console.warn('Error deleting scripts from watchlist:', e)
+                // console.warn('Error deleting scripts from watchlist:', e)
             }
         }
 
@@ -1821,7 +1863,7 @@ const deleteWatchlist = async () => {
 
         appStore.showSnackbar(0, `${watchlistNameToDelete} watchlist deleted`)
     } catch (error) {
-        console.error('Delete watchlist error:', error)
+        // console.error('Delete watchlist error:', error)
         appStore.showSnackbar(0, 'Failed to delete watchlist')
     } finally {
         deleteMWdialog.value = false
@@ -1885,7 +1927,7 @@ const removeFromWatchlist = async (item, index) => {
             appStore.showSnackbar(0, res.emsg || 'Failed to remove from watchlist')
         }
     } catch (error) {
-        console.error('Remove from watchlist error:', error)
+        // console.error('Remove from watchlist error:', error)
         appStore.showSnackbar(0, 'Failed to remove from watchlist')
     } finally {
         contextMenu.value.show = false
@@ -1986,7 +2028,7 @@ const deleteScript = async (model, del) => {
             appStore.showSnackbar(0, res.emsg || "Delete failed")
         }
     } catch (error) {
-        console.error('Delete script error:', error)
+        // console.error('Delete script error:', error)
         appStore.showSnackbar(0, 'Failed to delete script')
     }
 }
@@ -2072,7 +2114,7 @@ const onDragEnd = async () => {
                 await getMWlistdata() // Refresh to original order
             }
         } catch (error) {
-            console.error('Drag end error:', error)
+            // console.error('Drag end error:', error)
             appStore.showSnackbar(0, 'Reorder failed. Please try again.')
             await getMWlistdata() // Refresh to original order
         }
@@ -2089,15 +2131,16 @@ const getHoldingsBadge = (token) => {
         const netqty = holding?.netqty || null
 
         if (netqty > 0) {
+            const suitcaseIconPath = getAssetPath('suitcase.svg')
             return `<span style="border-radius: 4px; padding: 0px 6px; background-color: #F1F3F8 !important"
                         class="mr-1 table-hov-prd d-inline-flex align-center">
-                        <img width="13px" :src="getAssetPath('suitcase.svg')" />
+                        <img width="13px" src="${suitcaseIconPath}" />
                         <span class="font-weight-medium fs-12 pl-1 pt-1 primary--text">${netqty}</span>
                     </span>`
         }
         return null
     } catch (error) {
-        console.error('Holdings badge error:', error)
+        // console.error('Holdings badge error:', error)
         return null
     }
 }
@@ -2122,7 +2165,7 @@ const saveWatchlistToCache = (watchlistName, data) => {
             }))
         }
     } catch (error) {
-        console.error('Error saving watchlist to cache:', error)
+        // console.error('Error saving watchlist to cache:', error)
     }
 }
 
@@ -2150,7 +2193,7 @@ const loadWatchlistFromCache = (watchlistName) => {
             }
         }
     } catch (error) {
-        console.error('Error loading watchlist from cache:', error)
+        // console.error('Error loading watchlist from cache:', error)
     }
 
     return null
@@ -2171,7 +2214,7 @@ const clearWatchlistCache = (watchlistName) => {
             localStorage.removeItem(cacheKey)
         }
     } catch (error) {
-        console.error('Error clearing watchlist cache:', error)
+        // console.error('Error clearing watchlist cache:', error)
     }
 }
 
@@ -2198,7 +2241,7 @@ const loadWatchlistsFromLocalStorage = () => {
                     return true
                 }
             } catch (error) {
-                console.error('Error loading watchlists from localStorage:', error)
+                // console.error('Error loading watchlists from localStorage:', error)
             }
         }
     }
@@ -2232,7 +2275,7 @@ const getWatchlist = async () => {
 
         // CRITICAL: Call MWList API first (like old app line 1579)
         // This ensures fresh data is fetched on initial load
-        console.log('[MWList] Calling MWList API...', { uid: uid.value, mtoken: mtoken.value ? 'present' : 'missing' })
+        // console.log('[MWList] Calling MWList API...', { uid: uid.value, mtoken: mtoken.value ? 'present' : 'missing' })
 
         // Load local watchlists first to preserve locally created ones
         let localWatchlists = []
@@ -2245,7 +2288,7 @@ const getWatchlist = async () => {
                         localWatchlists = [...data]
                     }
                 } catch (error) {
-                    console.error('Error parsing local watchlists:', error)
+                    // console.error('Error parsing local watchlists:', error)
                 }
             }
         }
@@ -2255,7 +2298,7 @@ const getWatchlist = async () => {
             "MWList"
         )
 
-        console.log('[MWList] API Response:', res)
+        // console.log('[MWList] API Response:', res)
 
         if (res && ((res.values && res.values.length > 0) || res.stat === "Ok")) {
             // Process MWList response (like old app line 1580-1583)
@@ -2278,10 +2321,10 @@ const getWatchlist = async () => {
                     watchlistis.value = mergedWatchlists[0]
                 }
                 saveWatchlistsToLocalStorage()
-                console.log('[MWList] Watchlist loaded:', { watchlist: mergedWatchlists, selected: watchlistis.value })
+                // console.log('[MWList] Watchlist loaded:', { watchlist: mergedWatchlists, selected: watchlistis.value })
             } else {
                 // No values in response, use localStorage data
-                console.log('[MWList] No values in response, using localStorage data...')
+                // console.log('[MWList] No values in response, using localStorage data...')
                 if (localWatchlists.length > 0) {
                     watchlist.value = localWatchlists
                     if (!watchlistis.value || !localWatchlists.includes(watchlistis.value)) {
@@ -2304,7 +2347,7 @@ const getWatchlist = async () => {
             }
         } else {
             // API failed or empty response, use localStorage data
-            console.log('[MWList] API failed or empty, using localStorage data...')
+            // console.log('[MWList] API failed or empty, using localStorage data...')
             if (localWatchlists.length > 0) {
                 watchlist.value = localWatchlists
                 if (!watchlistis.value || !localWatchlists.includes(watchlistis.value)) {
@@ -2332,11 +2375,11 @@ const getWatchlist = async () => {
             watchlist.value = [defaultWatchlist]
             watchlistis.value = defaultWatchlist
             saveWatchlistsToLocalStorage()
-            console.log('[MWList] Created default watchlist:', defaultWatchlist)
+            // console.log('[MWList] Created default watchlist:', defaultWatchlist)
         } else if (!watchlistis.value || !watchlist.value.includes(watchlistis.value)) {
             // Set focus on first watchlist if none selected or selected one doesn't exist
             watchlistis.value = watchlist.value[0]
-            console.log('[MWList] Set first watchlist as selected:', watchlistis.value)
+            // console.log('[MWList] Set first watchlist as selected:', watchlistis.value)
         }
 
         // CRITICAL: Force Vue 3 reactivity update by reassigning the array
@@ -2346,7 +2389,7 @@ const getWatchlist = async () => {
         // Load data for selected watchlist (like old app line 1589)
         await getMWlistdata()
     } catch (error) {
-        console.error('[MWList] Get watchlist error:', error)
+        // console.error('[MWList] Get watchlist error:', error)
         // Try localStorage fallback on error
         if (loadWatchlistsFromLocalStorage()) {
             const cached = loadWatchlistFromCache(watchlistis.value)
@@ -2416,9 +2459,9 @@ const getMWlistdata = async () => {
             window.dispatchEvent(event)
         }
 
-        console.log('[API] Calling MarketWatch...', { wlname: watchlistis.value })
+        // console.log('[API] Calling MarketWatch...', { wlname: watchlistis.value })
         let res = await getMwatchlistset(`jData={"uid":"${uid.value}","wlname":"${watchlistis.value}"}&jKey=${mtoken.value}`, "MarketWatch");
-        console.log('[API] MarketWatch Response:', res)
+        // console.log('[API] MarketWatch Response:', res)
 
         if (res && res.values && res.values.length > 0 && res.stat == "Ok") {
             let wl = res.values;
@@ -2507,7 +2550,7 @@ const getMWlistdata = async () => {
             // eventBus.$emit('snack-event', 2, res.emsg ? res.emsg : 'no data');
         }
     } catch (error) {
-        console.error('Get watchlist data error:', error)
+        // console.error('Get watchlist data error:', error)
         // On error, try to keep cached data
         const cached = loadWatchlistFromCache(watchlistis.value)
         if (!cached || !Array.isArray(cached) || cached.length === 0) {
@@ -2989,7 +3032,7 @@ const setmfserach = async (setext) => {
             }))
         }
     } catch (error) {
-        console.error('Mutual fund search error:', error)
+        // console.error('Mutual fund search error:', error)
         searchloading.value = false
         appStore.showSnackbar(0, 'Failed to search mutual funds')
     }
@@ -3090,6 +3133,7 @@ const setMFFilter = () => {
     }
 }
 
+
 const getusedMutual = async (mode, item, del) => {
     // Check if user is logged in first
     const sessionStatus = sessionStorage.getItem('c3RhdHVz')
@@ -3135,9 +3179,9 @@ const getusedMutual = async (mode, item, del) => {
     }
 
     try {
-        console.log('[API] Calling watchlist_for_mobile (getMFwatchlist)...', { mode, hasItem: !!item, del })
+        // console.log('[API] Calling watchlist_for_mobile (getMFwatchlist)...', { mode, hasItem: !!item, del })
         let res = await getMFwatchlist(JSON.stringify(data))
-        console.log('[API] watchlist_for_mobile Response:', res)
+        // console.log('[API] watchlist_for_mobile Response:', res)
         var showdata = []
 
         if (res.scripts && res.scripts.length > 0 && res.stat == "Ok" && !res.msg) {
@@ -3185,7 +3229,7 @@ const getusedMutual = async (mode, item, del) => {
             setMFFilter()
         }
     } catch (error) {
-        console.error('Mutual fund watchlist error:', error)
+        // console.error('Mutual fund watchlist error:', error)
         appStore.showSnackbar(0, 'Failed to update mutual fund watchlist')
     } finally {
         mfisLoading.value = false
@@ -3244,46 +3288,84 @@ const getOBMargin = async () => {
         return
     }
 
-    let item = { basketlists: [] }
+    // Filter only checked items
+    const checkedItems = optchainbasketdata.value.filter(item => item.checkbox === true)
 
-    for (let i = 0; i < optchainbasketdata.value.length; i++) {
-        const opta = optchainbasketdata.value[i]
-        if (!opta.basketlists) {
-            opta.basketlists = []
-        }
-        if (opta.basketlists.length === 0 && i > 0) {
-            opta.basketlists.push({
-                uid: uid.value,
-                actid: uid.value,
-                discqty: "0",
-                exch: opta.exch,
-                pCode: "I",
-                prctyp: opta.ordvai,
-                prd: "I",
-                prc: opta.ordvai == "MKT" ? "" : opta.ordprc,
-                qty: String(opta.ls * opta.ordlot),
-                ret: "DAY",
-                symbol_id: opta.token,
-                tsym: opta.tsym,
-                trantype: opta.buySell == "BUY" ? "B" : "S",
-                trgprc: "0",
-            })
+    if (checkedItems.length === 0) {
+        totalmargin.value = 0
+        postTrademargin.value = 0
+        return
+    }
+
+    let item = null
+
+    for (let i = 0; i < checkedItems.length; i++) {
+        const opta = checkedItems[i]
+
+        // Ensure ordlot and ordprc are strings (no default values - API will validate)
+        const ordlotStr = String(opta.ordlot || "")
+        const ordprcStr = opta.ordvai == "MKT" ? "" : String(opta.ordprc || "")
+        const qty = opta.ls && opta.ordlot ? String(Number(opta.ls) * Number(opta.ordlot)) : String(opta.ordlot || "")
+        const prd = prdordplace.value ? "I" : "M"
+
+        const basketItem = {
+            uid: uid.value,
+            actid: uid.value,
+            discqty: "0",
+            exch: opta.exch,
+            pCode: "I",
+            prctyp: opta.ordvai,
+            prd: prd,
+            prc: ordprcStr,
+            qty: qty,
+            ret: "DAY",
+            symbol_id: opta.token,
+            tsym: opta.tsym,
+            trantype: opta.buySell == "BUY" ? "B" : "S",
+            trgprc: "0",
         }
 
-        if (opta.basketlists && opta.basketlists.length > 0) {
-            item.basketlists.push(...opta.basketlists)
+        if (i === 0) {
+            // First item is the main object with basketlists array
+            item = {
+                ...basketItem,
+                basketlists: []
+            }
+        } else {
+            // Subsequent items go in basketlists array
+            item.basketlists.push(basketItem)
         }
     }
 
-    if (item.basketlists.length > 0) {
+    if (item && (item.basketlists.length > 0 || checkedItems.length === 1)) {
         try {
             let marginData = await getBSKMargin(item)
-            totalmargin.value = marginData.marginused == undefined ? 0 : marginData.marginused
-            postTrademargin.value = marginData.marginusedtrade == undefined ? 0 : marginData.marginusedtrade
+            // console.log('GetBasketMargin API response:', marginData)
+
+            // Check if API response is successful
+            if (marginData && marginData.stat === 'Ok') {
+                // Extract margin values from response
+                const marginUsed = marginData.marginused !== undefined ? Number(marginData.marginused) : 0
+                const marginUsedTrade = marginData.marginusedtrade !== undefined ? Number(marginData.marginusedtrade) : 0
+
+                totalmargin.value = marginUsed
+                postTrademargin.value = marginUsedTrade
+            } else {
+                // API returned error or invalid response
+                // console.warn('GetBasketMargin API error:', marginData?.emsg || marginData?.msg || 'Unknown error')
+                totalmargin.value = 0
+                postTrademargin.value = 0
+
+                // Show error message if available
+                if (marginData?.emsg || marginData?.msg) {
+                    appStore.showSnackbar(0, marginData.emsg || marginData.msg || 'Failed to calculate margin')
+                }
+            }
         } catch (error) {
-            console.error('Margin calculation error:', error)
+            // console.error('Margin calculation error:', error)
             totalmargin.value = 0
             postTrademargin.value = 0
+            appStore.showSnackbar(0, 'Failed to calculate margin. Please try again.')
         }
     } else {
         totalmargin.value = 0
@@ -3297,18 +3379,46 @@ const setBskmodify = (o, key, value) => {
         getOBMargin()
     } else {
         if (optchainbasketdata.value[o]) {
-            optchainbasketdata.value[o][key] = value
+            // Ensure ordlot and ordprc are always stored as strings (no default values)
+            if (key === 'ordlot') {
+                optchainbasketdata.value[o][key] = String(value)
+            } else if (key === 'ordprc') {
+                optchainbasketdata.value[o][key] = String(value)
+            } else {
+                optchainbasketdata.value[o][key] = value
+            }
             getOBMargin()
         }
     }
 }
 
 const setBfoPlaceorder = async (i) => {
-    if (!(await ensureSessionReady())) return
+    if (!(await ensureSessionReady())) {
+        orderloader.value = false
+        return
+    }
+
+    // Filter only checked items for placing orders
+    const checkedItems = optchainbasketdata.value.filter(item => item.checkbox === true)
+
+    if (checkedItems.length === 0) {
+        appStore.showSnackbar(0, 'Please select at least one script to place order')
+        orderloader.value = false
+        return
+    }
+
+    // Validation: Basket orders must have same exchange for all checked items
+    const exchanges = [...new Set(checkedItems.map(item => item.exch).filter(exch => exch))]
+    if (exchanges.length > 1) {
+        appStore.showSnackbar(0, 'Basket orders cannot have different exchanges. Please select scripts from the same exchange.')
+        orderloader.value = false
+        return
+    }
 
     orderloader.value = true
-    if (i <= optchainbasketdata.value.length - 1) {
-        await setPlaceorder(optchainbasketdata.value[i], i)
+
+    if (i < checkedItems.length) {
+        await setPlaceorder(checkedItems[i], i)
     } else {
         appStore.showSnackbar(1, `Basket order placed successfully`)
         window.dispatchEvent(new CustomEvent('orderbook-update', { detail: "orders" }))
@@ -3317,7 +3427,15 @@ const setBfoPlaceorder = async (i) => {
 }
 
 const setPlaceorder = async (data, i) => {
-    if (!(await ensureSessionReady())) return
+    if (!(await ensureSessionReady())) {
+        orderloader.value = false
+        return
+    }
+
+    // Ensure ordlot and ordprc are strings (no default values - API will validate)
+    const ordlotStr = String(data.ordlot || "")
+    const ordprcStr = data.ordvai == "MKT" ? "0" : String(data.ordprc || "")
+    const qty = data.ls && data.ordlot ? String(Number(data.ls) * Number(data.ordlot)) : String(data.ordlot || "")
 
     let item = {
         uid: uid.value,
@@ -3325,8 +3443,8 @@ const setPlaceorder = async (data, i) => {
         exch: data.exch,
         tsym: data.tsym,
         ret: "DAY",
-        qty: String(Number(data.ls) * Number(data.ordlot)),
-        prc: data.ordvai == "MKT" ? "0" : data.ordprc,
+        qty: qty,
+        prc: ordprcStr,
         prd: prdordplace.value ? "I" : "M",
         trantype: data.buySell == "BUY" ? "B" : "S",
         prctyp: data.ordvai,
@@ -3340,16 +3458,18 @@ const setPlaceorder = async (data, i) => {
 
     try {
         let odata = await getPlaceOrder(item)
+        // Only validation: Check API response for success
         if (odata.stat != "Ok") {
-            appStore.showSnackbar(0, odata.emsg ? odata.emsg : odata)
+            appStore.showSnackbar(0, odata.emsg ? odata.emsg : (odata.msg || 'Failed to place order'))
             orderloader.value = false
             return
         }
+        // Order placed successfully, proceed to next checked item
         setTimeout(() => {
             setBfoPlaceorder(i + 1)
         }, 100)
     } catch (error) {
-        console.error('Place order error:', error)
+        // console.error('Place order error:', error)
         appStore.showSnackbar(0, 'Failed to place order')
         orderloader.value = false
     }
@@ -3365,12 +3485,12 @@ const getPositionbook = async () => {
     if (!(await ensureSessionReady())) return
 
     try {
-        console.log('[API] Calling PositionBook...')
+        // console.log('[API] Calling PositionBook...')
         const data = await getMPosotion(true)
-        console.log('[API] PositionBook Response:', data)
+        // console.log('[API] PositionBook Response:', data)
         // Note: Data can be stored in Pinia store if needed for other components
     } catch (error) {
-        console.error('[API] PositionBook Error:', error)
+        // console.error('[API] PositionBook Error:', error)
     }
 }
 
@@ -3378,12 +3498,12 @@ const getHoldingbook = async () => {
     if (!(await ensureSessionReady())) return
 
     try {
-        console.log('[API] Calling Holdings...')
+        // console.log('[API] Calling Holdings...')
         const data = await getMHoldings(true)
-        console.log('[API] Holdings Response:', data)
+        // console.log('[API] Holdings Response:', data)
         // Note: Data can be stored in Pinia store if needed for other components
     } catch (error) {
-        console.error('[API] Holdings Error:', error)
+        // console.error('[API] Holdings Error:', error)
     }
 }
 
@@ -3391,12 +3511,12 @@ const getOrderbook = async () => {
     if (!(await ensureSessionReady())) return
 
     try {
-        console.log('[API] Calling OrderBook...')
+        // console.log('[API] Calling OrderBook...')
         const data = await getMOrderbook()
-        console.log('[API] OrderBook Response:', data)
+        // console.log('[API] OrderBook Response:', data)
         // Note: Data can be stored in Pinia store if needed for other components
     } catch (error) {
-        console.error('[API] OrderBook Error:', error)
+        // console.error('[API] OrderBook Error:', error)
     }
 }
 
@@ -3404,25 +3524,25 @@ const getLimits = async () => {
     if (!(await ensureSessionReady())) return
 
     try {
-        console.log('[API] Calling Limits...')
+        // console.log('[API] Calling Limits...')
         const data = await getMLimits(true)
-        console.log('[API] Limits Response:', data)
+        // console.log('[API] Limits Response:', data)
         // Note: Data can be stored in Pinia store if needed for other components
     } catch (error) {
-        console.error('[API] Limits Error:', error)
+        // console.error('[API] Limits Error:', error)
     }
 }
 
 // Call all trading data APIs together (prevents duplicate calls)
 const callTradingDataAPIs = async () => {
     if (tradingDataCalled.value) {
-        console.log('[API] Trading data APIs already called, skipping...')
+        // console.log('[API] Trading data APIs already called, skipping...')
         return
     }
 
     // Set flag BEFORE calling to prevent concurrent calls
     tradingDataCalled.value = true
-    console.log('[API] Calling trading data APIs after login...')
+    // console.log('[API] Calling trading data APIs after login...')
 
     try {
         await Promise.all([
@@ -3432,7 +3552,7 @@ const callTradingDataAPIs = async () => {
             getLimits(),        // Limits API
         ])
     } catch (error) {
-        console.error('[API] Error calling trading data APIs:', error)
+        // console.error('[API] Error calling trading data APIs:', error)
         // Reset flag on error so it can be retried
         tradingDataCalled.value = false
     }
@@ -3442,7 +3562,7 @@ const callTradingDataAPIs = async () => {
 const getAllindicedata = async (item, callback) => {
     // Always open dialog first (like old app behavior)
     if (item && callback !== undefined && callback !== null) {
-        console.log('[API] Opening index dialog for:', { item, callback, pdmwdataLength: pdmwdata.value.length })
+        // console.log('[API] Opening index dialog for:', { item, callback, pdmwdataLength: pdmwdata.value.length })
 
         // Set singleindex to the current card item (like old app line 1771)
         singleindex.value = { ...item }
@@ -3466,16 +3586,16 @@ const getAllindicedata = async (item, callback) => {
         // Reset expansion panel to show first panel by default
         indexpanel.value = [0]
 
-        console.log('[API] Index dialog opened, singleindex:', singleindex.value, 'indexdialog:', indexdialog.value)
+        // console.log('[API] Index dialog opened, singleindex:', singleindex.value, 'indexdialog:', indexdialog.value)
     }
 
     // Then fetch index data (like old app line 1765)
     if (!(await ensureSessionReady())) return
 
     try {
-        console.log('[API] Calling getadindices (getIndexList)...')
+        // console.log('[API] Calling getadindices (getIndexList)...')
         let data = await getIndexList()
-        console.log('[API] getadindices Response:', data)
+        // console.log('[API] getadindices Response:', data)
 
         // Match old app structure exactly (like old app line 1766)
         if (data && data.stat == "Ok") {
@@ -3494,16 +3614,16 @@ const getAllindicedata = async (item, callback) => {
                 if (data.values.MCX) allindex.value.MCX = data.values.MCX
             }
 
-            console.log('[API] Allindex populated:', {
-                NSE: allindex.value.NSE.length,
-                BSE: allindex.value.BSE.length,
-                MCX: allindex.value.MCX.length
-            })
+            // console.log('[API] Allindex populated:', {
+            //     NSE: allindex.value.NSE.length,
+            //     BSE: allindex.value.BSE.length,
+            //     MCX: allindex.value.MCX.length
+            // })
         } else {
-            console.warn('[API] getIndexList response not OK:', data)
+            // console.warn('[API] getIndexList response not OK:', data)
         }
     } catch (error) {
-        console.error('[API] Get index list error:', error)
+        // console.error('[API] Get index list error:', error)
         // Dialog is already open, so user can still see it even if API fails
     }
 }
@@ -3512,18 +3632,18 @@ const getAllindicedata = async (item, callback) => {
 const getAdvdecIndices = async () => {
     if (!(await ensureSessionReady())) return
     if (advdecIndicesCalled.value) {
-        console.log('[API] getadindicesAdvdec already called, skipping...')
+        // console.log('[API] getadindicesAdvdec already called, skipping...')
         return
     }
 
     advdecIndicesCalled.value = true
     try {
-        console.log('[API] Calling getadindicesAdvdec (getADindices)...')
+        // console.log('[API] Calling getadindicesAdvdec (getADindices)...')
         const data = await getADindices()
-        console.log('[API] getadindicesAdvdec Response:', data)
+        // console.log('[API] getadindicesAdvdec Response:', data)
         // Note: Data can be stored in Pinia store if needed for other components
     } catch (error) {
-        console.error('[API] getadindicesAdvdec Error:', error)
+        // console.error('[API] getadindicesAdvdec Error:', error)
     }
 }
 
@@ -3612,7 +3732,7 @@ const setChangeindex = async (item, exch) => {
             await nextTick()
         }
     } catch (error) {
-        console.error('Change index error:', error)
+        // console.error('Change index error:', error)
     }
 }
 
@@ -3620,18 +3740,18 @@ const setChangeindex = async (item, exch) => {
 // This ensures data is available immediately on mount and after refresh
 const fetchInitialIndicesData = async () => {
     if (initialIndicesDataCalled.value) {
-        console.log('[API] GetLtp (fetchInitialIndicesData) already called, skipping...')
+        // console.log('[API] GetLtp (fetchInitialIndicesData) already called, skipping...')
         return
     }
 
     if (!pdmwdata.value || pdmwdata.value.length === 0) {
-        console.log('fetchInitialIndicesData: pdmwdata is empty')
+        // console.log('fetchInitialIndicesData: pdmwdata is empty')
         return
     }
 
     // Ensure session is ready before making API calls
     if (!(await ensureSessionReady())) {
-        console.log('fetchInitialIndicesData: Session not ready')
+        // console.log('fetchInitialIndicesData: Session not ready')
         return
     }
 
@@ -3645,14 +3765,14 @@ const fetchInitialIndicesData = async () => {
             tsym: item.tsym || item.tsym
         }))
 
-        console.log('fetchInitialIndicesData: Fetching data for', indicesData.length, 'indices')
+        // console.log('fetchInitialIndicesData: Fetching data for', indicesData.length, 'indices')
 
         // Fetch LTP data for all indices
         const response = await getLtpdata(indicesData)
         const raw = response?.data
 
         if (raw) {
-            console.log('fetchInitialIndicesData: Received data for', Object.keys(raw).length, 'tokens')
+            // console.log('fetchInitialIndicesData: Received data for', Object.keys(raw).length, 'tokens')
             let anyUpdated = false
 
             for (let l = 0; l < pdmwdata.value.length; l++) {
@@ -3692,7 +3812,7 @@ const fetchInitialIndicesData = async () => {
                         }
                     }
                 } else {
-                    console.log('fetchInitialIndicesData: No data for token', item.token)
+                    // console.log('fetchInitialIndicesData: No data for token', item.token)
                 }
             }
 
@@ -3701,12 +3821,12 @@ const fetchInitialIndicesData = async () => {
                 try {
                     localStorage.setItem(`${uid.value}_pdmwdata`, JSON.stringify(pdmwdata.value))
                 } catch (err) {
-                    console.error('Error saving pdmwdata cache:', err)
+                    // console.error('Error saving pdmwdata cache:', err)
                 }
             }
         }
     } catch (error) {
-        console.error('fetchInitialIndicesData error:', error)
+        // console.error('fetchInitialIndicesData error:', error)
     }
 }
 
@@ -3715,14 +3835,14 @@ const getClientexch = async () => {
     if (!(await ensureSessionReady())) return
 
     try {
-        console.log('[API] Calling ClientDetails...')
+        // console.log('[API] Calling ClientDetails...')
         let res = await getClientDetails()
-        console.log('[API] ClientDetails Response:', res)
+        // console.log('[API] ClientDetails Response:', res)
         if (res && res.stat == "Ok") {
             clientdetails.value = res
         }
     } catch (error) {
-        console.error('[API] ClientDetails Error:', error)
+        // console.error('[API] ClientDetails Error:', error)
     }
 }
 
@@ -3859,10 +3979,10 @@ const toggleWatchlistSection = async () => {
                             }
                             // Force reactivity update
                             watchlist.value = [...watchlist.value]
-                            console.log('[Toggle] Loaded watchlists from localStorage:', data)
+                            // console.log('[Toggle] Loaded watchlists from localStorage:', data)
                         }
                     } catch (error) {
-                        console.error('Error loading watchlists from localStorage on toggle:', error)
+                        // console.error('Error loading watchlists from localStorage on toggle:', error)
                     }
                 }
             }
@@ -3879,7 +3999,7 @@ const toggleWatchlistSection = async () => {
                     }
                     isLoading.value = false
                 } catch (error) {
-                    console.error('Error loading watchlists from API on toggle:', error)
+                    // console.error('Error loading watchlists from API on toggle:', error)
                     isLoading.value = false
                 }
             }
@@ -3920,7 +4040,7 @@ const onMWClear = () => {
 
 // Stock Details Navigation (like Vue 2 setSSDtab)
 const setSSDtab = (type, token, exch, tsym) => {
-    console.log('setSSDtab called:', { type, token, exch, tsym })
+    // console.log('setSSDtab called:', { type, token, exch, tsym })
 
     if (type === "alert") {
         // StockOrderWindow.vue will automatically close GTC dialog when it receives alert event
@@ -3941,7 +4061,7 @@ const setSSDtab = (type, token, exch, tsym) => {
         localStorage.setItem('ssdtsym', `${exch}:${tsym}`)
         localStorage.setItem('ssdtoken', token)
 
-        console.log('Navigating to stocks details with params:', val)
+        // console.log('Navigating to stocks details with params:', val)
 
         // Use router.currentRoute to check current path instead of window.location
         const currentPath = router.currentRoute.value.path
@@ -3990,10 +4110,11 @@ const setHoldbadge = (tk) => {
 // Holdings Count HTML (like Vue 2 setHoldcount)
 const setHoldcount = (ct) => {
     if (ct > 0) {
+        const suitcaseIconPath = getAssetPath('suitcase.svg')
         return `
             <span style="border-radius: 4px; padding: 0px 6px; background-color: #F1F3F8 !important"
                 class="mr-1 table-hov-prd d-inline-flex align-center">
-                <img width="13px" src="/src/assets/suitcase.svg" />
+                <img width="13px" src="${suitcaseIconPath}" />
                 <span class="font-weight-medium fs-12 pl-1 pt-1 primary--text"> ${ct}</span>
             </span>`
     }
@@ -4057,8 +4178,8 @@ const handleBskWatchEvent = (event) => {
             data.ser = `${ser[1]} ${ser[2]} ${ser[5] ? ser[3] : ""}`
             data.buySell = data.buySell || "BUY"
             data.ordvai = data.ordvai || "MKT"
-            data.ordlot = data.ordlot || 1
-            data.ordprc = data.ordprc || ""
+            data.ordlot = String(data.ordlot || "")
+            data.ordprc = String(data.ordprc || "")
 
             optchainbasketdata.value.push(data)
             getOBMargin()
@@ -4162,10 +4283,10 @@ onMounted(async () => {
                     if (!watchlistis.value || !parsed.includes(watchlistis.value)) {
                         watchlistis.value = parsed[0]
                     }
-                    console.log('[Mount] Loaded watchlists from localStorage immediately:', parsed)
+                    // console.log('[Mount] Loaded watchlists from localStorage immediately:', parsed)
                 }
             } catch (error) {
-                console.error('Error loading watchlists from localStorage on mount:', error)
+                // console.error('Error loading watchlists from localStorage on mount:', error)
             }
         }
     }
@@ -4197,7 +4318,7 @@ onMounted(async () => {
     try {
         PreDefinedMWRef.value = await getPreDefinedMW()
     } catch (err) {
-        console.log('PreDefinedMW load error in onMounted:', err)
+        // console.log('PreDefinedMW load error in onMounted:', err)
         // Continue even if PreDefinedMW fails - will retry in setPDwatchlist if needed
     }
 
@@ -4270,7 +4391,7 @@ onMounted(async () => {
             pdmwdata.value = defaultPdmwdata
         }
     } catch (err) {
-        console.log('pdmwdata load error:', err)
+        // console.log('pdmwdata load error:', err)
         pdmwdata.value = defaultPdmwdata
     }
 
@@ -4367,15 +4488,15 @@ watch([uid, mtoken], async ([newUid, newMtok]) => {
         if (!PreDefinedMWRef.value || PreDefinedMWRef.value.stat !== "Ok") {
             try {
                 PreDefinedMWRef.value = await getPreDefinedMW()
-                console.log('Phase 2: PreDefinedMWRef loaded after login')
+                // console.log('Phase 2: PreDefinedMWRef loaded after login')
             } catch (err) {
-                console.log('PreDefinedMW load error in watch:', err)
+                // console.log('PreDefinedMW load error in watch:', err)
             }
         }
 
         // Phase 2: Force re-render of watchlist items after login to ensure hover options show
         await nextTick()
-        console.log('Phase 2: Forcing re-render of watchlist items after login')
+        // console.log('Phase 2: Forcing re-render of watchlist items after login')
 
         // CRITICAL: Load watchlists from localStorage IMMEDIATELY (synchronously) before API call
         // This ensures watchlists show immediately after login, even before API completes
@@ -4390,10 +4511,10 @@ watch([uid, mtoken], async ([newUid, newMtok]) => {
                         if (!watchlistis.value || !parsed.includes(watchlistis.value)) {
                             watchlistis.value = parsed[0]
                         }
-                        console.log('[Watch] Loaded watchlists from localStorage immediately after login:', parsed)
+                        // console.log('[Watch] Loaded watchlists from localStorage immediately after login:', parsed)
                     }
                 } catch (error) {
-                    console.error('Error loading watchlists from localStorage after login:', error)
+                    // console.error('Error loading watchlists from localStorage after login:', error)
                 }
             }
         }
@@ -4446,7 +4567,7 @@ watch([uid, mtoken], async ([newUid, newMtok]) => {
                 pdmwdata.value = defaultPdmwdata
             }
         } catch (err) {
-            console.log('pdmwdata load error in watch:', err)
+            // console.log('pdmwdata load error in watch:', err)
             pdmwdata.value = defaultPdmwdata
         }
 
@@ -4485,7 +4606,7 @@ watch([uid, mtoken], async ([newUid, newMtok]) => {
         // Phase 1: CRITICAL: Re-subscribe watchlistdata to WebSocket after login
         // This ensures real-time updates work immediately after login
         if (watchlistdata.value && Array.isArray(watchlistdata.value) && watchlistdata.value.length > 0) {
-            console.log('Phase 1: Re-subscribing watchlistdata to WebSocket after login');
+            // console.log('Phase 1: Re-subscribing watchlistdata to WebSocket after login');
             const wlEvent = new CustomEvent('web-scoketOn', {
                 detail: { flow: 'sub', data: watchlistdata.value, is: 'wl', page: 'watchlist' }
             })

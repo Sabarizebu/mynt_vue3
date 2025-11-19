@@ -525,7 +525,7 @@ export default {
   },
   async created() {
     let params = this.$route.params;
-    console.log("Route params:", params);
+    // console.log("Route params:", params);
 
     // If no ISIN in route params, try to get from sessionStorage
     if (!params || !params.ISIN) {
@@ -537,9 +537,9 @@ export default {
             ISIN: itemData.ISIN || itemData.Scheme_Code || itemData.schemeCode || itemData.isin,
             ...itemData
           };
-          console.log("Using stored data for params:", params);
+          // console.log("Using stored data for params:", params);
         } catch (e) {
-          console.error("Error parsing stored data:", e);
+          // console.error("Error parsing stored data:", e);
           sessionStorage.removeItem('mf_single_data');
         }
       }
@@ -552,17 +552,17 @@ export default {
       // If no ISIN, try to get from other params
       if (params && (params.Scheme_Code || params.Scheme_Name)) {
         // Try to construct params or redirect
-        console.warn("No ISIN in route params, redirecting to mutual fund page");
+        // console.warn("No ISIN in route params, redirecting to mutual fund page");
         this.$router.push(`/mutualfund`);
       } else {
-        console.warn("No valid fund identifier found, redirecting to mutual fund page");
+        // console.warn("No valid fund identifier found, redirecting to mutual fund page");
         this.$router.push(`/mutualfund`);
       }
     }
   },
   mounted() {
     let paramsdata = this.$route.params;
-    console.log("Mounted paramsdata:", paramsdata);
+    // console.log("Mounted paramsdata:", paramsdata);
 
     // Check sessionStorage immediately for user data
     let res = sessionStorage.getItem("c3RhdHVz");
@@ -653,10 +653,10 @@ export default {
       return this.riskMeterMap[riskNum] || riskMeter1;
     },
     async getMenuData(params) {
-      console.log("getMenuData params:", params);
+      // console.log("getMenuData params:", params);
 
       if (!params || !params.ISIN) {
-        console.error("No ISIN in params:", params);
+        // console.error("No ISIN in params:", params);
         this.$router.push(`/mutualfund`);
         return;
       }
@@ -666,17 +666,17 @@ export default {
 
         var x = new Date().getFullYear() - 1;
         this.rolldate = new Date(x.toString()).toISOString().split("T")[0];
-        console.log("rolldate", this.rolldate);
+        // console.log("rolldate", this.rolldate);
 
         this.isni = params.ISIN;
-        console.log("Loading data for ISIN:", this.isni);
+        // console.log("Loading data for ISIN:", this.isni);
 
         this.menudata = await getMFsheetdata(params.ISIN);
-        console.log("MF sheet data response:", this.menudata);
+        // console.log("MF sheet data response:", this.menudata);
 
         if (this.menudata && this.menudata.stat == "Ok") {
           this.mfnavchart = await getMFNAVchart(params.ISIN, "1990-01-01", new Date().toISOString().split("T")[0]);
-          console.log("NAV chart response:", this.mfnavchart);
+          // console.log("NAV chart response:", this.mfnavchart);
 
           this.menudata = this.menudata.data;
           this.menudata["params"] = params;
@@ -698,11 +698,11 @@ export default {
         } else {
           const errorMsg = this.menudata && this.menudata.data ? this.menudata.data : (this.menudata && this.menudata.msg ? this.menudata.msg : "Failed to load fund data");
           eventBus.$emit("snack-event", 0, errorMsg);
-          console.error("Error loading fund data:", errorMsg);
+          // console.error("Error loading fund data:", errorMsg);
           this.$router.push(`/mutualfund`);
         }
       } catch (error) {
-        console.error("Error in getMenuData:", error);
+        // console.error("Error in getMenuData:", error);
         eventBus.$emit("snack-event", 0, `Error loading fund data: ${error.message || error}`);
         this.$router.push(`/mutualfund`);
       }
@@ -847,7 +847,7 @@ export default {
       this.$nextTick(() => {
         const chartElement = document.getElementById("navchart");
         if (!chartElement) {
-          console.warn("NAV chart element not found");
+          // console.warn("NAV chart element not found");
           return;
         }
 
@@ -934,7 +934,7 @@ export default {
             myChart.resize();
           });
         } catch (error) {
-          console.error("Error initializing NAV chart:", error);
+          // console.error("Error initializing NAV chart:", error);
         }
       });
     },
@@ -942,7 +942,7 @@ export default {
       this.$nextTick(() => {
         const chartElement = document.getElementById("cumchart");
         if (!chartElement) {
-          console.warn("Cumulative performance chart element not found");
+          // console.warn("Cumulative performance chart element not found");
           return;
         }
 
@@ -1038,7 +1038,7 @@ export default {
             myChart.resize();
           });
         } catch (error) {
-          console.error("Error initializing cumulative performance chart:", error);
+          // console.error("Error initializing cumulative performance chart:", error);
         }
       });
     },
@@ -1046,7 +1046,7 @@ export default {
       this.$nextTick(() => {
         const chartElement = document.getElementById("asschart");
         if (!chartElement) {
-          console.warn("Asset chart element not found");
+          // console.warn("Asset chart element not found");
           return;
         }
 
@@ -1093,7 +1093,7 @@ export default {
             myChart.resize();
           });
         } catch (error) {
-          console.error("Error initializing asset chart:", error);
+          // console.error("Error initializing asset chart:", error);
         }
       });
     },
@@ -1101,7 +1101,7 @@ export default {
       this.$nextTick(() => {
         const chartElement = document.getElementById("rollchart");
         if (!chartElement) {
-          console.warn("Roll chart element not found");
+          // console.warn("Roll chart element not found");
           return;
         }
 
@@ -1157,7 +1157,7 @@ export default {
             myChart.resize();
           });
         } catch (error) {
-          console.error("Error initializing roll chart:", error);
+          // console.error("Error initializing roll chart:", error);
         }
       });
     },

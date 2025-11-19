@@ -2,7 +2,7 @@
     <div>
         <!-- Sticky Toolbar with Tabs -->
         <div style="position: sticky !important; top: 80px; z-index: 1">
-            <v-toolbar class="tool-sty elevation-0 pl-4" height="40px" style="background-color: white !important;"
+            <v-toolbar class="tool-sty elevation-0" height="40px" style="background-color: white !important;"
                 density="compact">
                 <v-tabs v-model="bodytab" @update:model-value="setSSDtabs()" show-arrows density="compact">
                     <v-tab v-for="(t, index) in dashitems" :key="index" :value="index"
@@ -35,7 +35,7 @@
                             <v-btn v-if="uniqkey && uniqkey.length > 0"
                                 @click="handleMenuDialog('alert', uniqkey[0], uniqkey[1], uniqkey[2], 'a')"
                                 :disabled="ssdloader" icon size="small">
-                                <img width="18px" src="/src/assets/orderbook/5.svg" />
+                                <img width="18px" :src="alertIcon" />
                             </v-btn>
                         </div>
                     </template>
@@ -49,7 +49,7 @@
                             <v-btn v-if="maindata && maindata.instname != 'UNDIND' && maindata.instname != 'COM'"
                                 @click="handleMenuDialog('order-GTT', uniqkey[0], uniqkey[1], uniqkey[2], 'b')"
                                 :disabled="ssdloader" icon size="small" class="ml-2">
-                                <img width="18px" src="/src/assets/orderbook/4.svg" />
+                                <img width="18px" :src="gttIcon" />
                             </v-btn>
                         </div>
                     </template>
@@ -62,7 +62,7 @@
                         <div v-bind="props">
                             <v-btn @click="setPopchart()" :disabled="ssdloader" size="small" class="mr-2 ml-2" icon>
                                 <img width="20px"
-                                    :src="!popchart ? '/src/assets/to-pip.svg' : '/src/assets/out-pip.svg'" />
+                                    :src="!popchart ? toPipIcon : outPipIcon" />
                             </v-btn>
                         </div>
                     </template>
@@ -78,7 +78,7 @@
                                     <div v-bind="menuProps">
                                         <v-btn :disabled="ssdloader" size="small" class="mr-2" icon>
                                             <img width="20px"
-                                                :src="`/src/assets/tv_chart_icon/${currentTVChartLayoutIcon}.svg`" />
+                                                :src="getTvChartIconUrl(currentTVChartLayoutIcon)" />
                                         </v-btn>
                                     </div>
                                 </template>
@@ -89,7 +89,7 @@
                                             <v-btn @click.stop="changeSelectedTVChartLayout(layout)"
                                                 :disabled="ssdloader" size="small" class="mr-2" icon>
                                                 <img width="20px"
-                                                    :src="`/src/assets/tv_chart_icon/${layout.icon}.svg`" />
+                                                    :src="getTvChartIconUrl(layout.icon)" />
                                             </v-btn>
                                         </template>
                                     </v-list-item>
@@ -125,7 +125,7 @@
                     </div>
                     <v-container class="elevation-0" color="transparent" v-else>
                         <div class="my-16 py-16 text-center">
-                            <img width="160px" src="/src/assets/topip.svg" />
+                            <img width="160px" :src="toPipLargeIcon" />
                             <br />
                             <span class="text-h6"><b>{{ uniqkey && uniqkey[2] ? uniqkey[2] : '' }}</b> on Pop
                                 Chart</span>
@@ -156,27 +156,29 @@
                     class="rounded-0 overflow-y-auto futtable" fixed-header :headers="futurechainhead"
                     :items="futuredata">
                     <template v-slot:[`item.tsym`]="{ item }">
-                        <td class="pos-rlt">
+                        <td class="pos-rlt txt-000">
                             <span class="font-weight-medium">{{ item.tsym }}</span>
                             <div class="pos-abs futtable-hov"
-                                style="bottom: 12px; left: 50%; transform: translate(-50%, 0)">
+                                style="top: 50%; left: 100%; transform: translate(-50%, -50%)">
                                 <div @click="handleMenuDialog('order', item.token, item.exch, item.tsym, 'b')"
                                     style="min-width: 24px; background-color: #43A833; border-radius: 4px"
-                                    class="px-2 pt-1 font-weight-bold white--text elevation-0 mr-1 fs-10 text-center cursor-p">
+                                    class="px-2 pt-1 pb-1 font-weight-bold text-white elevation-0 mr-1 fs-10 text-center cursor-p">
                                     B</div>
                                 <div @click="handleMenuDialog('order', item.token, item.exch, item.tsym, 's')"
                                     style="min-width: 24px; background-color: #F23645; border-radius: 4px"
-                                    class="px-2 pt-1 font-weight-bold white--text elevation-0 mr-1 fs-10 text-center cursor-p">
+                                    class="px-2 pt-1 pb-1 font-weight-bold text-white elevation-0 mr-1 fs-10 text-center cursor-p">
                                     S</div>
-                                <v-btn @click="handleAddToWatchlist(item)" style="border: 1px solid #EBEEF0"
-                                    min-width="20px" color="mainbg"
-                                    class="px-0 font-weight-bold white--text elevation-0 mr-1" size="x-small" icon>
-                                    <v-icon size="18" color="maintext">mdi-bookmark-outline</v-icon>
+                                <v-btn @click.stop="handleAddToWatchlist(item)"
+                                    style="border: 1px solid #EBEEF0; width: 25px; height: 25px; min-width: 25px; padding: 0;"
+                                    color="mainbg" class="px-0 font-weight-bold white--text elevation-0 mr-1 rounded-lg"
+                                    icon>
+                                    <v-icon size="15" color="maintext">mdi-bookmark-outline</v-icon>
                                 </v-btn>
                                 <v-btn @click="handleSSDEvent('chart', item.token, item.exch, item.tsym)"
                                     style="border: 1px solid #EBEEF0" min-width="20px" color="mainbg"
-                                    class="px-0 font-weight-bold white--text elevation-0 mr-1" size="x-small" icon>
-                                    <v-icon size="18" color="maintext">mdi-chart-line-variant</v-icon>
+                                    class="px-0 font-weight-bold white--text elevation-0 mr-1 rounded-lg" size="25"
+                                    icon>
+                                    <v-icon size="15" color="maintext">mdi-chart-line-variant</v-icon>
                                 </v-btn>
                             </div>
                         </td>
@@ -212,7 +214,7 @@
                         <v-col cols="12" class="text-center pa-16">
                             <div class="mx-auto">
                                 <img class="align-self-stretch mx-auto" width="80px"
-                                    src="/src/assets/no data folder.svg" alt="no data" />
+                                    :src="noDataIcon" alt="no data" />
                                 <h5 class="txt-999 font-weight-regular">There is no Future data here yet!</h5>
                             </div>
                         </v-col>
@@ -233,14 +235,14 @@
                 <v-row no-gutters class="py-4">
                     <!-- Security Info Section -->
                     <v-col cols="12" v-if="securityinfos && Object.keys(securityinfos).length > 0">
-                        <h3 class="font-weight-bold mb-4">Security Information</h3>
+                        <!-- <h3 class="font-weight-bold mb-4">Security Information </h3> -->
                         <v-row no-gutters>
                             <v-col cols="6" class="pa-0" v-for="(s, ids, d) in securityinfos" :key="d">
                                 <v-list-item class="py-0">
-                                    <v-list-item-subtitle class="subtitle-1 font-weight-medium">{{ ids
+                                    <v-list-item-subtitle class="fs-16 ">{{ ids
                                         }}</v-list-item-subtitle>
                                     <template v-slot:append>
-                                        <v-list-item-title class="subtitle-1 font-weight-bold">
+                                        <v-list-item-title class=" font-weight-bold text-left">
                                             <span>{{ s != undefined ? s : "-" }}</span>
                                         </v-list-item-title>
                                     </template>
@@ -250,12 +252,12 @@
                     </v-col>
 
                     <!-- Linked Scrips Section (from Vue 2) -->
-                    <v-col cols="12" v-if="linkedscrips" class="mt-4">
+                    <!-- <v-col cols="12" v-if="linkedscrips" class="mt-4">
                         <v-divider class="mb-4"></v-divider>
-                        <h3 class="font-weight-bold mb-4">Linked Scrips</h3>
+                        <h3 class="font-weight-bold mb-4">Linked Scrips</h3> -->
 
-                        <!-- Equity Section -->
-                        <div v-if="linkedscrips.equls && linkedscrips.equls.length > 0">
+                    <!-- Equity Section -->
+                    <!-- <div v-if="linkedscrips.equls && linkedscrips.equls.length > 0">
                             <p class="font-weight-bold lh-16 mb-2">Equity</p>
                             <v-row>
                                 <v-col cols="6" md="4" v-for="(a, s) in linkedscrips.equls" :key="s + a.tsym">
@@ -274,10 +276,10 @@
                                     </v-card>
                                 </v-col>
                             </v-row>
-                        </div>
+                        </div> -->
 
-                        <!-- Options Section -->
-                        <div v-if="linkedscrips.opt_exp && linkedscrips.opt_exp.length > 0">
+                    <!-- Options Section -->
+                    <!-- <div v-if="linkedscrips.opt_exp && linkedscrips.opt_exp.length > 0">
                             <v-divider class="my-4"></v-divider>
                             <p class="font-weight-bold lh-16 mb-2">Options</p>
                             <v-row>
@@ -297,10 +299,10 @@
                                     </v-card>
                                 </v-col>
                             </v-row>
-                        </div>
+                        </div> -->
 
-                        <!-- Futures Section (using futuredata from parent) -->
-                        <div v-if="futuredata && futuredata.length > 0">
+                    <!-- Futures Section (using futuredata from parent) -->
+                    <!-- <div v-if="futuredata && futuredata.length > 0">
                             <v-divider class="my-4"></v-divider>
                             <p class="font-weight-bold lh-16 mb-2">Futures</p>
                             <v-row>
@@ -320,8 +322,8 @@
                                     </v-card>
                                 </v-col>
                             </v-row>
-                        </div>
-                    </v-col>
+                        </div> -->
+
                 </v-row>
             </v-window-item>
         </v-window>
@@ -352,8 +354,20 @@ import TVMultiChartContainer from '@/components/TVMChartContainer.vue'
 import StocksOverview from './StocksOverview.vue'
 import StockSingle from './StockSingle.vue'
 import StocksOption from './StocksOption.vue'
-import { getssDetails, getQuotesdata, getLinkedScrips, getSecuritydata, getTechnicals } from '@/components/mixins/getAPIdata.js'
+import { getssDetails, getQuotesdata, getLinkedScrips, getSecuritydata, getTechnicals, getMwatchlistset } from '@/components/mixins/getAPIdata.js'
 import { useAppStore } from '@/stores/appStore'
+import eventBus from '@/utils/eventBus'
+
+import alertIcon from '/src/assets/orderbook/5.svg'
+import gttIcon from '/src/assets/orderbook/4.svg'
+import toPipIcon from '/src/assets/to-pip.svg'
+import outPipIcon from '/src/assets/out-pip.svg'
+import toPipLargeIcon from '/src/assets/topip.svg'
+import noDataIcon from '/src/assets/no data folder.svg'
+
+const getTvChartIconUrl = (iconName) => {
+    return new URL(`/src/assets/tv_chart_icon/${iconName}.svg`, import.meta.url).href
+}
 
 const route = useRoute()
 const router = useRouter()
@@ -509,10 +523,50 @@ const handleMenuDialog = (type, token, exch, tsym, trantype, item) => {
     }))
 }
 
-const handleAddToWatchlist = (item) => {
-    window.dispatchEvent(new CustomEvent('addscript-wl', {
-        detail: item
-    }))
+const handleAddToWatchlist = async (item) => {
+    // Ensure session is ready
+    if (!(await ensureSessionReady())) {
+        appStore.showSnackbar(0, 'Session not ready. Please login again.')
+        return
+    }
+
+    // Get current watchlist name from localStorage or use default
+    const currentUid = sessionStorage.getItem('userid')
+    let watchlistName = 'Default'
+
+    // Try to get the current watchlist from localStorage
+    try {
+        const stored = localStorage.getItem(`${currentUid}_watchlists`)
+        if (stored) {
+            const watchlists = JSON.parse(stored)
+            if (watchlists && watchlists.length > 0) {
+                // Use the first watchlist or find the active one
+                watchlistName = watchlists[0].key || watchlists[0].name || 'Default'
+            }
+        }
+    } catch (e) {
+        console.error('Error getting watchlist:', e)
+    }
+
+    // Add to watchlist directly
+    try {
+        const res = await getMwatchlistset(
+            `jData={"uid":"${uid.value}","wlname":"${watchlistName}","scrips":"${item.exch}|${item.token}"}&jKey=${mtoken.value}`,
+            "AddMultiScripsToMW"
+        )
+
+        if (res.stat === "Ok") {
+            const scriptName = item.tsym || item.tsyms || 'Script'
+            appStore.showSnackbar(1, `${scriptName} added to watchlist`)
+            // Dispatch event to notify WatchList to refresh
+            eventBus.$emit('addscript-wl', item)
+        } else {
+            appStore.showSnackbar(0, res.emsg || 'Failed to add to watchlist')
+        }
+    } catch (error) {
+        console.error('Add to watchlist error:', error)
+        appStore.showSnackbar(0, 'Failed to add to watchlist')
+    }
 }
 
 const handleSSDEvent = (type, token, exch, tsym) => {
@@ -556,7 +610,7 @@ const setLoadingdata = async (type, token, exch, tsym) => {
                     si
                 ]
             } else {
-                dashitems.value[2].tab = false
+                dashitems.value[2].tab = true
                 window.ssddetail = [
                     window.ssdreqdata.data[token].q,
                     'no data',
@@ -577,7 +631,7 @@ const setLoadingdata = async (type, token, exch, tsym) => {
                     dashitems.value[2].tab = true
                     window.ssddetail = [q, s, l, si]
                 } else {
-                    dashitems.value[2].tab = false
+                    dashitems.value[2].tab = true
                     window.ssddetail = [q, 'no data', l, si]
                 }
                 window.ssdreqdata.data[token] = { q, s, l, t: null, i: si }
@@ -647,7 +701,7 @@ const upScriptdata = async (token, exch, tsym, l) => {
             dashitems.value[2].tab = true
             equlsdata.value = data.equls
         } else {
-            dashitems.value[2].tab = false
+            dashitems.value[2].tab = true
         }
 
         optiondata.value = []
@@ -655,7 +709,7 @@ const upScriptdata = async (token, exch, tsym, l) => {
             dashitems.value[3].tab = true
             optiondata.value = data.opt_exp
         } else {
-            dashitems.value[3].tab = false
+            dashitems.value[3].tab = true
         }
 
         futuredata.value = []
@@ -670,7 +724,7 @@ const upScriptdata = async (token, exch, tsym, l) => {
             }
             setWebsocket('sub', futuredata.value, 'ssd')
         } else {
-            dashitems.value[4].tab = false
+            dashitems.value[4].tab = true
         }
     }
     ssdloader.value = false
@@ -734,6 +788,7 @@ const setWebsocket = (flow, data, is) => {
 
 // Methods: WebSocket Data Parser
 const optionChainDataParse = (data) => {
+
     if (!Array.isArray(futuredata.value) || futuredata.value.length === 0) return
 
     const w = futuredata.value.findIndex((o) => o.token == data.token)
@@ -1103,14 +1158,6 @@ function resolveCurrentSymbol() {
     height: calc(100vh - 160px);
 }
 
-.futable-hov {
-    opacity: 0;
-    transition: opacity 0.2s;
-}
-
-.futable tbody tr:hover .futable-hov {
-    opacity: 1;
-}
 
 .pos-rlt {
     position: relative;

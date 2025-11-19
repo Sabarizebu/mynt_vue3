@@ -101,7 +101,7 @@ const setCheck = () => {
         })
         .catch((error) => {
             resis.value = error
-            console.log(error)
+            // console.log(error)
         })
 }
 
@@ -138,7 +138,7 @@ const setCopy = (textToCopy) => {
             alert("Text copied to clipboard!")
         })
         .catch((err) => {
-            console.error("Failed to copy text:", err)
+            // console.error("Failed to copy text:", err)
         })
 }
 </script>

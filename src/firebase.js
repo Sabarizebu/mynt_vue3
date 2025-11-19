@@ -28,7 +28,7 @@ if (typeof window !== 'undefined') {
     analytics = getAnalytics(firebaseApp);
   } catch (error) {
     // Analytics initialization failed - log warning but don't block app
-    console.warn('Firebase Analytics initialization failed (non-critical):', error);
+    // console.warn('Firebase Analytics initialization failed (non-critical):', error);
     // Set to null so router can check for it
     analytics = null;
   }

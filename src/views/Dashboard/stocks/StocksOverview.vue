@@ -2,9 +2,9 @@
     <div>
         <!-- :loading="mainloader"  -->
         <v-card class="crd-trn ss-cards mb-4 overflow-hidden" width="100%">
-            <v-card color="secbg" height="93px" class="elevation-0 rounded-0 pt-2 px-md-0 px-3">
+            <v-card color="secbg" class="elevation-0 rounded-0 pt-2 px-md-0 px-3">
                 <v-row no-gutters style="background-color: #F1F3F8 !important;">
-                    <v-col cols="12" md="7" class="pb-1 pb-md-2">
+                    <v-col cols="12" md="7" class="pb-1 pb-md-0">
                         <div class="d-flex align-center px-0 px-md-4">
                             <!-- Left Avatar Section -->
                             <v-avatar color="mainbg" size="56" class="my-0">
@@ -28,15 +28,21 @@
 
                                 <!-- Chips Row -->
                                 <v-chip-group class="my-0 py-0 d-flex flex-wrap align-center" column>
-                                    <v-chip label size="small" color="0" style="color: 0 !important;"
-                                        class="font-weight-medium fs-10">
-                                        {{ menudata.f && menudata.f.industry ? menudata.f.industry : "Industry" }}
+                                    <v-chip size="x-small" variant="flat"
+                                        style="border-radius: 5px; background-color: #ffffff !important; color: #666666 !important;"
+                                        class="fs-10">
+                                        <span class="fs-10">
+                                            {{ menudata.f && menudata.f.industry ? menudata.f.industry : "Industry" }}
+                                        </span>
                                     </v-chip>
 
-                                    <v-chip label size="small" color="black" style="color: black !important;"
-                                        class="font-weight-medium fs-10">
-                                        {{ menudata.f && menudata.f.market_cap_type ? menudata.f.market_cap_type :
-                                            "Marketcap type" }}
+                                    <v-chip size="x-small" variant="flat"
+                                        style="border-radius: 5px; background-color: #ffffff !important; color: #666666 !important;"
+                                        class="fs-10">
+                                        <span class="fs-10">
+                                            {{ menudata.f && menudata.f.market_cap_type ? menudata.f.market_cap_type :
+                                                "Marketcap type" }}
+                                        </span>
                                     </v-chip>
 
                                     <v-chip v-if="menudata[0]?.sucase" label size="small" color="white"
@@ -80,99 +86,116 @@
 
         <v-card class="crd-trn ss-cards mb-4 pt-4 overflow-hidden" width="100%">
             <div>
-                <v-row class="pt-md-3 pl-md-4 pr-md-7 flex-column-reverse flex-md-row">
-                    <v-col cols="12" md="4" class="px-7 pl-md-3 pr-md-5 pb-0">
+                <v-row class=" pl-md-4 pr-md-7 flex-column-reverse flex-md-row">
+                    <v-col cols="12" md="4" class=" pl-md-3 pr-md-5 pb-0">
                         <v-row no-gutters>
-                            <v-col cols="6" class="pt-0">
-                                <v-list-item class="px-0">
+                            <v-col cols="6" class="pt-0 pr-2">
+                                <v-list-item class="px-0 pt-0">
                                     <v-list-item-subtitle
                                         class="font-weight-regular fs-10 subtext--text mb-2 py-0">Market Cap
                                     </v-list-item-subtitle>
-                                    <v-list-item-title class="maintext--text font-weight-medium fs-12 mb-1 py-0"> {{
+                                    <v-list-item-title class="font-weight-medium fs-12 mb-0 py-0"> {{
                                         menudata.f &&
                                             menudata.f.market_cap ? `${Number(menudata.f.market_cap).toLocaleString()}` :
                                             "0.00"
                                     }}</v-list-item-title>
                                 </v-list-item>
-                                <v-divider></v-divider>
                             </v-col>
-                            <v-col cols="6" class="pt-0">
+                            <v-col cols="6" class="pt-0 pl-2">
                                 <v-list-item class="px-0">
                                     <v-list-item-subtitle
                                         class="font-weight-regular fs-10 subtext--text mb-2 py-0">Volume
                                     </v-list-item-subtitle>
-                                    <v-list-item-title class="maintext--text font-weight-medium fs-12 mb-1 py-0"
+                                    <v-list-item-title class="font-weight-medium fs-12 mb-0 py-0"
                                         :id="`ssdove${stkltp}vol`">
                                         {{ menudata[0] && menudata[0].volume ? `${menudata[0].volume.toLocaleString()}`
                                             : "0.00"
                                         }}</v-list-item-title>
                                 </v-list-item>
-                                <v-divider></v-divider>
                             </v-col>
-                            <v-col cols="6">
+                            <v-col cols="12">
+                                <v-divider class="my-0 "></v-divider>
+                            </v-col>
+                            <v-col cols="6" class="pr-2 pt-6">
                                 <v-list-item class="px-0">
-                                    <v-list-item-subtitle class="font-weight-regular fs-10 subtext--text mb-2 pb-0">Open
+                                    <v-list-item-subtitle class="font-weight-regular fs-10 subtext--text mb-2 py-0">Open
                                     </v-list-item-subtitle>
-                                    <v-list-item-title class="maintext--text font-weight-medium fs-12 mb-1 pb-0">
+                                    <v-list-item-title class="font-weight-medium fs-12 mb-0 py-0">
                                         ₹<span :id="`ssdove${stkltp}op`"> {{ menudata[0] && menudata[0].open_price ?
-                                            menudata[0].open_price : "0.00" }}</span></v-list-item-title>
+                                            Math.round(Number(menudata[0].open_price)) : "0"
+                                        }}</span></v-list-item-title>
                                 </v-list-item>
-                                <v-divider></v-divider>
                             </v-col>
-                            <v-col cols="6">
+                            <v-col cols="6" class="pl-2 pt-6">
                                 <v-list-item class="px-0">
                                     <v-list-item-subtitle
-                                        class="font-weight-regular fs-10 subtext--text mb-2 pb-0">Close
+                                        class="font-weight-regular fs-10 subtext--text mb-2 py-0">Close
                                     </v-list-item-subtitle>
-                                    <v-list-item-title class="maintext--text font-weight-medium fs-12 mb-1 pb-0">
+                                    <v-list-item-title class="font-weight-medium fs-12 mb-0 py-0">
                                         ₹<span :id="`ssdove${stkltp}cp`">{{ menudata[0] && menudata[0].close_price ?
                                             menudata[0].close_price : "0.00" }}</span></v-list-item-title>
                                 </v-list-item>
-                                <v-divider></v-divider>
+                            </v-col>
+                            <v-col cols="12">
+                                <v-divider class="my-0"></v-divider>
                             </v-col>
 
                             <v-col cols="12">
-                                <p class="font-weight-regular fs-10 subtext--text mb-0">High - Low</p>
-                                <div class="d-flex flex-row mb-1">
-                                    <span class="maintext--text font-weight-medium fs-12 pt-1 lh-24">
-                                        ₹<span :id="`ssdove${stkltp}hp`"> {{ menudata[0] && menudata[0].high_price ?
-                                            menudata[0].high_price
-                                            : "0.00" }}</span>
-                                    </span>
-                                    <v-card
-                                        v-if="menudata[0] && menudata[0].ltp > menudata[0].low_price && menudata[0].ltp < menudata[0].high_price"
-                                        width="100%" class="crd-trn elevation-0 px-2 rot-180">
-                                        <v-slider hide-details thumb-color="maintext" color="subtext"
-                                            v-model="menudata[0].ltp" readonly :min="menudata[0].low_price"
-                                            :max="menudata[0].high_price" track-color="subtext"></v-slider>
-                                    </v-card>
-                                    <span v-else class="fs-12 pt-1 lh-24">&nbsp;-&nbsp;</span>
-                                    <span class="maintext--text font-weight-medium fs-12 pt-1 lh-24 float-right">
-                                        ₹<span :id="`ssdove${stkltp}lp`"> {{ menudata[0] && menudata[0].low_price ?
-                                            menudata[0].low_price :
-                                            "0.00" }}</span>
-                                    </span>
-                                </div>
-                                <v-divider></v-divider>
+                                <v-list-item class="px-0">
+                                    <v-list-item-subtitle class="font-weight-regular fs-10 subtext--text mb-1 pt-6">High
+                                        - Low</v-list-item-subtitle>
+                                    <v-list-item-title class="font-weight-medium fs-12 mb-1 py-0">
+                                        <div class="d-flex flex-row align-center">
+                                            <span>
+                                                ₹<span :id="`ssdove${stkltp}hp`"> {{ menudata[0] &&
+                                                    menudata[0].high_price ?
+                                                    Math.round(Number(menudata[0].high_price))
+                                                    : "0" }}</span>
+                                            </span>
+                                            <v-card
+                                                v-if="menudata[0] && menudata[0].ltp > menudata[0].low_price && menudata[0].ltp < menudata[0].high_price"
+                                                width="100%" class="crd-trn elevation-0 px-2 rot-180 mx-2">
+                                                <v-slider hide-details thumb-color="maintext" color="subtext"
+                                                    thumb-size="12" class="crd-trn" v-model="menudata[0].ltp" readonly
+                                                    :min="menudata[0].low_price" :max="menudata[0].high_price"
+                                                    track-color="subtext"></v-slider>
+                                            </v-card>
+                                            <span v-else class="mx-2">&nbsp;-&nbsp;</span>
+                                            <span class="ml-auto">
+                                                ₹<span :id="`ssdove${stkltp}lp`"> {{ menudata[0] &&
+                                                    menudata[0].low_price ?
+                                                    Math.round(Number(menudata[0].low_price)) :
+                                                    "0" }}</span>
+                                            </span>
+                                        </div>
+                                    </v-list-item-title>
+                                </v-list-item>
+                                <v-divider class="my-0"></v-divider>
                             </v-col>
                             <v-col cols="12">
-                                <p class="font-weight-regular fs-10 subtext--text mb-0">52 Weeks high - 52 Weeks low</p>
-                                <div class="d-flex flex-row mb-1">
-                                    <span class="maintext--text font-weight-medium fs-12 pt-1 lh-24">
-                                        {{ menudata[0] && menudata[0].w52h ? `₹${menudata[0].w52h}` : "0.00" }}
-                                    </span>
-                                    <v-card
-                                        v-if="menudata[0] && menudata[0].ltp > menudata[0].w52l && menudata[0].ltp < menudata[0].w52h"
-                                        width="100%" class="crd-trn elevation-0 px-2 rot-180">
-                                        <v-slider hide-details thumb-color="maintext" color="subtext"
-                                            v-model="menudata[0].ltp" readonly :min="menudata[0].w52l"
-                                            :max="menudata[0].w52h" track-color="subtext"></v-slider>
-                                    </v-card>
-                                    <span v-else class="fs-12 pt-1 lh-24">&nbsp;-&nbsp;</span>
-                                    <span class="maintext--text font-weight-medium fs-12 pt-1 lh-24 float-right">
-                                        {{ menudata[0] && menudata[0].w52l ? `₹${menudata[0].w52l}` : "0.00" }}
-                                    </span>
-                                </div>
+                                <v-list-item class="pt-6 px-0   ">
+                                    <v-list-item-subtitle class="font-weight-regular fs-10 subtext--text mb-1 py-0">52
+                                        Weeks high - 52 Weeks low</v-list-item-subtitle>
+                                    <v-list-item-title class="font-weight-medium fs-12 mb-0 py-0">
+                                        <div class="d-flex flex-row align-center">
+                                            <span>
+                                                {{ menudata[0] && menudata[0].w52h ? `₹${menudata[0].w52h}` : "₹0.00" }}
+                                            </span>
+                                            <v-card
+                                                v-if="menudata[0] && menudata[0].ltp > menudata[0].w52l && menudata[0].ltp < menudata[0].w52h"
+                                                width="100%" class="crd-trn elevation-0 px-2 rot-180 mx-2">
+                                                <v-slider hide-details thumb-color="maintext" color="subtext"
+                                                    thumb-size="12" class="crd-trn" v-model="menudata[0].ltp" readonly
+                                                    :min="menudata[0].w52l" :max="menudata[0].w52h"
+                                                    track-color="subtext"></v-slider>
+                                            </v-card>
+                                            <span v-else class="mx-2">&nbsp;-&nbsp;</span>
+                                            <span class="ml-auto">
+                                                {{ menudata[0] && menudata[0].w52l ? `₹${menudata[0].w52l}` : "₹0.00" }}
+                                            </span>
+                                        </div>
+                                    </v-list-item-title>
+                                </v-list-item>
                             </v-col>
                         </v-row>
                     </v-col>
@@ -186,7 +209,7 @@
                                         class="font-weight-regular fs-12 subtext--text mb-1 text-uppercase py-0">Buy
                                         order
                                         Qty </v-list-item-subtitle>
-                                    <v-list-item-title class="font-weight-medium fs-14 mb-1 py-0">{{ menudata[0].bid_qty
+                                    <v-list-item-title class="font-weight-medium fs-13 mb-1 py-0">{{ menudata[0].bid_qty
                                         > 0 ?
                                         menudata[0].bid_qty : "0.00" }}%</v-list-item-title>
                                     <template v-slot:append>
@@ -195,7 +218,7 @@
                                                 class="font-weight-regular fs-12 subtext--text mb-1 text-uppercase py-0">Sell
                                                 order
                                                 Qty </v-list-item-subtitle>
-                                            <v-list-item-title class="font-weight-medium fs-14 mb-1 py-0">{{
+                                            <v-list-item-title class="font-weight-medium fs-13 mb-1 py-0">{{
                                                 menudata[0].ask_qty > 0 ?
                                                     menudata[0].ask_qty : "0.00" }}%</v-list-item-title>
                                         </div>
@@ -259,76 +282,75 @@
                         </v-card>
                     </v-col>
                 </v-row>
-                <v-row no-gutters class="px-4 pt-0">
+                <v-row no-gutters class="px-4 pt-6">
                     <v-col cols="2">
                         <v-list-item class="px-0">
-                            <v-list-item-subtitle class="font-weight-regular fs-10 subtext--text mb-2 py-1">Avg price
+                            <v-list-item-subtitle class="font-weight-regular fs-10 subtext--text mb-2 py-0">Avg price
                             </v-list-item-subtitle>
-                            <v-list-item-title class="maintext--text font-weight-medium fs-12 mb-1 py-1">
-                                <span :id="`ssdove${stkltp}ap`">{{ menudata[0] && menudata[0].ap ? menudata[0].ap :
-                                    "0.00"
-                                }}</span></v-list-item-title>
+                            <v-list-item-title class="font-weight-medium fs-12 mb-1 py-0">
+                                <span :id="`ssdove${stkltp}ap`">
+                                    {{
+                                        menudata[0] && menudata[0].ap
+                                            ? Math.round(Number(menudata[0].ap) * 100) / 100
+                                            : 0
+                                    }}
+                                </span>
+                            </v-list-item-title>
                         </v-list-item>
-                        <v-divider></v-divider>
                     </v-col>
                     <v-col cols="2">
                         <v-list-item class="px-0">
-                            <v-list-item-subtitle class="font-weight-regular fs-10 subtext--text mb-2 py-1">OI
+                            <v-list-item-subtitle class="font-weight-regular fs-10 subtext--text mb-2 py-0">OI
                             </v-list-item-subtitle>
-                            <v-list-item-title class="maintext--text font-weight-medium fs-12 mb-1 py-1">
+                            <v-list-item-title class="font-weight-medium fs-12 mb-1 py-0">
                                 <span :id="`ssdove${stkltp}oi`">{{ menudata[0] && menudata[0].oi ? menudata[0].oi :
                                     "0.00"
                                 }}</span></v-list-item-title>
                         </v-list-item>
-                        <v-divider></v-divider>
                     </v-col>
                     <v-col cols="2">
                         <v-list-item class="px-0">
-                            <v-list-item-subtitle class="font-weight-regular fs-10 subtext--text mb-2 py-1">Upper
+                            <v-list-item-subtitle class="font-weight-regular fs-10 subtext--text mb-2 py-0">Upper
                                 circuit level
                             </v-list-item-subtitle>
-                            <v-list-item-title class="maintext--text font-weight-medium fs-12 mb-1 py-1">
+                            <v-list-item-title class="font-weight-medium fs-12 mb-1 py-0">
                                 <span :id="`ssdove${stkltp}uc`">{{ menudata[0] && menudata[0].uc ? menudata[0].uc :
                                     "0.00"
                                 }}</span></v-list-item-title>
                         </v-list-item>
-                        <v-divider></v-divider>
                     </v-col>
                     <v-col cols="2">
                         <v-list-item class="px-0">
-                            <v-list-item-subtitle class="font-weight-regular fs-10 subtext--text mb-2 py-1">Lower
+                            <v-list-item-subtitle class="font-weight-regular fs-10 subtext--text mb-2 py-0">Lower
                                 circuit level
                             </v-list-item-subtitle>
-                            <v-list-item-title class="maintext--text font-weight-medium fs-12 mb-1 py-1">
+                            <v-list-item-title class="font-weight-medium fs-12 mb-1 py-0">
                                 <span :id="`ssdove${stkltp}lc`">{{ menudata[0] && menudata[0].lc ? menudata[0].lc :
                                     "0.00"
                                 }}</span></v-list-item-title>
                         </v-list-item>
-                        <v-divider></v-divider>
                     </v-col>
                     <v-col cols="2">
                         <v-list-item class="px-0">
-                            <v-list-item-subtitle class="font-weight-regular fs-10 subtext--text mb-2 py-1">Last trade
+                            <v-list-item-subtitle class="font-weight-regular fs-10 subtext--text mb-2 py-0">Last trade
                                 qty
                             </v-list-item-subtitle>
-                            <v-list-item-title class="maintext--text font-weight-medium fs-12 mb-1 py-1">
+                            <v-list-item-title class="font-weight-medium fs-12 mb-1 py-0">
                                 <span :id="`ssdove${stkltp}ltq`">{{ menudata[0] && menudata[0].ltq ? menudata[0].ltq :
                                     "0.00"
                                 }}</span></v-list-item-title>
                         </v-list-item>
-                        <v-divider></v-divider>
                     </v-col>
                     <v-col cols="2">
                         <v-list-item class="px-0">
-                            <v-list-item-subtitle class="font-weight-regular fs-10 subtext--text mb-2 py-1">Last trade
+                            <v-list-item-subtitle class="font-weight-regular fs-10 subtext--text mb-2 py-0">Last trade
                                 time
                             </v-list-item-subtitle>
-                            <v-list-item-title class="maintext--text font-weight-medium fs-12 mb-1 py-1">
+                            <v-list-item-title class="font-weight-medium fs-12 mb-1 py-0">
                                 <span :id="`ssdove${stkltp}ltt`">{{ menudata[0] && menudata[0].ltt ? menudata[0].ltt :
                                     "0.00"
                                 }}</span></v-list-item-title>
                         </v-list-item>
-                        <v-divider></v-divider>
                     </v-col>
                 </v-row>
             </div>
@@ -336,16 +358,18 @@
 
         <v-card class="crd-trn ss-cards mb-2 overflow-hidden" width="100%">
             <div class="px-4 pt-4" v-if="stockreturns">
-                <p class="font-weight-bold subtitle-2 mb-1">Returns</p>
-                <v-row no-gutters class="mt-0 pb-6">
-                    <v-col cols="6" md="2" v-for="(r, l) in stockreturns ? stockreturns : 6" :key="l" class="pt-0">
+                <p class="font-weight-bold fs-14 mb-1">Returns </p>
+                <v-row class="mt-0   pb-6" style="display: flex; flex-wrap: nowrap; gap: 10px; margin: 0 !important;">
+                    <v-col v-for="(r, l) in stockreturns ? stockreturns : 6" :key="l" class="pt-0 px-0"
+                        style="flex: 1 1 0; min-width: 80px; padding: 4px;">
                         <v-card v-if="l == 0" :id="`ssdove${stkltp}rbg`"
                             :color="menudata[0].ch > 0 ? 'secgreen' : menudata[0].ch < 0 ? 'secred' : 'secbg'"
-                            class="rounded-lg px-3 py-2 elevation-0 brd-1-solid-ccc text-center" width="100%">
+                            class="rounded-lg px-3 py-2 elevation-0 text-center" width="100%">
                             <p :id="`ssdove${stkltp}rchpclr`"
                                 :class="menudata[0].ch > 0 ? 'maingreen--text' : menudata[0].ch < 0 ? 'mainred--text' : 'subtext--text'"
                                 class="fs-18 font-weight-bold mb-2">
-                                <span :id="`ssdove${stkltp}rchp`">{{ computeReturnPercent(r.returns) }}</span>%
+                                <span :id="`ssdove${stkltp}rchp`">{{ Math.round(Number(computeReturnPercent(r.returns)))
+                                }}</span>%
                             </p>
                             <p class="mb-0 fs-10 text-uppercase font-weight-medium">
                                 {{ r.type ? r.type : "---" }}
@@ -353,7 +377,7 @@
                         </v-card>
                         <v-card v-else
                             :color="((menudata[0].ltp - r.returns) / r.returns) * 100 > 0 ? 'secgreen' : ((menudata[0].ltp - r.returns) / r.returns) * 100 < 0 ? 'secred' : 'secbg'"
-                            class="rounded-lg px-3 py-2 elevation-0 brd-1-solid-ccc text-center" width="100%">
+                            class="rounded-lg px-3 py-2 elevation-0 text-center" width="100%">
                             <p :class="Number(computeReturnPercent(r.returns)) > 0 ? 'maingreen--text' : Number(computeReturnPercent(r.returns)) < 0 ? 'mainred--text' : 'subtext--text'"
                                 class="fs-18 font-weight-bold mb-2">
                                 {{ computeReturnPercent(r.returns) }}%
@@ -367,19 +391,21 @@
             </div>
             <div class="px-4 pb-4" v-if="menudata.pivot && menudata.pivot.length > 0">
                 <p class="font-weight-bold subtitle-2 mb-1">Pivot levels</p>
-                <v-row no-gutters class="px-2">
+                <v-row no-gutters class="">
                     <v-col cols="2" class="px-0" v-for="(p, l) in menudata.pivot" :key="l">
-                        <v-card width="100%" class="crd-trn elevation-0 px-1">
+                        <v-card width="100%" class=" elevation-0 px-1 pl-0">
                             <p class="fs-14 mb-0 font-weight-medium pos-rlt" :class="l <= 2 ? '' : 'text-right'">{{
                                 p.name }}
                                 <span v-if="l == 2" class="pos-abs" style="right: -10px">P</span>
                             </p>
-                            <v-card width="100%" :color="p.color" height="8px" class="elevation-0 pos-rlt">
+                            <v-card width="100%" :color="p.color" height="8px" class="elevation-0 pos-rlt"
+                                style="overflow: visible;">
                                 <v-icon
                                     v-if="menudata.pivot[l - 1] && menudata[0].ltp <= p.value && menudata[0].ltp >= menudata.pivot[l - 1].value"
-                                    class="pos-abs" style="top: -4px"
+                                    class="pos-abs"
+                                    style="top: -4px; z-index: 10; background-color: white; border-radius: 50%;"
                                     :style="`left: ${Math.trunc(((p.value - menudata[0].ltp) / p.value) * 100)}%;`"
-                                    color="maintext" size="16">mdi-checkbox-blank-circle</v-icon>
+                                    color="maintext" size="16">mdi-circle</v-icon>
                             </v-card>
                             <p class="fs-12 mb-0 font-weight-medium pos-rlt" :class="l <= 2 ? '' : 'text-right'">
                                 {{ Number(p.value) ? Number(p.value).toFixed(2) : "" }} <span v-if="l == 2"
@@ -546,10 +572,10 @@ const initializeOverviewFromQuote = (q) => {
     }
     if (token) {
         setText(`ssdove${token}ltp`, menudata.value[0].ltp)
-        setText(`ssdove${token}ch`, menudata.value[0].ch)
-        setText(`ssdove${token}chp`, menudata.value[0].chp)
-        setText(`ssdove${token}hp`, menudata.value[0].high_price)
-        setText(`ssdove${token}lp`, menudata.value[0].low_price)
+        setText(`ssdove${token}ch`, menudata.value[0].ch ? Math.round(Number(menudata.value[0].ch)) : "0")
+        setText(`ssdove${token}chp`, menudata.value[0].chp ? Math.round(Number(menudata.value[0].chp)) : "0")
+        setText(`ssdove${token}hp`, menudata.value[0].high_price ? Math.round(Number(menudata.value[0].high_price)) : "0")
+        setText(`ssdove${token}lp`, menudata.value[0].low_price ? Math.round(Number(menudata.value[0].low_price)) : "0")
         setText(`ssdove${token}op`, menudata.value[0].open_price)
         setText(`ssdove${token}cp`, menudata.value[0].close_price)
         setText(`ssdove${token}vol`, menudata.value[0].vol)
@@ -656,8 +682,8 @@ const optionChainDataParse = (data) => {
         const chTag = document.getElementById(`ssdove${token}ch`)
         const chpTag = document.getElementById(`ssdove${token}chp`)
         const chpclrTag = document.getElementById(`ssdove${token}chpclr`)
-        if (chTag && menudata.value[0].ch !== undefined) chTag.innerHTML = menudata.value[0].ch
-        if (chpTag && menudata.value[0].chp !== undefined) chpTag.innerHTML = menudata.value[0].chp
+        if (chTag && menudata.value[0].ch !== undefined) chTag.innerHTML = menudata.value[0].ch ? Math.round(Number(menudata.value[0].ch)) : "0"
+        if (chpTag && menudata.value[0].chp !== undefined) chpTag.innerHTML = menudata.value[0].chp ? Math.round(Number(menudata.value[0].chp)) : "0"
         if (chpclrTag) {
             const ch = parseFloat(menudata.value[0].ch) || 0
             chpclrTag.className = ch > 0
@@ -684,8 +710,8 @@ const optionChainDataParse = (data) => {
         if (ltqTag) ltqTag.innerHTML = menudata.value[0].ltq
         if (volTag) volTag.innerHTML = menudata.value[0].vol
         if (apTag) apTag.innerHTML = menudata.value[0].ap
-        if (hpTag) hpTag.innerHTML = menudata.value[0].high_price
-        if (lpTag) lpTag.innerHTML = menudata.value[0].low_price
+        if (hpTag) hpTag.innerHTML = menudata.value[0].high_price ? Math.round(Number(menudata.value[0].high_price)) : "0"
+        if (lpTag) lpTag.innerHTML = menudata.value[0].low_price ? Math.round(Number(menudata.value[0].low_price)) : "0"
         if (opTag) opTag.innerHTML = menudata.value[0].open_price
         if (cpTag) cpTag.innerHTML = menudata.value[0].close_price
     }
@@ -785,5 +811,11 @@ onBeforeUnmount(() => {
 
 .pivot .v-slider--horizontal {
     min-height: 16px !important;
+}
+
+/* Ensure dividers are visible */
+.v-divider {
+    opacity: 1 !important;
+    border-color: rgba(0, 0, 0, 0.12) !important;
 }
 </style>
