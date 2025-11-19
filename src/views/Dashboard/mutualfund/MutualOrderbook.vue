@@ -1,6 +1,6 @@
 <template>
     <div>
-        <v-tabs v-model="tab" color="primary" fixed show-arrows density="compact" class="mb-4">
+        <v-tabs v-model="tab" color="primary" fixed show-arrows density="compact" class="mt-1">
             <v-tab :value="'sip'" class="text-none">Active SIP's</v-tab>
             <v-tab :value="'orders'" class="text-none">Order Book</v-tab>
             <v-tab :value="'siphis'" class="text-none">SIP Order Book</v-tab>
@@ -18,7 +18,7 @@
                     size="24">mdi-reload</v-icon>
             </v-toolbar>
             <v-data-table :headers="orderheadersip" :items="filteredSip" fixed-header :hide-default-footer="true"
-                :loading="loading" class="mt-3 tabletextnew rounded-lg overflow-y-auto row-hover-actions"
+                :loading="loading" class=" tabletextnew  holdings-table rounded-lg overflow-y-auto row-hover-actions"
                 style="border-radius:4px; border:1px solid #EBEEF0" height="480" :items-per-page="-1">
                 <template #item.name="{ item }">
                     <p class="font-weight-medium maintext--text mb-0 table-hov-text ws-p">{{ item.name || '' }}</p>
@@ -75,15 +75,15 @@
                     size="24">mdi-reload</v-icon>
             </v-toolbar>
             <v-data-table :headers="orderheader" :items="filteredOrders" fixed-header :hide-default-footer="true"
-                :loading="loading" class="mt-3 tabletextnew rounded-lg overflow-y-auto"
+                :loading="loading" class=" tabletextnew holdings-table rounded-lg overflow-y-auto"
                 style="border-radius:4px; border:1px solid #EBEEF0" height="480" :items-per-page="-1">
                 <template #item.datetime="{ item }">
-                    <span class="tabletextnew">{{ item.datetime || '-' }}</span>
+                    <span class="tabletextnew nowrap">{{ item.datetime || '-' }}</span>
                 </template>
                 <template #item.name="{ item }">
                     <div>
-                        <p class="font-weight-medium tabletextnew mb-0 table-hov-text ws-p">{{ item.name || '' }}</p>
-                        <div class="d-flex mt-1">
+                        <p class="font-weight-medium tabletextnew mt-2 mb-0 table-hov-text ws-p">{{ item.name || '' }}</p>
+                        <div class="d-flex  py-2">
                             <v-chip size="x-small" label variant="flat" class="mr-1" :style="{
                                 backgroundColor: '#F1F3F8 !important',
                                 color: '#666666',
@@ -210,7 +210,7 @@
                     size="24">mdi-reload</v-icon>
             </v-toolbar>
             <v-data-table :headers="orderheadersiphis" :items="filteredSipHis" fixed-header :hide-default-footer="true"
-                :loading="loading" class="mt-3 tabletextnew rounded-lg overflow-y-auto"
+                :loading="loading" class=" tabletextnew holdings-table fs-13 rounded-lg overflow-y-auto"
                 style="border-radius:4px; border:1px solid #EBEEF0" height="480" :items-per-page="-1">
                 <template #item.name="{ item }">
                     <p class="font-weight-medium maintext--text mb-0 table-hov-text ws-p">{{ item.name || '' }}</p>
@@ -495,5 +495,13 @@ onMounted(() => { getOrderbook() })
     font-size: 13px !important;
     font-weight: 500 !important;
     color: #000000 !important;
+}
+
+.tabletextnew thead th {
+    white-space: nowrap !important;
+}
+
+.nowrap {
+  white-space: nowrap;
 }
 </style>

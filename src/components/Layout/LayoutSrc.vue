@@ -126,20 +126,20 @@
                         </v-dialog>
                         <v-dialog v-model="riskdialog" persistent width="620">
                             <v-card class="elevation-0 py-4 px-2 rounded-xl">
-                                <v-card-title class="title font-weight-bold mb-2">
+                                <v-card-title class="title font-weight-bold ">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                        fill="none">
+                                        fill="none" class="mt-2">
                                         <path
                                             d="M14 2.26953V6.40007C14 6.96012 14 7.24015 14.109 7.45406C14.2049 7.64222 14.3578 7.7952 14.546 7.89108C14.7599 8.00007 15.0399 8.00007 15.6 8.00007H19.7305M16 13H8M16 17H8M10 9H8M14 2H8.8C7.11984 2 6.27976 2 5.63803 2.32698C5.07354 2.6146 4.6146 3.07354 4.32698 3.63803C4 4.27976 4 5.11984 4 6.8V17.2C4 18.8802 4 19.7202 4.32698 20.362C4.6146 20.9265 5.07354 21.3854 5.63803 21.673C6.27976 22 7.11984 22 8.8 22H15.2C16.8802 22 17.7202 22 18.362 21.673C18.9265 21.3854 19.3854 20.9265 19.673 20.362C20 19.7202 20 18.8802 20 17.2V8L14 2Z"
                                             :stroke="theme.current.value.dark ? 'white' : 'black'" stroke-width="2"
                                             stroke-linecap="round" stroke-linejoin="round" />
                                     </svg>
-                                    <span class="ml-3"> Risk disclosures on derivatives </span>
+                                    <span class="ml-3 pb-2"> Risk disclosures on derivatives </span>
                                 </v-card-title>
                                 <v-divider class="mx-4"></v-divider>
                                 <v-card-text class="px-4 px-md-8 py-7 riskpopup">
                                     <ul :class="theme.current.value.dark ? 'white--text' : 'black--text'"
-                                        class="subtitle-1 mb-4">
+                                        class="subtitle-1 mb-4 pl-6">
                                         <li style="line-height: 24px" class="mb-2">9 out of 10 individual traders in the
                                             equity Futures and
                                             Options
@@ -158,7 +158,7 @@
                                             transaction costs.</li>
                                     </ul>
 
-                                    <p class="caption mb-0">
+                                    <p class="caption mb-0 fs-12">
                                         Source:
                                         <a target="_blank" style="text-decoration: none; color: #0037B7"
                                             href="https://www.sebi.gov.in/reports-and-statistics/research/jan-2023/study-analysis-of-profit-and-loss-of-individual-traders-dealing-in-equity-fando-segment_67525.html">

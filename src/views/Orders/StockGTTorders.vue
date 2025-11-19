@@ -12,7 +12,7 @@
 
         <!-- GTT Orders Table -->
         <v-data-table fixed-header :hide-default-footer="true" :loading="loading"
-            class="holdings-table mt-3 rounded-lg overflow-y-auto"
+            class=" rounded-lg overflow-y-auto"
             style="border-radius: 8px; border: 1px solid #EBEEF0; background-color: #ffffff !important;" height="480px"
             :headers="headers" :items="searchedItems" :items-per-page="-1" :item-class="() => 'table-row'"
             :row-props="() => ({ class: 'table-row' })" @click:row="(event, { item }) => setOrderrowdata(item)">
@@ -693,5 +693,6 @@ onBeforeUnmount(() => {
 :deep(.holdings-table.v-data-table.v-data-table--fixed-header thead th),
 :deep(.holdings-table.v-data-table.v-data-table--fixed-header table thead th) {
     font-size: 13px !important;
+    color: #666666 !important;
 }
 </style>

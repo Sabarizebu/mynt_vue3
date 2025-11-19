@@ -598,8 +598,8 @@
                         </div>
                         <div v-else>
                             <v-container fill-height>
-                                <v-card class="crd-trn elevation-0 mx-auto py-16 text-center">
-                                    <div class="mx-auto d-flex align-center justify-center">
+                                <v-card class=" elevation-0 mx-auto py-16 text-center">
+                                    <div class="mx-auto ">
                                         <img class="align-self-stretch mx-auto" width="80px"
                                             src="@/assets/no data folder.svg" alt="no data" />
                                         <h5 class="txt-999 font-weight-regular">There is no data here yet!</h5>

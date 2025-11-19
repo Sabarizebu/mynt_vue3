@@ -22,7 +22,7 @@
           elevation="0" rounded :disabled="tableloader"></v-text-field>
 
         <v-select v-model="seriesFilter" :items="uniqueSeries" item-title="text" item-value="value"
-          placeholder="Bond series" clearable hide-details :disabled="tableloader" density="compact" variant="flat"
+          placeholder="Bond series" clearable  hide-details :disabled="tableloader" density="compact" variant="flat"
           rounded="pill" bg-color="secbg" elevation="0" class="rounded-pill ml-3 pl-3" style="max-width: 160px">
         </v-select>
 
@@ -99,7 +99,7 @@
                           <template #prepend>
                             <img v-if="m.icon > 2 && getOrderbookIcon(m.icon)" width="20px" class="pl-1 mr-3"
                               :src="getOrderbookIcon(m.icon)" />
-                            <v-icon v-else class="mr-3" color="#506D84">{{ m.icon }}</v-icon>
+                            <v-icon v-else class="" color="#506D84" size="20">{{ m.icon }}</v-icon>
                           </template>
                           <v-list-item-title class="subline--text font-weight-medium fs-14">
                             {{ m.name }}
@@ -114,8 +114,8 @@
             </td>
 
             <td>
-              <v-chip size="small" class="table-hov-prd rounded-md" label text-color="subtext">
-                <span class="font-weight-medium fs-12">{{ item.orderNumber }}</span>
+              <v-chip size="x-small" class="table-hov-prd rounded-md" label variant="flat" style="background-color: #F1F3F8; color: #666666; border-radius: 5px;">
+                <span class=" fs-12">{{ item.orderNumber }}</span>
               </v-chip>
             </td>
 
@@ -150,7 +150,7 @@
                 <div class="mx-auto py-16 mt-16">
                   <img class="mx-auto" width="80px" :src="noDataFolder" />
                   <h4 class="txt-999 font-weight-regular caption">
-                    There is no {{ ordertab == 1 ? "Open" : "Close" }} order <br />
+                    There is no {{ ordertab == 1 ? "Open" : "Close" }} order 
                     data here yet!
                   </h4>
                 </div>

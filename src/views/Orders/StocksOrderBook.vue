@@ -35,7 +35,7 @@
             <v-btn v-if="ordertab === 'orders'" variant="elevated"
                 :disabled="!openorders.length || openorders.length === 0"
                 @click="openCancelDialog(orddselected.length > 0 ? orddselected : 'all')"
-                class="elevation-0 rounded-pill font-weight-bold text-none ml-4" color="gray">
+                class=" bgg-color elevation-0 rounded-pill font-weight-bold text-none ml-4" >
                 Cancel {{ orddselected.length > 0 ? orddselected.length : 'all' }}
             </v-btn>
             <v-icon :disabled="loading" :class="['ml-3 cursor-p', { 'reload-rotating': loading }]" @click="getOrderbook"
@@ -262,7 +262,7 @@
                             <div class="mx-auto py-16 mt-16">
                                 <img class="mx-auto" width="80px" :src="noDataImg" />
                                 <h4 class="subtext--text font-weight-regular caption">
-                                    There is no Open order <br />data here yet!
+                                    There is no Open order data here yet!
                                 </h4>
                             </div>
                         </div>
@@ -283,10 +283,10 @@
                             timeStr(item.norentm) }}</span>
                     </template>
                     <template #item.trantype="{ item }">
-                        <v-chip @click="setOrderrowdata(item)" small :color="item.trantype === 'B' ? 'green' : 'red'"
+                        <v-chip @click="setOrderrowdata(item)" small    :color="item.trantype === 'B' ? 'green' : 'red'"
                             :text-color="item.trantype === 'B' ? 'maingreen' : 'mainred'"
-                            style="border-radius: 5px; padding: 10px 8px !important; cursor: pointer;">
-                            <span class="font-weight-medium fs-12">{{ item.trantype === 'B' ? 'BUY' : 'SELL' }}</span>
+                            style="border-radius: 5px; padding: 10px 8px !important; cursor: pointer; height: 15px;">
+                            <span class="font-weight-medium fs-12 mt-1">{{ item.trantype === 'B' ? 'BUY' : 'SELL' }}</span>
                         </v-chip>
                     </template>
                     <template #item.tsym="{ item }">
@@ -295,25 +295,25 @@
                                 {{ item.tsym || '' }}
                                 <span class="ml-1 subtext--text fs-10">{{ item.exchs || item.exch || '' }}</span>
                             </p>
-                            <div v-if="item" @click.stop class="pos-abs table-hov" style="top: 15px; right: 0">
+                            <div v-if="item" @click.stop class="pos-abs table-hov" style="top: 2px; right: 0">
                                 <!-- Buy Button -->
                                 <v-btn @click.stop="setSSDtab('order', item.token, item.exch, item.tsym, 'b', item)"
                                     min-width="20px"
                                     style="background-color: #43A833; color: #ffffff; border-radius: 4px; height: 20px; padding: 0 4px;"
-                                    class="font-weight-bold elevation-0 mr-1" size="x-small"> B
+                                    class="font-weight-bold elevation-0 mr-0" size="x-small"> B
                                 </v-btn>
 
                                 <!-- Sell Button -->
                                 <v-btn @click.stop="setSSDtab('order', item.token, item.exch, item.tsym, 's', item)"
                                     min-width="20px"
                                     style="background-color: #FF1717; color: #ffffff; border-radius: 4px; height: 20px; padding: 0 4px;"
-                                    class="font-weight-bold elevation-0 mr-1" size="x-small"> S
+                                    class="font-weight-bold elevation-0 mr-0" size="x-small"> S
                                 </v-btn>
 
                                 <!-- Chart Button -->
                                 <v-btn @click.stop="setSSDtab('chart', item.token, item.exch, item.tsym, null, item)"
                                     style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
-                                    min-width="20px" class="elevation-0 mr-1" size="x-small">
+                                    min-width="20px" class="elevation-0 mr-0" size="x-small">
                                     <v-icon size="18" color="maintext">mdi-chart-line-variant</v-icon>
                                 </v-btn>
 
@@ -322,7 +322,7 @@
                                     <template #activator="{ props }">
                                         <v-btn v-bind="props"
                                             style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
-                                            class="elevation-0 mr-1" size="x-small">
+                                            class="elevation-0 mr-0" size="x-small">
                                             <v-icon size="20" color="maintext">mdi-dots-horizontal</v-icon>
                                         </v-btn>
                                     </template>
@@ -354,8 +354,8 @@
                     <template #item.s_prdt_ali="{ item }">
                         <v-chip @click="setOrderrowdata(item)" v-if="item.s_prdt_ali" small class="table-hov-prd"
                             text-color="subtext"
-                            style="border-radius: 5px; padding: 10px 8px !important; cursor: pointer;">
-                            <span class="font-weight-medium fs-12">{{ item.s_prdt_ali }}</span>
+                            style="border-radius: 5px; padding: 10px 8px !important; cursor: pointer; height: 15px;">
+                            <span class="font-weight-medium fs-12 mt-1">{{ item.s_prdt_ali }}</span>
                         </v-chip>
                     </template>
                     <template #item.qty="{ item }">
@@ -424,7 +424,7 @@
                             <div class="mx-auto py-16 mt-16">
                                 <img class="mx-auto" width="80px" :src="noDataImg" />
                                 <h4 class="subtext--text font-weight-regular caption">
-                                    There is no Executed order <br />data here yet!
+                                    There is no Executed order data here yet!
                                 </h4>
                             </div>
                         </div>
@@ -1829,5 +1829,8 @@ onBeforeUnmount(() => {
 :deep(.holdings-table.v-data-table.v-data-table--fixed-header thead th),
 :deep(.holdings-table.v-data-table.v-data-table--fixed-header table thead th) {
     font-size: 13px !important;
+}
+.bgg-color {
+    background-color: #F1F3F8 !important;
 }
 </style>

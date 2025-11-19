@@ -1,7 +1,7 @@
 <template>
     <div>
         <!-- Header Section -->
-        <v-toolbar flat dense class="tradebook-header" style="background-color: #ffffff; padding: 16px 0;">
+        <v-toolbar flat dense class="tradebook-header" style="background-color: #ffffff;">
             <p class="title font-weight-bold mb-0" style="font-size: 20px; color: #000000; margin-left: 0;">
                 Tradebook ({{ orderbookdata.length }})
             </p>
@@ -9,7 +9,7 @@
             <v-text-field rounded density="compact" style="max-width: 220px" v-model="opensearch" hide-details
                 prepend-inner-icon="mdi-magnify" label="Search for Stocks" class="rounded-pill mr-4" variant="solo"
                 bg-color="secbg" flat elevation="0" />
-            <v-icon class="ml-3 cursor-p" :disabled="loading" @click="getOrderbook" color="#666666" size="24"
+            <v-icon class="ml-1 mr-3 cursor-p" :disabled="loading" @click="getOrderbook" color="#666666" size="24"
                 style="cursor: pointer;">
                 mdi-reload
             </v-icon>
@@ -17,7 +17,7 @@
 
         <!-- Tradebook Table -->
         <v-data-table :headers="orderheader" :items="filteredItems" fixed-header :hide-default-footer="true"
-            :loading="loading" class="tradebook-table mt-3"
+            :loading="loading" class="tradebook-table holdings-table "
             style="border-radius: 4px; border: 1px solid #EBEEF0; background-color: #ffffff;" height="480"
             :items-per-page="-1" :item-class="getRowClass" :sort-by="[{ key: 'norentm', order: 'desc' }]" must-sort
             @click:row="(_, { item }) => setOrderrowdata(item)">
@@ -150,7 +150,7 @@
                     <div class="mx-auto py-16 mt-16">
                         <img class="mx-auto" width="80px" :src="noDataImg" />
                         <h4 class="subtext--text font-weight-regular caption">
-                            There is no order <br>data here yet!
+                            There is no order data here yet!
                         </h4>
                     </div>
                 </div>
@@ -494,5 +494,8 @@ onBeforeUnmount(() => {
 
 .cursor-p {
     cursor: pointer;
+}
+.GTT{
+    color: #666666 !important;
 }
 </style>

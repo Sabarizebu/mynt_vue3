@@ -65,12 +65,14 @@
                   </template>
                   <v-card class="table-menu-list">
                     <v-list density="compact">
-                      <div v-for="(m, k) in ordertab === 0 ? menulist.open : menulist.exec" :key="k">
+                 <div v-for="(m, k) in ordertab === 0 ? menulist.open : menulist.exec" :key="k">
                         <v-list-item @click="handleMenuItemClick(m.type, item)" class="pl-3 pr-6">
                           <template #prepend>
-                            <img v-if="m.icon > 2 && getOrderbookIcon(m.icon)" width="20px" class="pl-1 mr-3"
-                              :src="getOrderbookIcon(m.icon)" />
-                            <v-icon v-else color="#506D84">{{ m.icon }}</v-icon>
+                            <div class="d-flex align-center justify-center mr-3" style="width: 20px; min-width: 20px;">
+                              <img v-if="m.icon > 2 && getOrderbookIcon(m.icon)" width="20px" class="pl-1"
+                                :src="getOrderbookIcon(m.icon)" />
+                              <v-icon v-else color="#506D84" size="20">{{ m.icon }}</v-icon>
+                            </div>
                           </template>
                           <v-list-item-title class="subline--text font-weight-medium fs-14">
                             {{ m.name }}
@@ -85,8 +87,8 @@
             </td>
 
             <td>
-              <v-chip size="small" class="table-hov-prd rounded-md" label text-color="subtext">
-                <span class="font-weight-medium fs-12">{{ item.applicationNumber }}</span>
+              <v-chip size="x-small" class="table-hov-prd rounded-md" variant="flat" style="background-color: #F1F3F8; color: #666666; border-radius: 5px;"  label >
+                <span class=" fs-12">{{ item.applicationNumber }}</span>
               </v-chip>
             </td>
 
@@ -96,8 +98,8 @@
                 }}</span>
             </td>
             <td>
-              <v-chip size="small" class="table-hov-prd rounded-md" label text-color="subtext">
-                <span class="font-weight-medium fs-12">{{ item.quantity }}</span>
+              <v-chip size="x-small" class="table-hov-prd rounded-md" variant="flat" style="background-color: #F1F3F8; color: #666666; border-radius: 5px;" label text-color="subtext">
+                <span class=" fs-12">{{ item.quantity }}</span>
               </v-chip>
             </td>
             <td class="text-right font-weight-medium">
@@ -105,7 +107,7 @@
                 `₹${item.amount.toLocaleString()}` : "" }}</p>
             </td>
             <td>
-              <p class="font-weight-regular maintext--text mb-0">
+              <p class="font-weight-regular fs-14 maintext--text mb-0">
                 {{ item.fail_reason ? item.fail_reason : "Order placed successfully" }}
               </p>
             </td>
@@ -125,7 +127,7 @@
                 <div class="mx-auto py-16 mt-16">
                   <img class="mx-auto" width="80px" :src="noDataFolder" />
                   <h4 class="txt-999 font-weight-regular caption">
-                    There is no {{ ordertab == 1 ? "Close" : "Open" }} order <br />
+                    There is no {{ ordertab == 1 ? "Close" : "Open" }} order 
                     data here yet!
                   </h4>
                 </div>

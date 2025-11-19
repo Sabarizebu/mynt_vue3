@@ -467,25 +467,24 @@
 
         <v-dialog v-model="orderiniteddai" persistent max-width="400">
             <v-card v-if="ordersignale == 'waitpay'"
-                class="pb-5 pa-5 overflow-hidden d-flex flex-column align-center justify-center" color="cardbg"
-                height="400">
+                class=" pb-5 pa-5 overflow-hidden d-flex flex-column align-center justify-center" color="cardbg"
+                >
                 <v-icon color="green" size="35">mdi-check-circle</v-icon>
                 <p class="font-weight-bold subtitle-1 mt-2">Order Initiated</p>
             </v-card>
-            <v-card v-else class="pb-5 pa-5 " color="cardbg" :loading="orderpoploadernew">
+            <v-card v-else class="pb-5 pa-5" color="cardbg" :loading="orderpoploadernew" style="border-radius: 16px;">
 
-                <p class="font-weight-bold subtitle-1 mb-2">Pay With</p>
-                <v-divider></v-divider>
+                <p class="font-weight-bold text-h6 mb-4">Pay With</p>
+                <v-divider class="mb-4"></v-divider>
 
-                <p class="font-weight-regular fs-14 subtext--text mb-2 mt-4">Bank Account</p>
+                <p class="font-weight-medium fs-12 subtext--text mb-2">Bank Account</p>
                 <v-select v-model="mf_accact" hide-details :items="menudata.mf_bankaccs" return-object
-                    item-title="Bank_Name" item-value="Bank_AcNo" append-icon="mdi-chevron-down"
-                    background-color="secbg" flat class="rounded-pill mb-4" placeholder="bank" variant="solo">
+                    item-title="Bank_Name" item-value="Bank_AcNo" 
+                    bg-color="#F2F3F8" flat density="compact" variant="solo-filled" rounded="pill" class=" mb-4" placeholder="bank" style="font-size: 14px;">
                     <template v-slot:item="{ item, props, on }">
                         <v-list-item v-on="on" v-bind="props">
                             <v-list-item-content class="py-1">
                                 <v-list-item-title class="font-weight-bold fs-14">{{ item.Bank_Name }}
-
                                 </v-list-item-title>
                                 <v-list-item-subtitle class="caption">XXXX XXXX {{
                                     item.Bank_AcNo && typeof item.Bank_AcNo === 'string' ? item.Bank_AcNo.slice(-4) : ''
@@ -496,38 +495,45 @@
                     </template>
                 </v-select>
 
-                <p class="font-weight-regular fs-14 subtext--text mt-4 mb-2">Payment method</p>
-                <v-select v-model="mfpayinmode" hide-details :items="mfpayinmodes" item-title="val" item-value="key"
-                    append-icon="mdi-chevron-down" background-color="secbg" flat class="rounded-pill mb-3"
-                    placeholder="UPI, Net banking" variant="solo"> </v-select>
+                <p class="font-weight-medium fs-12 subtext--text mb-2">Payment method<span class="red--text" style="font-size: 18px; line-height: 0;"></span></p>
+                <v-select v-model="mfpayinmode" hide-details  :items="mfpayinmodes" item-title="val" item-value="key" 
+                      bg-color="#F2F3F8" flat density="compact" variant="solo-filled"  rounded="pill" class="rounded-pill mb-6"
+                    placeholder="UPI, Net banking" style="font-size: 14px;"> </v-select>
 
 
                 <v-form v-if="mfpayinmode == 'UPI'" ref="mfupiform" v-model="mfupivalid"
                     @submit.prevent="setmfUpiValidnew()" lazy-validation>
-                    <p class="font-weight-regular fs-14 subtext--text mb-2">UPI ID (Virtual payment
+                    <p class="font-weight-medium fs-12 subtext--text mb-2">UPI ID (Virtual payment
                         address)</p>
 
-                    <v-text-field :disabled="orderpoploader" required height="40px" density="compact"
-                        background-color="secbg" flat class="rounded-pill" variant="solo" v-model="mfpainids"
+                    <v-text-field :disabled="orderpoploader" required density="compact"
+                        bg-color="#F2F4F8" flat variant="solo-filled" rounded="pill" class="rounded-lg mb-4" v-model="mfpainids"
                         @keyup="upiidfield = false"
                         :rules="[(v) => !!v || 'Upi Id is required', (v) => /.+@.+/.test(v) || 'Upi Id must be valid']"
-                        placeholder="Add UPI ID" :error-messages="upiIDerrors">
+                        placeholder="Add UPI ID" :error-messages="upiIDerrors" style="font-size: 14px;">
                     </v-text-field>
                 </v-form>
-                <v-toolbar class="tool-sty elevation-0 pt-4 mb-2  crd-trn" density="compact">
-                    <v-row>
-                        <v-col cols="12">
-                            <v-btn @click="setmfUpiValidnew()"
-                                :disabled="!mf_accact || !mfpayinmode || (mfpayinmode === 'UPI' && !mfpainids)"
-                                :loading="orderpoploadernew" color="btnclr"
-                                class="text-none rounded-pill elevation-0 btntext--text" block height="40px"> Pay - One
-                                Time
-                            </v-btn>
-                        </v-col>
-                    </v-row>
-                </v-toolbar>
+                
+                <v-row class="mt-2">
+                    <v-col cols="6">
+                         <v-btn @click="orderiniteddai = false"
+                            color="#F2F4F8"
+                            class="text-none rounded-pill elevation-0 maintext--text font-weight-bold" block height="45px">
+                            Cancel
+                        </v-btn>
+                    </v-col>
+                    <v-col cols="6">
+                        <v-btn @click="setmfUpiValidnew()"
+                            :disabled="!mf_accact || !mfpayinmode || (mfpayinmode === 'UPI' && !mfpainids)"
+                            :loading="orderpoploadernew" color="black"
+                            class="text-none rounded-pill elevation-0 white--text font-weight-bold" block height="45px">
+                            Pay - One Time
+                        </v-btn>
+                    </v-col>
+                </v-row>
             </v-card>
         </v-dialog>
+
         <v-dialog v-model="paymentcheck" persistent max-width="400">
             <v-card width="100%" class="elevation-0 px-5 text-center py-8 mx-auto rounded-lg" variant="outlined">
                 <v-card width="40%" class="elevation-0 mx-auto">

@@ -79,7 +79,7 @@ function setHeaderauth() {
         // Remove clientid if uid is null
         myHeaders.delete("clientid");
     }
-    
+
     if (tok && !myHeaders.has("Authorization")) {
         myHeaders.set("Authorization", tok);
     } else if (!tok && myHeaders.has("Authorization")) {
@@ -105,7 +105,7 @@ function fetchWithTimeout(url, options = {}, timeout = 5000) {
     // Create AbortController to actually cancel the request
     const controller = new AbortController();
     let timeoutId;
-    
+
     // Create a promise that rejects on timeout
     const timeoutPromise = new Promise((_, reject) => {
         timeoutId = setTimeout(() => {
@@ -113,7 +113,7 @@ function fetchWithTimeout(url, options = {}, timeout = 5000) {
             reject(new Error('Request timeout'));
         }, timeout);
     });
-    
+
     // If there's an existing signal, listen to it and abort our controller if it's aborted
     if (options.signal) {
         if (options.signal.aborted) {
@@ -127,7 +127,7 @@ function fetchWithTimeout(url, options = {}, timeout = 5000) {
             });
         }
     }
-    
+
     // Merge abort signal with existing options
     const fetchOptions = {
         ...options,
@@ -136,7 +136,7 @@ function fetchWithTimeout(url, options = {}, timeout = 5000) {
         mode: 'cors',
         credentials: 'omit'
     };
-    
+
     // Race between fetch and timeout
     return Promise.race([
         fetch(url, fetchOptions)
@@ -286,15 +286,15 @@ export async function getMwatchlistset(data, url) {
 
 export async function getMHoldings(flowis) {
     const store = getAppStore();
-    
+
     // Get credentials from sessionStorage
     const currentUid = sessionStorage.getItem('userid');
     const currentTok = sessionStorage.getItem('msession');
-    
+
     if (!currentUid || !currentTok) {
         return { response: [], edis: 0 };
     }
-    
+
     if (flowis && holdingsdata && holdingsdata.response && holdingsdata.response.length > 0) {
         setTimeout(() => {
             window.dispatchEvent(new CustomEvent('tempdata-update', { detail: holdingsdata }));
@@ -302,7 +302,7 @@ export async function getMHoldings(flowis) {
     }
     requestMOption['body'] = `jData={"uid":"${currentUid}","actid":"${currentUid}","prd":"C"}&jKey=${currentTok}`
     var data = await fetchMyntAPI(mynturl.myntapi + "Holdings", requestMOption)
-    
+
     let holdlist = [];
     var sum = 0;
     if (data && data.length > 0) {
@@ -350,25 +350,25 @@ export async function getMHoldings(flowis) {
 
 export async function getMMHoldings() {
     let datas = {
-        "ClientCode":uid
+        "ClientCode": uid
     }
     requestOptions['body'] = JSON.stringify(datas);
     var datamf = await fetchMyntAPI(apiurl.mfnewapi + "order/holdings", requestOptions)
 
-    return datamf 
+    return datamf
 }
 
 export async function getMPosotion(flowis) {
     const store = getAppStore();
-    
+
     // Get credentials from sessionStorage
     const currentUid = sessionStorage.getItem('userid');
     const currentTok = sessionStorage.getItem('msession');
-    
+
     if (!currentUid || !currentTok) {
         return { a: [], o: [], c: [] };
     }
-    
+
     if (flowis && positiondata && positiondata.data && positiondata.data.length > 0) {
         setTimeout(() => {
             window.dispatchEvent(new CustomEvent('tempdata-update', { detail: positiondata }));
@@ -377,7 +377,7 @@ export async function getMPosotion(flowis) {
     requestMOption['body'] = `jData={"uid":"${currentUid}","actid":"${currentUid}"}&jKey=${currentTok}`
 
     var data = await fetchMyntAPI(mynturl.myntapi + "PositionBook", requestMOption)
-    
+
     var closeposition = [];
     var openposition = [];
     if (data && data.length > 0) {
@@ -430,16 +430,16 @@ export async function getQuotesdata(item) {
     // Get credentials from sessionStorage before making API call
     const currentUid = sessionStorage.getItem('userid');
     const currentTok = sessionStorage.getItem('msession');
-    
+
     // Update global variables for consistency
     uid = currentUid || uid;
     tok = currentTok || tok;
-    
+
     if (!currentUid || !currentTok) {
         // console.error('getQuotesdata: uid or token not available from sessionStorage');
         return { stat: 'Not Ok', emsg: 'Authentication required' };
     }
-    
+
     requestMOption['body'] = `jData={"uid":"${currentUid}","exch":"${item.split('|')[0]}","token":"${item.split('|')[1]}"}&jKey=${currentTok}`
     var response = await fetchMyntAPI(mynturl.myntapi + "GetQuotes", requestMOption)
     return response
@@ -502,7 +502,7 @@ export async function getPlaceOrder(item, type) {
     } catch (_) { }
     if (type != 'can-ex') {
         if (item.tsym) {
-            item.tsym = encodeURIComponent(item.tsym); 
+            item.tsym = encodeURIComponent(item.tsym);
         }
         item['app_inst_id'] = sessionStorage.getItem("imei");
         item['usr_agent'] = navigator.appVersion;
@@ -517,7 +517,7 @@ export async function getSIPOrderset(item, url) {
     try {
         uid = sessionStorage.getItem('userid') || uid
         tok = sessionStorage.getItem('msession') || tok
-    } catch (_) {}
+    } catch (_) { }
     requestMOption['body'] = `jData=${JSON.stringify(item)}&jKey=${tok}`
     var response = await fetchMyntAPI(mynturl.myntapi + url, requestMOption)
     return response
@@ -527,7 +527,7 @@ export async function getGTTPlaceOrder(item, url) {
     try {
         uid = sessionStorage.getItem('userid') || uid
         tok = sessionStorage.getItem('msession') || tok
-    } catch (_) {}
+    } catch (_) { }
     requestMOption['body'] = `jData=${JSON.stringify(item)}&jKey=${tok}`
     var response = await fetchMyntAPI(mynturl.myntapi + url, requestMOption)
     return response
@@ -541,7 +541,7 @@ export async function setMalert(item, type) {
 
 export async function getMOrderbook(flowis) {
     const store = getAppStore();
-    
+
     // Get credentials from sessionStorage
     const currentUid = sessionStorage.getItem('userid');
     const currentTok = sessionStorage.getItem('msession');
@@ -555,7 +555,7 @@ export async function getMOrderbook(flowis) {
     var execorders = [];
     var openorders = [];
     var stat = [0, 0, 0]
-    
+
     if (response && response.length > 0) {
         for (let q = 0; q < response.length; q++) {
             response[q]["idx"] = q;
@@ -655,38 +655,38 @@ export async function getMLimits(format, forceRefresh = false) {
         // console.log('🚫 Limits API already called once. Returning cached data. Use forceRefreshMLimits() for manual refresh.');
         return limitsApiState.cachedData || { stat: 'Error', emsg: 'Limits data not yet loaded' };
     }
-    
+
     // If there's a pending call, return the same promise (prevent concurrent calls)
     if (limitsApiState.isPending && limitsApiState.pendingPromise) {
         // console.log('🔄 Limits API call already in progress, reusing existing promise...');
         return await limitsApiState.pendingPromise;
     }
-    
+
     // Check cache (return cached data if available and not forcing refresh)
     if (limitsApiState.cachedData && !forceRefresh) {
         // console.log('💾 Returning cached Limits data');
         return limitsApiState.cachedData;
     }
-    
+
     // Set pending state and mark as called
     limitsApiState.isPending = true;
     if (!forceRefresh) {
         limitsApiState.hasBeenCalledOnce = true;
     }
-    
+
     const apiCallPromise = (async () => {
         try {
             requestMOption['body'] = `jData={"uid":"${currentUid}","actid":"${currentUid}"}&jKey=${currentTok}`
             var response = await fetchMyntAPI(mynturl.myntapi + 'Limits', requestMOption)
-    if (response && response.stat == "Ok") {
-        var total = ((  (Number(response.collateral) ? Number(response.collateral) : 0) +  ((Number(response.brkcollamt)) ? (Number(response.brkcollamt)) : 0) + (Number(response.cash) ?  Number(response.cash) : 0) +  (Number(response.payin) ? Number(response.payin) : 0)) - (Math.abs(Number(response.daycash) ? Number(response.daycash) : 0)))
+            if (response && response.stat == "Ok") {
+                var total = (((Number(response.collateral) ? Number(response.collateral) : 0) + ((Number(response.brkcollamt)) ? (Number(response.brkcollamt)) : 0) + (Number(response.cash) ? Number(response.cash) : 0) + (Number(response.payin) ? Number(response.payin) : 0)) - (Math.abs(Number(response.daycash) ? Number(response.daycash) : 0)))
                 response["total"] = !format ? total : (total).toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                 });
-                
-                var sum = ((Number(response.collateral)  ? Number(response.collateral) : 0) + (Number(response.brkcollamt) ? Number(response.brkcollamt) : 0) + (Number(response.cash)  ? Number(response.cash) : 0)) - Number(response.marginused ?? 0) + (Number(response.payin) ? Number(response.payin) : 0) - (Math.abs(Number(response.daycash)) ? Math.abs(Number(response.daycash)) : 0) ;
-                response["opnbal"] = (((Number(response.cash)) ? (Number(response.cash)) : 0)  + (Number(response.payin) ? Number(response.payin) : 0) - (Math.abs(Number(response.daycash) ? Number(response.daycash) : 0)))
+
+                var sum = ((Number(response.collateral) ? Number(response.collateral) : 0) + (Number(response.brkcollamt) ? Number(response.brkcollamt) : 0) + (Number(response.cash) ? Number(response.cash) : 0)) - Number(response.marginused ?? 0) + (Number(response.payin) ? Number(response.payin) : 0) - (Math.abs(Number(response.daycash)) ? Math.abs(Number(response.daycash)) : 0);
+                response["opnbal"] = (((Number(response.cash)) ? (Number(response.cash)) : 0) + (Number(response.payin) ? Number(response.payin) : 0) - (Math.abs(Number(response.daycash) ? Number(response.daycash) : 0)))
 
                 response["collateral"] = ((Number(response["collateral"]) ? Number(response["collateral"]) : 0) + (Number(response.brkcollamt) ? Number(response.brkcollamt) : 0)).toLocaleString(undefined, {
                     minimumFractionDigits: 2,
@@ -709,12 +709,12 @@ export async function getMLimits(format, forceRefresh = false) {
                         }
                     }
                 }
-                
+
                 // Cache the response permanently
                 limitsApiState.cachedData = response;
                 limitsApiState.cacheExpiry = Date.now() + limitsApiState.cacheDurationMs;
             }
-            
+
             return response;
         } finally {
             // Always clear pending state
@@ -722,10 +722,10 @@ export async function getMLimits(format, forceRefresh = false) {
             limitsApiState.pendingPromise = null;
         }
     })();
-    
+
     // Store promise so concurrent calls can reuse it
     limitsApiState.pendingPromise = apiCallPromise;
-    
+
     return await apiCallPromise;
 }
 
@@ -766,9 +766,9 @@ export async function getApikeyData() {
 
 export async function getApiKeyStore(item) {
     seyCheckwebsocket()
-    const ipaddrArray = [{"ipaddr": item.primaryIp}]
+    const ipaddrArray = [{ "ipaddr": item.primaryIp }]
     if (item.backupIp) {
-        ipaddrArray.push({"ipaddr": item.backupIp})
+        ipaddrArray.push({ "ipaddr": item.backupIp })
     }
     requestMOption['body'] = `jData={"app_key":"${item.clientId}","sec_code":"${item.secretCode}","red_url":"${item.url}","dname":"${uid} s apikey","ipaddr": ${JSON.stringify(ipaddrArray)},"uid": [{"uid":"${uid}"}]}&jKey=${tok}`
     var response = await fetchMyntAPI(mynturl.myntapi + "AppKeyStore", requestMOption)
@@ -779,7 +779,7 @@ export async function getApiKeyStore(item) {
 export async function getClientDetails() {
     // Get fresh tokens from sessionStorage before making API call
     seyCheckwebsocket();
-    
+
     var response;
     if (clientdetails && clientdetails.stat == "Ok") {
         response = clientdetails
@@ -789,7 +789,7 @@ export async function getClientDetails() {
             uid = sessionStorage.getItem('userid');
             tok = sessionStorage.getItem('msession');
         }
-        
+
         // Only make API call if we have valid tokens
         if (uid && tok) {
             requestMOption['body'] = `jData={"uid":"${uid}","actid":"${uid}"}&jKey=${tok}`
@@ -837,46 +837,57 @@ export async function getPostPnL(data) {
 }
 
 export async function getssNews() {
-    // Create request key for deduplication
     const requestKey = 'newsfeedin';
-    
-    // Check if same request is already pending
+    console.log('[getAPIdata] getssNews called');
+
     if (pendingRequests.has(requestKey)) {
-        // console.log(`🔄 Reusing pending request: ${requestKey}`);
+        console.log('[getAPIdata] getssNews: Returning pending request');
         try {
             return await pendingRequests.get(requestKey);
         } catch (error) {
-            // If pending request failed, remove it and continue
+            console.error('[getAPIdata] getssNews: Pending request failed', error);
             pendingRequests.delete(requestKey);
             throw error;
         }
     }
-    
-    // Create request promise
+
     const requestPromise = (async () => {
         try {
-            // Use public request options (no auth headers) for public API
             const publicOptions = createPublicRequestOptions();
-            publicOptions['body'] = "";
-            var response = await fetchMyntAPI(apiurl.sessapi + "newsfeedin?pagesize=5&pagecount=1&filterdate=monthly", { ...publicOptions, method: 'get' });
+
+            // ❗ Remove body for GET requests
+            delete publicOptions.body;
+
+            const url = apiurl.sessapi + "newsfeedin?pagesize=5&pagecount=1&filterdate=monthly";
+            console.log('[getAPIdata] getssNews: Fetching URL:', url);
+            console.log('[getAPIdata] getssNews: Options:', { ...publicOptions, method: 'GET' });
+
+            var response = await fetchMyntAPI(
+                url,
+                { ...publicOptions, method: 'GET' }
+            );
+            console.log('[getAPIdata] getssNews: Response received:', response);
+
             pendingRequests.delete(requestKey);
             return response;
+
         } catch (error) {
+            console.error('[getAPIdata] getssNews: Error fetching news:', error);
             pendingRequests.delete(requestKey);
             throw error;
         }
     })();
-    
-    // Store promise in pending requests map
+
     pendingRequests.set(requestKey, requestPromise);
-    
+
     return await requestPromise;
 }
+
 
 export async function getCorporateact() {
     // Create request key for deduplication
     const requestKey = 'getCorporateAction';
-    
+
     // Check if same request is already pending
     if (pendingRequests.has(requestKey)) {
         // console.log(`🔄 Reusing pending request: ${requestKey}`);
@@ -888,7 +899,7 @@ export async function getCorporateact() {
             throw error;
         }
     }
-    
+
     // Create request promise
     const requestPromise = (async () => {
         try {
@@ -903,10 +914,10 @@ export async function getCorporateact() {
             throw error;
         }
     })();
-    
+
     // Store promise in pending requests map
     pendingRequests.set(requestKey, requestPromise);
-    
+
     return await requestPromise;
 }
 
@@ -953,7 +964,7 @@ export async function getTopList(item) {
 export async function getConTentList(item) {
     // Create request key for deduplication (include parameters to allow different calls)
     const requestKey = `GetContentList_${item[0]}_${item[1]}_${item[2]}`;
-    
+
     // Check if same request is already pending
     if (pendingRequests.has(requestKey)) {
         // console.log(`🔄 Reusing pending request: ${requestKey}`);
@@ -965,7 +976,7 @@ export async function getConTentList(item) {
             throw error;
         }
     }
-    
+
     // Create request promise
     const requestPromise = (async () => {
         try {
@@ -980,17 +991,17 @@ export async function getConTentList(item) {
             throw error;
         }
     })();
-    
+
     // Store promise in pending requests map
     pendingRequests.set(requestKey, requestPromise);
-    
+
     return await requestPromise;
 }
 
 export async function getADindices() {
     // Create request key for deduplication
     const requestKey = 'getadindicesAdvdec';
-    
+
     // Check if same request is already pending
     if (pendingRequests.has(requestKey)) {
         // console.log(`🔄 Reusing pending request: ${requestKey}`);
@@ -1002,7 +1013,7 @@ export async function getADindices() {
             throw error;
         }
     }
-    
+
     // Create request promise
     const requestPromise = (async () => {
         try {
@@ -1017,10 +1028,10 @@ export async function getADindices() {
             throw error;
         }
     })();
-    
+
     // Store promise in pending requests map
     pendingRequests.set(requestKey, requestPromise);
-    
+
     return await requestPromise;
 }
 
@@ -1401,31 +1412,31 @@ export async function getLtpdata(item) {
         // Set authentication headers before making the API call
         setHeaderauth()
         requestOptions['body'] = `{ "data": ${JSON.stringify(item)} }`
-        
+
         // Create the promise and store it in pendingRequests
         const requestPromise = fetchMyntAPI(apiurl.asvrapi + "GetLtp", requestOptions)
         pendingRequests.set(requestKey, requestPromise)
-        
+
         var response = await requestPromise
-        
+
         // Handle error response (500 indicates API error from fetchMyntAPI)
         if (response === 500) {
             // console.error('Error in getLtpdata: API returned 500 error')
             return { data: null, error: 'API Error: Server returned 500' }
         }
-        
+
         // Handle error message in response
         if (response && response.emsg) {
             // console.error('Error in getLtpdata:', response.emsg)
             return { data: null, error: response.emsg }
         }
-        
+
         // Handle empty or invalid response
         if (!response || (Array.isArray(response) && response.length === 0)) {
             // console.warn('getLtpdata: Empty or invalid response')
             return { data: null, error: 'No data returned from API' }
         }
-        
+
         // Remove from pending requests after successful completion
         pendingRequests.delete(requestKey)
         return response
@@ -1451,11 +1462,11 @@ export async function getIndicators(uid) {
             mode: 'cors',
             credentials: 'omit'
         }, 5000);
-        
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         return response.json();
     } catch (error) {
         if (error.message === 'Request timeout' || error.name === 'AbortError' || error.message?.includes('timeout') || error.message?.includes('Network error')) {
@@ -1473,11 +1484,11 @@ export async function setIndicators(uid, c) {
             mode: 'cors',
             credentials: 'omit'
         }, 5000);
-        
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         return response.json();
     } catch (error) {
         if (error.message === 'Request timeout' || error.name === 'AbortError' || error.message?.includes('timeout') || error.message?.includes('Network error')) {
@@ -1521,24 +1532,24 @@ export async function mastermfapi() {
 export async function fetchMyntAPI(path, reqopt, way) {
     const reqt = new Date().toLocaleString();
     const store = getAppStore();
-    
+
     // Set default timeout to 5 seconds (5000ms) for faster failure detection on Firebase
     // No timeout for mutual fund watchlist operations - wait indefinitely for response
     const isMFWatchlist = path && path.includes('watchlist_for_mobile');
-    
+
     try {
         // Use regular fetch for mutual fund watchlist (no timeout), fetchWithTimeout for others
-        const response = isMFWatchlist 
+        const response = isMFWatchlist
             ? await fetch(path, { ...reqopt, mode: 'cors', credentials: 'omit' })
             : await fetchWithTimeout(path, reqopt, 5000);
         // Get stores early for session validation
         const authStore = useAuthStore();
         const sessionStore = useSessionStore();
-        
+
         // Check for 401 status BEFORE parsing JSON
         if (response.status === 401) {
             // console.error("❌ 401 Unauthorized error detected");
-            
+
             // Try to parse error response body
             let errorData = null;
             try {
@@ -1549,25 +1560,25 @@ export async function fetchMyntAPI(path, reqopt, way) {
             } catch (parseError) {
                 // console.warn("Could not parse 401 error response:", parseError);
             }
-            
+
             // Check if error message contains "session expired : invalid session key"
             const errorMsg = errorData?.emsg || errorData?.message || "Session expired";
             const errorMsgLower = typeof errorMsg === 'string' ? errorMsg.toLowerCase() : '';
-            const isSessionExpired = errorMsgLower.includes('session expired') && 
+            const isSessionExpired = errorMsgLower.includes('session expired') &&
                 errorMsgLower.includes('invalid session key');
-            
+
             // Validate uid exists before logging out
             if (isSessionExpired && authStore.uid) {
                 // console.error("❌ Session expired detected with valid uid, logging out:", errorMsg);
-                
+
                 // Create error object for handleSessionError
                 const sessionError = {
                     emsg: errorMsg || "Session expired : Invalid Session Key"
                 };
-                
+
                 // Handle session error immediately (logout and navigate)
                 sessionStore.handleSessionError(sessionError, authStore, store);
-                
+
                 // Return error to prevent further processing
                 return errorData || { stat: 'NotOk', emsg: errorMsg };
             } else {
@@ -1580,7 +1591,7 @@ export async function fetchMyntAPI(path, reqopt, way) {
                 return errorData || { stat: 'NotOk', emsg: errorMsg };
             }
         }
-        
+
         // Check if response is ok before parsing
         if (!response.ok) {
             // Try to parse error response body to get actual error message
@@ -1592,8 +1603,8 @@ export async function fetchMyntAPI(path, reqopt, way) {
                         errorData = JSON.parse(errorText);
                     } catch (parseError) {
                         // If JSON parsing fails, create error object with the text
-                        errorData = { 
-                            stat: 'NotOk', 
+                        errorData = {
+                            stat: 'NotOk',
                             emsg: errorText || `HTTP error! status: ${response.status}`,
                             remarks: errorText || `HTTP error! status: ${response.status}`
                         };
@@ -1602,7 +1613,7 @@ export async function fetchMyntAPI(path, reqopt, way) {
             } catch (textError) {
                 // console.warn("Could not read error response body:", textError);
             }
-            
+
             // Return error data if we successfully parsed it, otherwise throw
             if (errorData) {
                 return errorData;
@@ -1610,11 +1621,11 @@ export async function fetchMyntAPI(path, reqopt, way) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
         }
-        
+
         let data = await response.json();
         data = JSON.stringify(data);
         data = JSON.parse(data);
-        
+
         if (uid && tok) {
             const status = response.status;
             const rest = new Date().toLocaleTimeString();
@@ -1622,7 +1633,7 @@ export async function fetchMyntAPI(path, reqopt, way) {
             const log = `${status} || t: ${reqt} - ${rest} || ${path.split('.in')[1]} || m: ${msg}`;
             saveApiLog(log, reqt);
         }
-        
+
         if (way) {
             if (requestMOption.body) {
                 delete requestMOption.body;
@@ -1638,21 +1649,21 @@ export async function fetchMyntAPI(path, reqopt, way) {
             // Check if it's "another system" error or session expired
             const errorMsg = data.emsg;
             const errorMsgLower = typeof errorMsg === 'string' ? errorMsg.toLowerCase() : '';
-            const isSessionError = errorMsgLower.includes('another system') || 
-                 errorMsgLower.includes('already logged in') ||
-                 errorMsgLower.includes('logged in on') ||
-                 (errorMsgLower.includes('session expired') && 
-                  errorMsgLower.includes('invalid session key'));
-            
+            const isSessionError = errorMsgLower.includes('another system') ||
+                errorMsgLower.includes('already logged in') ||
+                errorMsgLower.includes('logged in on') ||
+                (errorMsgLower.includes('session expired') &&
+                    errorMsgLower.includes('invalid session key'));
+
             if (isSessionError) {
                 // Validate uid exists before logging out
                 if (authStore.uid) {
                     // Immediate logout when session ends or logged in on another system
                     // console.error("❌ Session error detected in response body:", errorMsg);
-                    
+
                     // Handle session error immediately (logout and navigate)
                     sessionStore.handleSessionError(data, authStore, store);
-                    
+
                     // Return error to prevent further processing
                     return data;
                 } else {
@@ -1662,10 +1673,11 @@ export async function fetchMyntAPI(path, reqopt, way) {
                 }
             }
         }
-        
+
         return data;
 
     } catch (error) {
+        console.error('[fetchMyntAPI] Error caught:', error);
         if (uid && tok) {
             const rest = new Date().toLocaleString();
             const status = error.status || 0;
@@ -1673,7 +1685,7 @@ export async function fetchMyntAPI(path, reqopt, way) {
             const log = `${status} || t: ${reqt} - ${rest} || ${path.split('.in')[1]} || m: ${msg}`;
             saveApiLog(log, reqt);
         }
-        
+
         // Handle timeout errors gracefully - don't block UI
         if (error.message === 'Request timeout' || error.name === 'AbortError' || error.message?.includes('timeout')) {
             // console.warn(`⚠️ API request timeout (5s): ${path} - continuing without blocking UI`);
@@ -1689,7 +1701,7 @@ export async function fetchMyntAPI(path, reqopt, way) {
             }
             return { stat: 'NotOk', emsg: 'Request timeout' };
         }
-        
+
         // Handle network/CORS errors gracefully
         if (error.message?.includes('Network error') || error.message?.includes('Failed to fetch') || error.message?.includes('CORS')) {
             // console.warn(`⚠️ Network/CORS error: ${path} - continuing without blocking UI`);
@@ -1704,15 +1716,15 @@ export async function fetchMyntAPI(path, reqopt, way) {
             }
             return { stat: 'NotOk', emsg: 'Network error' };
         }
-        
+
         // Check for 401 errors (unauthorized - likely session expired or another system login)
         if (error.status === 401) {
             // console.error("❌ 401 Unauthorized error detected in catch block");
-            
+
             // Get stores
             const authStore = useAuthStore();
             const sessionStore = useSessionStore();
-            
+
             // Check if user is logged in and validate uid
             if (authStore.uid && authStore.token) {
                 // Try to extract error message from error object
@@ -1722,18 +1734,18 @@ export async function fetchMyntAPI(path, reqopt, way) {
                 } else if (error.emsg) {
                     errorMsg = error.emsg;
                 }
-                
-            // Check if it's the specific session expired message
-            const errorMsgLower = typeof errorMsg === 'string' ? errorMsg.toLowerCase() : '';
-            const isSessionExpired = errorMsgLower.includes('session expired') && 
-                errorMsgLower.includes('invalid session key');
-                
+
+                // Check if it's the specific session expired message
+                const errorMsgLower = typeof errorMsg === 'string' ? errorMsg.toLowerCase() : '';
+                const isSessionExpired = errorMsgLower.includes('session expired') &&
+                    errorMsgLower.includes('invalid session key');
+
                 if (isSessionExpired) {
                     // Create error object similar to API response
                     const sessionError = {
                         emsg: errorMsg
                     };
-                    
+
                     // Handle session error immediately (logout and navigate)
                     sessionStore.handleSessionError(sessionError, authStore, store);
                 } else {
@@ -1745,7 +1757,7 @@ export async function fetchMyntAPI(path, reqopt, way) {
                 store.showSnackbar(2, error.message || "Unauthorized");
             }
         }
-        
+
         if (way) {
             if (requestMOption.body) {
                 delete requestMOption.body;
@@ -1755,6 +1767,7 @@ export async function fetchMyntAPI(path, reqopt, way) {
                 delete requestOptions.body;
             }
         }
+        console.error('[fetchMyntAPI] Returning 500 due to unhandled error:', error);
         return 500;
     }
 }
@@ -1779,16 +1792,16 @@ function getDateOnly(dateString) {
 export async function fetchMyntjson(path, options = {}) {
     // Set default timeout to 5 seconds
     const timeout = 5000;
-    
+
     try {
         // Use fetchWithTimeout to prevent indefinite hanging
         const response = await fetchWithTimeout(path, options, timeout);
-        
+
         // Check if response is ok before parsing
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         let data = await response.json();
         data = JSON.stringify(data);
         data = JSON.parse(data);
@@ -1829,16 +1842,16 @@ export function setDecryption(payld) {
 export async function FetchsearchData(path, reqopt) {
     // Set default timeout to 5 seconds
     const timeout = 5000;
-    
+
     try {
         // Use fetchWithTimeout to prevent indefinite hanging
         const response = await fetchWithTimeout(path, reqopt, timeout);
-        
+
         // Check if response is ok before parsing
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         let data = await response.json();
         return data
     } catch (error) {
