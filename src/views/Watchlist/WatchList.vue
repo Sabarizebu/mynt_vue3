@@ -1029,7 +1029,6 @@
 </template>
 
 <script setup>
-import eventBus from '@/utils/eventBus.js'
 import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAppStore } from '../../stores/appStore'

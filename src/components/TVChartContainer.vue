@@ -198,7 +198,7 @@ export default {
         }
       } else {
         const appStore = useAppStore();
-        appStore.showSnackbar(2, `No, OI Profile for ${this.tvWidget.activeChart().symbol()}`);
+        appStore.showSnackbar(2, `No OI Profile for ${this.tvWidget.activeChart().symbol()}`);
       }
       this.oiloader = false;
     },
