@@ -499,7 +499,7 @@ export async function getPlaceOrder(item, type) {
     try {
         uid = sessionStorage.getItem('userid') || uid
         tok = sessionStorage.getItem('msession') || tok
-    } catch (_) {}
+    } catch (_) { }
     if (type != 'can-ex') {
         if (item.tsym) {
             item.tsym = encodeURIComponent(item.tsym); 
