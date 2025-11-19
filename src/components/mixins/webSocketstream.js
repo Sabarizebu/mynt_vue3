@@ -36,6 +36,10 @@ let res = sessionStorage.getItem("c3RhdHVz");
 var socketPreResponse = new Map()
 var socket = null
 var wsreconn = 0;
+var heartbeatInterval = null;
+var orderStatusInterval = null;
+var isConnecting = false;
+var isReconnecting = false;
 
 // Function to get tokenid dynamically using sessionStore
 function getTokenId() {
@@ -68,33 +72,16 @@ var hb = {
 let holdStartTime = null;
 var last = {};
 
+// Heartbeat and order status intervals are now created in establishSocketConnection
+// This ensures they are properly cleaned up when the socket closes
 if (params) {
     establishSocketConnection();
-    window.setInterval(function () {
-        send(JSON.stringify(hb))
-    }, 5000);
-} else {
-    window.setInterval(function () {
-        if (res == "dmFsaWR1c2Vy" && userId) {
-            send(JSON.stringify(hb))
-        }
-    }, 5000);
-
-    window.setInterval(function () {
-        if (res == "dmFsaWR1c2Vy" && userId) {
-            send(JSON.stringify({
-                t: "o",
-                actid: userId,
-            }));
-        }
-    }, 10000);
-    // Don't call here - wait for Pinia to be initialized
-    // seyCheckwebsocketInternal() will be called from LayoutSrc.vue after Pinia is ready
 }
+// For non-params mode, seyCheckwebsocketInternal() will be called from LayoutSrc.vue after Pinia is ready
 
 function changeScript(symbol, theme) {
     if (!window.tvWidget) return;
-    
+
     window.tvWidget.activeChart().setSymbol(`${symbol[0].exch}:${symbol[0].tsym}`);
 
     const url = new URL(window.location.href);
@@ -104,9 +91,9 @@ function changeScript(symbol, theme) {
     url.searchParams.set('dark', theme);
     window.tvWidget.changeTheme(theme == 'true' ? "dark" : "light");
     window.history.pushState({}, '', url);
-    
+
     Datafeed.subscribeQuotesChain(symbol, undefined, undefined);
-    
+
     if (last && last.exch && last.token) {
         Datafeed.unsubscribeQuotesScreener(`${last.exch}|${last.token}#`);
     }
@@ -117,10 +104,10 @@ function seyCheckwebsocketInternal(type) {
     // Get the mynturl from sessionStore (which is reactive and updated)
     const sessionStore = getSessionStore()
     const mynturlStat = sessionStore.mynturl?.stat
-    
+
     // Update session status and user info
     res = sessionStorage.getItem("c3RhdHVz");
-    
+
     // Use myntappurl if params is true (src=app), otherwise use sessionStorage
     if (params) {
         userId = myntappurl.clientid
@@ -129,8 +116,8 @@ function seyCheckwebsocketInternal(type) {
         userId = sessionStorage.getItem('userid')
         msession = sessionStorage.getItem('msession')
     }
-    
-    
+
+
     if (res == "dmFsaWR1c2Vy" && userId && mynturlStat == 1) {
         establishSocketConnection(type);
     } else {
@@ -139,7 +126,7 @@ function seyCheckwebsocketInternal(type) {
         //     userId: !!userId, 
         //     mynturlStat: mynturlStat 
         // })
-        
+
         // Only retry a limited number of times to avoid infinite loops
         if (!window.wsRetryCount) window.wsRetryCount = 0;
         if (window.wsRetryCount < 50) { // Max 5 seconds of retries
@@ -163,29 +150,87 @@ export function seyCheckwebsocket(type) {
 function establishSocketConnection(type) {
     const sessionStore = getSessionStore()
     const wssUrl = params ? myntappurl.wss : sessionStore.mynturl?.wss;
-    
+
     if (!wssUrl) {
         // console.error('WebSocket URL not found');
         return;
     }
 
+    // Prevent duplicate connections
+    if (isConnecting || isReconnecting) {
+        // console.log('⚠️ Connection already in progress, skipping...');
+        return;
+    }
+
+    // Clean up existing socket before creating new one
+    if (socket) {
+        // console.log('🧹 Cleaning up existing socket before reconnecting...');
+        try {
+            socket.onclose = null; // Prevent onclose from triggering during manual close
+            socket.onerror = null;
+            socket.onmessage = null;
+            socket.onopen = null;
+            if (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING) {
+                socket.close();
+            }
+        } catch (e) {
+            // console.error('Error closing existing socket:', e);
+        }
+        socket = null;
+    }
+
+    // Clear existing intervals before creating new ones
+    if (heartbeatInterval) {
+        clearInterval(heartbeatInterval);
+        heartbeatInterval = null;
+    }
+    if (orderStatusInterval) {
+        clearInterval(orderStatusInterval);
+        orderStatusInterval = null;
+    }
+
+    isConnecting = true;
     socket = new WebSocket(wssUrl);
-    
+
     socket.onopen = function () {
         const tokenid = getTokenId()
         connectionRequest(tokenid, userId)
     }
-    
+
     socket.onmessage = function (msg) {
         var responseFeed = JSON.parse(msg.data);
         const store = getAppStore();
 
         if (!!responseFeed.t && responseFeed.t == 'ck' && responseFeed.s == 'OK') {
             connectionStatus = true
+            isConnecting = false;
+            isReconnecting = false;
+            wsreconn = 0; // Reset reconnection counter on successful connection
             // Reset retry counter on successful connection
             window.wsRetryCount = 0;
             // console.log("✅ WebSocket connection established successfully")
-            
+
+            // Start heartbeat interval
+            if (!heartbeatInterval) {
+                heartbeatInterval = window.setInterval(function () {
+                    if (res == "dmFsaWR1c2Vy" && userId) {
+                        send(JSON.stringify(hb))
+                    }
+                }, 5000);
+            }
+
+            // Start order status check interval (only for non-params mode)
+            if (!params && !orderStatusInterval) {
+                orderStatusInterval = window.setInterval(function () {
+                    if (res == "dmFsaWR1c2Vy" && userId) {
+                        send(JSON.stringify({
+                            t: "o",
+                            actid: userId,
+                        }));
+                    }
+                }, 10000);
+            }
+
             if (params) {
                 var url = new URL(window.location.href).searchParams;
                 last = { exch: url.get('exch'), token: url.get('token'), tsym: url.get('symbol') };
@@ -213,11 +258,11 @@ function establishSocketConnection(type) {
                 sessionStore.handleSessionError(sessionError, authStore, store)
             }
         }
-        
+
         if (responseFeed.t) {
             ProcessPacketString(responseFeed)
         }
-        
+
         // Trigger WebSocket connection event for components
         if (responseFeed.t && responseFeed.t !== 'ck') {
             const event = new CustomEvent('web-scoketConn', {
@@ -226,13 +271,29 @@ function establishSocketConnection(type) {
             window.dispatchEvent(event)
         }
     }
-    
-    socket.onclose = function () {
+
+    socket.onclose = function (event) {
+        isConnecting = false;
+        connectionStatus = false;
+
+        // Clear intervals when socket closes
+        if (heartbeatInterval) {
+            clearInterval(heartbeatInterval);
+            heartbeatInterval = null;
+        }
+        if (orderStatusInterval) {
+            clearInterval(orderStatusInterval);
+            orderStatusInterval = null;
+        }
+
         let log = sessionStorage.getItem(userId + new Date().toLocaleDateString());
         var localres = log ? JSON.parse(log) : [];
 
-        if (wsreconn < 200) {
+        // Only attempt reconnection if we haven't exceeded the limit and not already reconnecting
+        if (wsreconn < 200 && !isReconnecting) {
+            isReconnecting = true;
             setTimeout(() => {
+                isReconnecting = false;
                 if (params) {
                     establishSocketConnection('attempt')
                 } else {
@@ -241,18 +302,19 @@ function establishSocketConnection(type) {
                 wsreconn++;
             }, 2600);
             localres.unshift({ time: new Date().toLocaleTimeString("en-US"), msg: `Websocket reconnect attempt ${wsreconn} time.` });
-        } else {
-            socket.close();
+        } else if (wsreconn >= 200) {
+            isReconnecting = false;
             sessionStorage.setItem('wsstat', 'Not_ok')
             logMessage(`[socket] onclose:: ${event}`, 1);
-            localres.unshift({ time: new Date().toLocaleTimeString("en-US"), msg: `Websocket reconnect attempt failed; it reached the three-shold.` });
+            localres.unshift({ time: new Date().toLocaleTimeString("en-US"), msg: `Websocket reconnect attempt failed; it reached the threshold.` });
         }
         sessionStorage.setItem((userId + new Date().toLocaleDateString()), JSON.stringify(localres))
     };
-    
+
     socket.onerror = function (event) {
         logMessage(`[socket] Error: ${event} type ${event.type}`, 2);
-        socket.onclose()
+        isConnecting = false;
+        // Don't call onclose here - let the browser handle it naturally to avoid duplicate reconnection attempts
     };
 }
 
@@ -315,8 +377,9 @@ async function send(msg) {
     } else if (!!socket && !!socket.readyState && socket.readyState == 0) {
         setTimeout(() => { socket.send(msg); }, 900);
     } else if (!!socket && !!socket.readyState && socket.readyState == 3) {
-        // console.warn("Socket closed. Attempting to reconnect...");
-        establishSocketConnection('attempt')
+        // Socket is closed - onclose handler will handle reconnection
+        // Don't trigger reconnection here to avoid duplicate attempts
+        // console.warn("Socket closed. Reconnection will be handled by onclose event.")
     } else {
         logMessage("[socket send] socket connection is undefined", 2)
     }
@@ -402,19 +465,19 @@ export function unsubscribeFromStream(listenerGuid) {
     if (!channelString) {
         return;
     }
-    
+
     let subscriptionItem = channelToSubscription.get(channelString);
     if (subscriptionItem) {
         subscriptionItem.handlers = subscriptionItem.handlers.filter(function (handler) {
             return handler.id != listenerGuid;
         });
-        
+
         if (subscriptionItem.handlers.length === 0) {
             websocketUnsubscriptionChain(channelString);
             channelToSubscription.delete(channelString);
         }
     }
-    
+
     guidToSubscription.delete(listenerGuid);
 }
 
@@ -515,7 +578,7 @@ function _setChannelMap(symbol, channelString, onRealtimeCallback, subscribeUID,
 
 function ProcessPacketString(responseFeed) {
     const store = getAppStore();
-    
+
     try {
         if (responseFeed.t == "am" && responseFeed.dmsg) {
             var msg = responseFeed.dmsg.includes('href=') ? responseFeed.dmsg.replace("href=", "target=_blank href=") : responseFeed.dmsg
@@ -550,7 +613,7 @@ function ProcessPacketString(responseFeed) {
             var depth = {
                 snapshot: true,
                 asks: [
-                    { price: parseFloat(responseFeed["sp1"]) ? parseFloat(responseFeed["sp1"]) :  0, volume: parseInt(responseFeed["sq1"]) ? parseInt(responseFeed["sq1"]) : 0 },
+                    { price: parseFloat(responseFeed["sp1"]) ? parseFloat(responseFeed["sp1"]) : 0, volume: parseInt(responseFeed["sq1"]) ? parseInt(responseFeed["sq1"]) : 0 },
                     { price: parseFloat(responseFeed["sp2"]) ? parseFloat(responseFeed["sp2"]) : 0, volume: parseInt(responseFeed["sq2"]) ? parseInt(responseFeed["sq2"]) : 0 },
                     { price: parseFloat(responseFeed["sp3"]) ? parseFloat(responseFeed["sp3"]) : 0, volume: parseInt(responseFeed["sq3"]) ? parseInt(responseFeed["sq3"]) : 0 },
                     { price: parseFloat(responseFeed["sp4"]) ? parseFloat(responseFeed["sp4"]) : 0, volume: parseInt(responseFeed["sq4"]) ? parseInt(responseFeed["sq4"]) : 0 },
@@ -689,12 +752,12 @@ function ProcessPacketString(responseFeed) {
         if (subscriptionItem.handlers === undefined) {
             return;
         }
-        
+
         const handlers = [...subscriptionItem.handlers];
-        
+
         // Get the quote data for emission
         const quoteData = socketPreResponse.get(`${responseFeed["e"]}|${responseFeed["tk"]}#`);
-        
+
         // Emit custom event for all quote updates
         if (quoteData && !params) {
             const event = new CustomEvent('websocket-quote-update', {
@@ -702,7 +765,7 @@ function ProcessPacketString(responseFeed) {
             });
             window.dispatchEvent(event);
         }
-        
+
         handlers.forEach(function callHandler(handler) {
             if (handler.type == 'quotes') {
                 let quote = {
@@ -787,7 +850,7 @@ function ProcessPacketString(responseFeed) {
                     }
                 }
                 handler.handler.callback(bar)
-                
+
                 const origIndex = subscriptionItem.handlers.findIndex(h => h.id === handler.id);
                 if (origIndex !== -1) {
                     subscriptionItem.handlers[origIndex].lastDailyBar = bar;
@@ -942,33 +1005,33 @@ window.changeScript = changeScript;
 // Global WebSocket manager to maintain active connections
 export const WebSocketManager = {
     activeSubscriptions: new Map(),
-    
+
     registerSubscription(page, token, exch) {
         if (!this.activeSubscriptions.has(page)) {
             this.activeSubscriptions.set(page, []);
         }
-        
+
         const pageSubscriptions = this.activeSubscriptions.get(page);
         const existingIndex = pageSubscriptions.findIndex(s => s.token === token && s.exch === exch);
-        
+
         if (existingIndex === -1) {
             pageSubscriptions.push({ token, exch });
         }
     },
-    
+
     unregisterSubscription(page, token, exch) {
         if (!this.activeSubscriptions.has(page)) {
             return;
         }
-        
+
         const pageSubscriptions = this.activeSubscriptions.get(page);
         const existingIndex = pageSubscriptions.findIndex(s => s.token === token && s.exch === exch);
-        
+
         if (existingIndex !== -1) {
             pageSubscriptions.splice(existingIndex, 1);
         }
     },
-    
+
     isActiveInOtherPages(currentPage, token, exch) {
         for (const [page, subscriptions] of this.activeSubscriptions.entries()) {
             if (page !== currentPage) {

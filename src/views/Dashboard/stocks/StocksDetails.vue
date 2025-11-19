@@ -356,7 +356,6 @@ import StockSingle from './StockSingle.vue'
 import StocksOption from './StocksOption.vue'
 import { getssDetails, getQuotesdata, getLinkedScrips, getSecuritydata, getTechnicals, getMwatchlistset } from '@/components/mixins/getAPIdata.js'
 import { useAppStore } from '@/stores/appStore'
-import eventBus from '@/utils/eventBus'
 
 import alertIcon from '/src/assets/orderbook/5.svg'
 import gttIcon from '/src/assets/orderbook/4.svg'
@@ -559,7 +558,7 @@ const handleAddToWatchlist = async (item) => {
             const scriptName = item.tsym || item.tsyms || 'Script'
             appStore.showSnackbar(1, `${scriptName} added to watchlist`)
             // Dispatch event to notify WatchList to refresh
-            eventBus.$emit('addscript-wl', item)
+            window.dispatchEvent(new CustomEvent('addscript-wl', { detail: item }))
         } else {
             appStore.showSnackbar(0, res.emsg || 'Failed to add to watchlist')
         }

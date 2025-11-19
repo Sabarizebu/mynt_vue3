@@ -337,11 +337,11 @@ import { useAppStore } from '../../stores/appStore'
 import { useNavStore } from '../../stores/navStore'
 import { useAuthStore } from '../../stores/authStore'
 import { useSessionStore } from '../../stores/sessionStore'
+import { useWebsocketStore } from '../../stores/websocketStore'
 import { getActiveSession, getReSession, setOrdprefApi, getcallApi } from "../mixins/getAPIdata.js"
 import { seyCheckwebsocket } from "../mixins/webSocketstream.js"
 import { mynturl } from "../../apiurl.js"
 import apiurl from "../../apiurl.js"
-import webSocketEventBus from "../../utils/webSocketEventBus.js"
 import { getAssetPath } from '../../utils/assetHelper.js'
 
 // Import static assets for production compatibility
@@ -355,6 +355,7 @@ const wsOrderObjects = computed(() => appStore.wsorderalertdata.slice())
 const navStore = useNavStore()
 const authStore = useAuthStore()
 const sessionStore = useSessionStore()
+const websocketStore = useWebsocketStore()
 
 const route = useRoute()
 const theme = useTheme()
@@ -476,16 +477,10 @@ const closeRisk = () => {
     riskdialog.value = false
 }
 
-// WebSocket data parsing method (similar to old implementation)
-const optionChainDataParse = (data) => {
-    // console.log("📊 optionChainDataParse called with:", data)
-    if (webSocketEventBus.wsstocksdata && webSocketEventBus.wsstocksdata.tok && webSocketEventBus.wsstocksdata.rawdata) {
-        // Emit web-scoketConn event with actual data (similar to old implementation)
-        const eventData = Array.isArray(data) ? data[0]?.v : data
-        const currentPage = webSocketEventBus.wsstocksdata.raw
-        // console.log("📡 Emitting web-scoketConn with data:", eventData, "page:", currentPage)
-        webSocketEventBus.emit("web-scoketConn", eventData, currentPage)
-    }
+// WebSocket event handler for 'web-scoketOn' custom events
+const handleWebSocketEvent = (event) => {
+    const { flow, data, is, page } = event.detail
+    websocketStore.handleWebSocketRequest(flow, data, is, page)
 }
 
 const getPublicIP = async () => {
@@ -517,20 +512,8 @@ const getUserSession = async (k) => {
             // IMPORTANT: Set session status BEFORE calling WebSocket functions
             sessionStorage.setItem("c3RhdHVz", "dmFsaWR1c2Vy")
 
-            // Initialize WebSocket event bus for component communication
-
-            // Set up WebSocket data handling similar to old implementation
-            webSocketEventBus.on("web-scoketOn", (flow, data, is, page) => {
-                // console.log("📡 WebSocket Event Bus received:", { flow, data, is, page })
-                webSocketEventBus.handleWebSocketRequest(flow, data, is, page)
-            })
-
             // Listen for custom WebSocket events from components
-            window.addEventListener('web-scoketOn', (event) => {
-                const { flow, data, is, page } = event.detail
-                // console.log("📡 Custom WebSocket event received:", { flow, data, is, page })
-                webSocketEventBus.handleWebSocketRequest(flow, data, is, page)
-            })
+            window.addEventListener('web-scoketOn', handleWebSocketEvent)
 
             await seyCheckwebsocket()
 
@@ -776,12 +759,9 @@ onMounted(async () => {
                 appStore.setWatchlistLayout(wllayout === 'true')
             }
 
-            // IMPORTANT: Initialize WebSocket event bus for existing sessions too
-            // console.log("🔌 Initializing WebSocket Event Bus for existing session...")
-            webSocketEventBus.on("web-scoketOn", (flow, data, is, page) => {
-                // console.log("📡 WebSocket Event Bus received:", { flow, data, is, page })
-                webSocketEventBus.handleWebSocketRequest(flow, data, is, page)
-            })
+            // IMPORTANT: Initialize WebSocket listener for existing sessions too
+            // console.log("🔌 Initializing WebSocket listener for existing session...")
+            window.addEventListener('web-scoketOn', handleWebSocketEvent)
 
             // IMPORTANT: Load order preferences API (this was being skipped!)
             // console.log("📥 Loading order preferences...")
@@ -884,6 +864,8 @@ onUnmounted(() => {
     // console.log("🧹 LayoutSrc unmounting, stopping session monitoring...")
     // Stop session monitoring
     sessionStore.stopSessionMonitoring()
+    // Remove WebSocket event listener
+    window.removeEventListener('web-scoketOn', handleWebSocketEvent)
 })
 </script>
 

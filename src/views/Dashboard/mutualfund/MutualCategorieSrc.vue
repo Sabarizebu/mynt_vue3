@@ -189,7 +189,7 @@
 </template>
 
 <script>
-import eventBus from "@/utils/eventBus.js";
+import { useAppStore } from "@/stores/appStore";
 import { getnewBestMF, getnewcatgreapi } from "@/components/mixins/getAPIdata";
 
 // Import images
@@ -202,6 +202,10 @@ import balancehybridImg from '@/assets/mf/balancehybrid.svg';
 import noDataImg from '@/assets/no data folder.svg';
 
 export default {
+  setup() {
+    const appStore = useAppStore();
+    return { appStore };
+  },
   data: () => ({
     uid: "",
     token: "",
@@ -289,22 +293,24 @@ export default {
 
     // console.log("Category data:", this.paramsdata);
 
-    eventBus.$emit("tabBar-load");
-    eventBus.$emit("login-event");
+    window.dispatchEvent(new CustomEvent('tabBar-load'));
+    window.dispatchEvent(new CustomEvent('login-event'));
 
     // Load data directly
     await this.loadCategoryData();
 
     // Also listen for setRec-event in case parent component handles it
-    eventBus.$on("setRec-event", (mfdata) => {
+    this.setRecHandler = (event) => {
+      const mfdata = event.detail;
       if (mfdata == "stat_ok") {
         this.loadCategoryData();
       } else {
         this.handleMFData(mfdata);
       }
-    });
+    };
+    window.addEventListener('setRec-event', this.setRecHandler);
 
-    eventBus.$on("user-event", () => {
+    this.userEventHandler = () => {
       let res = sessionStorage.getItem("c3RhdHVz");
       if (res == "dmFsaWR1c2Vy") {
         this.token = sessionStorage.getItem("usession");
@@ -313,7 +319,8 @@ export default {
         this.token = "";
         this.uid = "";
       }
-    });
+    };
+    window.addEventListener('user-event', this.userEventHandler);
 
     // Watch for route changes to reload data
     this.$watch(() => this.$route.query, (newQuery) => {
@@ -330,8 +337,8 @@ export default {
     });
   },
   beforeUnmount() {
-    eventBus.$off("setRec-event");
-    eventBus.$off("user-event");
+    window.removeEventListener('setRec-event', this.setRecHandler);
+    window.removeEventListener('user-event', this.userEventHandler);
   },
 
   methods: {
@@ -616,7 +623,7 @@ export default {
         }
       } catch (error) {
         // console.error("Error loading category data:", error);
-        eventBus.$emit("snack-event", 0, `Error loading category data: ${error.message || error}`);
+        this.appStore.showSnackbar(0, `Error loading category data: ${error.message || error}`);
         this.mftableloader = false;
         this.mfallsearchloader = false;
       }
@@ -639,7 +646,7 @@ export default {
         this.mftableloader = false;
         this.mfallsearchloader = false;
       } else if (mfdata) {
-        eventBus.$emit("snack-event", 2, mfdata.msg ? mfdata.msg : mfdata);
+        this.appStore.showSnackbar(2, mfdata.msg ? mfdata.msg : mfdata);
         this.mfallsearchloader = false;
       }
     },
@@ -662,7 +669,7 @@ export default {
         });
       } else {
         // console.error("No ISIN or Scheme_Code found in item:", item);
-        eventBus.$emit("snack-event", 0, "Unable to navigate: Missing fund identifier");
+        this.appStore.showSnackbar(0, "Unable to navigate: Missing fund identifier");
       }
     },
     async setMFcatdata() {
@@ -685,10 +692,14 @@ export default {
       );
     },
     putMForder(item, type) {
-      eventBus.$emit("menudialog", "mforder", type, item);
+      window.dispatchEvent(new CustomEvent('menudialog', {
+        detail: { type: 'mforder', action: type, data: item }
+      }));
     },
     getusedMutual(item) {
-      eventBus.$emit("addscript-wl", item, "mf");
+      window.dispatchEvent(new CustomEvent('addscript-wl', {
+        detail: { item, category: 'mf' }
+      }));
     },
     setChangewl() {
       this.showtable = 24;

@@ -423,7 +423,7 @@
 <script>
 import * as echarts from "echarts";
 import apiurl from "../../../apiurl.js";
-import eventBus from "@/utils/eventBus.js";
+import { useAppStore } from "@/stores/appStore";
 import { getMFsheetdata, getMFNAVchart, getMFSchemePeers, getMFsheetchart, getMFrollschart } from "@/components/mixins/getAPIdata.js";
 
 // Import risk meter images
@@ -436,6 +436,10 @@ import riskMeter6 from '@/assets/mf/riskmeter/6.svg';
 import noDataImg from '@/assets/no data folder.svg';
 
 export default {
+  setup() {
+    const appStore = useAppStore();
+    return { appStore };
+  },
   data: () => ({
     uid: null,
     mtoken: null,
@@ -578,11 +582,11 @@ export default {
     // console.log("stoken", this.stoken);
     // console.log("mtoken", this.mtoken);
 
-    eventBus.$emit("tabBar-load");
-    eventBus.$emit("login-event");
+    window.dispatchEvent(new CustomEvent('tabBar-load'));
+    window.dispatchEvent(new CustomEvent('login-event'));
 
     // Also listen for user-event updates
-    eventBus.$on("user-event", () => {
+    this.userEventHandler = () => {
       let res = sessionStorage.getItem("c3RhdHVz");
       if (res == "dmFsaWR1c2Vy") {
         if (!this.uid && !this.stoken) {
@@ -591,9 +595,11 @@ export default {
           this.uid = sessionStorage.getItem("userid");
         }
       }
-    });
+    };
+    window.addEventListener('user-event', this.userEventHandler);
 
-    eventBus.$on("ssdmf-event", (params) => {
+    this.ssdmfEventHandler = (event) => {
+      const params = event.detail;
       if (this.isni != params.ISIN) {
         this.mainloader = true;
         this.menudata = {};
@@ -634,7 +640,8 @@ export default {
       } else {
         this.$router.push('/mutualfund');
       }
-    });
+    };
+    window.addEventListener('ssdmf-event', this.ssdmfEventHandler);
     this.sessstoreddata = JSON.parse(sessionStorage.getItem('mf_single_data'));
     // Watch for route changes to reload data
     this.$watch(() => this.$route.params, (newParams) => {
@@ -644,8 +651,8 @@ export default {
     }, { deep: true });
   },
   beforeUnmount() {
-    eventBus.$off("ssdmf-event");
-    eventBus.$off("user-event");
+    window.removeEventListener('ssdmf-event', this.ssdmfEventHandler);
+    window.removeEventListener('user-event', this.userEventHandler);
   },
   methods: {
     getRiskMeterImage(risk) {
@@ -697,13 +704,13 @@ export default {
           this.mainloader = false;
         } else {
           const errorMsg = this.menudata && this.menudata.data ? this.menudata.data : (this.menudata && this.menudata.msg ? this.menudata.msg : "Failed to load fund data");
-          eventBus.$emit("snack-event", 0, errorMsg);
+          this.appStore.showSnackbar(0, errorMsg);
           // console.error("Error loading fund data:", errorMsg);
           this.$router.push(`/mutualfund`);
         }
       } catch (error) {
         // console.error("Error in getMenuData:", error);
-        eventBus.$emit("snack-event", 0, `Error loading fund data: ${error.message || error}`);
+        this.appStore.showSnackbar(0, `Error loading fund data: ${error.message || error}`);
         this.$router.push(`/mutualfund`);
       }
     },
@@ -1224,7 +1231,9 @@ export default {
       }
     },
     putMForder(type) {
-      eventBus.$emit("menudialog", "mforder", type, this.sessstoreddata);
+      window.dispatchEvent(new CustomEvent('menudialog', {
+        detail: { type: 'mforder', action: type, data: this.sessstoreddata }
+      }));
     },
   },
 };

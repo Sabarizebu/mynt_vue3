@@ -497,11 +497,15 @@
 </template>
 
 <script>
-import eventBus from "@/utils/eventBus.js";
 import { getMFnofdata } from "@/components/mixins/getAPIdata";
 import noDataImg from '@/assets/no data folder.svg';
+import { useAppStore } from '@/stores/appStore';
 
 export default {
+  setup() {
+    const appStore = useAppStore();
+    return { appStore };
+  },
   data: () => ({
     uid: "",
     token: "",
@@ -548,14 +552,24 @@ export default {
     //
   },
   async mounted() {
-    eventBus.$emit("login-event");
-    eventBus.$emit("tabBar-load");
+    window.dispatchEvent(new CustomEvent('login-event'));
+    window.dispatchEvent(new CustomEvent('tabBar-load'));
 
     // Load NFO data directly
     await this.ressetMFnfodata();
 
     // Also listen for setRec-event in case parent component handles it
-    eventBus.$on("setRec-event", (mfdata) => {
+    window.addEventListener("setRec-event", this.handleSetRecEvent);
+    window.addEventListener("user-event", this.handleUserEvent);
+  },
+  beforeUnmount() {
+    window.removeEventListener("setRec-event", this.handleSetRecEvent);
+    window.removeEventListener("user-event", this.handleUserEvent);
+  },
+
+  methods: {
+    handleSetRecEvent(event) {
+      const mfdata = event.detail;
       if (mfdata == "stat_ok") {
         this.ressetMFnfodata();
       } else {
@@ -580,13 +594,12 @@ export default {
           this.mfcategorie["minamt"] = [this.mfcategorie.minamt_min, this.mfcategorie.minamt_max];
           this.mfcategorie["rangeaum"] = [this.mfcategorie.aum_min, this.mfcategorie.aum_max];
         } else if (res) {
-          eventBus.$emit("snack-event", 2, res.msg ? res.msg : res);
+          this.appStore.showSnackbar(2, res.msg ? res.msg : res);
           this.mfallsearchloader = false;
         }
       }
-    });
-
-    eventBus.$on("user-event", () => {
+    },
+    handleUserEvent() {
       let res = sessionStorage.getItem("c3RhdHVz");
       if (res == "dmFsaWR1c2Vy") {
         this.token = sessionStorage.getItem("usession");
@@ -595,14 +608,7 @@ export default {
         this.token = "";
         this.uid = "";
       }
-    });
-  },
-  beforeUnmount() {
-    eventBus.$off("setRec-event");
-    eventBus.$off("user-event");
-  },
-
-  methods: {
+    },
     setNamehide(name) {
       return name && name.length > 30 ? `${name.slice(0, 30)}...` : name;
     },
@@ -621,7 +627,7 @@ export default {
         });
       } else {
         // console.error("No ISIN or Scheme_Code found in item:", item);
-        eventBus.$emit("snack-event", 0, "Unable to navigate: Missing fund identifier");
+        this.appStore.showSnackbar(0, "Unable to navigate: Missing fund identifier");
       }
     },
     async ressetMFnfodata() {
@@ -684,7 +690,7 @@ export default {
         this.mfallsearchloader = false;
       } catch (error) {
         // console.error("Error loading NFO data:", error);
-        eventBus.$emit("snack-event", 0, `Error loading NFO data: ${error.message || error}`);
+        this.appStore.showSnackbar(0, `Error loading NFO data: ${error.message || error}`);
         this.mftableloader = false;
         this.mfallsearchloader = false;
         this.mftabledata = [];
@@ -697,10 +703,14 @@ export default {
       );
     },
     putMForder(item, type) {
-      eventBus.$emit("menudialog", "mforder", type, item);
+      window.dispatchEvent(new CustomEvent('menudialog', {
+        detail: { type: 'mforder', action: type, item }
+      }));
     },
     getusedMutual(item) {
-      eventBus.$emit("addscript-wl", item, "mf");
+      window.dispatchEvent(new CustomEvent('addscript-wl', {
+        detail: { item, type: 'mf' }
+      }));
     },
     setChangewl() {
       this.showtable = 24;

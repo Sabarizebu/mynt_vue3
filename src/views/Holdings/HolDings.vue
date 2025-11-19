@@ -295,7 +295,7 @@
                                 </p>
                                 <div v-if="item && item.holdtype === 'mf'" @click.stop class="pos-abs table-hov"
                                     style="top: 50%; transform: translateY(-50%); right: 0; z-index: 10; gap: 4px; pointer-events: auto; display: flex; align-items: center;">
-                                    <v-btn @click.stop="eventBus.$emit('menudialog', 'mforder', 'redem', item)"
+                                    <v-btn @click.stop="handleMFOrder('mforder', 'redem', item)"
                                         rounded="pill"
                                         style="background-color: #F1F3F8; color: blue; padding: 5px  10px !important;"
                                         class="font-weight-bold elevation-0 mr-1 text-none ">
@@ -648,7 +648,6 @@ import { useRouter } from 'vue-router'
 import { useAppStore } from '@/stores/appStore'
 import { getMHoldings, getMMHoldings, getQuotesdata, getHsTokenapi } from '@/components/mixins/getAPIdata'
 import CryptoJS from 'crypto-js'
-import eventBus from '@/utils/eventBus.js'
 import { color } from 'echarts'
 
 const router = useRouter()
@@ -1118,6 +1117,12 @@ function handleMenuDialog(type, token, exch, tsym, trans, item) {
     holdingdrawer.value = false
     window.dispatchEvent(new CustomEvent('menudialog', {
         detail: { type, token, exch, tsym, trantype: trans, item }
+    }))
+}
+
+function handleMFOrder(type, action, item) {
+    window.dispatchEvent(new CustomEvent('menudialog', {
+        detail: { type, action, item }
     }))
 }
 

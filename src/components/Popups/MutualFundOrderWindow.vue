@@ -575,10 +575,15 @@
 
 <script>
 import apiurl from "../../apiurl.js";
-import eventBus from "@/utils/eventBus.js";
+import { useAppStore } from "../../stores/appStore";
 import { getMFsipvalue, getMFmandate, getMFAddmandate, getUpivpa, getMFplaceoredr, getMFallpayments, getMFBankdetails, getFundsupis, getsendpaymentrequt, getcheckpaystatus } from "../mixins/getAPIdata.js";
 export default {
     name: 'MutualFundOrderWindow',
+
+    setup() {
+        const appStore = useAppStore();
+        return { appStore };
+    },
 
     data: () => ({
         uid: null,
@@ -637,19 +642,23 @@ export default {
     }),
 
     async mounted() {
-        eventBus.$on("menudialog", (type, mode, itemdata) => {
+        // Create bound handlers to maintain 'this' context
+        this.handleMenuDialog = (event) => {
+            const { type, action, data } = event.detail || {};
             if (type == "mforder") {
-                this.setMenudialog(mode, itemdata);
+                this.setMenudialog(action, data);
             }
-        });
+        };
 
-        // Listen for user login events to update uid
-        eventBus.$on("user-event", () => {
+        this.handleUserEvent = () => {
             this.mtoken = sessionStorage.getItem("msession");
             this.token = sessionStorage.getItem("usession");
             this.uid = sessionStorage.getItem("userid");
             // console.log("User event - UID updated:", this.uid);
-        });
+        };
+
+        window.addEventListener("menudialog", this.handleMenuDialog);
+        window.addEventListener("user-event", this.handleUserEvent);
 
         this.mtoken = sessionStorage.getItem("msession");
         this.token = sessionStorage.getItem("usession");
@@ -657,8 +666,8 @@ export default {
         // console.log("Mounted - Initial UID:", this.uid);
     },
     beforeUnmount() {
-        eventBus.$off("menudialog");
-        eventBus.$off("user-event");
+        window.removeEventListener("menudialog", this.handleMenuDialog);
+        window.removeEventListener("user-event", this.handleUserEvent);
         if (this.intervalId) {
             clearInterval(this.intervalId);
             this.intervalId = null;
@@ -709,7 +718,7 @@ export default {
             this.mf_invest_amt = Number(this.mf_invest_amt) + Number(amt)
         },
         snackAlert(color, msg) {
-            eventBus.$emit('snack-event', color, msg)
+            this.appStore.showSnackbar(color, msg)
         },
         formatDate(date) {
             if (!date) return null;
@@ -743,7 +752,7 @@ export default {
             return new Date(year, month, day);
         },
         async setMenudialog(mode, itemdata) {
-            eventBus.$emit("sub-loader", 1);
+            this.appStore.showLoader();
             // console.log("itemdataitemdata", itemdata);
             // console.log("modemodemodemode", mode);
 
@@ -757,8 +766,8 @@ export default {
 
             if (!this.uid) {
                 // console.error("UID is null! Please check sessionStorage for 'userid'");
-                eventBus.$emit("snack-event", 2, "User session expired. Please login again.");
-                eventBus.$emit("sub-loader", 0);
+                this.appStore.showSnackbar(2, "User session expired. Please login again.");
+                this.appStore.hideLoader();
                 return;
             }
 
@@ -824,7 +833,7 @@ export default {
                 this.mf_initial_amt = itemdata.Minimum_Purchase_Amount;
                 this.mforderdialog = true;
             }
-            eventBus.$emit("sub-loader", 0);
+            this.appStore.hideLoader();
         },
 
         setDefaultmandate() {
@@ -895,7 +904,7 @@ export default {
 
             if (!this.uid) {
                 // console.error("UID is null! Cannot place order.");
-                eventBus.$emit("snack-event", 2, "User session expired. Please login again.");
+                this.appStore.showSnackbar(2, "User session expired. Please login again.");
                 this.orderpoploader = false;
                 return;
             }

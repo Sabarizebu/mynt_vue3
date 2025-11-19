@@ -253,9 +253,11 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
-import eventBus from '@/utils/eventBus.js'
+import { useAppStore } from '@/stores/appStore'
 import { getBondGsec, getBondTbill, getBondSdl, getBondSgb } from '@/components/mixins/getAPIdata.js'
 import noDataImg from '@/assets/no data folder.svg'
+
+const appStore = useAppStore()
 
 // Props and Emits
 const emit = defineEmits(['gologin', 'receive'])
@@ -435,7 +437,7 @@ async function loadBondsData() {
     loading.value = false
   } catch (error) {
     // console.error('Error loading bonds data:', error)
-    eventBus.$emit('snack-event', 0, `Error loading bonds data: ${error.message || error}`)
+    appStore.showSnackbar(0, `Error loading bonds data: ${error.message || error}`)
     bondsdatas.value = { 0: [], 1: [], 2: [], 3: [] }
     loading.value = false
   }
@@ -457,7 +459,9 @@ function bondOrder(item, type) {
     item["minbidqty"] = item.minBidQuantity ? item.minBidQuantity / 100 : 0
     item["maxbidqty"] = item.maxQuantity ? item.maxQuantity / 100 : 0
     item["lotbitsize"] = item.lotSize ? item.lotSize / 100 : 0
-    eventBus.$emit("menudialog", "bondorder", item, type)
+    window.dispatchEvent(new CustomEvent('menudialog', {
+      detail: { type: 'bondorder', data: item, action: type }
+    }))
   } else {
     token.value = ""
     uid.value = ""
@@ -477,8 +481,8 @@ onMounted(async () => {
   }
 
   // Emit events
-  eventBus.$emit("tabBar-load")
-  eventBus.$emit("login-event")
+  window.dispatchEvent(new CustomEvent('tabBar-load'))
+  window.dispatchEvent(new CustomEvent('login-event'))
   emit("receive", "bonds")
 
   // Check URL params for tab
@@ -494,21 +498,22 @@ onMounted(async () => {
   }
 
   // Listen for setRec-event
-  eventBus.$on("setRec-event", handleSetRecEvent)
+  window.addEventListener('setRec-event', handleSetRecEvent)
 
   // Listen for user-event
-  eventBus.$on("user-event", handleUserEvent)
+  window.addEventListener('user-event', handleUserEvent)
 
   // Load bonds data
   await loadBondsData()
 })
 
 onBeforeUnmount(() => {
-  eventBus.$off("setRec-event", handleSetRecEvent)
-  eventBus.$off("user-event", handleUserEvent)
+  window.removeEventListener('setRec-event', handleSetRecEvent)
+  window.removeEventListener('user-event', handleUserEvent)
 })
 
-function handleSetRecEvent(value) {
+function handleSetRecEvent(event) {
+  const value = event.detail
   if (value == "stat_ok") {
     emit("receive", "bonds")
     loadBondsData()

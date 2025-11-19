@@ -57,8 +57,10 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import eventBus from "@/utils/eventBus.js"
+import { useAppStore } from "@/stores/appStore"
 import { getApikeyData, getApiKeyStore } from "@/components/mixins/getAPIdata.js"
+
+const appStore = useAppStore()
 
 const clientId = ref('')
 const secretCode = ref('')
@@ -97,7 +99,7 @@ const toggleSecretVisibility = () => {
 const copyToClipboard = async (text) => {
     try {
         await navigator.clipboard.writeText(text)
-        eventBus.$emit("snack-event", 1, 'Copied to clipboard!')
+        appStore.showSnackbar(1, 'Copied to clipboard!')
     } catch (err) {
         // Fallback for older browsers
         const textArea = document.createElement('textarea')
@@ -106,7 +108,7 @@ const copyToClipboard = async (text) => {
         textArea.select()
         document.execCommand('copy')
         document.body.removeChild(textArea)
-        eventBus.$emit("snack-event", 1, 'Copied to clipboard!')
+        appStore.showSnackbar(1, 'Copied to clipboard!')
     }
 }
 
@@ -223,13 +225,13 @@ const handleUpdate = async () => {
         let key = await getApiKeyStore(apiKeyUpdateData)
         updateload.value = false
         if (key && key.stat == 'Ok') {
-            eventBus.$emit("snack-event", 1, "API Key Updated.")
+            appStore.showSnackbar(1, "API Key Updated.")
             await setAPikeydata()
         } else {
-            eventBus.$emit("snack-event", 2, key && key.emsg ? key.emsg : 'Unknown error')
+            appStore.showSnackbar(2, key && key.emsg ? key.emsg : 'Unknown error')
         }
     } else {
-        eventBus.$emit("snack-event", 2, 'Please fix the validation errors before updating')
+        appStore.showSnackbar(2, 'Please fix the validation errors before updating')
     }
 }
 
@@ -242,8 +244,12 @@ const loadApiKeyData = async () => {
             await setAPikeydata()
         }
     } else {
-        eventBus.$emit("login")
+        window.dispatchEvent(new CustomEvent('login'))
     }
+}
+
+const userEventHandler = () => {
+    loadApiKeyData()
 }
 
 onMounted(() => {
@@ -251,15 +257,13 @@ onMounted(() => {
     loadApiKeyData()
 
     // Also listen for user-event
-    eventBus.$emit("login-event")
+    window.dispatchEvent(new CustomEvent('login-event'))
 
-    eventBus.$on("user-event", () => {
-        loadApiKeyData()
-    })
+    window.addEventListener('user-event', userEventHandler)
 })
 
 onBeforeUnmount(() => {
-    eventBus.$off("user-event")
+    window.removeEventListener('user-event', userEventHandler)
 })
 </script>
 
