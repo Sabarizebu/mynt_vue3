@@ -1,6 +1,6 @@
 <template>
     <div>
-        <v-tabs v-model="tab" color="primary" fixed show-arrows density="compact" class="mt-1">
+        <v-tabs v-model="tab" color="primary" fixed show-arrows density="compact" class="mt-3">
             <v-tab :value="'sip'" class="text-none">Active SIP's</v-tab>
             <v-tab :value="'orders'" class="text-none">Order Book</v-tab>
             <v-tab :value="'siphis'" class="text-none">SIP Order Book</v-tab>
@@ -18,7 +18,8 @@
                     size="24">mdi-reload</v-icon>
             </v-toolbar>
             <v-data-table :headers="orderheadersip" :items="filteredSip" fixed-header :hide-default-footer="true"
-                :loading="loading" class=" tabletextnew  holdings-table rounded-lg overflow-y-auto row-hover-actions"
+                :loading="loading"
+                class=" tabletextnew  holdings-table tabletextnew rounded-lg overflow-y-auto row-hover-actions row-hover-actions"
                 style="border-radius:4px; border:1px solid #EBEEF0" height="480" :items-per-page="-1">
                 <template #item.name="{ item }">
                     <p class="font-weight-medium maintext--text mb-0 table-hov-text ws-p">{{ item.name || '' }}</p>
@@ -74,16 +75,19 @@
                 <v-icon class="ml-3 cursor-p" :disabled="loading" @click="getOrderbook" color="maintext"
                     size="24">mdi-reload</v-icon>
             </v-toolbar>
-            <v-data-table :headers="orderheader" :items="filteredOrders" fixed-header :hide-default-footer="true"
-                :loading="loading" class=" tabletextnew holdings-table rounded-lg overflow-y-auto"
+            <v-data-table :headers="orderheader" :items="paginatedOrders" fixed-header :hide-default-footer="true"
+                :loading="loading" class=" tabletextnew holdings-table tabletextnew rounded-lg overflow-y-auto"
                 style="border-radius:4px; border:1px solid #EBEEF0" height="480" :items-per-page="-1">
+                <!-- <template #item.datetime="{ item }">
+                    <span class="tabletextnew">{{ item.datetime || '-' }}</span>
+                </template> -->
                 <template #item.datetime="{ item }">
                     <span class="tabletextnew nowrap">{{ item.datetime || '-' }}</span>
                 </template>
                 <template #item.name="{ item }">
                     <div>
-                        <p class="font-weight-medium tabletextnew mt-2 mb-0 table-hov-text ws-p">{{ item.name || '' }}</p>
-                        <div class="d-flex  py-2">
+                        <p class="font-weight-medium tabletextnew mb-0 table-hov-text ws-p">{{ item.name || '' }}</p>
+                        <div class="d-flex mt-1">
                             <v-chip size="x-small" label variant="flat" class="mr-1" :style="{
                                 backgroundColor: '#F1F3F8 !important',
                                 color: '#666666',
@@ -91,6 +95,12 @@
                             }">
                                 <span class="fs-10">{{ item.OrderType === 'NRM' ? 'Lumpsum' : 'SIP' }}</span>
                             </v-chip>
+
+                            <!-- <v-chip size="x-small" label variant="flat" :style="{
+                                backgroundColor: '#F1F3F8 !important',
+                                color: '#666666',
+                                borderRadius: '5px'
+                            }"> -->
 
                             <v-chip size="x-small" label variant="flat" :style="{
                                 backgroundColor: '#F1F3F8 !important',
@@ -102,6 +112,14 @@
                         </div>
                     </div>
                 </template>
+                <!-- <template #item.type="{ item }"> -->
+                <!-- <div class="tabletextnew">
+                        <span>{{ item.buy_sell ? (item.buy_sell == 'P' ? 'Purchase' : 'Reduction') : '-' }}</span>
+                        <br v-if="item.buy_sell && item.buy_sell != 'P'" />
+                        <span v-if="item.buy_sell && item.buy_sell != 'P'">Units - {{ item.Orderqty ?
+                            Number(item.Orderqty).toFixed(2) : '0.00' }}</span>
+                    </div>
+                </template> -->
                 <template #item.type="{ item }">
                     <div class="tabletextnew">
                         <span>{{ item.buy_sell ? (item.buy_sell == 'P' ? 'Purchase' : 'Reduction') : '-' }}</span>
@@ -111,11 +129,15 @@
                     </div>
                 </template>
                 <template #item.Amount="{ item }">
-                    <span class="text-right tabletextnew d-inline-block w-100">₹{{ fmt(item.OrderVal) }}</span>
+                    <span class="text-right tabletextnew tabletextnew d-inline-block w-100">₹{{ fmt(item.OrderVal)
+                    }}</span>
                 </template>
                 <template #item.DPFolioNo="{ item }">
                     <span class="tabletextnew">{{ item.DPFolioNo || '-' }}</span>
                 </template>
+                <!-- <template #item.DPFolioNo="{ item }">
+                    <span class="tabletextnew">{{ item.DPFolioNo || '-' }}</span>
+                </template> -->
                 <template #item.status="{ item }">
                     <v-tooltip location="bottom" color="black">
                         <template #activator="{ props }">
@@ -195,6 +217,14 @@
                         </div>
                     </div>
                 </template>
+                <!-- Show More Button -->
+                <template #bottom>
+                    <div v-if="filteredOrders.length > displayLimit" class="text-center py-2">
+                        <v-btn variant="text" color="primary" @click="loadMore" :loading="loading" class="text-none">
+                            Show More
+                        </v-btn>
+                    </div>
+                </template>
             </v-data-table>
         </div>
 
@@ -210,7 +240,7 @@
                     size="24">mdi-reload</v-icon>
             </v-toolbar>
             <v-data-table :headers="orderheadersiphis" :items="filteredSipHis" fixed-header :hide-default-footer="true"
-                :loading="loading" class=" tabletextnew holdings-table fs-13 rounded-lg overflow-y-auto"
+                :loading="loading" class=" tabletextnew holdings-table fs-13 tabletextnew rounded-lg overflow-y-auto"
                 style="border-radius:4px; border:1px solid #EBEEF0" height="480" :items-per-page="-1">
                 <template #item.name="{ item }">
                     <p class="font-weight-medium maintext--text mb-0 table-hov-text ws-p">{{ item.name || '' }}</p>
@@ -219,6 +249,21 @@
                     <span class="text-right d-inline-block w-100">₹{{ fmt(item.InstallmentAmount) }}</span>
                 </template>
                 <template #item.status="{ item }">
+                    <div class="d-flex">
+                        <svg v-if="item.status == 'CANCELLED'" xmlns="http://www.w3.org/2000/svg" width="20" height="15"
+                            viewBox="0 0 20 15" fill="none">
+                            <rect width="20" height="15" rx="7" fill="#DC2626" />
+                            <path d="M7.5 10L12.5 5M7.5 5L12.5 10" stroke="white" stroke-width="1.2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <svg v-else xmlns="http://www.w3.org/2000/svg" width="20" height="15" viewBox="0 0 20 15"
+                            fill="none">
+                            <rect width="20" height="15" rx="7" fill="#2DB266" />
+                            <path d="M6.25 8.2475L8.415 10.4125L13.8275 5" stroke="white" stroke-width="1.2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <p class="ws-p ml-2 font-weight-medium maintext--text mb-0">{{ item.status || '' }}</p>
+                    </div>
                     <div class="d-flex">
                         <svg v-if="item.status == 'CANCELLED'" xmlns="http://www.w3.org/2000/svg" width="20" height="15"
                             viewBox="0 0 20 15" fill="none">
@@ -321,6 +366,10 @@ const sipInstalments = ref('')
 const cancelis = ref('')
 const cancelremark = ref('')
 const canceleds = ref([])
+const displayLimit = ref(50)
+// const cancelis = ref('')
+// const cancelremark = ref('')
+// const canceleds = ref([])
 
 const orderheader = [
     { title: 'Date', key: 'datetime' },
@@ -372,6 +421,14 @@ const filteredOrders = computed(() => {
     return orderbookdata.value.filter(o => (o.name || '').toLowerCase().includes(q))
 })
 
+const paginatedOrders = computed(() => {
+    return filteredOrders.value.slice(0, displayLimit.value)
+})
+
+function loadMore() {
+    displayLimit.value += 50
+}
+
 function fmt(v) { const n = Number(v); return isFinite(n) ? n.toFixed(2) : '0.00' }
 
 async function getOrderbook() {
@@ -384,7 +441,10 @@ async function getOrderbook() {
         const data = await getMFlumsum_order([uid, '', ''])
         const sip = await getmfsipnewapi()
         const siphis = await getmfsipnewapihisty()
-        if (data?.stat === 'Ok' && Array.isArray(data.data)) orderbookdata.value = data.data
+        if (data?.stat === 'Ok' && Array.isArray(data.data)) {
+            orderbookdata.value = data.data
+            displayLimit.value = 50 // Reset limit when refreshing
+        }
         if (sip?.stat === 'Ok' && Array.isArray(sip.data)) orderbooksip.value = sip.data
         if (siphis?.stat === 'Ok' && Array.isArray(siphis.data)) orderbooksiphis.value = siphis.data
     } catch (e) { appStore.showSnackbar(2, 'Failed to load MF orders') }
@@ -496,12 +556,27 @@ onMounted(() => { getOrderbook() })
     font-weight: 500 !important;
     color: #000000 !important;
 }
+</style>
+<style>
+.row-hover-actions tbody tr .v-btn {
+    visibility: hidden;
+}
+
+.row-hover-actions tbody tr:hover .v-btn {
+    visibility: visible;
+}
+
+.tabletextnew {
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: #000000 !important;
+}
 
 .tabletextnew thead th {
     white-space: nowrap !important;
 }
 
 .nowrap {
-  white-space: nowrap;
+    white-space: nowrap;
 }
 </style>

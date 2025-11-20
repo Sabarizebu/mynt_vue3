@@ -87,12 +87,12 @@
                         " @update:model-value="getContentlistdata('yes')" />
             </v-toolbar>
             <v-divider></v-divider>
-            <v-data-table must-sort :sort-by="['chp']" :sort-desc="[true]" hide-default-footer fixed-header
+            <v-data-table must-sort :sort-by="['chp']" :sort-desc="[true]" fixed-header
                 :loading="issloading" class="rounded-lg overflow-y-auto" :headers="screenheader" :search="opensearch"
                 :items="screentitems" :items-per-page="10">
                 <template v-slot:[`item.tsym`]="{ item }">
                     <span @click="setSinglestock(item.tsym.split('-')[0], item)"
-                        class="font-weight-medium text-capitalize txt-dec-cust ws-p" style="font-size: 12px !important;"
+                        class="font-weight-medium text-capitalize txt-dec-cust ws-p " style="font-size: 12px !important;"
                         v-text="item.tsym"></span>
                 </template>
 
@@ -429,5 +429,12 @@ onBeforeUnmount(() => {
 <style scoped>
 .cursor-p {
     cursor: pointer;
+}
+:deep(.v-data-table-footer__items-per-page .v-field__outline) {
+    display: none !important;
+}
+
+:deep(.v-data-table thead th) {
+    color: rgb(var(--v-theme-subtext)) !important;
 }
 </style>

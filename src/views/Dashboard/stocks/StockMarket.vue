@@ -12,24 +12,24 @@
             </template>
         </v-breadcrumbs>
         <v-card style="border: thin solid #EBEEF0 !important" variant="outlined" class="rounded-lg mt-4 mb-8 crd-trn">
-            <v-toolbar class="elevation-0 mb-4 mb-sm-2 my-4" density="compact" color="transparent">
+            <v-toolbar class="elevation-0 pb-0  pa-4" density="compact" color="transparent">
                 <img width="40px" :src="getTradeActionIcon(tradeaction)" :alt="getTradeActionIconAlt(tradeaction)"
                     class="mr-2" />
                 <p class="font-weight-bold title mb-0 text-none">{{ getTradeActionLabel(tradeaction) }}</p>
                 <v-spacer></v-spacer>
 
                 <v-select @update:model-value="getToplistdata('yes')" :readonly="isloading" style="max-width: 140px"
-                    v-model="trader1" hide-details append-icon="mdi-chevron-down" class="rounded-pill mr-3 d-none d-sm-flex"
-                    density="compact" variant="solo" bg-color="secbg" :items="trader1item" label="Condition"></v-select>
+                    v-model="trader1" hide-details  class="rounded-pill mr-0 d-none d-sm-flex"
+                    density="compact" rounded="pill" variant="flat" bg-color="secbg" :items="trader1item" ></v-select>
 
-                <v-select @update:model-value="setTabchange()" :readonly="isloading" style="max-width: 120px" v-model="tradeaction"
+                <v-select @update:model-value="setTabchange()" :readonly="isloading" style="max-width: 220px;" v-model="tradeaction"
                     hide-details append-icon="mdi-chevron-down" class="rounded-pill d-sm-none" density="compact"
-                    variant="solo" bg-color="secbg" :items="tradeActionItems"></v-select>
-                <v-text-field style="max-width: 220px" :disabled="isloading" v-model="opensearch" hide-details
-                    prepend-inner-icon="mdi-magnify" label="Search" class="rounded-pill d-none d-sm-flex"
-                    density="compact" variant="solo" bg-color="secbg"></v-text-field>
+                    variant="flat" bg-color="secbg" :items="tradeActionItems"></v-select>
+                  <v-text-field style="max-width: 220px;" :disabled="isloading" v-model="opensearch" hide-details
+                    prepend-inner-icon="mdi-magnify" label="Search" single-line
+                    class="d-none d-sm-block" density="compact" variant="flat" rounded="pill" bg-color="secbg"></v-text-field>
             </v-toolbar>
-            <v-tabs class="d-none d-sm-flex" color="maintext" v-model="tradeaction" @update:model-value="setTabchange()">
+            <v-tabs class="d-none d-sm-flex " color="maintext" v-model="tradeaction" @update:model-value="setTabchange()">
                 <v-tab class="font-weight-bold subtitle-2 mb-0 text-none">Top gainer</v-tab>
                 <v-tab class="font-weight-bold subtitle-2 mb-0 text-none">Top losers</v-tab>
                 <v-tab class="font-weight-bold subtitle-2 mb-0 text-none">Volume breakout</v-tab>
@@ -37,7 +37,7 @@
             </v-tabs>
             <v-divider></v-divider>
             <v-data-table must-sort :sort-by="[tradeaction == 2 ? 'vol' : 'chp']"
-                :sort-desc="tradeaction != 1 ? [true] : [false]" mobile fixed-header :loading="isloading"
+                :sort-desc="tradeaction != 1 ? [true] : [false]"  fixed-header :loading="isloading"
                 class="rounded-lg overflow-y-auto" :headers="tradeheader" :search="opensearch" :items="traditems"
                 :items-per-page="10">
                 <template v-slot:[`item.tsym`]="{ item }">
@@ -47,35 +47,35 @@
 
                 <template v-slot:[`item.ltp`]="{ item }">
                     <p class="mb-0 lh-18">
-                        <span class="font-weight-medium maintext--text">₹<span :id="`stkmrk${item.token}ltp`">{{
-                            item.ltp ? Number(item.ltp).toFixed(2) : '0.00' }}</span></span> <br />
+                        <span class="font-weight-medium txt-000">₹<span :id="`stkmrk${item.token}ltp`">{{
+                            item.ltp != null ? Number(item.ltp).toFixed(2) : '0.00' }}</span></span> <br />
                         <span class="font-weight-medium fs-12 ws-p" :id="`stkmrk${item.token}chpclr`"
-                            :class="item.ch > 0 ? 'maingreen--text' : item.ch < 0 ? 'mainred--text' : 'subtext--text'">
-                            <span :id="`stkmrk${item.token}ch`">{{ item.ch ? item.ch : '0.00' }} </span>
-                            <span :id="`stkmrk${item.token}chp`"> ({{ item.chp ? item.chp : '0.00' }}%)</span>
+                            :class="Number(item.ch || 0) > 0 ? 'maingreen--text' : Number(item.ch || 0) < 0 ? 'mainred--text' : 'subtext--text'">
+                            <span :id="`stkmrk${item.token}ch`">{{ item.ch != null ? item.ch : '0.00' }} </span>
+                            <span :id="`stkmrk${item.token}chp`"> ({{ item.chp != null ? item.chp : '0.00' }}%)</span>
                         </span>
                     </p>
                 </template>
 
                 <template v-slot:[`item.vol`]="{ item }">
-                    <span class="font-weight-medium maintext--text" :id="`stkmrk${item.token}vol`">{{
-                        item.vol ? item.vol : "0.00" }}</span>
+                    <span class="font-weight-medium txt-000" :id="`stkmrk${item.token}vol`">{{
+                        item.vol != null ? item.vol : "0.00" }}</span>
                 </template>
                 <template v-slot:[`item.op`]="{ item }">
-                    <span class="font-weight-medium maintext--text" :id="`stkmrk${item.token}op`">{{
-                        item.op ? item.op : "0.00" }}</span>
+                    <span class="font-weight-medium txt-000" :id="`stkmrk${item.token}op`">{{
+                        item.op != null ? item.op : "0.00" }}</span>
                 </template>
                 <template v-slot:[`item.cp`]="{ item }">
-                    <span class="font-weight-medium maintext--text" :id="`stkmrk${item.token}cp`">{{
-                        item.cp ? item.cp : "0.00" }}</span>
+                    <span class="font-weight-medium txt-000" :id="`stkmrk${item.token}cp`">{{
+                        item.cp != null ? item.cp : "0.00" }}</span>
                 </template>
                 <template v-slot:[`item.high`]="{ item }">
-                    <span class="font-weight-medium maintext--text" :id="`stkmrk${item.token}high`">{{
-                        item.high ? item.high : "0.00" }}</span>
+                    <span class="font-weight-medium txt-000" :id="`stkmrk${item.token}high`">{{
+                        item.high != null ? item.high : "0.00" }}</span>
                 </template>
                 <template v-slot:[`item.low`]="{ item }">
-                    <span class="font-weight-medium maintext--text" :id="`stkmrk${item.token}low`">{{
-                        item.low ? item.low : "0.00" }}</span>
+                    <span class="font-weight-medium txt-000" :id="`stkmrk${item.token}low`">{{
+                        item.low != null ? item.low : "0.00" }}</span>
                 </template>
                 <template v-slot:no-data>
                     <v-col cols="12" class="text-center pa-16">
@@ -128,8 +128,8 @@ const mtoken = ref(null)
 const stoken = ref(null)
 
 const trader1item = ref([
-    { text: "NSE", value: "NSEALL" },
-    { text: "NFO", value: "NFOALL" },
+    { title: "NSE", value: "NSEALL" },
+    { title: "NFO", value: "NFOALL" },
 ])
 const trader1 = ref("NSEALL")
 
@@ -152,13 +152,13 @@ const tradeActionItems = computed(() => [
 // Computed
 const tradeheader = computed(() => {
     return [
-        { text: "Symbol", value: "tsym", sortable: false, class: "ws-p" },
-        { text: "Price", value: "ltp", sortable: false, align: "end", class: "ws-p" },
-        { text: "Open", value: "op", align: "end", class: "ws-p" },
-        { text: "High", value: "high", align: "end", class: "ws-p" },
-        { text: "Low", value: "low", align: "end", class: "ws-p" },
-        { text: "Close", value: "cp", align: "end", class: "ws-p" },
-        { text: "Volume", value: "vol", align: "end", class: "ws-p" },
+        { title: "Symbol", key: "tsym", sortable: false, class: "ws-p" },
+        { title: "Price", key: "ltp", sortable: false, align: "end", class: "ws-p" },
+        { title: "Open", key: "op", align: "end", class: "ws-p" },
+        { title: "High", key: "high", align: "end", class: "ws-p" },
+        { title: "Low", key: "low", align: "end", class: "ws-p" },
+        { title: "Close", key: "cp", align: "end", class: "ws-p" },
+        { title: "Volume", key: "vol", align: "end", class: "ws-p" },
     ];
 })
 
@@ -235,7 +235,32 @@ const getToplistdata = async (change) => {
                 tradeactionitem.value[2].concat(tradeactionitem.value[3])
             )
         )
-        setWebsocket("sub", arr, "mkt")
+        
+        // Always fetch initial LTP data via REST API to ensure immediate display
+        let raw = await getLtpdata(arr)
+        raw = raw.data
+        if (raw) {
+            for (let x = 0; x < tradeactionitem.value.length; x++) {
+                for (let x_is = 0; x_is < tradeactionitem.value[x].length; x_is++) {
+                    let data = raw[tradeactionitem.value[x][x_is].token]
+                    if (data) {
+                        tradeactionitem.value[x][x_is].ltp = Number(data.lp) ? Number(data.lp).toFixed(2) : (0).toFixed(2)
+                        tradeactionitem.value[x][x_is]["ch"] = Number(data.lp) && Number(data.close) ? (Number(data.lp) - Number(data.close)).toFixed(2) : (0).toFixed(2)
+                        tradeactionitem.value[x][x_is]["chp"] = Number(data.change).toFixed(2)
+                        tradeactionitem.value[x][x_is]["vol"] = Number(data.vol).toFixed(2)
+                        tradeactionitem.value[x][x_is]["op"] = Number(data.open) ? Number(data.open).toFixed(2) : (0).toFixed(2)
+                        tradeactionitem.value[x][x_is]["cp"] = Number(data.close) ? Number(data.close).toFixed(2) : (0).toFixed(2)
+                        tradeactionitem.value[x][x_is]["high"] = Number(data.high) ? Number(data.high).toFixed(2) : (0).toFixed(2)
+                        tradeactionitem.value[x][x_is]["low"] = Number(data.low) ? Number(data.low).toFixed(2) : (0).toFixed(2)
+                    }
+                }
+            }
+        }
+        
+        // Subscribe to WebSocket for real-time updates (for logged-in users)
+        if (uid.value) {
+            setWebsocket("sub", arr, "mkt")
+        }
         wsdata.value = arr
         traditems.value = tradeactionitem.value[tradeaction.value] || []
     }
@@ -419,5 +444,32 @@ onBeforeUnmount(() => {
 <style scoped>
 .cursor-p {
     cursor: pointer;
+}
+
+/* Remove data table border */
+:deep(.v-data-table) {
+    border: none !important;
+}
+
+/* Remove divider padding */
+:deep(.v-divider) {
+    margin: 0 !important;
+}
+
+/* Remove outline from footer dropdown and add underline */
+:deep(.v-data-table-footer__items-per-page .v-field__outline) {
+    display: none !important;
+    padding: 0 !important;  
+}
+
+:deep(.v-data-table-footer__items-per-page .v-field) {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12) !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+}
+
+:deep(.v-data-table-footer__items-per-page .v-field__input) {
+    padding: 0 !important;
+    min-height: auto !important;
 }
 </style>

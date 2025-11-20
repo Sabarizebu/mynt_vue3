@@ -82,10 +82,10 @@
 
                         <div class="d-flex align-center" style="gap: 8px;">
                             <!-- Trash/Delete Button -->
-                            <v-btn :readonly="optionsStore.coractloader" icon variant="text" size="small"
+                            <!-- <v-btn :readonly="optionsStore.coractloader" icon variant="text" size="small"
                                 class="elevation-0" style="color: #666 !important;">
                                 <v-icon size="20">mdi-delete-outline</v-icon>
-                            </v-btn>
+                            </v-btn> -->
 
                             <!-- Basket Order Button -->
                             <v-btn :readonly="optionsStore.coractloader" icon variant="text" size="small"
@@ -972,59 +972,55 @@
                         <v-navigation-drawer hide-overlay class="elevation-1" v-model="optionsStore.drawer"
                             color="cardbg" absolute temporary location="right">
                             <!-- Header -->
-                            <div class="d-flex align-center justify-space-between pa-3">
+                            <div class="d-flex align-center justify-space-between px-3">
                                 <p class="mt-2 mb-0">View setting</p>
-                                <v-btn tile icon @click="optionsStore.drawer = false">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 17" width="17" height="17"
-                                        fill="currentColor">
-                                        <path d="m.58 1.42.82-.82 15 15-.82.82z"></path>
-                                        <path d="m.58 15.58 15-15 .82.82-15 15z"></path>
-                                    </svg>
+                                <v-btn  icon @click="optionsStore.drawer = false" class="elevation-0">
+                                    <v-icon size="30">mdi-close</v-icon>
                                 </v-btn>
                             </div>
 
                             <v-divider></v-divider>
 
                             <!-- Add Columns Section -->
-                            <div class="pa-3">
-                                <p class="mt-0 mb-1">Add columns</p>
+                            <div class="px-3">
+                                <p class="mt-2 mb-1">Add columns</p>
                                 <v-card flat color="transparent">
                                     <v-checkbox @update:model-value="simpleTablestyle()"
-                                        v-model="optionsStore.bitcheckbox" label="BID" />
+                                        v-model="optionsStore.bitcheckbox" label="BID" hide-details />
                                     <v-checkbox @update:model-value="simpleTablestyle()"
-                                        v-model="optionsStore.askcheckbox" label="ASK" />
+                                        v-model="optionsStore.askcheckbox" label="ASK" hide-details />
                                     <v-checkbox @update:model-value="simpleTablestyle()"
-                                        v-model="optionsStore.ivcheckbox" label="IV" />
+                                        v-model="optionsStore.ivcheckbox" label="IV" hide-details />
                                 </v-card>
                             </div>
 
                             <v-divider></v-divider>
 
                             <!-- Add Greeks Section -->
-                            <div class="pa-3">
-                                <p class="mt-0 mb-1">Add greeks</p>
+                            <div class="px-3">
+                                <p class="mt-2">Add greeks</p>
                                 <v-card flat color="transparent">
                                     <v-checkbox @update:model-value="simpleTablestyle()"
-                                        v-model="optionsStore.deltacheckbox" label="DELTA" />
+                                        v-model="optionsStore.deltacheckbox" label="DELTA" hide-details />
                                     <v-checkbox @update:model-value="simpleTablestyle()"
-                                        v-model="optionsStore.gamacheckbox" label="GAMA" />
+                                        v-model="optionsStore.gamacheckbox" label="GAMA" hide-details />
                                     <v-checkbox @update:model-value="simpleTablestyle()"
-                                        v-model="optionsStore.vagacheckbox" label="VEGA" />
+                                        v-model="optionsStore.vagacheckbox" label="VEGA" hide-details />
                                     <v-checkbox @update:model-value="simpleTablestyle()"
-                                        v-model="optionsStore.thetacheckbox" label="THETA" />
+                                        v-model="optionsStore.thetacheckbox" label="THETA" hide-details />
                                 </v-card>
                             </div>
 
                             <v-divider></v-divider>
 
                             <!-- Info Section -->
-                            <div class="pa-3">
-                                <p class="mt-0 mb-1">Info</p>
+                            <div class="px-3">
+                                <p class="mt-2">Info</p>
                                 <div class="d-flex align-center">
                                     <div style="background-color: #1e53e530" class="infoprogress"></div>
                                     <div class="ml-2">
-                                        <p class="mb-0 font-weight-medium">OI percentage bar</p>
-                                        <p class="text-caption mb-0">size diff from max <br />call & put</p>
+                                        <p class="mb-0 fs-16">OI percentage bar</p>
+                                        <p class="subtext--text fs-14 mb-0">size diff from max call <br> & put</p>
                                     </div>
                                 </div>
                             </div>
@@ -1032,20 +1028,20 @@
                             <v-divider class="mx-4"></v-divider>
 
                             <!-- Bullish Section -->
-                            <div class="pa-3">
-                                <p class="mt-0 mb-1">Bullish</p>
-                                <div class="d-flex align-center mb-2">
+                            <div class="px-3">
+                                <p class="mt-2">Bullish</p>
+                                <div class="d-flex align-center mb-2 py-2">
                                     <div style="background-color: #43A833" class="infobarstatus"></div>
                                     <div class="ml-2">
-                                        <p class="mb-0 font-weight-medium">Up trend (Long build-up)</p>
-                                        <p class="text-caption mb-0">More traders are buying</p>
+                                        <p class="mb-0 fs-16">Up trend (Long build-up)</p>
+                                        <p class="subtext--text fs-14 mb-0">More traders are buying</p>
                                     </div>
                                 </div>
-                                <div class="d-flex align-center">
+                                <div class="d-flex align-center mb-2 py-2">
                                     <div style="background-color: #ECF8F1" class="infobarstatus"></div>
                                     <div class="ml-2">
-                                        <p class="mb-0 font-weight-medium">Down trend (Short covering)</p>
-                                        <p class="text-caption mb-0">Buyers are squaring</p>
+                                        <p class="mb-0 fs-16">Down trend (Short covering)</p>
+                                        <p class="subtext--text fs-14 mb-0">Buyers are squaring</p>
                                     </div>
                                 </div>
                             </div>
@@ -1053,20 +1049,20 @@
                             <v-divider class="mx-4"></v-divider>
 
                             <!-- Bearish Section -->
-                            <div class="pa-3">
-                                <p class="mt-0 mb-1">Bearish</p>
-                                <div class="d-flex align-center mb-2">
+                            <div class="px-3">
+                                <p class="mt-2">Bearish</p>
+                                <div class="d-flex align-center mb-2 py-2">
                                     <div style="background-color: #F23645" class="infobarstatus"></div>
                                     <div class="ml-2">
-                                        <p class="mb-0 font-weight-medium">Down trend (Short build-up)</p>
-                                        <p class="text-caption mb-0">More traders are selling</p>
+                                        <p class="mb-0 fs-16">Down trend (Short build-up)</p>
+                                        <p class="subtext--text fs-14 mb-0">More traders are selling</p>
                                     </div>
                                 </div>
-                                <div class="d-flex align-center">
+                                <div class="d-flex align-center mb-2 py-2">
                                     <div style="background-color: #ffcdcd90" class="infobarstatus"></div>
                                     <div class="ml-2">
-                                        <p class="mb-0 font-weight-medium">Down trend (Long unwinding)</p>
-                                        <p class="text-caption mb-0">Profit booking</p>
+                                        <p class="mb-0 fs-16">Down trend (Long unwinding)</p>
+                                        <p class="subtext--text fs-14 mb-0">Profit booking</p>
                                     </div>
                                 </div>
                             </div>
@@ -1074,12 +1070,12 @@
                             <v-divider class="mx-4"></v-divider>
 
                             <!-- Trade Not Accurate -->
-                            <div class="pa-3">
+                            <div class="px-3">
                                 <div class="d-flex align-center">
                                     <div style="background-color: rgba(0, 0, 0, 0.12)" class="infobarstatus"></div>
                                     <div class="ml-2">
-                                        <p class="mb-0 font-weight-medium">Trade not accurate</p>
-                                        <p class="text-caption mb-0">none</p>
+                                        <p class="mb-0 fs-16">Trade not accurate</p>
+                                        <p class="subtext--text fs-14 mb-0">none</p>
                                     </div>
                                 </div>
                             </div>
@@ -1703,12 +1699,18 @@ function handleOptionSearch() {
 }
 
 function setBaskorder(type) {
-    window.dispatchEvent(
-        new CustomEvent('bskwatch-event', {
-            detail: { type, data: optionsStore.optionStockSymbolInfo },
-        })
-    )
+  const selected = optionsStore.optionStockSymbolInfo
+
+  window.dispatchEvent(
+    new CustomEvent('bskwatch-event', {
+      detail: {
+        type,
+        data: selected && selected.symbol ? selected : null
+      }
+    })
+  )
 }
+
 
 // Event Handlers
 function handleSSDEvent(event) {

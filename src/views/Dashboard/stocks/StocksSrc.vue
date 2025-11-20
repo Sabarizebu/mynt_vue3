@@ -63,21 +63,21 @@
                 @click="() => { setSSDtab('Details', s.token, s.exch, s.tsym); }"
                 class="px-3 py-2 crd-trn pos-rlt table-row" :class="l != pdmwdata.length - 1 ? 'mr-4' : ''"
                 min-width="160px" style="border: 1px solid #EBEEF0 !important;">
-                <div v-if="uid" @click.stop class="pos-abs table-hov" style="bottom: 32px; right: 4px;">
+                <div v-if="uid" @click.stop class="pos-abs table-hov" style="bottom: 35px; right: 4px;">
                     <v-btn :disabled="!s.too"
-                        @click="$router.push({ name: 'stocks advance decline', params: { abc: s.too } })"
+                        @click="navigateToAdvanceDecline(s.too)"
                         min-width="20px" color="mainbg" class="px-0 font-weight-bold white--text elevation-0 mr-1"
-                        x-small>
+                        size="23">
                         <v-icon size="18" color="maintext">mdi-format-line-weight</v-icon>
                     </v-btn>
                 </div>
                 <div v-if="uid" @click.stop class="pos-abs table-hov" style="bottom: 8px; right: 4px;">
                     <v-btn @click="setSSDtab('option', s.token, s.exch, s.tsym)" min-width="20px" color="mainbg"
-                        class="px-0 font-weight-bold white--text elevation-0 mr-1" x-small>
+                        class="px-0 font-weight-bold white--text elevation-0 mr-1" size="23">
                         <v-icon size="18" color="maintext">mdi-link-variant</v-icon>
                     </v-btn>
                     <v-btn @click="setSSDtab('chart', s.token, s.exch, s.tsym)" min-width="20px" color="mainbg"
-                        class="px-0 font-weight-bold white--text elevation-0 mr-1" x-small>
+                        class="px-0 font-weight-bold white--text elevation-0 mr-1" size="23">
                         <v-icon size="18" color="maintext">mdi-chart-line-variant</v-icon>
                     </v-btn>
                 </div>
@@ -350,7 +350,7 @@
 
                         <v-spacer></v-spacer>
                         <v-btn :disabled="isloading"
-                            @click="$router.push({ name: 'stocks market', params: { abc: l } })" text
+                            @click="navigateToMarket(l)" text
                             class="text-none px-0 primary--text" size="small">See all</v-btn>
                     </v-toolbar>
                     <v-data-table hide-default-footer fixed-header :loading="isloading"
@@ -543,7 +543,7 @@
                             allcropact.length : ".." }})</p>
                         <div v-if="croploading">
                             <v-container fill-height>
-                                <v-card class="crd-trn elevation-0 mx-auto py-16">
+                                <v-card class=" elevation-0 mx-auto py-16">
                                     <v-progress-circular size="80" indeterminate color="#1e53e5"></v-progress-circular>
                                 </v-card>
                             </v-container>
@@ -714,6 +714,7 @@ import mainCard3 from '@/assets/stocks/main-card-3.svg'
 import indIcon from '@/assets/stocks/ind.svg'
 import srcmIcon from '@/assets/stocks/srcm.svg'
 import smIcon from '@/assets/sm_icon.svg'
+import apiurl from '../../../apiurl'
 import noDataFolder from '@/assets/no data folder.svg'
 import caIcon from '@/assets/ca_icon.svg'
 import newsIcon from '@/assets/news_icon.svg'
@@ -1943,14 +1944,15 @@ const setStatavddec = async () => {
             // },
             tooltip: {
                 confine: true,
-                appendToBody: true,
-                extraCssText: 'width:auto;max-width:none;white-space:nowrap;',
+                alwaysShowContent: false,
+                hideDelay: 0,
+                extraCssText: 'max-width: 200px;',
                 formatter: function (info) {
                     let value = info.value;
                     return [
-                        '<div class="tooltip-title font-weight-bold black--text">' + value[4] + "</div>",
+                        '<div class="tooltip-title font-weight-bold black--text" style="word-wrap: break-word; white-space: normal;">' + value[4] + "</div>",
                         // 'Market cap: &nbsp;&nbsp;' + Number(value[0]).toFixed(2) + '<br>',
-                        '<p class="mb-0 font-weight-medium black--text fs-14">' + `${value[1]}` + "</p>",
+                        '<p class="mb-0 font-weight-medium black--text fs-14" style="white-space: nowrap;">' + `${value[1]}` + "</p>",
                     ].join("");
                 },
             },
@@ -1988,7 +1990,13 @@ const setStatavddec = async () => {
         option && myChart.setOption(option);
 
         myChart.on("click", function (params) {
-            setSinglestock(params.value[5].tsym.split("-")[0], params.value[5]);
+            // Hide tooltip immediately on click
+            myChart.dispatchAction({
+                type: 'hideTip'
+            });
+            // Use setSSDtab to navigate to stock details with proper parameters
+            const stockData = params.value[5];
+            setSSDtab('Details', stockData.token, stockData.exch, stockData.tsym);
         });
 
         // Ensure full-width rendering: resize on container/layout changes
@@ -2183,10 +2191,25 @@ const getNews = async () => {
 const getCorpationaction = async () => {
     croploading.value = true;
     allcropact.value = [];
-    let data = await getCorporateact();
-    if (data.corporateAction && data.corporateAction.length > 0) {
-        allcropact.value = data.corporateAction;
+    
+    try {
+        // Use direct fetch to avoid timeout issues (wait indefinitely for response)
+        const response = await fetch(apiurl.iposapi + "getCorporateAction", {
+            method: 'POST',
+            headers: { "Content-Type": "application/json" },
+            body: ""
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            if (data && data.corporateAction && data.corporateAction.length > 0) {
+                allcropact.value = data.corporateAction;
+            }
+        }
+    } catch (error) {
+        // console.error('Error fetching corporate actions:', error);
     }
+    
     croploading.value = false;
 }
 
@@ -2215,6 +2238,28 @@ const setSSDtab = (type, token, exch, tsym) => {
         }
     }
 }
+
+const navigateToAdvanceDecline = (indexName) => {
+    if (indexName) {
+        router.push({ 
+            name: 'stocks advance decline', 
+            params: { abc: indexName } 
+        }).catch((error) => {
+            // console.error('[StocksSrc] Navigation error:', error);
+        });
+    }
+}
+
+const navigateToMarket = (categoryIndex) => {
+    router.push({ 
+        name: 'stocks market', 
+        params: { abc: categoryIndex } 
+    }).catch((error) => {
+        // console.error('[StocksSrc] Navigation error:', error);
+    });
+}
+
+
 
 const setWebsocket = async (flow, data, is) => {
     if (uid.value) {

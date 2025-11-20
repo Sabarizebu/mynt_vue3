@@ -522,174 +522,135 @@ const formatMoney = (amt) => {
 
 // Calculate holdings stats exactly like old code (lines 429-496)
 const updateHoldingsStats = (list) => {
-    // Filter out invalid holdings (zero quantity, missing token, or invalid data)
+
+    // Debug original API list
+    
+
+    // Filter only valid holdings
     const validList = list.filter((it) => {
-        const netqty = toNumber(it.netqty ?? it.holdqty ?? it.qty);
-        return netqty !== 0 && it.token && it.token !== '';
+        const netqty = toNumber(it.netqty);
+        return netqty !== 0 && it.token;
     });
 
-    // If no valid holdings, reset everything to zero
-    if (validList.length === 0) {
-        updateText('holdstatinv', '0.00');
-        updateText('holdstatval', '0.00');
-        updateText('holdstatpnl', '0.00');
-        updateText('holdstatpnlc', '0.00');
-        updateText('holdstatdpnl', '0.00');
-        updateText('holdstatdpnlc', '0.00');
-        updateText('holdingsCount', '0');
-        updateText('positiveHoldings', '0');
-        updateText('negativeHoldings', '0');
+    // If empty → reset UI
+  if (validList.length === 0) {
+    updateText('holdstatinv', '0.00');
+    updateText('holdstatval', '0.00');
+    updateText('holdstatpnl', '0.00');
+    updateText('holdstatpnlc', '0.00');
+    updateText('holdstatdpnl', '0.00');
+    updateText('holdstatdpnlc', '0.00');
+    updateText('holdingsCount', '0');
+    updateText('positiveHoldings', '0');
+    updateText('negativeHoldings', '0');
 
-        // Reset colors
-        const setColor = (id, val) => {
-            const el = document.getElementById(id);
-            if (!el) return;
-            el.classList.remove('maingreen--text', 'mainred--text', 'subtext--text');
-            el.classList.add('subtext--text');
-        };
-        setColor('holdstatpnlcclr', 0);
-        setColor('holdstatdpnlcclr', 0);
+    // FIX: safely remove/add color classes without overwriting others
+    const resetColor = (id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.remove('maingreen--text', 'mainred--text');
+        el.classList.add('subtext--text');
+    };
 
-        // Reset bars
-        nextTick(() => {
-            const posBar = document.getElementById('holdstatavdp');
-            const negBar = document.getElementById('holdstatavdn');
-            if (posBar) posBar.setAttribute("style", `width: 0% !important;`);
-            if (negBar) negBar.setAttribute("style", `width: 0% !important;`);
-        });
-        return;
-    }
+    resetColor('holdstatpnlcclr');
+    resetColor('holdstatdpnlcclr');
 
-    // First, ensure each item has inv, curr, pnl, pnlc, d_pnl, d_cpnl fields (like old code)
+    return;
+}
+
+
+    // Process each holding
     const processedList = validList.map((it) => {
-        const netqty = toNumber(it.netqty ?? it.holdqty ?? it.qty);
+
+        const netqty = toNumber(it.netqty);
         const netqtyAbs = Math.abs(netqty);
-        const upldprc = toNumber(it.upldprc ?? it.avgprc ?? it.uravgprc ?? it.avgprc1);
-        const ltp = toNumber(it.ltp ?? it.lp);
-        const prevClose = toNumber(it.close ?? it.cp ?? it.prev_close_price ?? it.previous_close);
 
-        // Use upldprc if available and > 0, otherwise use ltp (matching old code line 437)
-        const avgPrice = upldprc !== 0 ? upldprc : ltp;
+        // avg price
+        const avgPrice = toNumber(it.upldprc ?? it.avgprc ?? it.uravgprc ?? 0);
 
-        // Calculate inv and curr exactly like old code (lines 437-438)
-        const inv = (avgPrice * netqtyAbs).toFixed(2);
-        const curr = (ltp * netqtyAbs).toFixed(2);
+        // FIXED LTP fallback
+        const ltp = toNumber(
+            it.ltp ??      // WebSocket LTP
+            it.lp ??       // fallback
+            it.c ?? 0      // Holdings API close price
+        );
 
-        // Calculate pnl and pnlc exactly like old code (lines 440-441)
-        const pnl = (Number(curr) - Number(inv)).toFixed(2);
-        const pnlc = Number(inv) > 0 ? ((Number(pnl) / Number(inv)) * 100).toFixed(2) : "0.00";
+        // FIXED previous close fallback
+        const prevClose = toNumber(
+            it.close ??
+            it.prev_close_price ??
+            it.c ?? 0
+        );
 
-        // Calculate d_pnl and d_cpnl exactly like old code (lines 442-443)
-        const d_pnl = ((ltp - prevClose) * netqtyAbs).toFixed(2);
-        const d_cpnl = Number(inv) > 0 ? ((Number(d_pnl) / Number(inv)) * 100).toFixed(2) : "0.00";
+        // investment value
+        const inv = (avgPrice * netqtyAbs);
+        const curr = (ltp * netqtyAbs);
+
+        // total pnl
+        const pnl = curr - inv;
+        const pnlc = inv > 0 ? ((pnl / inv) * 100) : 0;
+
+        // intraday pnl (today P&L)
+        let d_pnl = 0;
+        const apiDPnl = it.d_pnl ?? it.day_pnl ?? it.dpnl;
+        if (apiDPnl !== undefined && apiDPnl !== null && apiDPnl !== '') {
+             d_pnl = toNumber(apiDPnl);
+        } else {
+             d_pnl = (ltp - prevClose) * netqtyAbs;
+        }
+        const d_cpnl = inv > 0 ? ((d_pnl / inv) * 100) : 0;
+
+        
 
         return {
             ...it,
-            inv: Number(inv),
-            curr: Number(curr),
-            pnl: Number(pnl),
-            pnlc: Number(pnlc),
-            d_pnl: Number(d_pnl),
-            d_cpnl: Number(d_cpnl)
+            inv, curr, pnl, pnlc, d_pnl, d_cpnl
         };
     });
 
-    // Calculate totals exactly like old code (lines 453-464)
-    const stockvalue = processedList.reduce((acc, o) => acc + (Number(o.curr) || 0), 0);
-    const invested = processedList.reduce((acc, o) => acc + (Number(o.inv) || 0), 0);
-    const totalPnl = processedList.reduce((acc, o) => acc + (Number(o.pnl) || 0), 0);
-    const totalDPnl = processedList.reduce((acc, o) => acc + (Number(o.d_pnl) || 0), 0);
+    // Totals
+    const invested = processedList.reduce((a, x) => a + x.inv, 0);
+    const stockvalue = processedList.reduce((a, x) => a + x.curr, 0);
+    const totalPnl = processedList.reduce((a, x) => a + x.pnl, 0);
+    const totalDPnl = processedList.reduce((a, x) => a + x.d_pnl, 0);
 
-    // Format values exactly like old code (lines 454, 456, 459, 463)
-    const formattedStockvalue = stockvalue > 0 || stockvalue < 0 ? formatMoney(Math.abs(stockvalue)) : "0.00";
-    const formattedInvested = invested > 0 || invested < 0 ? formatMoney(Math.abs(invested)) : "0.00";
-    const formattedDPnl = totalDPnl > 0 || totalDPnl < 0 ? Math.abs(totalDPnl).toFixed(2) : "0.00";
-    const formattedPnl = totalPnl > 0 || totalPnl < 0 ? formatMoney(Math.abs(totalPnl)) : "0.00";
-
-    // Calculate percentages exactly like old code (lines 460, 464)
-    const d_cpnl = totalDPnl > 0 || totalDPnl < 0
-        ? ((totalDPnl / invested) * 100).toFixed(2)
-        : "0.00";
-    const cpnl = totalPnl > 0 || totalPnl < 0
-        ? ((totalPnl / invested) * 100).toFixed(2)
-        : "0.00";
-
-    // Count positive/negative based on pnlc exactly like old code (lines 450-451)
+    const cpnl = invested > 0 ? ((totalPnl / invested) * 100) : 0;
+    const d_cpnl = invested > 0 ? ((totalDPnl / invested) * 100) : 0;
+    
+    console.log("📊 Totals:", {
+    invested, stockvalue, totalPnl, totalDPnl, cpnl, d_cpnl
+});
     const positive = processedList.filter((x) => x.pnlc > 0);
     const negative = processedList.filter((x) => x.pnlc < 0);
 
-    // Update DOM elements exactly like old code (lines 469-488)
-    updateText('holdstatinv', formattedInvested);
-    updateText('holdstatval', formattedStockvalue);
-    updateText('holdstatpnl', formattedPnl);
-    updateText('holdstatpnlc', cpnl);
-    updateText('holdstatdpnl', formattedDPnl);
-    updateText('holdstatdpnlc', d_cpnl);
-    updateText('holdingsCount', String(validList.length));
-    updateText('positiveHoldings', String(positive.length));
-    updateText('negativeHoldings', String(negative.length));
+    // Update DOM
+    updateText('holdstatinv', formatMoney(Math.abs(invested)));
+    updateText('holdstatval', formatMoney(Math.abs(stockvalue)));
+    updateText('holdstatpnl', formatMoney(Math.abs(totalPnl)));
+    updateText('holdstatpnlc', cpnl.toFixed(2));
+    updateText('holdstatdpnl', totalDPnl.toFixed(2));
+    updateText('holdstatdpnlc', d_cpnl.toFixed(2));
 
-    // Color updates exactly like old code (lines 479-487)
-    const setColor = (id, val) => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.classList.remove('maingreen--text', 'mainred--text', 'subtext--text');
-        el.classList.add(val > 0 ? 'maingreen--text' : val < 0 ? 'mainred--text' : 'subtext--text');
-    };
-    setColor('holdstatpnlcclr', Number(cpnl));
-    setColor('holdstatdpnlcclr', Number(d_cpnl));
+    updateText('holdingsCount', validList.length.toString());
+    updateText('positiveHoldings', positive.length.toString());
+    updateText('negativeHoldings', negative.length.toString());
 
-    // Adv/Dec bar calculation exactly like old code (lines 489-494)
-    nextTick(() => {
-        const totalCount = validList.length;
-        const pAdv = totalCount > 0 ? Math.round((positive.length / totalCount) * 100) : 0;
-        const nAdv = Math.round(100 - pAdv);
-        const posBar = document.getElementById('holdstatavdp');
-        const negBar = document.getElementById('holdstatavdn');
+    // Color update
+ const setColor = (id, val) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove('maingreen--text', 'mainred--text', 'subtext--text');
+    if (val > 0) el.classList.add('maingreen--text');
+    else if (val < 0) el.classList.add('mainred--text');
+    else el.classList.add('subtext--text');
+};
 
-        // Update bar widths exactly like old code (line 492-493)
-        if (posBar) posBar.setAttribute("style", `width: ${pAdv}% !important;`);
-        if (negBar) negBar.setAttribute("style", `width: ${nAdv}% !important;`);
+setColor('holdstatpnlcclr', cpnl);
+setColor('holdstatdpnlcclr', d_cpnl);
 
-        // Update colors directly via DOM
-        if (totalCount > 0) {
-            const posBarCards = posBar?.querySelectorAll('.v-card');
-            if (posBarCards) {
-                posBarCards.forEach((card, idx) => {
-                    if (idx % 2 === 0) {
-                        card.style.backgroundColor = '#ECF8F1';
-                    } else {
-                        card.style.backgroundColor = '#43A833';
-                    }
-                });
-            }
+};
 
-            const negBarCards = negBar?.querySelectorAll('.v-card');
-            if (negBarCards) {
-                negBarCards.forEach((card, idx) => {
-                    if (idx % 2 === 0) {
-                        card.style.backgroundColor = '#ffcdcd90';
-                    } else {
-                        card.style.backgroundColor = '#F23645';
-                    }
-                });
-            }
-        } else {
-            const posBarCards = posBar?.querySelectorAll('.v-card');
-            const negBarCards = negBar?.querySelectorAll('.v-card');
-            if (posBarCards) {
-                posBarCards.forEach((card, idx) => {
-                    card.style.backgroundColor = idx % 2 === 0 ? '#F1F3F8' : '#ffffff';
-                });
-            }
-            if (negBarCards) {
-                negBarCards.forEach((card, idx) => {
-                    card.style.backgroundColor = idx % 2 === 0 ? '#F1F3F8' : '#ffffff';
-                });
-            }
-        }
-    });
-}
+
 
 const updatePositionsStats = (posPayload) => {
     try {
@@ -799,6 +760,8 @@ async function loadAll() {
     // Trigger API load; handlers will compute once responses arrive
     try {
         const holdingsData = await getMHoldings(true)
+       
+
         // Always process holdings data, even if empty, to reset display
         if (holdingsData && holdingsData.response && Array.isArray(holdingsData.response)) {
             setTimeout(() => { handleTempEvent({ detail: holdingsData }) }, 200)
@@ -952,6 +915,10 @@ const handleWsUpdate = (event) => {
         if (isFinite(prevClose)) {
             holding.close = prevClose;
             holding.prev_close_price = prevClose;
+        }
+           if (data.d_pnl || data.day_pnl || data.dpnl) {
+             holding.d_pnl = data.d_pnl || data.day_pnl || data.dpnl
+             holding.day_pnl = holding.d_pnl
         }
 
         // Recalculate stats with updated data (this will recalculate inv, curr, pnl, pnlc, d_pnl, d_cpnl)

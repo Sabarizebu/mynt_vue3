@@ -12,7 +12,7 @@
             </template>
         </v-breadcrumbs>
         <v-toolbar flat density="compact" class="tool-sty crd-trn">
-            <span class="title font-weight-bold">All Indices</span>
+            <span class="title font-weight-bold fs-20">All Indices</span>
             <v-spacer></v-spacer>
 
             <div class="mr-1">
@@ -51,14 +51,14 @@
                 <v-spacer></v-spacer>
 
                 <v-select @update:model-value="setTabchange()" style="max-width: 180px" v-model="exchtype" hide-details
-                    append-icon="mdi-chevron-down" prepend-inner-icon="mdi-playlist-check" class="rounded-pill mr-3"
-                    density="compact" variant="solo" bg-color="secbg" :items="['NSE', 'BSE', 'MCX']" label="Filter"></v-select>
+                     prepend-inner-icon="mdi-playlist-check" class="rounded-pill mr-3 centered-select"
+                    density="compact" variant="flat" rounded="pill" bg-color="secbg" :items="['NSE', 'BSE', 'MCX']" ></v-select>
 
-                <v-text-field style="max-width: 220px" :disabled="isloading" v-model="opensearch" hide-details
-                    prepend-inner-icon="mdi-magnify" label="Search for Indices"
-                    class="rounded-pill d-none d-sm-flex" density="compact" variant="solo" bg-color="secbg"></v-text-field>
+                <v-text-field style="max-width: 220px;" :disabled="isloading" v-model="opensearch" hide-details
+                    prepend-inner-icon="mdi-magnify" label="Search for Indices" single-line
+                    class="d-none d-sm-block" density="compact" variant="flat" rounded="pill" bg-color="secbg"></v-text-field>
             </v-toolbar>
-            <v-data-table must-sort disable-sort fixed-header mobile :loading="isloading"
+            <v-data-table must-sort disable-sort fixed-header  :loading="isloading"
                 class="rounded-lg overflow-y-auto mb-6" style="border-radius: 4px; border: 1px solid #EBEEF0"
                 :headers="indiceheader" :search="opensearch" :items="filteredTablesecdata" :items-per-page="10">
                 <template v-slot:[`item.tsym`]="{ item }">
@@ -68,7 +68,7 @@
 
                 <template v-slot:[`item.ltp`]="{ item }">
                     <p class="mb-0 lh-18">
-                        <span class="font-weight-medium maintext--text">₹<span :id="`indi${item.token}ltp`">{{
+                        <span class="font-weight-medium txt-000">₹<span :id="`indi${item.token}ltp`">{{
                             item.ltp ? Number(item.ltp).toFixed(2) : '0.00' }}</span></span> <br />
                         <span class="font-weight-medium fs-12 ws-p" :id="`indi${item.token}chpclr`"
                             :class="item.ch > 0 ? 'maingreen--text' : item.ch < 0 ? 'mainred--text' : 'subtext--text'">
@@ -79,23 +79,23 @@
                 </template>
 
                 <template v-slot:[`item.vol`]="{ item }">
-                    <span class="font-weight-medium maintext--text" :id="`indi${item.token}vol`">{{
+                    <span class="font-weight-medium txt-000 " :id="`indi${item.token}vol`">{{
                         item.vol ? item.vol : "0.00" }}</span>
                 </template>
                 <template v-slot:[`item.op`]="{ item }">
-                    <span class="font-weight-medium maintext--text" :id="`indi${item.token}op`">{{
+                    <span class="font-weight-medium txt-000 " :id="`indi${item.token}op`">{{
                         item.op ? item.op : "0.00" }}</span>
                 </template>
                 <template v-slot:[`item.cp`]="{ item }">
-                    <span class="font-weight-medium maintext--text" :id="`indi${item.token}cp`">{{
+                    <span class="font-weight-medium txt-000 " :id="`indi${item.token}cp`">{{
                         item.cp ? item.cp : "0.00" }}</span>
                 </template>
                 <template v-slot:[`item.high`]="{ item }">
-                    <span class="font-weight-medium maintext--text" :id="`indi${item.token}high`">{{
+                    <span class="font-weight-medium txt-000 " :id="`indi${item.token}high`">{{
                         item.high ? item.high : "0.00" }}</span>
                 </template>
                 <template v-slot:[`item.low`]="{ item }">
-                    <span class="font-weight-medium maintext--text" :id="`indi${item.token}low`">{{
+                    <span class="font-weight-medium txt-000 " :id="`indi${item.token}low`">{{
                         item.low ? item.low : "0.00" }}</span>
                 </template>
                 <template v-slot:no-data>
@@ -158,13 +158,13 @@ const tablesecdata = ref([])
 // Computed
 const indiceheader = computed(() => {
     return [
-        { text: "Index name", value: "tsym", sortable: false, class: "ws-p" },
-        { text: "Price", value: "ltp", sortable: false, align: "end", class: "ws-p" },
-        { text: "Open", value: "op", align: "end", class: "ws-p" },
-        { text: "High", value: "high", align: "end", class: "ws-p" },
-        { text: "Low", value: "low", align: "end", class: "ws-p" },
-        { text: "Close", value: "cp", align: "end", class: "ws-p" },
-        { text: "Volume", value: "vol", align: "end", class: "ws-p" },
+        { title: "Index name", key: "tsym", sortable: false, class: "ws-p" },
+        { title: "Price", key: "ltp", sortable: false, align: "end", class: "ws-p" },
+        { title: "Open", key: "op", align: "end", class: "ws-p" },
+        { title: "High", key: "high", align: "end", class: "ws-p" },
+        { title: "Low", key: "low", align: "end", class: "ws-p" },
+        { title: "Close", key: "cp", align: "end", class: "ws-p" },
+        { title: "Volume", key: "vol", align: "end", class: "ws-p" },
     ];
 })
 
@@ -234,16 +234,20 @@ const getAllindicedata = async () => {
 }
 
 const setWebsocket = async (flow, data, is) => {
-    if (uid.value) {
-        // Use Custom Events instead of EventBus
-        window.dispatchEvent(new CustomEvent('web-scoketOn', {
-            detail: { flow, data, is, page: 'stockINC' }
-        }))
-    } else {
-        let raw = await getLtpdata(data)
-        raw = raw.data
+    // Always fetch initial snapshot
+    let raw = await getLtpdata(data)
+    
+    // Handle response structure (direct object or wrapped in data property)
+    let ltpData = raw
+    if (raw && raw.data && !raw.error) {
+        ltpData = raw.data
+    } else if (raw && raw.error) {
+        ltpData = null
+    }
+
+    if (ltpData) {
         for (let l = 0; l < allindicedata.value.length; l++) {
-            let v = raw[allindicedata.value[l].token]
+            let v = ltpData[allindicedata.value[l].token]
             if (v) {
                 allindicedata.value[l]["ltp"] = Number(v.lp).toFixed(2)
                 allindicedata.value[l]["ch"] = Number(allindicedata.value[l].ltp - Number(v.close)).toFixed(2)
@@ -255,6 +259,13 @@ const setWebsocket = async (flow, data, is) => {
                 allindicedata.value[l]["low"] = Number(v.low) ? Number(v.low).toFixed(2) : (0).toFixed(2)
             }
         }
+    }
+
+    if (uid.value) {
+        // Use Custom Events instead of EventBus
+        window.dispatchEvent(new CustomEvent('web-scoketOn', {
+            detail: { flow, data, is, page: 'stockINC' }
+        }))
     }
 }
 
@@ -386,5 +397,13 @@ onBeforeUnmount(() => {
 <style scoped>
 .cursor-p {
     cursor: pointer;
+}
+
+:deep(.v-data-table-footer__items-per-page .v-field__outline) {
+    display: none !important;
+}
+
+:deep(.centered-select .v-field__input) {
+    justify-content: left !important;
 }
 </style>

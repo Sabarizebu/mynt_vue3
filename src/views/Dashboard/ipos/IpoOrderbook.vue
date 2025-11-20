@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="mb-10 mt-4">
-      <v-toolbar flat class="tool-sty pl-4 d-none d-md-block crd-trn" density="compact">
+      <v-toolbar flat class="tool-sty pl-0 d-none d-md-block crd-trn" density="compact">
         <v-tabs fixed color="primary" @update:model-value="ordertab == 1 ? (ordertype = 'exec') : (ordertype = 'open')"
           v-model="ordertab">
           <v-tab :disabled="tableloader" class="font-weight-bold subtitle-1 mb-0 text-none">Open Orders (<span>{{
