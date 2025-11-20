@@ -572,7 +572,7 @@
 
                                 <span class="text-right">
                                     <span class="maintext--text font-weight-medium fs-12 pdmw-card-text">
-                                        ₹<span :id="`p${s.token}ltp`" class="pdmw-card-text">{{ s.ltp ? s.ltp : "0.00"
+                                        ₹<span :id="`p${s.token}ltp`" class="pdmw-card-text">{{ getLiveValue(s, 'ltp')
                                         }}</span>
                                     </span>
                                 </span>
@@ -584,10 +584,10 @@
                                 color: (s.ch && parseFloat(s.ch) > 0) ? '#43A833' : (s.ch && parseFloat(s.ch) < 0) ? '#F23645' : '#676767'
                             }" :class="[
                                 'd-inline-flex font-weight-medium fs-12 px-2',
-                                (s.ch && parseFloat(s.ch) > 0) ? 'maingreen--text' : (s.ch && parseFloat(s.ch) < 0) ? 'mainred--text' : 'subtext--text'
+                                (parseFloat(getLiveValue(s, 'ch')) > 0) ? 'maingreen--text' : (parseFloat(getLiveValue(s, 'ch')) < 0) ? 'mainred--text' : 'subtext--text'
                             ]" :id="`p${s.token}chpclr`">
-                                <span :id="`p${s.token}ch`">{{ s.ch ? s.ch : "0.00" }}</span>
-                                <span :id="`p${s.token}chp`">({{ s.chp ? s.chp : "0.00" }})</span>
+                                <span :id="`p${s.token}ch`">{{ getLiveValue(s, 'ch') }}</span>
+                                <span :id="`p${s.token}chp`">({{ getLiveValue(s, 'chp') }})</span>
                             </div>
                             <div class="pos-abs pdmwlist z-i1 mt-n6 ml-0">
                                 <v-btn @click.stop @click="getAllindicedata(s, l)" class="elevation-1" variant="flat"
@@ -676,16 +676,16 @@
                             @click="uid ? setSSDtab('detail', item.token, item.exch, item.tsym || item.tsyms) : null">
                             <p class="maintext--text mb-1 px-1" style="font-size: 13px !important;">
                                 <span class="table-hov-text">{{ item.tsyms ? item.tsyms : item.tsym ? item.tsym : ''
-                                }}</span>
+                                    }}</span>
                                 <span class="subtext--text">{{ item.exp ? item.exp : '' }}</span>
                                 <span v-if="item.weekly"
                                     style="border-radius: 4px; padding: 0px 4px; background-color: #F1F3F8 !important"
                                     class="ml-1">
                                     <span class="font-weight-medium fs-10 lh-16">{{ item.weekly ? item.weekly : ''
-                                    }}</span>
+                                        }}</span>
                                 </span>
                                 <span class="float-right maintext--text fs-14">
-                                    ₹<span :id="`${item.token}ltp`">{{ item.ltp ? item.ltp : '0.00' }}</span>
+                                    ₹<span :id="`${item.token}ltp`">{{ getLiveValue(item, 'ltp') }}</span>
                                 </span>
                             </p>
                             <p class="mb-0 px-1 lh-16">
@@ -697,9 +697,9 @@
                                 <span v-html="setHoldbadge(item.token)"></span>
                                 <span class="subtext--text fs-10">{{ item.ser ? item.ser : '' }}</span>
                                 <span class="float-right fw-6 fs-12" :id="`${item.token}chpclr`"
-                                    :class="item.ch > 0 ? 'maingreen--text' : item.ch < 0 ? 'mainred--text' : 'subtext--text'">
-                                    <span :id="`${item.token}ch`">{{ item.ch ? item.ch : '0.00' }}</span>
-                                    <span :id="`${item.token}chp`"> ({{ item.chp ? item.chp : '0.00' }}%)</span>
+                                    :class="parseFloat(getLiveValue(item, 'ch')) > 0 ? 'maingreen--text' : parseFloat(getLiveValue(item, 'ch')) < 0 ? 'mainred--text' : 'subtext--text'">
+                                    <span :id="`${item.token}ch`">{{ getLiveValue(item, 'ch') }}</span>
+                                    <span :id="`${item.token}chp`"> ({{ getLiveValue(item, 'chp') }}%)</span>
                                 </span>
                             </p>
                             <!-- Phase 2: Add key to force re-render when uid or PreDefinedMW.is changes -->
@@ -914,7 +914,7 @@
                 </p>
                 <span class="body-2 mb-5 grey--text"> {{ nodata == null ? "Eg. for Nifty Type: Nif" :
                     "Search for another name."
-                }}</span>
+                    }}</span>
             </v-card>
         </div>
 
@@ -1034,6 +1034,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useAppStore } from '../../stores/appStore'
 import { useAuthStore } from '../../stores/authStore'
 import { useSessionStore } from '../../stores/sessionStore'
+import { useMarketDataStore } from '../../stores/marketDataStore'
 import { getMwatchlistset, getGloabSearch, getMHoldingdata, getMHoldings, getPreDefinedMW, getClientDetails, getMFwatchlist, getBSKMargin, getPlaceOrder, getIndexList, getLtpdata, getMPosotion, getMOrderbook, getMLimits, getADindices } from '../../components/mixins/getAPIdata.js'
 import { mynturl, myntappurl, params } from '../../apiurl.js'
 import draggable from 'vuedraggable'
@@ -1050,6 +1051,18 @@ const route = useRoute()
 const appStore = useAppStore()
 const authStore = useAuthStore()
 const sessionStore = useSessionStore()
+const marketDataStore = useMarketDataStore()
+
+// Helper to get live value from store or fallback to item
+const getLiveValue = (item, field) => {
+    if (!item) return '0.00'
+    // Try to get from store first
+    const val = marketDataStore.getField(item.exch, item.token, field)
+    if (val !== undefined && val !== null) return val
+
+    // Fallback to item's own property
+    return item[field] !== undefined && item[field] !== null ? item[field] : '0.00'
+}
 
 // Reactive data
 const panel = ref(false) // Toggle between stocks (false) and mutual funds (true)
@@ -1105,6 +1118,15 @@ const initializeWatchlistsFromStorage = () => {
 const watchlist = ref(initializeWatchlistsFromStorage())
 const watchlistis = ref(null)
 const watchlistdata = ref([])
+
+// Seed marketDataStore whenever watchlistdata is loaded/replaced
+watch(watchlistdata, (newVal) => {
+    if (Array.isArray(newVal) && newVal.length > 0) {
+        marketDataStore.processFeed(newVal)
+    }
+})
+
+
 // Cache last known prices to avoid flashing 0.00 when WS sends sparse/partial ticks
 const priceCache = ref({})
 // Persist a per-token merged quote so we can update only keys provided in each tick
@@ -1167,6 +1189,13 @@ const pdmwdata = ref([
     { key: "NIFTY50:NSE", exch: "NSE", token: "26000", tsym: "Nifty 50" },
     { key: "NIFTYBANK:NSE", exch: "NSE", token: "26009", tsym: "Nifty Bank" },
 ])
+
+// Seed marketDataStore whenever pdmwdata is loaded/replaced
+watch(pdmwdata, (newVal) => {
+    if (Array.isArray(newVal) && newVal.length > 0) {
+        marketDataStore.processFeed(newVal)
+    }
+})
 const allindex = ref({ NSE: [], BSE: [], MCX: [] })
 const indexdialog = ref(false)
 const singleindex = ref({})

@@ -427,7 +427,7 @@
                 <!-- EDIS / Exit Buttons -->
                 <div class="pb-6" v-if="['NSE', 'BSE', 'MCX'].includes(singledata.exch || singledata.exchs)">
                     <v-row>
-                        <v-col cols="6">
+                        <!-- <v-col cols="6">
                             <v-btn v-if="edisbtn" class="elevation-0 rounded-pill font-weight-bold text-none"
                                 color="primary" block>
                                 E-DIS
@@ -438,8 +438,8 @@
                                 height="40">
                                 DO POA
                             </v-btn>
-                        </v-col>
-                        <v-col cols="6">
+                        </v-col> -->
+                        <v-col cols="12">
                             <v-btn @click="setSSDtab(
                                 'exit-order',
                                 singledata.token,
@@ -664,9 +664,7 @@ const searchedMFHoldings = computed(() => {
 
 const dashitems = ref([
     { val: 'all', txt: 'All' },
-    { val: 'NSE', txt: 'NSE' },
-    { val: 'BSE', txt: 'BSE' },
-    { val: 'MCX', txt: 'MCX' },
+    { val: 'stocks', txt: 'Stocks' },
     { val: 'bond', txt: 'Bonds' }
 ])
 
@@ -882,7 +880,7 @@ function setHoldingsPayload(payload) {
     })
 
     holdings.value = list
-
+console.log('📦 Processed Holdings List:', JSON.stringify(list, null, 2));
     // Subscribe to WebSocket for live updates
     if (list.length > 0) {
         window.dispatchEvent(new CustomEvent('web-scoketOn', {

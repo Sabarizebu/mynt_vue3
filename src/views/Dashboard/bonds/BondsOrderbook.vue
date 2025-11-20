@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="mb-10 mt-4">
-      <v-toolbar flat class="tool-sty pl-4 d-none d-md-block crd-trn" density="compact">
+      <v-toolbar flat class="tool-sty pl-0 d-none d-md-block crd-trn" density="compact">
         <v-tabs fixed color="primary" @update:model-value="ordertab == 1 ? (ordertype = 'exec') : (ordertype = 'open')"
           v-model="ordertab">
           <v-tab :disabled="tableloader" class="font-weight-bold subtitle-1 mb-0 text-none">Open Orders (<span>{{
@@ -100,14 +100,14 @@
                     style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 160px;">
                     <v-list density="compact" style="padding: 8px 0;">
                       <div v-for="(m, k) in getMenuItems(ordertab)" :key="k">
-                        <v-list-item @click="handleMenuAction(m, item)" class="pl-3 pr-4"
+                        <v-list-item @click="handleMenuAction(m, item)" class="px-3"
                           style="min-height: 36px; cursor: pointer;">
-                          <template #prepend>
-                            <v-icon :icon="m.icon" size="18" color="#506D84" style="margin-right: 12px;" />
-                          </template>
-                          <v-list-item-title class="font-weight-medium" style="font-size: 13px; color: #374151;">
-                            {{ m.name }}
-                          </v-list-item-title>
+                          <div class="d-flex align-center">
+                            <v-icon :icon="m.icon" size="18" color="#506D84" class="mr-3" />
+                            <v-list-item-title class="font-weight-medium fs-13" >
+                              {{ m.name }}
+                            </v-list-item-title>
+                          </div>
                         </v-list-item>
                         <v-divider v-if="m.hr" class="mx-3" style="margin: 4px 0;"></v-divider>
                       </div>

@@ -1,7 +1,7 @@
 <template>
     <div>
         <!-- Toolbar -->
-        <v-toolbar variant="flat" density="compact" class="tool-sty my-1 mt-2 pl-4 crd-trn">
+        <v-toolbar variant="flat" density="compact" class="tool-sty my-1 mt-2 pl-0 crd-trn">
             <v-tabs v-model="ordertab" color="#2B38B7" fixed show-arrows density="compact">
                 <v-tab value="orders" density="compact"
                     style="font-size: 16px !important;letter-spacing: 0px !important;"
@@ -287,7 +287,7 @@
                             :text-color="item.trantype === 'B' ? 'maingreen' : 'mainred'"
                             style="border-radius: 5px; padding: 10px 8px !important; cursor: pointer; height: 15px;">
                             <span class="font-weight-medium fs-12 mt-1">{{ item.trantype === 'B' ? 'BUY' : 'SELL'
-                                }}</span>
+                            }}</span>
                         </v-chip>
                     </template>
                     <template #item.tsym="{ item }">
@@ -565,7 +565,7 @@
                         style="border-bottom: 1px solid #EBEEF0;">
                         <p class="txt-000 font-weight-bold fs-14 mb-0">Avg price</p>
                         <p class="txt-000 font-weight-regular fs-14 mb-0">₹{{ fmt(singledata.rprc || singledata.avgprc)
-                        }}</p>
+                            }}</p>
                     </div>
 
                     <div class="d-flex justify-space-between align-center py-4"
@@ -846,7 +846,7 @@
                     {{ singledata === 'all' ? 'cancel' : singledata?.exord ? 'exit' : 'cancel' }}
                     <b>{{ tableorcan === 'oneorder' ? singledata?.tsym : (singledata?.tsym || `${orddselected.length ===
                         openorders.length ? 'All Open' : 'Open'}`)
-                    }}</b>
+                        }}</b>
                     {{ singledata?.exord ? 'position' : `order${tableorcan === 'oneorder' ? '' : (singledata === 'all'
                         ||
                         orddselected.length > 1 ? `
@@ -906,10 +906,9 @@ const orderbookdata = computed(() => orderStore.orders || [])
 
 const filterso = [
     { title: 'All', value: 'all' },
-    { title: 'Limit', value: 'LMT' },
-    { title: 'Market', value: 'MKT' },
-    { title: 'SL-LMT', value: 'SL-LMT' },
-    { title: 'SL-MKT', value: 'SL-MKT' },
+    { title: 'Trigger Pending', value: 'TRIGGER_PENDING' },
+    { title: 'Pending', value: 'PENDING' },
+    { title: 'Open', value: 'OPEN' },
 ]
 
 const filterse = [
@@ -1003,24 +1002,60 @@ const orderhistoryhead = [
 
 const filteredOpen = computed(() => {
     let orders = orderStore.openOrders || []
+
+    // Apply status filter
+    if (filter.value && filter.value !== 'all') {
+        orders = orders.filter(item => item.status === filter.value)
+    }
+
+    // Apply enhanced search filter (instrument, product, price, order number)
     if (opensearch.value) {
         const search = opensearch.value.toLowerCase()
-        orders = orders.filter(item =>
-            item.tsym.toLowerCase().includes(search) ||
-            item.norenordno.includes(search)
-        )
+        orders = orders.filter(item => {
+            // Search by instrument name
+            const matchInstrument = item.tsym?.toLowerCase().includes(search)
+
+            // Search by order number
+            const matchOrderNo = item.norenordno?.includes(search)
+
+            // Search by product (s_prdt_ali)
+            const matchProduct = item.s_prdt_ali?.toLowerCase().includes(search)
+
+            // Search by price (convert to string for searching)
+            const matchPrice = item.prc?.toString().includes(search)
+
+            return matchInstrument || matchOrderNo || matchProduct || matchPrice
+        })
     }
     return orders
 })
 
 const filteredExec = computed(() => {
     let orders = orderStore.executedOrders || []
+
+    // Apply status filter
+    if (filter.value && filter.value !== 'all') {
+        orders = orders.filter(item => item.status === filter.value)
+    }
+
+    // Apply enhanced search filter (instrument, product, price, order number)
     if (execsearch.value) {
         const search = execsearch.value.toLowerCase()
-        orders = orders.filter(item =>
-            item.tsym.toLowerCase().includes(search) ||
-            item.norenordno.includes(search)
-        )
+        orders = orders.filter(item => {
+            // Search by instrument name
+            const matchInstrument = item.tsym?.toLowerCase().includes(search)
+
+            // Search by order number
+            const matchOrderNo = item.norenordno?.includes(search)
+
+            // Search by product (s_prdt_ali)
+            const matchProduct = item.s_prdt_ali?.toLowerCase().includes(search)
+
+            // Search by price (convert to string for searching)
+            const matchPrice = item.prc?.toString().includes(search)
+
+            return matchInstrument || matchOrderNo || matchProduct || matchPrice
+        })
     }
     return orders
 })
