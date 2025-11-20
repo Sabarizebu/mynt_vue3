@@ -78,9 +78,9 @@
             <v-data-table :headers="orderheader" :items="paginatedOrders" fixed-header :hide-default-footer="true"
                 :loading="loading" class=" tabletextnew holdings-table tabletextnew rounded-lg overflow-y-auto"
                 style="border-radius:4px; border:1px solid #EBEEF0" height="480" :items-per-page="-1">
-                <template #item.datetime="{ item }">
+                <!-- <template #item.datetime="{ item }">
                     <span class="tabletextnew">{{ item.datetime || '-' }}</span>
-                </template>
+                </template> -->
                 <template #item.datetime="{ item }">
                     <span class="tabletextnew nowrap">{{ item.datetime || '-' }}</span>
                 </template>
@@ -96,30 +96,30 @@
                                 <span class="fs-10">{{ item.OrderType === 'NRM' ? 'Lumpsum' : 'SIP' }}</span>
                             </v-chip>
 
+                            <!-- <v-chip size="x-small" label variant="flat" :style="{
+                                backgroundColor: '#F1F3F8 !important',
+                                color: '#666666',
+                                borderRadius: '5px'
+                            }"> -->
+
                             <v-chip size="x-small" label variant="flat" :style="{
                                 backgroundColor: '#F1F3F8 !important',
                                 color: '#666666',
                                 borderRadius: '5px'
                             }">
-
-                                <v-chip size="x-small" label variant="flat" :style="{
-                                    backgroundColor: '#F1F3F8 !important',
-                                    color: '#666666',
-                                    borderRadius: '5px'
-                                }">
-                                    <span class="fs-10">Ord.no : {{ item.OrderId || '-' }}</span>
-                                </v-chip>
+                                <span class="fs-10">Ord.no : {{ item.OrderId || '-' }}</span>
+                            </v-chip>
                         </div>
                     </div>
                 </template>
-                <template #item.type="{ item }">
-                    <div class="tabletextnew">
+                <!-- <template #item.type="{ item }"> -->
+                <!-- <div class="tabletextnew">
                         <span>{{ item.buy_sell ? (item.buy_sell == 'P' ? 'Purchase' : 'Reduction') : '-' }}</span>
                         <br v-if="item.buy_sell && item.buy_sell != 'P'" />
                         <span v-if="item.buy_sell && item.buy_sell != 'P'">Units - {{ item.Orderqty ?
                             Number(item.Orderqty).toFixed(2) : '0.00' }}</span>
                     </div>
-                </template>
+                </template> -->
                 <template #item.type="{ item }">
                     <div class="tabletextnew">
                         <span>{{ item.buy_sell ? (item.buy_sell == 'P' ? 'Purchase' : 'Reduction') : '-' }}</span>
@@ -130,14 +130,14 @@
                 </template>
                 <template #item.Amount="{ item }">
                     <span class="text-right tabletextnew tabletextnew d-inline-block w-100">₹{{ fmt(item.OrderVal)
-                        }}</span>
+                    }}</span>
                 </template>
                 <template #item.DPFolioNo="{ item }">
                     <span class="tabletextnew">{{ item.DPFolioNo || '-' }}</span>
                 </template>
-                <template #item.DPFolioNo="{ item }">
+                <!-- <template #item.DPFolioNo="{ item }">
                     <span class="tabletextnew">{{ item.DPFolioNo || '-' }}</span>
-                </template>
+                </template> -->
                 <template #item.status="{ item }">
                     <v-tooltip location="bottom" color="black">
                         <template #activator="{ props }">
@@ -367,9 +367,9 @@ const cancelis = ref('')
 const cancelremark = ref('')
 const canceleds = ref([])
 const displayLimit = ref(50)
-const cancelis = ref('')
-const cancelremark = ref('')
-const canceleds = ref([])
+// const cancelis = ref('')
+// const cancelremark = ref('')
+// const canceleds = ref([])
 
 const orderheader = [
     { title: 'Date', key: 'datetime' },
