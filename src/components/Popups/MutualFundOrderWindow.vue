@@ -529,18 +529,26 @@
             </v-card>
         </v-dialog>
         <v-dialog v-model="paymentcheck" persistent max-width="400">
-            <v-card width="100%" class="elevation-0 px-5 text-center py-8 mx-auto rounded-lg" variant="outlined">
+            <v-card width="100%" class="elevation-0 px-5 text-center py-8 mx-auto rounded-lg"
+                style="background-color: #ffffff;">
                 <v-card width="40%" class="elevation-0 mx-auto">
                     <v-progress-linear color="#000" buffer-value="0" class="mb-5" reverse stream
                         value="0"></v-progress-linear>
                 </v-card>
                 <p class="font-weight-bold title">Awaiting UPI confirmation</p>
                 <p class="caption txt-666 mb-8">This will take a few seconds.</p>
+
+                <v-btn height="48px" color="#000" @click="stopPaymentCheck('manual')" outlined
+                    style="border: 2px solid #444 !important" small
+                    class="text-none mx-7 rounded-pill elevation-0"><span
+                        class="subtitle-1 font-weight-medium px-6">Cancel
+                        Transaction</span></v-btn>
             </v-card>
         </v-dialog>
 
         <v-dialog v-model="paymentconfirm" persistent max-width="400">
-            <v-card width="100%" class="elevation-0 px-5 text-center py-8 mx-auto rounded-lg" variant="outlined">
+            <v-card width="100%" class="elevation-0 px-5 text-center py-8 mx-auto rounded-lg"
+                style="background-color: white;">
                 <v-card width="40%" class="elevation-0 mx-auto">
                     <v-icon :color="paystausres.status == 'PAYMENT APPROVED' ? 'green' : 'red'" class="mt-3" size="50">
                         {{
@@ -559,7 +567,8 @@
 
                 <v-btn height="48px" color="#444" @click="paymentconfirm = false" variant="outlined"
                     style="border: 2px solid #444 !important" size="small"
-                    class="text-none rounded-pill elevation-0"><span class="subtitle-1 font-weight-medium px-6">Close
+                    class="text-none mt-5 rounded-pill elevation-0"><span
+                        class="subtitle-1 font-weight-medium px-6">Close
                     </span></v-btn>
             </v-card>
         </v-dialog>
