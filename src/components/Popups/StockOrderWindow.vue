@@ -54,46 +54,122 @@
         <!-- Main Order Dialog -->
         <v-card v-if="orderDialog" id="maindiv" elevation="6"
             :class="['pb-5 overflow-hidden rounded-lg', isStickyDialog ? 'sticky-dialog' : '']" :style="dialogStyle"
-            color="cardbg" width="540px" height="auto">
-            <v-card id="maindivheader" :loading="isPlacingOrder" class="elevation-0 rounded-b-0 pt-4 pb-2"
-                :color="!buyOrSellIsSell ? 'secgreen' : 'secred'">
-                <v-toolbar class="elevation-0 crd-trn px-2" density="compact"
+            color="cardbg" :width="isQuickOrder ? '360px' : '540px'" height="auto">
+            <v-card id="maindivheader" :loading="isPlacingOrder" class="elevation-0 rounded-b-0"
+                :class="isQuickOrder ? 'py-2' : 'pt-4 pb-2'" :color="!buyOrSellIsSell ? 'secgreen' : 'secred'">
+                <v-toolbar class="elevation-0 crd-trn" :class="isQuickOrder ? 'pr-4' : 'px-2'" density="compact"
                     style="background-color: #00000000 !important;">
                     <div class="px-5">
-                        <p class="font-weight-bold fs-14 maintext--text mb-0">
+                        <p class="font-weight-bold  maintext--text mb-0" style="font-size: 16px !important;">
                             {{ menudata[0]?.tsym || '' }} <span class="ml-1 subtext--text fs-10">{{ menudata[0]?.exch ||
                                 '' }}</span>
                         </p>
-                        <p class="maintext--text font-weight-bold fs-12 mb-1">
+                        <p class="maintext--text font-weight-bold fs-14 mb-1">
                             ₹<span>{{ ltpDisplay }}</span>
-                            <span class="fs-11 ml-2" :style="{ color: chColorStyle }" :class="chColor">{{ chDisplay }}
+                            <span class="fs-12 ml-2" :style="{ color: chColorStyle }" :class="chColor">{{ chDisplay }}
                                 ({{ chpDisplay }}%)</span>
                         </p>
                     </div>
                     <v-spacer></v-spacer>
-                    <v-card class="rounded-md elevation-0 py-1 px-2 font-weight-bold fs-10 white--text mr-4"
+                    <v-card class="rounded-md elevation-0 py-1 px-2 font-weight-bold fs-10 white--text mr-0"
                         color="maingreen">B</v-card>
                     <v-switch v-model="buyOrSellIsSell" inset hide-details class="mx-2"></v-switch>
-                    <v-card class="rounded-md elevation-0 py-1 px-2 font-weight-bold fs-10 white--text ml-1"
+                    <v-card class="rounded-md elevation-0 py-1 px-2 font-weight-bold fs-10 white--text ml-0"
                         color="mainred">S</v-card>
                 </v-toolbar>
             </v-card>
 
-            <div v-if="menudata[0]" style="height: calc(100vh - 320px)" class="overflow-y-auto pos-rlt no-scroll">
+            <div v-if="menudata[0]" :style="{ height: isQuickOrder ? '380px' : 'calc(100vh - 320px)' }"
+                class="overflow-y-auto pos-rlt no-scroll">
                 <div class="px-6  py-1">
                     <!-- Order Type Tabs: Regular / Cover / Bracket / GTT / SIP -->
-                    <v-tabs v-model="orderType" density="compact" class="mb-2" @update:model-value="onOrderTypeChanged"
-                        style="border-bottom: 1px solid #e0e0e0;">
-                        <v-tab :value="0" class="text-none fs-14">Regular</v-tab>
-                        <v-tab :value="1" class="text-none fs-14">Cover</v-tab>
-                        <v-tab :value="2" class="text-none fs-14">Bracket</v-tab>
-                        <v-tab :value="3" class="text-none fs-14">GTT</v-tab>
-                        <v-tab v-if="menudata[0]?.exch === 'NSE' || menudata[0]?.exch === 'BSE'" :value="4"
-                            class="text-none fs-12">SIP</v-tab>
-                    </v-tabs>
+                    <div v-if="!isQuickOrder" class="d-flex align-center" style="border-bottom: 1px solid #e0e0e0;">
+                        <v-tabs v-model="orderType" density="compact" class="mb-2 flex-grow-1"
+                            @update:model-value="onOrderTypeChanged">
+                            <v-tab :value="0" class="text-none fs-14">Regular</v-tab>
+                            <v-tab :value="1" class="text-none fs-14">Cover</v-tab>
+                            <v-tab :value="2" class="text-none fs-14">Bracket</v-tab>
+                            <v-tab :value="3" class="text-none fs-14">GTT</v-tab>
+                            <v-tab v-if="menudata[0]?.exch === 'NSE' || menudata[0]?.exch === 'BSE'" :value="4"
+                                class="text-none fs-12">SIP</v-tab>
+                        </v-tabs>
+                        <v-menu offset-y left>
+                            <template v-slot:activator="{ props }">
+                                <v-btn icon v-bind="props" variant="text" density="compact">
+                                    <v-badge :model-value="isStickyDialog || quickOrderDefault" dot overlap
+                                        color="warning">
+                                        <v-icon>mdi-dots-vertical</v-icon>
+                                    </v-badge>
+                                </v-btn>
+                            </template>
+                            <v-list density="compact" class="py-2">
+                                <v-list-item class="px-3">
+                                    <v-switch v-model="isStickyDialog" color="primary" hide-details density="compact"
+                                        @update:model-value="saveOrderPreferences" class="ma-0">
+                                        <template #label>
+                                            <div class="d-flex align-center">
+                                                <span class="fs-14 maintext--text">Sticky {{ isStickyDialog ? 'On' :
+                                                    'Off' }}</span>
+                                                <v-tooltip location="bottom" color="black">
+                                                    <template v-slot:activator="{ props }">
+                                                        <v-icon v-bind="props" color="subtext" size="14" class="ml-1">
+                                                            mdi-information-outline
+                                                        </v-icon>
+                                                    </template>
+                                                    <span>The order screen stays<br />open after order placement.</span>
+                                                </v-tooltip>
+                                            </div>
+                                        </template>
+                                    </v-switch>
+                                </v-list-item>
+                                <v-list-item class="px-3">
+                                    <v-switch v-model="quickOrderDefault" color="primary" hide-details density="compact"
+                                        @update:model-value="saveOrderPreferences" class="ma-0">
+                                        <template #label>
+                                            <div class="d-flex align-center">
+                                                <span class="fs-14 maintext--text">Quick Order screen {{
+                                                    quickOrderDefault ? 'enable' : 'disable' }}</span>
+                                                <v-tooltip location="bottom" color="black">
+                                                    <template v-slot:activator="{ props }">
+                                                        <v-icon v-bind="props" color="subtext" size="14" class="ml-1">
+                                                            mdi-information-outline
+                                                        </v-icon>
+                                                    </template>
+                                                    <span>The Quick Order screen<br />will be enabled by default</span>
+                                                </v-tooltip>
+                                            </div>
+                                        </template>
+                                    </v-switch>
+                                </v-list-item>
+                            </v-list>
+                        </v-menu>
+                    </div>
 
                     <!-- Investment Type (hidden for SIP and GTT) -->
-                    <div v-if="orderType == 0 || orderType == 3" class="pt-2">
+                    <div v-if="isQuickOrder">
+                        <v-tooltip location="top" color="black">
+                            <template v-slot:activator="{ props }">
+                                <v-card v-bind="props" class="elevation-0" color="transparent">
+                                    <v-switch class="px-3" :disabled="orderType != 0"
+                                        @update:model-value="onOrderTypeChanged" density="compact" v-model="isDelivery"
+                                        hide-details color="maintext">
+                                        <template #label>
+                                            <p style="font-size: 16px !important;"
+                                                class="maintext--text pl-2 font-weight-medium mb-0">{{
+                                                    orderType == 2 ? 'Bracket order' :
+                                                        orderType == 1 ? 'Cover order' : investType === 'M' ? 'Carry Forward' :
+                                                            investType === 'C' ? 'Delivery' : 'Intraday' }}</p>
+                                        </template>
+                                    </v-switch>
+                                </v-card>
+                            </template>
+                            <span>{{ orderType == 2 || orderType == 1 ? "Can't Switch to Delivery" :
+                                investType != 'I' ? 'Switch to Intraday' : (menudata[0].exch == 'NSE' ||
+                                    menudata[0].exch == 'BSE') ?
+                                    'Switch to Delivery' : 'Switch to Carry Forward' }}</span>
+                        </v-tooltip>
+                    </div>
+                    <div v-else-if="orderType == 0 || orderType == 3" class="pt-2">
                         <p class="subtext--text fs-13 font-weight-regular mb-0">Investment type</p>
                         <v-radio-group @update:model-value="onOrderTypeChanged" v-model="investType" inline hide-details
                             class="ml-n2">
@@ -104,9 +180,9 @@
                         </v-radio-group>
                     </div>
 
-                    <!-- Price Type (hidden for SIP and GTT) -->
-                    <div v-if="orderType !== 3 && orderType !== 4" style="border-bottom: 1px solid #e0e0e0;"
-                        class="pb-2 mt-3 ">
+                    <!-- Price Type (hidden for SIP and GTT, and Quick Order) -->
+                    <div v-if="!isQuickOrder && orderType !== 3 && orderType !== 4"
+                        style="border-bottom: 1px solid #e0e0e0;" class="pb-2 mt-3 ">
                         <p class="subtext--text fs-13 font-weight-regular mb-0 mt-2 mb-2">Select order type</p>
                         <v-chip-group v-model="priceType" @update:model-value="onOrderTypeChanged" row mandatory>
                             <v-chip value="LMT" :style="{
@@ -145,90 +221,285 @@
                     </div>
 
                     <!-- Quantity and Price Row -->
-                    <v-row class="d-flex justify-space-between align-start mt-2" v-if="orderType !== 3">
+                    <v-row class="d-flex justify-space-between align-start mt-0" v-if="orderType !== 3">
                         <!-- Quantity -->
-                        <v-col cols="12" md="6">
-                            <div class="d-flex justify-space-between align-center mb-2">
-                                <p class="font-weight-regular fs-14 subtext--text mb-0">Quantity</p>
-                                <p class="font-weight-regular fs-14 subtext--text mb-0 text-right">MLot: {{
-                                    menudata[0]?.ls ?? '-' }}</p>
+                        <v-col :cols="isQuickOrder ? 12 : 12" :md="isQuickOrder ? 12 : 6">
+                            <!-- Quick Order Quantity UI -->
+                            <div v-if="isQuickOrder">
+                                <div class="d-flex justify-space-between align-center mb-2 mt-n3">
+                                    <p class="font-weight-regular fs-14 subtext--text mb-0">Quantity</p>
+                                    <p class="font-weight-regular fs-14 subtext--text mb-0 text-right">
+                                        MLot: {{ menudata[0]?.ls ?? '-' }}
+                                    </p>
+                                </div>
+
+                                <v-text-field density="compact" bg-color="secbg" rounded="xl" variant="flat"
+                                    type="number" v-model.number="quantity" hide-spin-buttons="true" hide-details
+                                    @blur="validateQuantity" class="font-weight-bold fs-16">
+                                    <!-- PREPEND: - button -->
+                                    <template #prepend-inner>
+                                        <v-btn @click="decreaseQuantity()" icon class="elevation-0" :ripple="false"
+                                            :overlay="false" :disabled="quantity <= 1" :disable-focus-on-click="true"
+                                            style="background-color: transparent !important;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none">
+                                                <circle cx="12" cy="12" r="12" fill="white" />
+                                                <path d="M16 12H8" stroke="#999999" stroke-width="2"
+                                                    stroke-linecap="round" />
+                                            </svg>
+                                        </v-btn>
+                                    </template>
+
+                                    <!-- APPEND: + button -->
+                                    <template #append-inner>
+                                        <v-btn @click="increaseQuantity()" icon class="elevation-0" :ripple="false"
+                                            :overlay="false" :disable-focus-on-click="true"
+                                            style="background-color: transparent !important;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none">
+                                                <circle cx="12" cy="12" r="12" fill="white" />
+                                                <path d="M12 8V16" stroke="#999999" stroke-width="2"
+                                                    stroke-linecap="round" />
+                                                <path d="M16 12H8" stroke="#999999" stroke-width="2"
+                                                    stroke-linecap="round" />
+                                            </svg>
+                                        </v-btn>
+                                    </template>
+                                </v-text-field>
+
+                                <p v-if="menudata[1]" class="lh-16 fs-10 subtext--text mb-0 mt-1">
+                                    Freeze qty: {{ menudata[1]?.frzqty ?? '-' }}
+                                </p>
                             </div>
-                            <v-text-field density="compact" bg-color="secbg" rounded="xl" variant="flat" type="number"
-                                v-model.number="quantity" :rules="quantityRules" hide-details @blur="validateQuantity">
-                                <template #append-inner>
-                                    <v-btn @click="increaseQuantity()" icon class="elevation-0"
-                                        style="background-color: transparent !important;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" fill="none">
-                                            <circle cx="12" cy="12" r="12" fill="white" />
-                                            <path d="M12 8V16" stroke="#999999" stroke-width="2"
-                                                stroke-linecap="round" />
-                                            <path d="M16 12L8 12" stroke="#999999" stroke-width="2"
-                                                stroke-linecap="round" />
-                                        </svg>
-                                    </v-btn>
-                                </template>
-                                <template #prepend-inner>
-                                    <v-btn @click="decreaseQuantity()" icon class="elevation-0"
-                                        style="background-color: transparent !important;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" fill="none">
-                                            <circle cx="12" cy="12" r="12" fill="white" />
-                                            <path d="M16 12L8 12" stroke="#999999" stroke-width="2"
-                                                stroke-linecap="round" />
-                                        </svg>
-                                    </v-btn>
-                                </template>
-                            </v-text-field>
-                            <p v-if="menudata[1]" class="lh-16 fs-10 subtext--text mb-0 mt-1">Freeze qty: {{
-                                menudata[1]?.frzqty ?? '-' }}</p>
+
+
+                            <!-- Advanced Order Quantity UI -->
+                            <div v-else>
+                                <div class="d-flex justify-space-between align-center mb-2">
+                                    <p class="font-weight-regular fs-14 subtext--text mb-0">Quantity</p>
+                                    <p class="font-weight-regular fs-14 subtext--text mb-0 text-right">MLot: {{
+                                        menudata[0]?.ls ?? '-' }}</p>
+                                </div>
+                                <v-text-field density="compact" bg-color="secbg" rounded="xl" variant="flat"
+                                    type="number" v-model.number="quantity" :rules="quantityRules" hide-details
+                                    @blur="validateQuantity">
+                                    <template #append-inner>
+                                        <v-btn @click="increaseQuantity()" icon class="elevation-0"
+                                            style="background-color: transparent !important;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none">
+                                                <circle cx="12" cy="12" r="12" fill="white" />
+                                                <path d="M12 8V16" stroke="#999999" stroke-width="2"
+                                                    stroke-linecap="round" />
+                                                <path d="M16 12L8 12" stroke="#999999" stroke-width="2"
+                                                    stroke-linecap="round" />
+                                            </svg>
+                                        </v-btn>
+                                    </template>
+                                    <template #prepend-inner>
+                                        <v-btn @click="decreaseQuantity()" icon class="elevation-0"
+                                            style="background-color: transparent !important;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none">
+                                                <circle cx="12" cy="12" r="12" fill="white" />
+                                                <path d="M16 12L8 12" stroke="#999999" stroke-width="2"
+                                                    stroke-linecap="round" />
+                                            </svg>
+                                        </v-btn>
+                                    </template>
+                                </v-text-field>
+                                <p v-if="menudata[1]" class="lh-16 fs-10 subtext--text mb-0 mt-1">Freeze qty: {{
+                                    menudata[1]?.frzqty ?? '-' }}</p>
+                            </div>
                         </v-col>
 
                         <!-- Price -->
-                        <v-col cols="12" md="6">
-                            <div class="d-flex justify-space-between align-center mb-2">
+                        <v-col :cols="isQuickOrder ? 12 : 12" :md="isQuickOrder ? 12 : 6">
+                            <div class="d-flex justify-space-between align-center mb-2 ">
                                 <p class="font-weight-regular fs-14 subtext--text mb-0">Price</p>
                                 <p class="font-weight-regular fs-14 subtext--text mb-0 text-right">Tick: {{
                                     menudata[0]?.ti ?? '-' }}
                                 </p>
                             </div>
-                            <v-text-field density="compact" bg-color="secbg" variant="flat" style="height: 45px;"
-                                rounded="xl" type="number" :readonly="priceType === 'MKT' || priceType === 'SL-MKT'"
-                                v-model.number="price" hide-details @input="handlePriceInput">
-                                <template #prepend-inner>
-                                    <v-btn icon class="elevation-0"
-                                        style="background-color: transparent !important;border-radius: 50% !important;background-color: white !important;height: 23px;width: 24px;color: grey !important;">
-                                        ₹
-                                    </v-btn>
-                                </template>
-                                <template #append-inner>
-                                    <svg v-if="priceType === 'MKT' || priceType === 'SL-MKT'"
-                                        xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14"
-                                        fill="none">
-                                        <path
-                                            d="M10.0625 4.8125H9.1875V3.0625C9.1875 1.85456 8.20794 0.875 7 0.875C5.79206 0.875 4.8125 1.85456 4.8125 3.0625V4.8125H3.9375V3.0625C3.9375 1.37112 5.30862 0 7 0C8.69137 0 10.0625 1.37112 10.0625 3.0625V4.8125Z"
-                                            fill="#999999" />
-                                        <path
-                                            d="M11.5938 5.6875H2.40625C1.80206 5.6875 1.3125 6.17706 1.3125 6.78125V12.9062C1.3125 13.5104 1.80206 14 2.40625 14H11.5938C12.1979 14 12.6875 13.5104 12.6875 12.9062V6.78125C12.6875 6.17706 12.1979 5.6875 11.5938 5.6875ZM7.4375 10.8754V11.8125C7.4375 12.054 7.2415 12.25 7 12.25C6.7585 12.25 6.5625 12.054 6.5625 11.8125V10.8754C5.62669 10.6339 5.06406 9.67925 5.30556 8.74344C5.54706 7.80763 6.50169 7.245 7.4375 7.4865C8.37331 7.728 8.93594 8.68263 8.69444 9.61844C8.53519 10.2349 8.05394 10.7161 7.4375 10.8754Z"
-                                            fill="#999999" />
-                                    </svg>
-                                </template>
-                            </v-text-field>
-                            <p v-if="menudata[1]" class="lh-16 fs-10 subtext--text mb-0 mt-1">Circuit level: {{
-                                menudata[1]?.lc ?? '-' }} - {{
-                                    menudata[1]?.uc ?? '-' }}</p>
+
+                            <!-- Quick Order Price UI -->
+                            <v-row no-gutters v-if="isQuickOrder">
+                                <v-col cols="5" class="pr-2">
+                                    <div class="d-flex rounded-pill overflow-hidden "
+                                        style="background-color: #F1F3F8; height: 40px;">
+                                        <v-btn class="rounded-0 text-none font-weight-bold fs-12"
+                                            :color="(priceType === 'LMT' || priceType === 'SL-LMT') ? 'black' : 'transparent'"
+                                            :variant="priceType === 'LMT' ? 'flat' : 'flat'" height="100%"
+                                            @click="priceType = showTrigger ? 'SL-LMT' : 'LMT'; onOrderTypeChanged()">LMT</v-btn>
+                                        <v-btn class="rounded-0 text-none font-weight-bold fs-12"
+                                            :color="(priceType === 'MKT' || priceType === 'SL-MKT') ? 'black' : 'transparent'"
+                                            :variant="priceType === 'MKT' ? 'flat' : 'flat'" height="100%"
+                                            @click="priceType = showTrigger ? 'SL-MKT' : 'MKT'; onOrderTypeChanged()">MKT</v-btn>
+                                    </div>
+                                </v-col>
+                                <v-col cols="7">
+                                    <v-text-field density="compact" bg-color="secbg" variant="flat"
+                                        style="height: 45px;" rounded="xl" type="number" hide-spin-buttons
+                                        :readonly="priceType === 'MKT' || priceType === 'SL-MKT'" v-model.number="price"
+                                        hide-details @input="handlePriceInput">
+                                        <template #prepend-inner>
+                                            <div class="d-flex align-center justify-center" style="
+                                                background-color: white;
+                                                border-radius: 50%;
+                                                height: 23px;
+                                                width: 24px;
+                                                color: grey;
+                                                font-size: 14px;
+                                            ">
+                                                ₹
+                                            </div>
+                                        </template>
+                                        <template #append-inner>
+                                            <svg v-if="priceType === 'MKT' || priceType === 'SL-MKT'"
+                                                xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                                viewBox="0 0 14 14" fill="none">
+                                                <path
+                                                    d="M10.0625 4.8125H9.1875V3.0625C9.1875 1.85456 8.20794 0.875 7 0.875C5.79206 0.875 4.8125 1.85456 4.8125 3.0625V4.8125H3.9375V3.0625C3.9375 1.37112 5.30862 0 7 0C8.69137 0 10.0625 1.37112 10.0625 3.0625V4.8125Z"
+                                                    fill="#999999" />
+                                                <path
+                                                    d="M11.5938 5.6875H2.40625C1.80206 5.6875 1.3125 6.17706 1.3125 6.78125V12.9062C1.3125 13.5104 1.80206 14 2.40625 14H11.5938C12.1979 14 12.6875 13.5104 12.6875 12.9062V6.78125C12.6875 6.17706 12.1979 5.6875 11.5938 5.6875ZM7.4375 10.8754V11.8125C7.4375 12.054 7.2415 12.25 7 12.25C6.7585 12.25 6.5625 12.054 6.5625 11.8125V10.8754C5.62669 10.6339 5.06406 9.67925 5.30556 8.74344C5.54706 7.80763 6.50169 7.245 7.4375 7.4865C8.37331 7.728 8.93594 8.68263 8.69444 9.61844C8.53519 10.2349 8.05394 10.7161 7.4375 10.8754Z"
+                                                    fill="#999999" />
+                                            </svg>
+                                        </template>
+                                    </v-text-field>
+                                </v-col>
+                                <v-col cols="12">
+                                    <p v-if="menudata[1]" class="lh-16 fs-10 subtext--text mb-0 mt-1">Circuit level: {{
+                                        menudata[1]?.lc ?? '-' }} - {{ menudata[1]?.uc ?? '-' }}</p>
+                                </v-col>
+                            </v-row>
+
+                            <!-- Advanced Order Price UI -->
+                            <div v-else>
+                                <v-text-field density="compact" hide-spin-buttons bg-color="secbg" variant="flat"
+                                    style="height: 45px;" rounded="xl" type="number"
+                                    :readonly="priceType === 'MKT' || priceType === 'SL-MKT'" v-model.number="price"
+                                    hide-details @input="handlePriceInput">
+                                    <template #prepend-inner>
+                                        <v-btn icon class="elevation-0"
+                                            style="background-color: transparent !important;border-radius: 50% !important;background-color: white !important;height: 23px;width: 24px;color: grey !important;">
+                                            ₹
+                                        </v-btn>
+                                    </template>
+                                    <template #append-inner>
+                                        <svg v-if="priceType === 'MKT' || priceType === 'SL-MKT'"
+                                            xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                            viewBox="0 0 14 14" fill="none">
+                                            <path
+                                                d="M10.0625 4.8125H9.1875V3.0625C9.1875 1.85456 8.20794 0.875 7 0.875C5.79206 0.875 4.8125 1.85456 4.8125 3.0625V4.8125H3.9375V3.0625C3.9375 1.37112 5.30862 0 7 0C8.69137 0 10.0625 1.37112 10.0625 3.0625V4.8125Z"
+                                                fill="#999999" />
+                                            <path
+                                                d="M11.5938 5.6875H2.40625C1.80206 5.6875 1.3125 6.17706 1.3125 6.78125V12.9062C1.3125 13.5104 1.80206 14 2.40625 14H11.5938C12.1979 14 12.6875 13.5104 12.6875 12.9062V6.78125C12.6875 6.17706 12.1979 5.6875 11.5938 5.6875ZM7.4375 10.8754V11.8125C7.4375 12.054 7.2415 12.25 7 12.25C6.7585 12.25 6.5625 12.054 6.5625 11.8125V10.8754C5.62669 10.6339 5.06406 9.67925 5.30556 8.74344C5.54706 7.80763 6.50169 7.245 7.4375 7.4865C8.37331 7.728 8.93594 8.68263 8.69444 9.61844C8.53519 10.2349 8.05394 10.7161 7.4375 10.8754Z"
+                                                fill="#999999" />
+                                        </svg>
+                                    </template>
+                                </v-text-field>
+                                <p v-if="menudata[1]" class="lh-16 fs-10 subtext--text ml-2 mb-0 mt-1">Circuit
+                                    level: {{
+                                        menudata[1]?.lc ?? '-' }} - {{
+                                        menudata[1]?.uc ?? '-' }}</p>
+                            </div>
                         </v-col>
                     </v-row>
 
 
 
-                    <!-- Cover / Bracket Fields -->
-                    <v-row v-if="orderType !== 3">
+                    <!-- Trigger / Stoploss / Target Fields -->
+                    <!-- Quick Order Layout -->
+                    <div v-if="isQuickOrder && orderType !== 3">
+                        <!-- SL/Trigger -->
+                        <div class="mt-2">
+                            <v-checkbox v-model="showTrigger" label="SL/Trigger" density="compact" hide-details
+                                color="black" class="font-weight-bold"></v-checkbox>
+                            <!-- <v-text-field v-if="showTrigger" density="compact" bg-color="secbg" variant="flat"
+                                rounded="xl" type="number" v-model.number="triggerPrice" hide-details class="mt-1">
+                                <template #prepend-inner><span class="text-grey mr-1">₹</span></template>
+                            </v-text-field> -->
+
+                            <v-text-field v-if="showTrigger" density="compact" bg-color="secbg" variant="flat"
+                                rounded="xl" type="number" hide-spin-buttons v-model.number="triggerPrice" hide-details
+                                style="height: 45px;" class="mt-1">
+                                <template #prepend-inner>
+                                    <div class="d-flex align-center justify-center" style="
+                background-color: white;
+                border-radius: 50%;
+                height: 23px;
+                width: 24px;
+                color: grey;
+                font-size: 14px;
+            ">
+                                        ₹
+                                    </div>
+                                </template>
+                            </v-text-field>
+
+
+
+
+                        </div>
+
+                        <!-- Target & Stoploss Row -->
+                        <v-row class="mt-n3">
+                            <v-col cols="6">
+                                <v-checkbox v-model="showTarget" label="Target" density="compact" hide-details
+                                    color="black" class="font-weight-bold"></v-checkbox>
+                                <v-text-field v-if="showTarget" density="compact" bg-color="secbg" variant="flat"
+                                    rounded="xl" type="number" v-model.number="targetPrice" hide-details
+                                    style="height: 45px;" class="mt-1 no-spin" hide-spin-buttons>
+                                    <template #prepend-inner>
+                                        <div class="d-flex align-center justify-center" style="
+        background-color: white;
+        border-radius: 50%;
+        height: 23px;
+        width: 24px;
+        color: grey;
+        font-size: 14px;
+      ">
+                                            ₹
+                                        </div>
+                                    </template>
+                                </v-text-field>
+
+                            </v-col>
+                            <v-col cols="6">
+                                <v-checkbox v-model="showStopLoss" label="Stoploss" density="compact" hide-details
+                                    color="black" class="font-weight-bold"></v-checkbox>
+                                <v-text-field v-if="showStopLoss" density="compact" bg-color="secbg" variant="flat"
+                                    rounded="xl" type="number" v-model.number="stopLossPrice" hide-details
+                                    hide-spin-buttons style="height: 45px;" class="mt-1 no-spin">
+                                    <template #prepend-inner>
+                                        <div class="d-flex align-center justify-center" style="
+        background-color: white;
+        border-radius: 50%;
+        height: 23px;
+        width: 24px;
+        color: grey;
+        font-size: 14px;
+      ">
+                                            ₹
+                                        </div>
+                                    </template>
+                                </v-text-field>
+
+                            </v-col>
+                        </v-row>
+                    </div>
+
+                    <!-- Advanced Order Layout -->
+                    <v-row v-else-if="orderType !== 3">
+                        <!-- Trigger -->
                         <v-col cols="12" md="6" v-if="priceType === 'SL-LMT' || priceType === 'SL-MKT'">
-                            <p class="subtext--text fs-14 font-weight-regular mb-2 mt-2">Trigger</p>
-                            <v-text-field v-if="priceType === 'SL-LMT' || priceType === 'SL-MKT'" class="mt-2"
-                                style="height: 50px;" density="compact" bg-color="secbg" variant="flat" type="number"
-                                v-model.number="triggerPrice" rounded="xl" label="Trigger price" hide-details>
+                            <div class="d-flex align-center justify-space-between">
+                                <p class="subtext--text fs-14 font-weight-regular mb-2 mt-2">Trigger</p>
+                            </div>
+                            <v-text-field class="mt-2" style="height: 50px;" density="compact" bg-color="secbg"
+                                variant="flat" type="number" v-model.number="triggerPrice" rounded="xl"
+                                label="Trigger price" hide-details>
                                 <template #prepend-inner>
                                     <div class="d-flex align-center justify-center" style="
                                         background-color: white;
@@ -242,46 +513,45 @@
                                 </template>
                             </v-text-field>
                         </v-col>
+
+                        <!-- Stop Loss -->
                         <v-col cols="12" md="6" v-if="orderType === 1 || orderType === 2">
-                            <div v-if="orderType === 1 || orderType === 2" class="mt-2">
-                                <p class="subtext--text fs-14 font-weight-regular mb-2">Stop Loss</p>
-                                <v-text-field density="comfortable" bg-color="secbg" variant="flat" rounded="xl"
-                                    type="number" v-model.number="stopLossPrice" hide-details height="45px"
-                                    @input="handleStopLossInput">
-                                    <template #prepend-inner>
-                                        <v-btn icon class="elevation-0"
-                                            style="border-radius: 50% !important;background-color: white !important;height: 23px;width: 24px;color: grey !important;">
-                                            ₹
-                                        </v-btn>
-                                    </template>
-                                </v-text-field>
+                            <div class="d-flex align-center justify-space-between">
+                                <p class="subtext--text fs-14 font-weight-regular mb-2 mt-2">Stop Loss</p>
                             </div>
+                            <v-text-field density="comfortable" bg-color="secbg" variant="flat" rounded="xl"
+                                type="number" v-model.number="stopLossPrice" hide-details height="45px"
+                                @input="handleStopLossInput">
+                                <template #prepend-inner>
+                                    <v-btn icon class="elevation-0"
+                                        style="border-radius: 50% !important;background-color: white !important;height: 23px;width: 24px;color: grey !important;">
+                                        ₹
+                                    </v-btn>
+                                </template>
+                            </v-text-field>
                         </v-col>
+
+                        <!-- Target -->
                         <v-col cols="12" md="6" v-if="orderType === 2">
-
-                            <div class="d-flex justify-space-between align-center mb-2 mt-2">
-                                <p class="font-weight-regular fs-14 subtext--text mb-0">Target</p>
+                            <div class="d-flex align-center justify-space-between">
+                                <p class="font-weight-regular fs-14 subtext--text mb-0 mt-2">Target</p>
                             </div>
-
-                            <v-text-field v-model.number="targetPrice" type="number" placeholder="Target" variant="flat"
-                                density="comfortable" hide-details rounded="pill" bg-color="#f1f3f8"
-                                class="elevation-0 target-input" @input="handleTargetPriceInput">
+                            <v-text-field density="comfortable" bg-color="secbg" variant="flat" rounded="xl"
+                                type="number" v-model.number="targetPrice" hide-details height="45px"
+                                @input="handleTargetPriceInput">
                                 <template #prepend-inner>
                                     <div class="d-flex align-center justify-center" style="
-        background-color: white;
-        border-radius: 50%;
-        /* height: 22px; */
-        width: 22px;
-        font-size: 14px;
-        color: #666;
-      ">
+                                        background-color: white;
+                                        border-radius: 50%;
+                                        width: 22px;
+                                        font-size: 14px;
+                                        color: #666;
+                                    ">
                                         ₹
                                     </div>
                                 </template>
                             </v-text-field>
-
                         </v-col>
-
                     </v-row>
 
                     <!-- GTT Fields -->
@@ -566,7 +836,8 @@
                     <!-- No content needed here as SIP tab click is handled automatically -->
 
                     <!-- Validity & Disclosed Qty -->
-                    <div v-if="orderType !== 3 && orderType !== 4" class="mt-4" style="border-top: 1px solid #e0e0e0;">
+                    <div v-if="orderType !== 3 && orderType !== 4 && !isQuickOrder" class="mt-4"
+                        style="border-top: 1px solid #e0e0e0;">
                         <v-checkbox color="maintext" v-model="addValidityQty" hide-details>
                             <template #label>
                                 <p class="font-weight-regular fs-14 subtext--text mb-0">Add Validity & Disclosed Qty</p>
@@ -643,7 +914,7 @@
 
                     <!-- After Market Order -->
                     <div class="d-flex align-center mt-0" style="border-top: 1px solid #e0e0e0;"
-                        v-if="orderType !== 1 && orderType !== 3 && orderType !== 2">
+                        v-if="orderType !== 1 && orderType !== 3 && orderType !== 2 && !isQuickOrder">
                         <v-checkbox color="maintext" v-model="afterMarket" hide-details
                             :disabled="orderContextType === 're-order' || orderContextType === 'mod-order'">
                             <template #label>
@@ -653,7 +924,7 @@
                     </div>
 
                     <!-- Market Protection % (shown when price type is MKT or SL-MKT) -->
-                    <div v-if="orderType !== 3 && orderType !== 4 && (priceType === 'MKT' || priceType === 'SL-MKT')"
+                    <div v-if="orderType !== 3 && orderType !== 4 && (priceType === 'MKT' || priceType === 'SL-MKT') && !isQuickOrder"
                         class="mt-0">
                         <v-divider class="mb-3"></v-divider>
                         <p class="font-weight-regular fs-14 subtext--text mb-2">Market Protection %</p>
@@ -674,8 +945,8 @@
                     </div>
 
                     <!-- Margin Preview -->
-                    <v-divider class="my-3"></v-divider>
-                    <div class="d-flex align-center">
+                    <v-divider v-if="!isQuickOrder" class="my-3"></v-divider>
+                    <div class="d-flex align-center" :class="isQuickOrder && 'mt-3'">
                         <p class="font-weight-medium fs-12 subtext--text mb-0">
                             <span>Margin </span>
                             <span class="ml-1 primary--text">
@@ -738,7 +1009,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAppStore } from '@/stores/appStore'
 import { getQuotesdata, getSecuritydata, getPlaceOrder, getOrderMargin, getBrokerage, setOrdprefApi, getGTTPlaceOrder } from '@/components/mixins/getAPIdata'
@@ -802,6 +1073,89 @@ let websocketMarginDebounceTimer = null // Separate timer for websocket-triggere
 const sliceFzqty = ref([]) // Array containing all slice quantities: [freezeQty, freezeQty, ..., remainder]
 const sliceFq = ref(1) // number of slices (not including remainder)
 
+// Quick Order State
+const quickOrderDefault = ref(false)
+const showTrigger = ref(false)
+const showStopLoss = ref(false)
+const showTarget = ref(false)
+const isDelivery = ref(false)
+
+// Watchers for Quick Order logic
+watch(isQuickOrder, (newVal) => {
+    if (newVal) {
+        showTrigger.value = !!triggerPrice.value
+        showStopLoss.value = !!stopLossPrice.value
+        showTarget.value = !!targetPrice.value
+        isDelivery.value = investType.value === 'C' || investType.value === 'M'
+    }
+})
+
+watch(isDelivery, (newVal) => {
+    if (isQuickOrder.value) {
+        if (newVal) {
+            if (menudata.value[0]?.exch === 'NSE' || menudata.value[0]?.exch === 'BSE') {
+                investType.value = 'C'
+            } else {
+                investType.value = 'M'
+            }
+        } else {
+            investType.value = 'I'
+        }
+        onOrderTypeChanged()
+    }
+})
+
+watch(showTrigger, (newVal) => {
+    if (!newVal) {
+        triggerPrice.value = null
+        if (priceType.value === 'SL-LMT') priceType.value = 'LMT'
+        if (priceType.value === 'SL-MKT') priceType.value = 'MKT'
+    } else {
+        if (priceType.value === 'LMT') priceType.value = 'SL-LMT'
+        if (priceType.value === 'MKT') priceType.value = 'SL-MKT'
+    }
+})
+
+watch(showStopLoss, (newVal) => {
+    if (!newVal) stopLossPrice.value = null
+})
+
+watch(showTarget, (newVal) => {
+    if (!newVal) targetPrice.value = null
+})
+
+const saveOrderPreferences = async () => {
+    localStorage.setItem('isStickyDialog', isStickyDialog.value)
+    localStorage.setItem('quickOrderDefault', quickOrderDefault.value)
+
+    // Also save to backend API (like old code setStickyupdate)
+    try {
+        await setOrdprefApi({
+            quickord: quickOrderDefault.value,
+            ordsrcpop: isStickyDialog.value,
+            // We send current values for other fields to avoid overwriting them with defaults if the API replaces the whole object
+            investype: investType.value,
+            prc: priceType.value,
+            ordqty: quantity.value
+        }, true)
+    } catch (e) {
+        // console.error('Failed to save preferences to backend', e)
+    }
+}
+
+// Initialize preferences
+onMounted(() => {
+    const savedSticky = localStorage.getItem('isStickyDialog')
+    if (savedSticky !== null) {
+        isStickyDialog.value = savedSticky === 'true'
+    }
+    const savedQuick = localStorage.getItem('quickOrderDefault')
+    if (savedQuick !== null) {
+        quickOrderDefault.value = savedQuick === 'true'
+        isQuickOrder.value = quickOrderDefault.value
+    }
+})
+
 const appStore = useAppStore()
 
 const ltpDisplay = computed(() => {
@@ -835,12 +1189,28 @@ const isGTTButtonDisabled = computed(() => {
     return false
 })
 
+// Helper to format numbers with K/L/Cr suffixes (like old app setFormatNumber)
+function formatNumber(value) {
+    const val = Number(value)
+    if (isNaN(val)) return '0.00'
+
+    if (val > 9999999) {
+        return (val / 10000000).toFixed(2) + "Cr"
+    } else if (val > 99999) {
+        return (val / 100000).toFixed(2) + "L"
+    } else if (val > 9999) {
+        return (val / 1000).toFixed(2) + "K"
+    } else {
+        return val.toFixed(2)
+    }
+}
+
 // Margin / Brokerage preview state
 const orderMargin = ref(0)
 const cashAvailable = ref(0)
-const orderMarginDisplay = computed(() => Number(orderMargin.value || 0).toFixed(2))
-const cashAvailableDisplay = computed(() => Number(cashAvailable.value || 0).toFixed(2))
-const chargesDisplay = computed(() => Number(charges.value || 0).toFixed(2))
+const orderMarginDisplay = computed(() => formatNumber(orderMargin.value || 0))
+const cashAvailableDisplay = computed(() => formatNumber(cashAvailable.value || 0))
+const chargesDisplay = computed(() => formatNumber(charges.value || 0))
 
 // Quantity validation rules (no helper text - only for basic validation)
 const quantityRules = computed(() => {
@@ -1562,6 +1932,7 @@ async function handleMenuDialogEvent(event) {
         buyOrSellIsSell.value = (trantype || '').toLowerCase() === 's'
         investType.value = (exch === 'NSE' || exch === 'BSE') ? 'C' : 'I'
         priceType.value = 'LMT'
+        isQuickOrder.value = quickOrderDefault.value
         orderType.value = 0
         // Don't set default quantity if it's modify/re-order - let the prefill logic handle it
         if (!item || (type !== 'mod-order' && type !== 're-order' && type !== 'exit-order')) {

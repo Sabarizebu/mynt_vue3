@@ -1,8 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { useMarketDataStore } from './marketDataStore'
+import { useHoldingsStore } from './holdingsStore'
 
 export const useWebsocketStore = defineStore('websocket', () => {
     // WebSocket subscription data state
+    const marketDataStore = useMarketDataStore()
+    const holdingsStore = useHoldingsStore()
+
     const wsstocksdata = ref({
         raw: null,        // current page
         rawdata: [],      // current page data
@@ -171,6 +176,13 @@ export const useWebsocketStore = defineStore('websocket', () => {
         if (wsstocksdata.value.tok && wsstocksdata.value.rawdata) {
             // Emit web-scoketConn event with actual data
             const eventData = Array.isArray(data) ? data[0]?.v : data
+
+            // Process data in MarketDataStore
+            if (eventData) {
+                marketDataStore.processFeed(eventData)
+                holdingsStore.updateHoldings(eventData)
+            }
+
             const currentPage = wsstocksdata.value.raw
 
             // Dispatch to window for components listening via addEventListener
