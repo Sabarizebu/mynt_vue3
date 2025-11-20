@@ -22,7 +22,7 @@
           elevation="0" rounded :disabled="tableloader"></v-text-field>
 
         <v-select v-model="seriesFilter" :items="uniqueSeries" item-title="text" item-value="value"
-          placeholder="Bond series" clearable  hide-details :disabled="tableloader" density="compact" variant="flat"
+          placeholder="Bond series" clearable hide-details :disabled="tableloader" density="compact" variant="flat"
           rounded="pill" bg-color="secbg" elevation="0" class="rounded-pill ml-3 pl-3" style="max-width: 160px">
         </v-select>
 
@@ -44,7 +44,7 @@
         :loading="tableloader" class="mt-3 rounded-lg overflow-y-auto d-none d-md-block holdings-table"
         style="border-radius: 8px; border: 1px solid #EBEEF0; background-color: #ffffff !important;" height="480px"
         :headers="orderheader" :items="filteredOrderbookdataSorted" :items-per-page="filteredOrderbookdataSorted.length"
-        item-key="orderNumber" :item-class="() => 'table-row'" @click:row="(event, { item }) => setOrderrowdata(item)">
+        item-key="orderNumber" :item-class="getRowClass" @click:row="(event, { item }) => setOrderrowdata(item)">
         <template v-if="ordertab === 0" #header.data-table-select>
           <v-checkbox-btn
             :model-value="filteredOrderbookdataSorted.length > 0 && bonddselected.length === filteredOrderbookdataSorted.length"
@@ -79,33 +79,37 @@
         <template v-slot:body="{ items, headers }">
           <tr v-if="ordertab == 1 ? execorders && execorders.length > 0 : openorders && openorders.length > 0"
             class="table-row" v-for="(item, o) in items" :key="o">
-            <td class="pos-rlt">
-              <span class="table-hov-text maintext--text font-weight-medium">{{ item.symbol ? item.symbol : "-"
-                }}</span> <span class="ml-1 subtext--text fs-10">{{ item.series ? item.series : "" }}</span>
-              <div @click.stop class="pos-abs table-hov" style="top: 15px; right: 0; z-index: 1;">
-                <v-menu close-on-click absolute offset-y class="table-menu">
+            <td class="pos-rlt tradebook-instrument-cell" style="min-width: 200px;">
+              <div class="d-flex align-center">
+                <span class="font-weight-bold maintext--text" style="font-size: 13px;">{{ item.symbol || "-" }}</span>
+                <span class="ml-2 subtext--text" style="font-size: 11px; color: #9CA3AF;">{{ item.series || "" }}</span>
+              </div>
+              <div @click.stop class="pos-abs tradebook-hover-icons"
+                style="top: 50%; transform: translateY(-50%); right: 10px; z-index: 10;">
+                <v-menu :model-value="activeMenuId === item.orderNumber"
+                  @update:model-value="(val) => !val && (activeMenuId = null)" close-on-content-click location="bottom"
+                  offset-y class="table-menu">
                   <template v-slot:activator="{ props }">
-                    <v-btn v-bind="props" style="border: 1px solid var(--outline);" min-width="20px" color="mainbg"
-                      class="px-0 font-weight-bold white--text elevation-0 mr-1" size="x-small">
-                      <v-icon size="20" color="maintext">mdi-dots-horizontal</v-icon>
+                    <v-btn v-bind="props" @click.stop="toggleMenu(item.orderNumber)"
+                      style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 24px; height: 24px; padding: 0;"
+                      min-width="24px" class="elevation-0" size="x-small">
+                      <v-icon size="16" color="#666666">mdi-dots-horizontal</v-icon>
                     </v-btn>
                   </template>
-                  <v-card class="table-menu-list">
-                    <v-list density="compact">
-                      <div v-for="(m, k) in ordertab === 0 ? menulist.open : menulist.exec" :key="k">
-                        <v-list-item
-                          @click="m.type === 'new' ? router.push('/bonds') : m.type === 'cd' ? setOrdercancel(item) : setOrderrowdata(item)"
-                          class="pl-3 pr-6">
+                  <v-card class="table-menu-list"
+                    style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 160px;">
+                    <v-list density="compact" style="padding: 8px 0;">
+                      <div v-for="(m, k) in getMenuItems(ordertab)" :key="k">
+                        <v-list-item @click="handleMenuAction(m, item)" class="pl-3 pr-4"
+                          style="min-height: 36px; cursor: pointer;">
                           <template #prepend>
-                            <img v-if="m.icon > 2 && getOrderbookIcon(m.icon)" width="20px" class="pl-1 mr-3"
-                              :src="getOrderbookIcon(m.icon)" />
-                            <v-icon v-else class="" color="#506D84" size="20">{{ m.icon }}</v-icon>
+                            <v-icon :icon="m.icon" size="18" color="#506D84" style="margin-right: 12px;" />
                           </template>
-                          <v-list-item-title class="subline--text font-weight-medium fs-14">
+                          <v-list-item-title class="font-weight-medium" style="font-size: 13px; color: #374151;">
                             {{ m.name }}
                           </v-list-item-title>
                         </v-list-item>
-                        <v-divider v-if="m.hr" class="mx-3"></v-divider>
+                        <v-divider v-if="m.hr" class="mx-3" style="margin: 4px 0;"></v-divider>
                       </div>
                     </v-list>
                   </v-card>
@@ -114,7 +118,8 @@
             </td>
 
             <td>
-              <v-chip size="x-small" class="table-hov-prd rounded-md" label variant="flat" style="background-color: #F1F3F8; color: #666666; border-radius: 5px;">
+              <v-chip size="x-small" class="table-hov-prd rounded-md" label variant="flat"
+                style="background-color: #F1F3F8; color: #666666; border-radius: 5px;">
                 <span class=" fs-12">{{ item.orderNumber }}</span>
               </v-chip>
             </td>
@@ -150,7 +155,7 @@
                 <div class="mx-auto py-16 mt-16">
                   <img class="mx-auto" width="80px" :src="noDataFolder" />
                   <h4 class="txt-999 font-weight-regular caption">
-                    There is no {{ ordertab == 1 ? "Open" : "Close" }} order 
+                    There is no {{ ordertab == 1 ? "Open" : "Close" }} order
                     data here yet!
                   </h4>
                 </div>
@@ -198,14 +203,10 @@
                         </template>
                         <v-card class="table-menu-list">
                           <v-list density="compact">
-                            <div v-for="(m, k) in ordertab == 0 ? menulist.open : menulist.exec" :key="k">
-                              <v-list-item
-                                @click="m.type == 'new' ? router.push('/bonds') : m.type == 'cd' ? setOrdercancel(item) : setOrderrowdata(item)"
-                                class="pl-3 pr-6">
+                            <div v-for="(m, k) in getMenuItems(ordertab)" :key="k">
+                              <v-list-item @click="handleMenuAction(m, item)" class="pl-3 pr-6">
                                 <template v-slot:prepend>
-                                  <img v-if="m.icon > 2 && getOrderbookIcon(m.icon)" width="20px" class="pl-1 mr-3"
-                                    :src="getOrderbookIcon(m.icon)" />
-                                  <v-icon v-else class="mr-3" color="#506D84">{{ m.icon }}</v-icon>
+                                  <v-icon :icon="m.icon" class="mr-3" color="#506D84" size="20" />
                                 </template>
                                 <v-list-item-title class="subline--text font-weight-medium fs-14">{{ m.name
                                   }}</v-list-item-title>
@@ -449,18 +450,46 @@ const selectedOrderId = ref(null)
 const tableloader = ref(true)
 const ordertab = ref(0)
 const showtable = ref(24)
-const menulist = ref({
-  open: [
-    { name: "Cancel Order", icon: 12, type: "cd" },
-    { name: "Order Status", icon: 3, type: "", hr: true },
-    { name: "Details", icon: 10, type: "detail" },
-  ],
-  exec: [
-    { name: "New Order", icon: "mdi-plus", type: "new", trans: "b" },
-    { name: "Order Status", icon: 3, type: "", hr: true },
-    { name: "Details", icon: 10, type: "detail" },
-  ],
-})
+const activeMenuId = ref(null)
+
+function toggleMenu(id) {
+  if (activeMenuId.value === id) {
+    activeMenuId.value = null
+  } else {
+    activeMenuId.value = id
+  }
+}
+
+function getMenuItems(tab) {
+  if (tab === 0) { // Open orders
+    return [
+      { name: "Cancel Order", icon: "mdi-close-circle-outline", type: "cd" },
+      { name: "Order Status", icon: "mdi-format-list-numbered", type: "status", hr: true },
+      { name: "Details", icon: "mdi-information-outline", type: "detail" },
+    ]
+  }
+  // Exec orders
+  return [
+    { name: "New Order", icon: "mdi-plus", type: "new" },
+    { name: "Order Status", icon: "mdi-format-list-numbered", type: "status", hr: true },
+    { name: "Details", icon: "mdi-information-outline", type: "detail" },
+  ]
+}
+
+function handleMenuAction(m, item) {
+  activeMenuId.value = null
+  if (m.type === 'new') {
+    router.push('/bonds')
+  } else if (m.type === 'cd') {
+    setOrdercancel(item)
+  } else {
+    setOrderrowdata(item)
+  }
+}
+
+function getRowClass(item) {
+  return activeMenuId.value === item.orderNumber ? 'table-row active-row' : 'table-row'
+}
 const opensearch = ref('')
 const execsearch = ref('')
 const openorders = ref([])
@@ -924,7 +953,23 @@ watch(ordertab, (newTab, oldTab) => {
   background-color: rgba(0, 0, 0, 0.02) !important;
 }
 
-:deep(.v-text-field input) {
-  font-size: 14px !important;
+:deep(.table-row.active-row) {
+  background-color: #E8F4FD !important;
+}
+
+/* Hover icons visibility */
+.tradebook-instrument-cell:hover .tradebook-hover-icons,
+.tradebook-hover-icons:hover {
+  opacity: 1 !important;
+}
+
+.tradebook-hover-icons {
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+/* Ensure menu button stays visible when menu is open */
+.tradebook-instrument-cell:has(.v-menu--active) .tradebook-hover-icons {
+  opacity: 1 !important;
 }
 </style>

@@ -9,7 +9,7 @@
                             <!-- MTM -->
                             <div v-if="ordertab !== 'all'" class="stat-item flex-grow-1" style="min-width: 120px;">
                                 <div class="stat-label txt-5E6 fs-14 mb-1">MTM</div>
-                                <div class="stat-value fs-16 font-weight-bold"
+                                <div class="stat-value fs-16 font-weight-medium"
                                     :class="Number(statposition.mtm) > 0 ? 'txt-gre' : Number(statposition.mtm) < 0 ? 'txt-red' : 'subtext--text'">
                                     <span id="poststatmtm">{{ statposition.mtm || '0.00' }}</span>
                                 </div>
@@ -18,7 +18,7 @@
                             <!-- Profit/Loss -->
                             <div class="stat-item flex-grow-1" style="min-width: 120px;">
                                 <div class="stat-label txt-5E6 fs-14 mb-1">Profit/Loss</div>
-                                <div class="stat-value fs-16 font-weight-bold"
+                                <div class="stat-value fs-16 font-weight-medium"
                                     :class="Number(statposition.pnl) > 0 ? 'txt-gre' : Number(statposition.pnl) < 0 ? 'txt-red' : 'subtext--text'">
                                     <span id="poststatpnl">{{ statposition.pnl || '0.00' }}</span>
                                 </div>
@@ -27,7 +27,7 @@
                             <!-- Trade Value -->
                             <div class="stat-item flex-grow-1" style="min-width: 120px;">
                                 <div class="stat-label txt-5E6 fs-14 mb-1">Trade Value</div>
-                                <div class="stat-value maintext--text fs-16 font-weight-bold">
+                                <div class="stat-value maintext--text fs-16 font-weight-medium">
                                     <span id="poststatval">{{ statposition.tradeval || '0.00' }}</span>
                                 </div>
                             </div>
@@ -35,7 +35,7 @@
                             <!-- Open Position -->
                             <div class="stat-item flex-grow-1" style="min-width: 120px;">
                                 <div class="stat-label txt-5E6 fs-14 mb-1">Open Position</div>
-                                <div class="stat-value fs-16 font-weight-bold"
+                                <div class="stat-value fs-16 font-weight-medium"
                                     :class="Number(statposition.oppnl) > 0 ? 'txt-gre' : Number(statposition.oppnl) < 0 ? 'txt-red' : 'subtext--text'">
                                     <span id="poststatopnl">{{ statposition.oppnl || '0.00' }}</span>
                                 </div>
@@ -85,7 +85,7 @@
 
                 <v-btn v-if="ordertab === 'positions'" :disabled="!hasOpenPositions" @click="exitdialog = true"
                     class="elevation-0 rounded-pill font-weight-bold text-none ml-4" variant="elevated"
-                    color="secondary">Exit {{
+                    :color="!hasOpenPositions ? 'gray' : 'secondary'">Exit {{
                         posdselected.length === positiondata.length ? 'all' :
                             posdselected.length > 0 ? posdselected.length : 'all'
                     }}</v-btn>
@@ -97,28 +97,33 @@
             <!-- Positions Table -->
             <v-window v-model="ordertab" style="z-index:0">
                 <v-window-item value="positions">
-                    <v-data-table show-select v-model="posdselected" :item-value="'tokn'" :loading="loading"
-                        density="compact" mobile-breakpoint="900" fixed-header height="480px"
+                    <v-data-table :show-select="hasOpenPositions" v-model="posdselected" :item-value="'tokn'"
+                        :loading="loading" density="compact" mobile-breakpoint="900" fixed-header height="480px"
                         class="holdings-table mt-3 rounded-lg overflow-y-auto"
                         style="border-radius: 8px; border: 1px solid #EBEEF0; min-width:660px;"
                         :headers="positionHeaders" :hide-default-footer="true" :search="opensearch"
                         :items="sortedPositions" :items-per-page="-1"
-                        :item-class="(item) => isExitedPosition(item) ? 'table-row closed-position' : 'table-row'"
-                        :row-props="(item) => {
-                            const isExited = isExitedPosition(item)
+                        :item-class="(item) => item.way != 'open' ? 'table-row closed-position' : 'table-row'"
+                        :row-props="(data) => {
+                            const item = data.item
                             return {
-                                // class: isExited ? 'table-row closed-position' : 'table-row',
-                                style: isExited ? {
-                                    backgroundColor: '#F5F5F5 !important'
+                                style: item.way != 'open' ? {
+                                    backgroundColor: '#F1F3F8 !important'
                                 } : {}
                             }
-                        }" :selectable="(item) => !isExitedPosition(item)"
+                        }" :selectable="(item) => item.way == 'open'"
                         @click:row="(event, { item }) => setPositionrowdata(item?.raw || item)">
                         <template v-slot:no-data>
                             <div class="text-center mx-auto py-16 mt-16">
                                 <img class="mx-auto" width="80px" :src="noDataImg" alt="no data" />
                                 <h4 class="txt-999 font-weight-regular caption mt-4">There is no trading data here yet!
                                 </h4>
+                            </div>
+                        </template>
+                        <template v-slot:loading>
+                            <div class="text-center py-16">
+                                <v-progress-circular indeterminate color="primary" size="50"></v-progress-circular>
+                                <p class="mt-4 subtext--text">Loading positions...</p>
                             </div>
                         </template>
                         <template #item.data-table-select="{ item }">
@@ -144,33 +149,34 @@
                         </template>
                         <template #item.s_prdt_ali="{ item }">
                             <v-chip v-if="item && item.s_prdt_ali" small
-                                :color="item.way != 'open' ? 'mainbg' : 'secbg'" text-color="subtext"
-                                style="border-radius: 5px; padding: 10px 8px !important;background-color: #F1F3F8 !important;">
+                                :color="item.way != 'open' ? 'mainbg' : 'secbg'" :style="{
+                                    backgroundColor: item.way === 'open' ? '#F1F3F8' : '#FFFFFF'
+                                }" text-color="subtext" style="border-radius: 5px; padding: 10px 8px !important;">
                                 <span class="font-weight-medium subtext--text fs-12">{{ item.s_prdt_ali }}</span>
                             </v-chip>
                         </template>
                         <template #item.tsym="{ item }">
-                            <div class="pos-rlt" style="min-height: 40px; padding-right: 40px;">
+                            <div class="pos-rlt" style="padding-right: 40px;">
                                 <p class="font-weight-medium maintext--text mb-0 table-hov-text ws-p">
                                     {{ item.tsym ? item.tsym : "" }}
                                     <span class="ml-1 subtext--text fs-10">{{ item.exch ? item.exch : "" }}</span>
                                 </p>
-                                <div @click.stop class="pos-abs table-hov" style="top: 15px; right: 0">
+                                <div @click.stop class="pos-abs table-hov" style="top: -3px; right: 0">
                                     <v-btn
                                         @click.stop="handleMenuDialog('order', item.token, item.exch, item.tsym, 'b')"
                                         min-width="20px" height="20px"
                                         style="background-color: #43A833; color: #ffffff; border-radius: 4px; min-width: 20px; padding: 0 4px;"
-                                        class="font-weight-bold elevation-0 mr-1" size="x-small"> B
+                                        class="font-weight-bold elevation-0 " size="x-small"> B
                                     </v-btn>
                                     <v-btn
                                         @click.stop="handleMenuDialog('order', item.token, item.exch, item.tsym, 's')"
                                         min-width="20px" height="20px"
                                         style="background-color: #F23645; color: #ffffff; border-radius: 4px; min-width: 20px; padding: 0 4px;"
-                                        class="font-weight-bold elevation-0 mr-1" size="x-small"> S
+                                        class="font-weight-bold elevation-0" size="x-small"> S
                                     </v-btn>
                                     <v-btn @click.stop="setSSDtab('chart', item.token, item.exch, item.tsym)"
                                         style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
-                                        min-width="20px" color="mainbg" class="font-weight-bold elevation-0 mr-1"
+                                        min-width="20px" color="mainbg" class="font-weight-bold elevation-0"
                                         size="x-small">
                                         <v-icon size="14" color="#666666">mdi-chart-line-variant</v-icon>
                                     </v-btn>
@@ -181,7 +187,7 @@
                                                     @click.stop="setSSDtab('exit-order', item.token, item.exch, item.tsym, item.netqty < 0 ? 'b' : 's', item)"
                                                     style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
                                                     min-width="20px" color="mainbg"
-                                                    class="font-weight-bold elevation-0 mr-1" size="x-small">
+                                                    class="font-weight-bold elevation-0 " size="x-small">
                                                     <v-icon size="14" color="#666666">mdi-close</v-icon>
                                                 </v-btn>
                                             </div>
@@ -194,7 +200,7 @@
                                                 <v-btn v-if="item.way == 'open'" @click.stop="setPosConvert(item)"
                                                     style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
                                                     min-width="20px" color="mainbg"
-                                                    class="font-weight-bold elevation-0 mr-1" size="x-small">
+                                                    class="font-weight-bold elevation-0 " size="x-small">
                                                     <v-icon size="14" color="#666666">mdi-autorenew</v-icon>
                                                 </v-btn>
                                             </div>
@@ -205,8 +211,8 @@
                                         <template #activator="{ props }">
                                             <v-btn v-bind="props"
                                                 style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
-                                                min-width="20px" color="mainbg"
-                                                class="font-weight-bold elevation-0 mr-1" size="x-small">
+                                                min-width="20px" color="mainbg" class="font-weight-bold elevation-0 "
+                                                size="x-small">
                                                 <v-icon size="14" color="#666666">mdi-dots-horizontal</v-icon>
                                             </v-btn>
                                         </template>
@@ -249,10 +255,12 @@
                                 <span class="font-weight-medium fs-12">{{ `T1 ${item.btstqty}` }}</span>
                             </v-chip>
                             <v-chip size="small"
-                                :style="`background-color: ${item && item.netqty > 0 ? '#E6F5EA' : item && item.netqty < 0 ? '#FFEBEE' : '#F5F5F5'}; color: ${item && item.netqty > 0 ? '#43A833' : item && item.netqty < 0 ? '#F23645' : '#666666'}; border-radius: 4px; padding: 4px 8px; font-weight: 500;`"
+                                :color="item.netqty > 0 ? 'secgreen' : item.netqty < 0 ? 'secred' : item.way != 'open' ? 'mainbg' : 'secbg'"
+                                :class="item.netqty > 0 ? 'maingreen--text' : item.netqty < 0 ? 'mainred--text' : 'subtext--text'"
+                                :style="`border: 1px solid ${item.netqty > 0 ? '#C1E7BA' : item.netqty < 0 ? '#FFCDCD' : '#DDD'}; border-radius: 5px; padding: 10px 8px !important;`"
                                 class="netqty-chip">
                                 <span class="font-weight-medium fs-12"
-                                    :style="`color: ${item && item.netqty > 0 ? '#43A833' : item && item.netqty < 0 ? '#F23645' : '#666666'};`">{{
+                                    :class="item.netqty > 0 ? 'maingreen--text' : item.netqty < 0 ? 'mainred--text' : 'subtext--text'">{{
                                         item && item.netqty >
                                             0 ?
                                             `+${item.netqty / (item.exch == "MCX" ? item.ls : 1)}` : item
@@ -291,22 +299,23 @@
                             </span>
                         </template>
                         <template #item.daybuyqty="{ item }">
-                            <v-chip small :color="item.way != 'open' ? 'mainbg' : 'secbg'"
-                                style="border: none; border-radius: 5px; padding: 8px !important;background-color: #F1F3F8 !important;">
-                                <span class="font-weight-medium fs-12 subtext--text">{{ item.daybuyqty != 0 &&
-                                    item.daysellqty != 0 ?
-                                    (item.daybuyqty / (item.exch == "MCX" ? item.ls : 1)) : item.netqty
-                                        > 0 ? (item.netqty / (item.exch == "MCX" ? item.ls : 1)) : "0" }}</span>
-                            </v-chip>
+                            <div class="qty-pill" :class="{ openbg: item.way === 'open' }">
+                                {{
+                                    item.daybuyqty != 0 && item.daysellqty != 0
+                                        ? item.daybuyqty / (item.exch == 'MCX' ? item.ls : 1)
+                                        : item.netqty > 0
+                                            ? item.netqty / (item.exch == 'MCX' ? item.ls : 1)
+                                            : '0'
+                                }}
+                            </div>
                         </template>
+
                         <template #item.daysellqty="{ item }">
-                            <v-chip small :color="item.way != 'open' ? 'mainbg' : 'secbg'"
-                                style="border: none; border-radius: 5px; padding: 8px !important;background-color: #F1F3F8 !important;">
-                                <span class="font-weight-medium fs-12 subtext--text">{{ item.daysellqty != 0 &&
-                                    item.daybuyqty != 0 ?
-                                    (item.daysellqty / (item.exch == "MCX" ? item.ls : 1)) :
-                                    item.netqty < 0 ? (item.netqty / (item.exch == "MCX" ? item.ls : 1)) : "0" }}</span>
-                            </v-chip>
+                            <div class="qty-pill" :class="{ openbg: item.way === 'open' }">
+                                {{
+                                    item.daysellqty != 0 && item.daybuyqty != 0
+                                        ? item.daysellqty / (item.exch == 'MCX' ? item.ls : 1)
+                                        : item.netqty < 0 ? item.netqty / (item.exch == 'MCX' ? item.ls : 1) : '0' }} </div>
                         </template>
                         <template #item.totbuyavgprc="{ item }">
                             <span class="font-weight-medium maintext--text"
@@ -330,13 +339,91 @@
                         fixed-header height="480px" class="holdings-table mt-3 rounded-lg overflow-y-auto"
                         style="border-radius: 8px; border: 1px solid #EBEEF0; background-color: #ffffff !important; min-width:660px;"
                         :headers="expositionHeaders" :search="opensearch" :items="expositiondata" :items-per-page="-1"
-                        :item-class="() => 'table-row'" :row-props="() => ({ class: 'table-row' })">
+                        :item-class="() => 'table-row'" :row-props="(data) => ({
+                            class: 'table-row',
+                            style: data.item.way != 'open' ? { backgroundColor: '#F1F3F8 !important' } : {}
+                        })">
                         <template v-slot:no-data>
                             <div class="text-center mx-auto py-16 mt-16">
                                 <img class="mx-auto" width="80px" :src="noDataImg" alt="no data" />
                                 <h4 class="txt-999 font-weight-regular caption mt-4">There is no trading data here yet!
                                 </h4>
                             </div>
+                        </template>
+                        <template v-slot:loading>
+                            <div class="text-center py-16">
+                                <v-progress-circular indeterminate color="primary" size="50"></v-progress-circular>
+                                <p class="mt-4 subtext--text">Loading all positions...</p>
+                            </div>
+                        </template>
+                        <template #item.tsym="{ item }">
+                            <div class="pos-rlt">
+                                <p class="font-weight-medium maintext--text mb-0 table-hov-text ws-p">
+                                    {{ item.tsym ? item.tsym : "" }}
+                                    <span class="ml-1 subtext--text fs-10">{{ item.exch ? item.exch : "" }}</span>
+                                </p>
+                            </div>
+                        </template>
+                        <template #item.netqty="{ item }">
+                            <div class="qty-pill" :class="{
+                                openbg: item.way === 'open',
+                                pos: item.netqty > 0,
+                                neg: item.netqty < 0
+                            }">
+                                {{ item.netqty > 0 ? `+${item.netqty}` : item.netqty < 0 ? item.netqty : '0' }} </div>
+                        </template>
+
+
+                        <template #item.ltp="{ item }">
+                            <span class="font-weight-medium maintext--text" style="text-align: right; display: block;">
+                                {{ item.ltp ? Number(item.ltp).toFixed(2) : "0.00" }}
+                            </span>
+                        </template>
+                        <template #item.rpnl="{ item }">
+                            <span class="font-weight-medium"
+                                :class="item.rpnl > 0 ? 'maingreen--text' : item.rpnl < 0 ? 'mainred--text' : 'subtext--text'"
+                                style="text-align: right; display: block;">
+                                {{ item.rpnl ? Number(item.rpnl).toFixed(2) : "0.00" }}
+                            </span>
+                        </template>
+                        <template #item.avgprc="{ item }">
+                            <span class="font-weight-medium maintext--text" style="text-align: right; display: block;">
+                                {{ item.avgprc ? Number(item.avgprc).toFixed(2) : "0.00" }}
+                            </span>
+                        </template>
+                        <template #item.BuyQuantity="{ item }">
+                            <div class="qty-pill" :class="{ openbg: item.way === 'open' }">
+                                {{ item.BuyQuantity || '0' }}
+                            </div>
+                        </template>
+
+
+                        <template #item.SellQuantity="{ item }">
+                            <div class="qty-pill" :class="{ openbg: item.way === 'open' }">
+                                {{ item.SellQuantity || '0' }}
+                            </div>
+                        </template>
+
+
+                        <template #item.BuyPrice="{ item }">
+                            <span class="font-weight-medium maintext--text" style="text-align: right; display: block;">
+                                {{ item.BuyPrice ? Number(item.BuyPrice).toFixed(2) : "0.00" }}
+                            </span>
+                        </template>
+                        <template #item.BuyValue="{ item }">
+                            <span class="font-weight-medium maintext--text" style="text-align: right; display: block;">
+                                {{ item.BuyValue ? Number(item.BuyValue).toFixed(2) : "0.00" }}
+                            </span>
+                        </template>
+                        <template #item.SellPrice="{ item }">
+                            <span class="font-weight-medium maintext--text" style="text-align: right; display: block;">
+                                {{ item.SellPrice ? Number(item.SellPrice).toFixed(2) : "0.00" }}
+                            </span>
+                        </template>
+                        <template #item.SellValue="{ item }">
+                            <span class="font-weight-medium maintext--text" style="text-align: right; display: block;">
+                                {{ item.SellValue ? Number(item.SellValue).toFixed(2) : "0.00" }}
+                            </span>
                         </template>
                     </v-data-table>
                 </v-window-item>
@@ -493,7 +580,6 @@
                         </v-col>
                     </v-row>
                 </div>
-                <v-divider></v-divider>
                 <v-list-item-title class="maintext--text font-weight-bold fs-14"
                     style="border-bottom: 1px solid #EBEEF0; border-top: 1px solid #EBEEF0;padding: 12px 0;">Quantity <p
                         class="float-right mb-0">
@@ -855,10 +941,10 @@ const preferredPositionColumns = [
     { key: 's_prdt_ali', text: 'Product' },
     { key: 'tsym', text: 'Instrument' },
     { key: 'netqty', text: 'Qty' },
-    { key: 'netupldprc', text: 'Act Avg Price', align: 'right' },
+    { key: 'netupldprc', text: 'Act Avg price', align: 'right' },
     { key: 'ltp', text: 'LTP', align: 'right' },
     { key: 'rpnl', text: 'P&L', align: 'right' },
-    { key: 'avgprc', text: 'Avg Price', align: 'right' },
+    { key: 'avgprc', text: 'Avg price', align: 'right' },
     { key: 'mtm', text: 'MTM', align: 'right' },
     { key: 'daybuyqty', text: 'Buy Qty' },
     { key: 'daysellqty', text: 'Sell Qty' },
@@ -870,7 +956,7 @@ const preferredExpoColumns = [
     { key: 'netqty', text: 'Qty' },
     { key: 'ltp', text: 'LTP', align: 'right' },
     { key: 'rpnl', text: 'P&L', align: 'right' },
-    { key: 'avgprc', text: 'Avg Price', align: 'right' },
+    { key: 'avgprc', text: 'Avg price', align: 'right' },
     { key: 'BuyQuantity', text: 'Buy Qty' },
     { key: 'SellQuantity', text: 'Sell Qty' },
     { key: 'BuyPrice', text: 'Buy Avg', align: 'right' },
@@ -1839,5 +1925,108 @@ onBeforeUnmount(() => {
 :deep(.holdings-table .v-data-table__wrapper table tbody tr.closed-position td:first-child *) {
     display: none !important;
     visibility: hidden !important;
+}
+</style>
+
+
+<style scoped>
+.txt-red {
+    color: #F03B4A !important;
+}
+
+.fs-16 {
+    font-size: 16px !important;
+}
+
+.maintext--text {
+    color: black !important;
+}
+
+/* Increase table row padding */
+.holdings-table :deep(td) {
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+}
+
+.holdings-table :deep(th) {
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+}
+
+/* Hide default skeleton loader */
+.holdings-table :deep(.v-data-table__progress) {
+    display: none !important;
+}
+
+.holdings-table :deep(.v-skeleton-loader) {
+    display: none !important;
+}
+
+.qty-pill {
+    background: #ffffff;
+    border: 1px solid #ebeff3;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #666666;
+    display: inline-block;
+    min-width: 32px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.openbg {
+    background: #f1f3f8 !important;
+}
+
+.qty-pill {
+    background: #ffffff;
+    border: 1px solid #ebeff3;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #666666;
+    display: inline-block;
+    min-width: 32px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.openbg {
+    background: #f1f3f8 !important;
+}
+
+
+
+.qty-pill {
+    display: inline-block;
+    min-width: 32px;
+    padding: 4px 10px;
+    border: 1px solid #EBEEF0;
+    border-radius: 6px;
+    background: #ffffff;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap;
+    color: #152935;
+}
+
+.qty-pill.openbg {
+    background: #F1F3F8;
+}
+
+.qty-pill.pos {
+    color: #1b8f3a;
+    border-color: #C1E7BA;
+    background: #ECF8F1;
+}
+
+.qty-pill.neg {
+    color: #d32f2f;
+    border-color: #FFCDCD;
+    background: #FFEBEE;
 }
 </style>

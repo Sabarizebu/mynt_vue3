@@ -7,19 +7,19 @@
             </p>
             <v-spacer></v-spacer>
             <v-text-field rounded density="compact" style="max-width: 220px" v-model="opensearch" hide-details
-                prepend-inner-icon="mdi-magnify" label="Search for Stocks" class="rounded-pill mr-4" variant="solo"
+                prepend-inner-icon="mdi-magnify" label="search for stocks" class="rounded-pill mr-4" variant="solo"
                 bg-color="secbg" flat elevation="0" />
-            <v-icon class="ml-1 mr-3 cursor-p" :disabled="loading" @click="getOrderbook" color="#666666" size="24"
-                style="cursor: pointer;">
+            <v-icon :class="['ml-3 cursor-p', { 'reload-rotating': loading }]" :disabled="loading" @click="getOrderbook"
+                color="#666666" size="24" style="cursor: pointer; display: inline-block; transform-origin: center;">
                 mdi-reload
             </v-icon>
         </v-toolbar>
 
         <!-- Tradebook Table -->
         <v-data-table :headers="orderheader" :items="filteredItems" fixed-header :hide-default-footer="true"
-            :loading="loading" class="tradebook-table holdings-table "
+            :loading="loading" class="tradebook-table mt-3"
             style="border-radius: 4px; border: 1px solid #EBEEF0; background-color: #ffffff;" height="480"
-            :items-per-page="-1" :item-class="getRowClass" :sort-by="[{ key: 'norentm', order: 'desc' }]" must-sort
+            :items-per-page="-1" :sort-by="[{ key: 'norentm', order: 'desc' }]" must-sort item-value="token"
             @click:row="(_, { item }) => setOrderrowdata(item)">
             <!-- Time Column -->
             <template #item.norentm="{ item }">
@@ -29,19 +29,20 @@
             </template>
             <!-- Type Column -->
             <template #item.trantype="{ item }">
-                <v-chip size="x-small"
-                    :style="`background-color: ${item.trantype === 'B' ? '#C1E7BA' : '#FFCDCD'}; color: ${item.trantype === 'B' ? '#2DB266' : '#FF1717'}; border: 1px solid ${item.trantype === 'B' ? '#C1E7BA' : '#FFCDCD'}; border-radius: 5px; padding: 4px 8px !important;`">
-                    <span class="font-weight-medium" style="font-size: 12px;">
+                <div
+                    :style="`background-color: ${item.trantype === 'B' ? '#ECFDF5' : '#FEF2F2'}; color: ${item.trantype === 'B' ? '#10B981' : '#EF4444'}; border-radius: 4px; padding: 4px 12px; display: inline-block; border: 1px solid ${item.trantype === 'B' ? '#D1FAE5' : '#FEE2E2'};`">
+                    <span class="font-weight-bold" style="font-size: 11px; letter-spacing: 0.5px;">
                         {{ item.trantype === 'B' ? 'BUY' : 'SELL' }}
                     </span>
-                </v-chip>
+                </div>
             </template>
             <!-- Instrument Column -->
             <template #item.tsym="{ item }">
                 <div class="pos-rlt tradebook-instrument-cell"
                     style="min-height: 40px; padding-right: 200px; position: relative;">
-                    <p class="font-weight-medium mb-0 tradebook-instrument-text"
-                        style="font-size: 13px; color: #000000; margin-right: 0; white-space: nowrap; line-height: 1.5;">
+                    <p class="font-weight-bold mb-0 tradebook-instrument-text"
+                        style="font-size: 13px; color: #000000ff; margin-right: 0; white-space: nowrap; line-height: 1.5; cursor: pointer;"
+                        @click="setOrderrowdata(item)">
                         {{ item.tsym || '' }}
                         <span class="ml-1" style="font-size: 10px; color: #999999;">
                             {{ item.exchs || item.exch || '' }}
@@ -61,22 +62,22 @@
                             class="font-weight-bold elevation-0 mr-1" size="x-small">
                             S
                         </v-btn>
-                        <v-btn
-                            @click.stop="setSSDtab('order', item.token, item.exch, item.tsym, item.trantype?.toLowerCase(), item)"
-                            style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
-                            min-width="20px" color="mainbg" class="font-weight-bold elevation-0 mr-1" size="x-small">
-                            <v-icon size="14" color="#666666">mdi-autorenew</v-icon>
-                        </v-btn>
                         <v-btn @click.stop="setSSDtab('chart', item.token, item.exch, item.tsym, null, item)"
                             style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
                             min-width="20px" color="mainbg" class="font-weight-bold elevation-0 mr-1" size="x-small">
                             <v-icon size="14" color="#666666">mdi-chart-line-variant</v-icon>
                         </v-btn>
-                        <v-menu v-model="menuOpen[item.token]" close-on-content-click location="bottom" offset-y
-                            class="table-menu">
+                        <v-btn
+                            @click.stop="setSSDtab('order', item.token, item.exch, item.tsym, item.trantype?.toLowerCase(), item)"
+                            style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
+                            min-width="20px" color="mainbg" class="font-weight-bold elevation-0 mr-1" size="x-small">
+                            <v-icon size="14" color="#666666">mdi-refresh</v-icon>
+                        </v-btn>
+                        <v-menu :model-value="activeMenuId === item.norenordno"
+                            @update:model-value="(val) => !val && (activeMenuId = null)" close-on-content-click
+                            location="bottom" offset-y class="table-menu">
                             <template #activator="{ props: menuProps }">
-                                <v-btn v-bind="{ ...menuProps, onClick: undefined }"
-                                    @click.stop="toggleMenu(item.token)"
+                                <v-btn v-bind="getActivatorProps(menuProps)" @click.stop="toggleMenu(item.norenordno)"
                                     style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
                                     min-width="20px" color="mainbg" class="font-weight-bold elevation-0 mr-1"
                                     size="x-small">
@@ -110,12 +111,12 @@
             </template>
             <!-- Product Column -->
             <template #item.s_prdt_ali="{ item }">
-                <v-chip v-if="item.s_prdt_ali" size="x-small"
-                    style="border-radius: 5px; background-color: #F1F3F8 !important; padding: 4px 8px !important;">
-                    <span class="font-weight-medium" style="font-size: 12px; color: #6D6D6D;">
+                <div v-if="item.s_prdt_ali"
+                    style="background-color: #F3F4F6; border-radius: 4px; padding: 4px 12px; display: inline-block;">
+                    <span class="font-weight-bold" style="font-size: 11px; color: #6B7280; letter-spacing: 0.5px;">
                         {{ item.s_prdt_ali }}
                     </span>
-                </v-chip>
+                </div>
             </template>
 
             <!-- Qty Column -->
@@ -146,11 +147,11 @@
                 </p>
             </template>
             <template #no-data>
-                <div class="text-center">
+                <div class="text-center" v-if="!loading">
                     <div class="mx-auto py-16 mt-16">
                         <img class="mx-auto" width="80px" :src="noDataImg" />
                         <h4 class="subtext--text font-weight-regular caption">
-                            There is no order data here yet!
+                            There is no order <br>data here yet!
                         </h4>
                     </div>
                 </div>
@@ -178,7 +179,7 @@ const router = useRouter()
 const loading = ref(false)
 const opensearch = ref('')
 const orderbookdata = ref([])
-const menuOpen = ref({}) // Track which menu is open per row using object for reactivity
+const activeMenuId = ref(null) // Track which menu is open using unique order ID
 
 // Icon mapping for menu items
 const iconUrlMap = {
@@ -260,12 +261,9 @@ async function getOrderbook() {
     }
     loading.value = false
 }
-
 function setSSDtab(type, token, exch, tsym, trans, item) {
     // Close any open menus when an action is triggered
-    Object.keys(menuOpen.value).forEach(key => {
-        menuOpen.value[key] = false
-    })
+    activeMenuId.value = null
 
     if (type === 'alert') {
         window.dispatchEvent(new CustomEvent('menudialog', { detail: { type: 'alert', token, exch, tsym } }))
@@ -354,20 +352,23 @@ function setSSDtab(type, token, exch, tsym, trans, item) {
 }
 
 
-function toggleMenu(token) {
-    // Close all other menus first
-    Object.keys(menuOpen.value).forEach(key => {
-        if (key !== token) {
-            menuOpen.value[key] = false
-        }
-    })
-    // Toggle the current menu
-    menuOpen.value[token] = !menuOpen.value[token]
+function toggleMenu(id) {
+    if (activeMenuId.value === id) {
+        activeMenuId.value = null
+    } else {
+        activeMenuId.value = id
+    }
+}
+
+function getActivatorProps(props) {
+    // Filter out onClick to prevent double toggling or conflict with our manual toggle
+    const { onClick, ...rest } = props
+    return rest
 }
 
 function handleMenuItemClick(item, menuItem) {
     // Close menu first
-    menuOpen.value[item.token] = false
+    activeMenuId.value = null
     // Use nextTick to ensure menu closes before action executes
     nextTick(() => {
         // Then execute the action
@@ -379,10 +380,7 @@ function handleMenuItemClick(item, menuItem) {
     })
 }
 
-function getRowClass(item) {
-    const index = filteredItems.value.findIndex(i => i === item)
-    return index === 0 ? 'tradebook-first-row' : ''
-}
+
 
 function setOrderrowdata(item) {
     // Could open a drawer similar to orders book if needed
@@ -415,8 +413,8 @@ onBeforeUnmount(() => {
 
 :deep(.tradebook-table .v-data-table__thead th) {
     font-size: 13px !important;
-    color: #666666 !important;
-    font-weight: 500 !important;
+    color: #374151 !important;
+    font-weight: 600 !important;
     padding: 12px 16px !important;
     border-bottom: 1px solid #EBEEF0 !important;
     background-color: #F1F3F8 !important;
@@ -430,13 +428,7 @@ onBeforeUnmount(() => {
     background-color: #f8f9fa !important;
 }
 
-:deep(.tradebook-table .v-data-table__tbody tr.tradebook-first-row) {
-    background-color: #E8F4FD !important;
-}
 
-:deep(.tradebook-table .v-data-table__tbody tr.tradebook-first-row:hover) {
-    background-color: #D9EDFC !important;
-}
 
 :deep(.tradebook-table .v-data-table__tbody td) {
     padding: 12px 16px !important;
@@ -495,7 +487,19 @@ onBeforeUnmount(() => {
 .cursor-p {
     cursor: pointer;
 }
-.GTT{
-    color: #666666 !important;
+
+/* Reload icon rotation animation */
+.reload-rotating {
+    animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
 }
 </style>

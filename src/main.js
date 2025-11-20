@@ -3,6 +3,7 @@ import App from './App.vue'
 import router from './router'
 import { createPinia } from 'pinia'
 import vuetify from './plugins/vuetify'
+import './assets/style.css'
 
 // Import Firebase
 import './firebase.js'
@@ -12,12 +13,12 @@ import { initStorageCleanup } from './utils/storageCleanup'
 
 // Disable console messages in production
 if (import.meta.env.PROD) {
-    // console.log = () => {}
-    // console.info = () => {}
-    // console.warn = () => {}
-    // console.debug = () => {}
-    // Keep console.error for critical errors, but you can disable it too if needed
-    // console.error = () => {}
+  // console.log = () => {}
+  // console.info = () => {}
+  // console.warn = () => {}
+  // console.debug = () => {}
+  // Keep console.error for critical errors, but you can disable it too if needed
+  // console.error = () => {}
 }
 
 const app = createApp(App)
@@ -31,30 +32,30 @@ initStorageCleanup()
 
 // Global error handler for QuotaExceededError (catches Firebase storage errors)
 window.addEventListener('error', (event) => {
-    if (event.error && (event.error.name === 'QuotaExceededError' || event.error.code === 22)) {
-        // console.warn('⚠️ QuotaExceededError detected, cleaning up storage...')
-        // Dynamic import to avoid circular dependency
-        import('./utils/storageCleanup.js').then(({ cleanupFirebaseStorage, cleanupOldSessionData }) => {
-            cleanupFirebaseStorage()
-            cleanupOldSessionData()
-        }).catch(err => { /* console.error('Error importing cleanup utility:', err) */ })
-        // Prevent the error from being logged multiple times
-        event.preventDefault()
-        return false
-    }
+  if (event.error && (event.error.name === 'QuotaExceededError' || event.error.code === 22)) {
+    // console.warn('⚠️ QuotaExceededError detected, cleaning up storage...')
+    // Dynamic import to avoid circular dependency
+    import('./utils/storageCleanup.js').then(({ cleanupFirebaseStorage, cleanupOldSessionData }) => {
+      cleanupFirebaseStorage()
+      cleanupOldSessionData()
+    }).catch(err => { /* console.error('Error importing cleanup utility:', err) */ })
+    // Prevent the error from being logged multiple times
+    event.preventDefault()
+    return false
+  }
 }, true)
 
 // Catch unhandled promise rejections related to storage
 window.addEventListener('unhandledrejection', (event) => {
-    if (event.reason && (event.reason.name === 'QuotaExceededError' || event.reason.code === 22)) {
-        // console.warn('⚠️ Unhandled QuotaExceededError in promise, cleaning up storage...')
-        // Dynamic import to avoid circular dependency
-        import('./utils/storageCleanup.js').then(({ cleanupFirebaseStorage, cleanupOldSessionData }) => {
-            cleanupFirebaseStorage()
-            cleanupOldSessionData()
-        }).catch(err => { /* console.error('Error importing cleanup utility:', err) */ })
-        event.preventDefault()
-    }
+  if (event.reason && (event.reason.name === 'QuotaExceededError' || event.reason.code === 22)) {
+    // console.warn('⚠️ Unhandled QuotaExceededError in promise, cleaning up storage...')
+    // Dynamic import to avoid circular dependency
+    import('./utils/storageCleanup.js').then(({ cleanupFirebaseStorage, cleanupOldSessionData }) => {
+      cleanupFirebaseStorage()
+      cleanupOldSessionData()
+    }).catch(err => { /* console.error('Error importing cleanup utility:', err) */ })
+    event.preventDefault()
+  }
 })
 
 // Global directive: smooth scroll inside watchlist containers and prevent body scroll

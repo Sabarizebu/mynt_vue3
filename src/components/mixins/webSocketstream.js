@@ -576,7 +576,7 @@ function _setChannelMap(symbol, channelString, onRealtimeCallback, subscribeUID,
     }
 }
 
-function ProcessPacketString(responseFeed) {
+async function ProcessPacketString(responseFeed) {
     const store = getAppStore();
 
     try {
@@ -596,10 +596,19 @@ function ProcessPacketString(responseFeed) {
             if (holdStartTime) {
                 clearTimeout(holdStartTime);
             }
-            holdStartTime = setTimeout(() => {
+            holdStartTime = setTimeout(async () => {
                 if (responseFeed.status != "PENDING") {
                     // Emit custom event for order book updates if needed
                     window.dispatchEvent(new CustomEvent('orderbook-update', { detail: 'orders' }));
+
+                    // Update Order Store
+                    try {
+                        const { useOrderStore } = await import('../../stores/orderStore');
+                        const orderStore = useOrderStore();
+                        orderStore.handleOrderUpdate();
+                    } catch (e) {
+                        // console.error(e)
+                    }
                 }
                 if (responseFeed.status == "COMPLETE") {
                     setTimeout(() => {

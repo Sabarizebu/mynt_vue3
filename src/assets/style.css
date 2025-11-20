@@ -2283,3 +2283,23 @@ bg-color {
   margin-top: -4px !important;
   /* vertically center thumb with track */
 }
+/* Global Placeholder Color Override */
+::placeholder {
+  color: #000000 !important;
+  opacity: 1 !important; /* Firefox */
+}
+
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+  color: #000000 !important;
+}
+
+::-ms-input-placeholder { /* Microsoft Edge */
+  color: #000000 !important;
+}
+
+/* Vuetify 3 specific overrides */
+.v-field__input::placeholder,
+.v-field__input input::placeholder {
+    color: #000000 !important;
+    opacity: 1 !important;
+}

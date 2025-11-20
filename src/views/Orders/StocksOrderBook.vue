@@ -2,8 +2,7 @@
     <div>
         <!-- Toolbar -->
         <v-toolbar variant="flat" density="compact" class="tool-sty my-1 mt-2 pl-4 crd-trn">
-            <v-tabs v-model="ordertab" color="#2B38B7" fixed show-arrows density="compact"
-                @update:model-value="onTabChange">
+            <v-tabs v-model="ordertab" color="#2B38B7" fixed show-arrows density="compact">
                 <v-tab value="orders" density="compact"
                     style="font-size: 16px !important;letter-spacing: 0px !important;"
                     class="font-weight-bold mb-0 text-none">
@@ -35,7 +34,8 @@
             <v-btn v-if="ordertab === 'orders'" variant="elevated"
                 :disabled="!openorders.length || openorders.length === 0"
                 @click="openCancelDialog(orddselected.length > 0 ? orddselected : 'all')"
-                class=" bgg-color elevation-0 rounded-pill font-weight-bold text-none ml-4" >
+                class="elevation-0 rounded-pill font-weight-bold text-none ml-4"
+                :color="!openorders.length || openorders.length === 0 ? 'gray' : 'primary'">
                 Cancel {{ orddselected.length > 0 ? orddselected.length : 'all' }}
             </v-btn>
             <v-icon :disabled="loading" :class="['ml-3 cursor-p', { 'reload-rotating': loading }]" @click="getOrderbook"
@@ -122,13 +122,13 @@
                                 {{ item.tsym || '' }}
                                 <span class="ml-1 subtext--text fs-10">{{ item.exchs || item.exch || '' }}</span>
                             </p>
-                            <div @click.stop class="pos-abs table-hov" style="top: 10px; right: 0">
+                            <div @click.stop class="pos-abs table-hov" style="top: 0px; right: 0">
                                 <!-- Modify Order Button (Pen icon) - Only for Open Orders -->
                                 <v-tooltip location="top" text="Modify Order">
                                     <template #activator="{ props }">
                                         <v-btn v-bind="props" @click.stop="onModify(item)"
                                             style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
-                                            min-width="20px" class="elevation-0 mr-1" size="x-small">
+                                            min-width="20px" class="elevation-0 " size="x-small">
                                             <v-icon size="18" color="maintext">mdi-pencil</v-icon>
                                         </v-btn>
                                     </template>
@@ -139,7 +139,7 @@
                                     <template #activator="{ props }">
                                         <v-btn v-bind="props" @click.stop="openCancelDialog(item)"
                                             style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
-                                            min-width="20px" class="elevation-0 mr-1" size="x-small">
+                                            min-width="20px" class="elevation-0 " size="x-small">
                                             <v-icon size="18" color="maintext">mdi-close-circle-outline</v-icon>
                                         </v-btn>
                                     </template>
@@ -148,7 +148,7 @@
                                 <!-- Chart Button -->
                                 <v-btn @click.stop="setSSDtab('chart', item.token, item.exch, item.tsym, null, item)"
                                     style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
-                                    min-width="20px" class="elevation-0 mr-1" size="x-small">
+                                    min-width="20px" class="elevation-0 " size="x-small">
                                     <v-icon size="18" color="maintext">mdi-chart-line-variant</v-icon>
                                 </v-btn>
 
@@ -156,7 +156,7 @@
                                 <v-btn
                                     @click.stop="setSSDtab('re-order', item.token, item.exch, item.tsym, item.trantype?.toLowerCase(), item)"
                                     style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
-                                    min-width="20px" class="elevation-0 mr-1" size="x-small">
+                                    min-width="20px" class="elevation-0 " size="x-small">
                                     <v-icon size="18" color="maintext">mdi-autorenew</v-icon>
                                     <v-tooltip activator="parent" location="top" text="Repeat order"></v-tooltip>
                                 </v-btn>
@@ -166,7 +166,7 @@
                                     <template #activator="{ props }">
                                         <v-btn v-bind="props"
                                             style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
-                                            class="elevation-0 mr-1" size="x-small">
+                                            class="elevation-0 " size="x-small">
                                             <v-icon size="20" color="maintext">mdi-dots-horizontal</v-icon>
                                         </v-btn>
                                     </template>
@@ -283,10 +283,11 @@
                             timeStr(item.norentm) }}</span>
                     </template>
                     <template #item.trantype="{ item }">
-                        <v-chip @click="setOrderrowdata(item)" small    :color="item.trantype === 'B' ? 'green' : 'red'"
+                        <v-chip @click="setOrderrowdata(item)" small :color="item.trantype === 'B' ? 'green' : 'red'"
                             :text-color="item.trantype === 'B' ? 'maingreen' : 'mainred'"
                             style="border-radius: 5px; padding: 10px 8px !important; cursor: pointer; height: 15px;">
-                            <span class="font-weight-medium fs-12 mt-1">{{ item.trantype === 'B' ? 'BUY' : 'SELL' }}</span>
+                            <span class="font-weight-medium fs-12 mt-1">{{ item.trantype === 'B' ? 'BUY' : 'SELL'
+                                }}</span>
                         </v-chip>
                     </template>
                     <template #item.tsym="{ item }">
@@ -316,6 +317,19 @@
                                     min-width="20px" class="elevation-0 mr-0" size="x-small">
                                     <v-icon size="18" color="maintext">mdi-chart-line-variant</v-icon>
                                 </v-btn>
+
+                                <!-- Repeat Order Button -->
+                                <v-tooltip location="top" color="black">
+                                    <template #activator="{ props }">
+                                        <v-btn v-bind="props"
+                                            @click.stop="setSSDtab('re-order', item.token, item.exch, item.tsym, item.trantype?.toLowerCase(), item)"
+                                            style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
+                                            class="elevation-0 " size="x-small">
+                                            <v-icon size="18" color="maintext">mdi-autorenew</v-icon>
+                                        </v-btn>
+                                    </template>
+                                    <span>Repeat order</span>
+                                </v-tooltip>
 
                                 <!-- Menu (3 dots) -->
                                 <v-menu location="bottom" class="table-menu">
@@ -455,15 +469,14 @@
                     </v-list-item-title>
                     <v-list-item-title style="font-size: 16px !important;"
                         class="txt-000 font-weight-medium ma-0 pa-0">₹{{
-                            fmt(singledata.prc || singledata.raw?.lprc)
-                        }}</v-list-item-title>
+                            fmt(singledata.ltp ||
+                                singledata.raw?.lp || singledata.raw?.ltp || '0.00') }}</v-list-item-title>
                     <v-list-item-title
                         :class="singledata.rpnl > 0 ? 'maingreen--text' : singledata.rpnl < 0 ? 'mainred--text' : 'subtext--text'"
                         class="font-weight-medium fs-12">
                         {{ fmt(singledata.rpnl) }} ({{ fmt(singledata.pnlc) }}%)
                     </v-list-item-title>
                 </v-list-item>
-                <v-divider></v-divider>
 
                 <div class="px-4 py-2">
                     <p class="subtext--text font-weight-medium fs-13 mb-1">Order Id</p>
@@ -525,7 +538,10 @@
                 <div v-if="singledata.status !== 'COMPLETE'" style="border-bottom: 1px solid #EBEEF0;">
                     <div class="px-4 py-2">
                         <p class="subtext--text font-weight-medium fs-13 mb-1">Rejected reason</p>
-                        <p class="error--text font-weight-bold fs-14 mb-0">{{ singledata.rejreason || '-' }}</p>
+                        <p class="error--text font-weight-bold fs-14 mb-0" style="color: #F05152 !important;">{{
+                            singledata.rejreason ||
+                            '-' }}
+                        </p>
                     </div>
                 </div>
 
@@ -611,86 +627,210 @@
         </v-navigation-drawer>
 
         <!-- Order History Dialog -->
-        <v-dialog v-model="orderhistory" max-width="720" scrollable>
-            <v-card class="rounded-xl elevation-0 py-4 overflow-hidden">
+        <v-dialog v-model="orderhistory" max-width="720" :scrim="false" scrollable>
+            <v-card elevation="4" style="border-radius: 20px !important;" class="py-4 overflow-hidden">
                 <div class="px-6" v-if="orderhistorydata && orderhistorydata[0]">
-                    <v-list-item-title class="font-weight-bold title maintext--text mb-0">Order history
+                    <v-list-item-title class="font-weight-bold fs-20 title maintext--text mb-0"
+                        style="border-bottom: 1px solid #EBEEF0;">Order history
                         <v-icon @click="orderhistory = false; orderhistorydata = []" class="float-right"
                             color="maintext">mdi-close</v-icon>
                     </v-list-item-title>
-                    <v-divider class="mb-3"></v-divider>
-                    <v-card class="elevation-0 py-2 mt-2 mb-3" color="secbg">
-                        <v-list-item class="mb-1 maintext--text">
-                            <v-list-item-title class="caption">Order Number</v-list-item-title>
-                            <v-list-item-title class="subtitle-2 font-weight-bold">{{
-                                orderhistorydata[0].norenordno || '-' }}</v-list-item-title>
-                        </v-list-item>
-                        <v-list-item class="mb-1 maintext--text">
-                            <v-list-item-title class="caption">User ID</v-list-item-title>
-                            <v-list-item-title class="subtitle-2 font-weight-bold">{{
-                                orderhistorydata[0].actid || '-' }}</v-list-item-title>
-                        </v-list-item>
-                        <v-list-item class="mb-1 maintext--text">
-                            <v-list-item-title class="caption">Exchange</v-list-item-title>
-                            <v-list-item-title class="subtitle-2 font-weight-bold">{{
-                                orderhistorydata[0].exch || '-' }}</v-list-item-title>
-                        </v-list-item>
-                        <v-list-item class="mb-1 maintext--text">
-                            <v-list-item-title class="caption">Product</v-list-item-title>
-                            <v-list-item-title class="subtitle-2 font-weight-bold">{{
-                                orderhistorydata[0].prd === 'C' ? 'CNC' : orderhistorydata[0].prd === 'M' ? 'NRML' :
-                                    'MIS' ||
-                                    '-' }}</v-list-item-title>
-                        </v-list-item>
-                        <v-list-item class="mb-1 maintext--text">
-                            <v-list-item-title class="caption">Trading Symbol</v-list-item-title>
-                            <v-list-item-title class="subtitle-2 font-weight-bold">{{
-                                orderhistorydata[0].tsym || '-' }}</v-list-item-title>
-                        </v-list-item>
-                        <v-list-item class="mb-1 maintext--text">
-                            <v-list-item-title class="caption">PriceType</v-list-item-title>
-                            <v-list-item-title class="subtitle-2 font-weight-bold">{{
-                                orderhistorydata[0].prctyp === 'MKT' ? 'Market' : orderhistorydata[0].prctyp === 'LMT' ?
-                                    'LIMIT'
-                                    : orderhistorydata[0].prctyp === 'SL-MKT' ? 'SL MARKET' : 'SL LIMIT' || '-'
-                            }}</v-list-item-title>
-                        </v-list-item>
-                        <v-list-item class="mb-1 maintext--text">
-                            <v-list-item-title class="caption">Transaction Type</v-list-item-title>
-                            <v-list-item-title class="subtitle-2 font-weight-bold"
-                                :class="orderhistorydata[0].trantype === 'B' ? 'maingreen--text' : 'mainred--text'">{{
-                                    orderhistorydata[0].trantype === 'B' ? 'BUY' : 'SELL' || '-' }}</v-list-item-title>
-                        </v-list-item>
+
+                    <!-- First Row: Order Number, User ID, Account Id, Exchange, Product -->
+                    <v-card class="elevation-0 py-2 mt-2" color="secbg">
+                        <v-row class="pa-3">
+                            <v-col cols="2" class="py-0 mr-4">
+                                <p class="caption mb-1 fs-12 text-no-wrap">Order Number</p>
+                                <p class="fs-14 font-weight-bold maintext--text mb-0 text-no-wrap">
+                                    {{ orderhistorydata?.[0]?.norenordno || '-' }}
+                                </p>
+                            </v-col>
+
+                            <v-col cols="2" class="py-0 mr-4">
+                                <p class="caption mb-1 fs-12 text-no-wrap">User ID</p>
+                                <p class="fs-14 font-weight-bold maintext--text mb-0 text-no-wrap">
+                                    {{ orderhistorydata?.[0]?.actid || '-' }}
+                                </p>
+                            </v-col>
+
+                            <v-col cols="2" class="py-0 mr-4">
+                                <p class="caption mb-1 fs-12 text-no-wrap">Account Id</p>
+                                <p class="fs-14 font-weight-bold maintext--text mb-0 text-no-wrap">
+                                    {{ orderhistorydata?.[0]?.actid || '-' }}
+                                </p>
+                            </v-col>
+
+                            <v-col cols="2" class="py-0 mr-4">
+                                <p class="caption mb-1 fs-12 text-no-wrap">Exchange</p>
+                                <p class="fs-14 font-weight-bold maintext--text mb-0 text-no-wrap">
+                                    {{ orderhistorydata?.[0]?.exch || '-' }}
+                                </p>
+                            </v-col>
+
+                            <v-col cols="2" class="py-0 mr-4">
+                                <p class="caption mb-1 fs-12 text-no-wrap">Product</p>
+                                <p class="fs-14 font-weight-bold maintext--text mb-0 text-no-wrap">
+                                    {{
+                                        orderhistorydata?.[0]?.prd === 'C' ? 'CNC' :
+                                            orderhistorydata?.[0]?.prd === 'M' ? 'NRML' :
+                                                orderhistorydata?.[0]?.prd === 'I' ? 'MIS' : '-'
+                                    }}
+                                </p>
+                            </v-col>
+                        </v-row>
+
+                        <v-row class="pa-3">
+                            <v-col cols="2" class="py-0 mr-4">
+                                <p class="caption mb-1 fs-12 text-no-wrap">Trading Symbol</p>
+                                <p class="fs-14 font-weight-bold maintext--text mb-0 text-no-wrap">
+                                    {{ orderhistorydata?.[0]?.tsym || '-' }}
+                                </p>
+                            </v-col>
+
+                            <v-col cols="2" class="py-0 mr-4">
+                                <p class="caption mb-1 fs-12 text-no-wrap">ExchOrd Number</p>
+                                <p class="fs-14 font-weight-bold maintext--text mb-0 text-no-wrap">
+                                    {{ orderhistorydata?.[0]?.norenordno || '-' }}
+                                </p>
+                            </v-col>
+
+                            <v-col cols="2" class="py-0 mr-4">
+                                <p class="caption mb-1 fs-12 text-no-wrap">Duration</p>
+                                <p class="fs-14 font-weight-bold maintext--text mb-0 text-no-wrap">
+                                    {{ orderhistorydata?.[0]?.ret || '-' }}
+                                </p>
+                            </v-col>
+
+                            <v-col cols="2" class="py-0 mr-4">
+                                <p class="caption mb-1 fs-12 text-no-wrap">PriceType</p>
+                                <p class="fs-14 font-weight-bold maintext--text mb-0 text-no-wrap">
+                                    {{
+                                        orderhistorydata?.[0]?.prctyp === 'MKT' ? 'Market' :
+                                            orderhistorydata?.[0]?.prctyp === 'LMT' ? 'LIMIT' :
+                                                orderhistorydata?.[0]?.prctyp === 'SL-MKT' ? 'SL MARKET' :
+                                                    orderhistorydata?.[0]?.prctyp === 'SL-LMT' ? 'SL LIMIT' : '-'
+                                    }}
+                                </p>
+                            </v-col>
+
+                            <v-col cols="2" class="py-0 mr-4">
+                                <p class="caption mb-1 fs-12 text-no-wrap">Transaction Type</p>
+                                <p class="fs-14 font-weight-bold mb-0 text-no-wrap"
+                                    :class="orderhistorydata?.[0]?.trantype === 'B' ? 'maingreen--text' : 'mainred--text'">
+                                    {{ orderhistorydata?.[0]?.trantype === 'B' ? 'BUY' : 'SELL' || '-' }}
+                                </p>
+                            </v-col>
+                        </v-row>
                     </v-card>
 
-                    <v-card variant="outlined">
-                        <v-data-table dense height="128" :headers="orderhistoryhead" :items="orderhistorydata"
-                            :items-per-page="-1" class="elevation-0 rounded-lg" hide-default-footer>
+
+                    <!-- Data Table -->
+                    <v-card style="border: 1px solid #E4E4E4;" class="mb-3 mt-2">
+                        <v-data-table fixed-header dense height="128" :headers="orderhistoryhead"
+                            :items="orderhistorydata" :items-per-page="-1" class="elevation-0 rounded-lg smallest-table"
+                            hide-default-footer>
                             <template #item.qty="{ item }">
                                 <span>{{ item.qty / (item.exch === 'MCX' ? item.ls : 1) }}</span>
                             </template>
                         </v-data-table>
                     </v-card>
-                    <v-row no-gutters class="mb-4 mt-2 px-2">
-                        <v-col cols="4" class="pb-0">
-                            <p class="mb-0 fs-14">Child ID :<span class="float-right">{{ orderhistorydata[0].kidid ||
-                                '-'
-                                    }}</span></p>
+
+
+                    <!-- Additional Details Grid -->
+                    <v-row no-gutters class="px-2 order-detail-grid">
+                        <v-col cols="4" class="detail-item">
+                            <span class="label">Child ID :</span>
+                            <span class="value">{{ orderhistorydata?.[0]?.kidid || '-' }}</span>
                         </v-col>
-                        <v-col cols="4" class="pb-0">
-                            <p class="mb-0 fs-14">Source :<span class="float-right">{{ orderhistorydata[0].ordersource
-                                || '-'
-                                    }}</span></p>
+
+                        <v-col cols="4" class="detail-item">
+                            <span class="label">Source :</span>
+                            <span class="value">{{ orderhistorydata?.[0]?.ordersource || '-' }}</span>
                         </v-col>
-                        <v-col cols="4" class="pb-0">
-                            <p class="mb-0 fs-14">Qty :<span class="float-right">{{ orderhistorydata[0].qty ?
-                                (orderhistorydata[0].qty / (orderhistorydata[0].exch === 'MCX' ?
-                                    orderhistorydata[0].ls :
-                                    1)) : '-' }}</span></p>
+
+                        <v-col cols="4" class="detail-item">
+                            <span class="label">MOB :</span>
+                            <span class="value">{{ orderhistorydata?.[0]?.ordersource || '-' }}</span>
+                        </v-col>
+
+                        <v-col cols="4" class="detail-item">
+                            <span class="label">Qty :</span>
+                            <span class="value">
+                                {{
+                                    orderhistorydata?.[0]?.qty
+                                        ? (orderhistorydata?.[0]?.qty /
+                                            (orderhistorydata?.[0]?.exch === 'MCX' ? orderhistorydata?.[0]?.ls : 1))
+                                        : '-'
+                                }}
+                            </span>
+                        </v-col>
+
+                        <v-col cols="4" class="detail-item">
+                            <span class="label">Dist Qty :</span>
+                            <span class="value">
+                                {{
+                                    orderhistorydata?.[0]?.dscqty
+                                        ? (orderhistorydata?.[0]?.dscqty /
+                                            (orderhistorydata?.[0]?.exch === 'MCX' ? orderhistorydata?.[0]?.ls : 1))
+                                        : '-'
+                                }}
+                            </span>
+                        </v-col>
+
+                        <v-col cols="4" class="detail-item">
+                            <span class="label">Broker-Id :</span>
+                            <span class="value">{{ orderhistorydata?.fsd || 'Zebu' }}</span>
+                        </v-col>
+
+                        <v-col cols="4" class="detail-item">
+                            <span class="label">Price :</span>
+                            <span class="value">{{ orderhistorydata?.[0]?.prc || '-' }}</span>
+                        </v-col>
+
+                        <v-col cols="4" class="detail-item">
+                            <span class="label">Interop Exch :</span>
+                            <span class="value">{{ orderhistorydata?.[0]?.introp_exch || '-' }}</span>
+                        </v-col>
+
+                        <v-col cols="4" class="detail-item">
+                            <span class="label">Report Type :</span>
+                            <span class="value">{{ orderhistorydata?.[0]?.rpt || '-' }}</span>
+                        </v-col>
+
+                        <v-col cols="4" class="detail-item">
+                            <span class="label">Total Fill Qty :</span>
+                            <span class="value">
+                                {{
+                                    orderhistorydata?.[0]?.fillshares
+                                        ? (orderhistorydata?.[0]?.fillshares /
+                                            (orderhistorydata?.[0]?.exch === 'MCX' ? orderhistorydata?.[0]?.ls : 1))
+                                        : '-'
+                                }}
+                            </span>
+                        </v-col>
+
+                        <v-col cols="4" class="detail-item">
+                            <span class="label">Rejected By :</span>
+                            <span class="value">{{ orderhistorydata?.[0]?.rejby || '-' }}</span>
+                        </v-col>
+
+                        <v-col cols="4" class="detail-item">
+                            <span class="label">Fill Price :</span>
+                            <span class="value">{{ orderhistorydata?.[0]?.flprc || '-' }}</span>
+                        </v-col>
+
+                        <v-col cols="4" class="detail-item">
+                            <span class="label">Trigger Price :</span>
+                            <span class="value">{{ orderhistorydata?.[0]?.trgprc || '-' }}</span>
                         </v-col>
                     </v-row>
-                    <p class="font-weight-medium mb-1">Rejected reason</p>
-                    <p class="mainred--text">{{ orderhistorydata[0].rejreason || '-' }}</p>
+
+
+                    <!-- Rejected Reason -->
+                    <div class="mt-3">
+                        <p class="font-weight-medium fs-16 mb-1 maintext--text">Rejected reason</p>
+                        <p class="mainred--text fs-16 mb-0">{{ orderhistorydata?.[0]?.rejreason || '-' }}</p>
+                    </div>
                 </div>
             </v-card>
         </v-dialog>
@@ -737,49 +877,53 @@ import noDataImg from '@/assets/no data folder.svg'
 import cancelIcon from '@/assets/orderbook/cancel-icon.svg'
 import { useAppStore } from '@/stores/appStore'
 import { useOrderStore } from '@/stores/orderStore'
-import { getMOrderbook, getSingleorderbook, getLtpdata } from '@/components/mixins/getAPIdata'
+import { getSingleorderbook, getLtpdata } from '@/components/mixins/getAPIdata'
 
+const router = useRouter()
 const appStore = useAppStore()
 const orderStore = useOrderStore()
-const router = useRouter()
 
-const loading = ref(false)
+const loading = computed(() => orderStore.isCalculating)
 const ordertab = ref('orders')
 const opensearch = ref('')
 const execsearch = ref('')
-const filter = ref('All')
-const filtercount = ref(0)
-const orderdrawer = ref(false)
-const canceldialog = ref(false)
-const orderhistory = ref(false)
-const singledata = ref({})
-const orderhistorydata = ref(null)
 const orddselected = ref([])
-const openorders = ref([])
-const execorders = ref([])
-const orderbookdata = ref([])
-const currentSort = ref({ column: 'norentm', desc: true })
+const orderdrawer = ref(false)
+const singledata = ref({})
+const orderhistory = ref(false)
+const singleorderhistory = ref([])
+const currentSort = ref('norentm')
+const currentSortDir = ref('desc')
+const canceldialog = ref(false)
+const filter = ref('all')
+const filtercount = ref(0)
 const tableorcan = ref('')
+const orderhistorydata = ref([])
+
+const openorders = computed(() => orderStore.openOrders || [])
+const execorders = computed(() => orderStore.executedOrders || [])
+const orderbookdata = computed(() => orderStore.orders || [])
 
 const filterso = [
-    { title: 'All', value: 'All' },
-    { title: 'TRIGGER_PENDING', value: 'TRIGGER_PENDING' },
-    { title: 'PENDING', value: 'PENDING' },
-    { title: 'OPEN', value: 'OPEN' },
+    { title: 'All', value: 'all' },
+    { title: 'Limit', value: 'LMT' },
+    { title: 'Market', value: 'MKT' },
+    { title: 'SL-LMT', value: 'SL-LMT' },
+    { title: 'SL-MKT', value: 'SL-MKT' },
 ]
 
 const filterse = [
-    { title: 'All', value: 'All' },
-    { title: 'COMPLETE', value: 'COMPLETE' },
-    { title: 'REJECTED', value: 'REJECTED' },
-    { title: 'CANCELED', value: 'CANCELED' },
+    { title: 'All', value: 'all' },
+    { title: 'Complete', value: 'COMPLETE' },
+    { title: 'Rejected', value: 'REJECTED' },
+    { title: 'Cancelled', value: 'CANCELED' },
 ]
 
 const menulist = {
     open: [
         { name: 'Buy', icon: 'mdi-plus', type: 'order', trans: 'b' },
         { name: 'Sell', icon: 'mdi-minus', type: 'order', trans: 's', hr: true },
-        { name: 'History', icon: 'mdi-history', type: 'his', hr: true },
+        { name: 'History', icon: 'mdi-history', type: 'history', hr: true },
         { name: 'Create GTT / GTC', icon: 4, type: 'cGTT' },
         { name: 'Create Alert', icon: 5, type: 'alert' },
         { name: 'Market Depth', icon: 6, type: 'depth' },
@@ -788,28 +932,64 @@ const menulist = {
         { name: 'Details', icon: 10, type: '' },
     ],
     exec: [
-        { name: 'History', icon: 'mdi-history', type: 'his', hr: true },
+        { name: 'History', icon: 'mdi-history', type: 'history', hr: true },
         { name: 'Create GTT / GTC', icon: 4, type: 'cGTT' },
         { name: 'Create Alert', icon: 5, type: 'alert' },
         { name: 'Market Depth', icon: 6, type: 'depth' },
         { name: 'Chart', icon: 7, type: 'chart', hr: true },
         { name: 'Fundamentals', icon: 9, type: 'Funda' },
         { name: 'Details', icon: 10, type: '' },
-    ],
+    ]
 }
+
+// Lifecycle Hooks
+onMounted(() => {
+    let res = sessionStorage.getItem("c3RhdHVz");
+    if (res == "dmFsaWR1c2Vy") {
+        orderStore.fetchOrders();
+    } else {
+        router.push("/");
+    }
+})
+
+// Note: WebSocket updates are now handled by the store via webSocketEventBus and webSocketstream
+onBeforeUnmount(() => {
+    // No eventBus.$off calls needed as eventBus is removed
+})
+
+watch(() => orderStore.orders, (newOrders) => {
+    if (newOrders && newOrders.length > 0) {
+        const subList = newOrders.map(item => ({
+            exch: item.exch,
+            token: item.token,
+            tsym: item.tsym
+        }))
+
+        const event = new CustomEvent('web-scoketOn', {
+            detail: {
+                flow: 'sub',
+                data: subList,
+                is: 'orders',
+                page: 'orders'
+            }
+        })
+        window.dispatchEvent(event)
+    }
+}, { deep: true, immediate: true })
 
 const orderheader = [
     { title: 'Time', key: 'norentm', sortable: true },
     { title: 'Type', key: 'trantype', sortable: true },
     { title: 'Instrument', key: 'tsym', sortable: true },
     { title: 'Product', key: 's_prdt_ali', sortable: true },
-    { title: 'Qty', key: 'qty', sortable: true, align: 'right' },
-    { title: 'Avg price', key: 'rprc', sortable: true, align: 'right' },
-    { title: 'LTP', key: 'ltp', sortable: true, align: 'right' },
-    { title: 'Price', key: 'prc', sortable: true, align: 'right' },
-    { title: 'Trigger price', key: 'trgprc', sortable: true, align: 'right' },
-    { title: 'Order value', key: 'value', sortable: true, align: 'right' },
-    { title: 'Status', key: 'status', sortable: false },
+    { title: 'Qty', key: 'qty', sortable: true },
+    { title: 'Avg price', key: 'rprc', sortable: true, align: 'end' },
+    { title: 'LTP', key: 'ltp', sortable: true, align: 'end' },
+    { title: 'Price', key: 'prc', sortable: true, align: 'end' },
+    { title: 'Trigger price', key: 'trgprc', sortable: true, align: 'end' },
+    { title: 'Order value', key: 'value', sortable: true, align: 'end' },
+    { title: 'Status', key: 'status', sortable: true },
+    { title: '', key: 'actions', sortable: false, align: 'end' },
 ]
 
 const orderhistoryhead = [
@@ -822,111 +1002,33 @@ const orderhistoryhead = [
 ]
 
 const filteredOpen = computed(() => {
-    let list = openorders.value || []
-
-    // Apply search filter - search by instrument, product, and prices
-    if (opensearch.value && opensearch.value.trim()) {
-        const searchTerm = opensearch.value.trim().toUpperCase()
-        const numericPart = searchTerm.replace(/[^0-9.]/g, '')
-        const isNumeric = numericPart !== '' && !isNaN(parseFloat(numericPart))
-
-        list = list.filter(o => {
-            // Search by instrument (tsym, exch)
-            const tsym = (o.tsym || '').toUpperCase()
-            const exch = (o.exch || o.exchs || '').toUpperCase()
-            const norenordno = String(o.norenordno || '').toUpperCase()
-
-            // Search by product
-            const product = (o.s_prdt_ali || '').toUpperCase()
-
-            // Search by prices (prc, rprc, avgprc, trgprc)
-            const prc = fmt(o.prc || 0)
-            const rprc = fmt(o.rprc || o.avgprc || 0)
-            const trgprc = fmt(o.trgprc || 0)
-
-            // Text search
-            if (tsym.includes(searchTerm) || exch.includes(searchTerm) || norenordno.includes(searchTerm) || product.includes(searchTerm)) {
-                return true
-            }
-
-            // Numeric search for prices
-            if (isNumeric) {
-                if (prc.includes(numericPart) ||
-                    rprc.includes(numericPart) ||
-                    trgprc.includes(numericPart)) {
-                    return true
-                }
-            }
-
-            return false
-        })
+    let orders = orderStore.openOrders || []
+    if (opensearch.value) {
+        const search = opensearch.value.toLowerCase()
+        orders = orders.filter(item =>
+            item.tsym.toLowerCase().includes(search) ||
+            item.norenordno.includes(search)
+        )
     }
-
-    // Apply status filter
-    if (filter.value !== 'All') {
-        list = list.filter(o => o.status === filter.value)
-        filtercount.value = list.length
-    } else {
-        filtercount.value = 0
-    }
-    return list
+    return orders
 })
 
 const filteredExec = computed(() => {
-    let list = execorders.value || []
-
-    // Apply search filter - search by instrument, product, and prices
-    if (execsearch.value && execsearch.value.trim()) {
-        const searchTerm = execsearch.value.trim().toUpperCase()
-        const numericPart = searchTerm.replace(/[^0-9.]/g, '')
-        const isNumeric = numericPart !== '' && !isNaN(parseFloat(numericPart))
-
-        list = list.filter(o => {
-            // Search by instrument (tsym, exch)
-            const tsym = (o.tsym || '').toUpperCase()
-            const exch = (o.exch || o.exchs || '').toUpperCase()
-            const norenordno = String(o.norenordno || '').toUpperCase()
-
-            // Search by product
-            const product = (o.s_prdt_ali || '').toUpperCase()
-
-            // Search by prices (prc, rprc, avgprc, trgprc)
-            const prc = fmt(o.prc || 0)
-            const rprc = fmt(o.rprc || o.avgprc || 0)
-            const trgprc = fmt(o.trgprc || 0)
-
-            // Text search
-            if (tsym.includes(searchTerm) || exch.includes(searchTerm) || norenordno.includes(searchTerm) || product.includes(searchTerm)) {
-                return true
-            }
-
-            // Numeric search for prices
-            if (isNumeric) {
-                if (prc.includes(numericPart) ||
-                    rprc.includes(numericPart) ||
-                    trgprc.includes(numericPart)) {
-                    return true
-                }
-            }
-
-            return false
-        })
+    let orders = orderStore.executedOrders || []
+    if (execsearch.value) {
+        const search = execsearch.value.toLowerCase()
+        orders = orders.filter(item =>
+            item.tsym.toLowerCase().includes(search) ||
+            item.norenordno.includes(search)
+        )
     }
-
-    // Apply status filter
-    if (filter.value !== 'All') {
-        list = list.filter(o => o.status === filter.value)
-        filtercount.value = list.length
-    } else {
-        filtercount.value = 0
-    }
-    return list
+    return orders
 })
 
 const filteredOpenSorted = computed(() => {
     // Use the same object references from filteredOpen, don't create new objects
     // This is critical for Vuetify 3 selection to work properly with return-object
-    const list = filteredOpen.value
+    const list = filteredOpen.value || []
     if (currentSort.value.column) {
         // Sort in place to maintain object references, or create new array but keep same objects
         const sorted = [...list] // Create new array but keep same object references
@@ -949,7 +1051,7 @@ const filteredOpenSorted = computed(() => {
 })
 
 const filteredExecSorted = computed(() => {
-    const list = [...filteredExec.value]
+    const list = [...(filteredExec.value || [])]
     if (currentSort.value.column) {
         list.sort((a, b) => {
             const col = currentSort.value.column
@@ -983,137 +1085,17 @@ function timeStr(v) {
     return isFinite(d.getTime()) ? d.toTimeString().slice(0, 8) : s
 }
 
-function setOrderPayload(payload) {
-    const all = payload?.response || []
 
-    // Ensure all orders have a unique norenordno for proper selection tracking
-    // Vuetify 3 requires a unique item-key for proper selection behavior
-    // IMPORTANT: Mutate original objects to maintain reference identity for selection
-    const ensureUniqueKey = (order, index) => {
-        if (!order.norenordno) {
-            // Generate a unique key if norenordno is missing using token, exch, tsym, and index
-            order.norenordno = `temp_${order.token || 'unknown'}_${order.exch || 'unknown'}_${order.tsym || 'unknown'}_${index}_${Math.random().toString(36).substr(2, 9)}`
-            // console.log('[StocksOrderBook] Generated norenordno for order:', {
-            //     generated: order.norenordno,
-            //     index,
-            //     tsym: order.tsym
-            // })
-        }
-        return order // Return same object reference
-    }
 
-    // Process all orders once and maintain object references
-    all.forEach((order, index) => ensureUniqueKey(order, index))
-    orderbookdata.value = all
-
-    // Use the same object references from orderbookdata, don't create new objects
-    const open = payload?.openorders || all.filter(o => o.way === 'open')
-    const exec = payload?.execorders || all.filter(o => o.way !== 'open')
-
-    openorders.value = open
-    execorders.value = exec
-
-    // Set initial sort order based on current tab
-    if (ordertab.value === 'executed') {
-        // Executed orders: ascending order by time (oldest first)
-        currentSort.value = { column: 'norentm', desc: false }
-    } else {
-        // Open orders: descending order by time (newest first)
-        currentSort.value = { column: 'norentm', desc: true }
-    }
-
-    // console.log('[StocksOrderBook] setOrderPayload completed:', {
-    //     totalOrders: all.length,
-    //     openOrders: openorders.value.length,
-    //     execOrders: execorders.value.length,
-    //     sampleNorenordnos: openorders.value.slice(0, 3).map(o => o.norenordno),
-    //     allNorenordnos: openorders.value.map(o => o.norenordno)
-    // })
-
-    // Update order counts in store if stat array is available
-    if (payload?.stat && Array.isArray(payload.stat) && payload.stat.length >= 3) {
-        orderStore.setOrderCounts(payload.stat)
-    } else {
-        // Calculate counts from orders if stat is not available
-        const openCount = openorders.value.length
-        const execCount = execorders.value.filter(o => o.status === 'COMPLETE').length
-        const rejectedCount = execorders.value.filter(o => o.status === 'REJECTED' || o.status === 'CANCELED').length
-        orderStore.setOrderCounts([openCount, execCount, rejectedCount])
-    }
-
-    try {
-        sessionStorage.setItem('orders_last', JSON.stringify(payload))
-    } catch (e) { }
-
-    // Subscribe to WebSocket for LTP updates (same as old code: setWebsocket("sub", this.orderbookdata, "ord"))
-    if (all.length > 0) {
-        try {
-            window.dispatchEvent(new CustomEvent('web-scoketOn', {
-                detail: {
-                    flow: 'sub',
-                    data: all.map(item => ({
-                        exch: item.exch,
-                        token: item.token,
-                        tsym: item.tsym
-                    })),
-                    is: 'ord',
-                    page: 'orders'
-                }
-            }))
-        } catch (e) {
-            // console.error('[StocksOrderBook] Error subscribing to WebSocket:', e)
-        }
-    }
-}
 
 async function getOrderbook() {
-    // Prevent duplicate calls if already loading
-    if (loading.value) {
-        return
-    }
-
-    loading.value = true
-    try {
-        const data = await getMOrderbook(true)
-        if (data && (Array.isArray(data.response) || Array.isArray(data.openorders))) {
-            setOrderPayload(data)
-        } else if (data !== 500) {
-            appStore.showSnackbar(2, data && data.emsg ? data.emsg : 'Failed to load orders')
-        }
-    } catch (error) {
-        appStore.showSnackbar(2, 'Failed to load orders')
-    } finally {
-        loading.value = false
-    }
+    await orderStore.fetchOrders()
 }
 
-function onTabChange() {
-    filter.value = 'All'
-    filtercount.value = 0
-    // Clear search when switching tabs
-    opensearch.value = ''
-    execsearch.value = ''
-    // Close all dialogs and drawer when switching tabs
-    orderdrawer.value = false
-    canceldialog.value = false
-    orderhistory.value = false
 
-    // Set initial sort order based on tab
-    if (ordertab.value === 'executed') {
-        // Executed orders: ascending order by time (oldest first)
-        currentSort.value = { column: 'norentm', desc: false }
-    } else {
-        // Open orders: descending order by time (newest first)
-        currentSort.value = { column: 'norentm', desc: true }
-    }
 
-    // Clear selected data - use nextTick to ensure drawer closes before clearing data
-    nextTick(() => {
-        singledata.value = null
-        orddselected.value = []
-        tableorcan.value = ''
-    })
-}
+
+
 
 function openCancelDialog(item) {
     if (item === 'all') {
@@ -1351,7 +1333,7 @@ function setSSDtab(type, token, exch, tsym, trans, item) {
         // Note: Orderbook refresh will happen after order is placed via order-placed event listener
     } else if (type === 'order') {
         window.dispatchEvent(new CustomEvent('menudialog', { detail: { type: 'order', token, exch, tsym, trantype: trans, item } }))
-    } else if (type === 'his') {
+    } else if (type === 'his' || type === 'history') {
         setSingleorderbook(item.norenordno)
     } else if (type === 'chart' || type === 'depth' || type === 'Funda') {
         // Navigate to stock details page with the correct tab
@@ -1504,6 +1486,17 @@ async function setOrderrowdata(item) {
     }
 }
 
+function setOrderPayload(res) {
+    if (res && res.response) {
+        orderStore.orders = res.response
+        orderStore.openOrders = res.openorders || []
+        orderStore.executedOrders = res.execorders || []
+        if (res.stat) {
+            orderStore.setOrderCounts(res.stat)
+        }
+    }
+}
+
 function onTempUpdate(e) {
     const p = e.detail
     if (p && (p.stat || p.response || p.openorders)) {
@@ -1578,6 +1571,36 @@ function onWsTick(e) {
     // Format LTP to 2 decimal places (same as old code: Number(data.lp).toFixed(2))
     const formattedLtp = Number(ltpValue).toFixed(2)
 
+    // Helper function to calculate P&L
+    const calculatePnL = (item, ltp) => {
+        const qty = Number(item.qty) || 0
+        const fillshares = Number(item.fillshares) || 0
+        const avgprc = Number(item.avgprc) || Number(item.rprc) || Number(item.prc) || 0
+        const trantype = item.trantype
+
+        if (fillshares > 0 && avgprc > 0) {
+            // Calculate realized P&L
+            let rpnl = 0
+            if (trantype === 'B') {
+                // Buy order: P&L = (LTP - Avg Price) * Filled Qty
+                rpnl = (ltp - avgprc) * fillshares
+            } else if (trantype === 'S') {
+                // Sell order: P&L = (Avg Price - LTP) * Filled Qty
+                rpnl = (avgprc - ltp) * fillshares
+            }
+
+            // Calculate P&L percentage
+            const pnlc = avgprc > 0 ? ((rpnl / (avgprc * fillshares)) * 100) : 0
+
+            return {
+                rpnl: rpnl.toFixed(2),
+                pnlc: pnlc.toFixed(2)
+            }
+        }
+
+        return { rpnl: '0.00', pnlc: '0.00' }
+    }
+
     // Track which DOM elements need updating to avoid duplicate updates
     const updatedElements = new Set()
 
@@ -1587,6 +1610,11 @@ function onWsTick(e) {
             if (item.token == token) {
                 // Update the LTP value in orderbookdata (same as old code)
                 orderbookdata.value[index].ltp = formattedLtp
+
+                // Calculate and update P&L
+                const pnl = calculatePnL(item, Number(formattedLtp))
+                orderbookdata.value[index].rpnl = pnl.rpnl
+                orderbookdata.value[index].pnlc = pnl.pnlc
 
                 // Store element ID for DOM update
                 const elementId = `ord${item.idx || item.norenordno}|${token}ltp`
@@ -1601,6 +1629,12 @@ function onWsTick(e) {
         openorders.value.forEach((item, index) => {
             if (item.token == token) {
                 openorders.value[index].ltp = formattedLtp
+
+                // Calculate and update P&L
+                const pnl = calculatePnL(item, Number(formattedLtp))
+                openorders.value[index].rpnl = pnl.rpnl
+                openorders.value[index].pnlc = pnl.pnlc
+
                 const elementId = `ord${item.idx || item.norenordno}|${token}ltp`
                 updatedElements.add(elementId)
             }
@@ -1611,10 +1645,26 @@ function onWsTick(e) {
         execorders.value.forEach((item, index) => {
             if (item.token == token) {
                 execorders.value[index].ltp = formattedLtp
+
+                // Calculate and update P&L
+                const pnl = calculatePnL(item, Number(formattedLtp))
+                execorders.value[index].rpnl = pnl.rpnl
+                execorders.value[index].pnlc = pnl.pnlc
+
                 const elementId = `ord${item.idx || item.norenordno}|${token}ltp`
                 updatedElements.add(elementId)
             }
         })
+    }
+
+    // Update singledata if the drawer is open and token matches
+    if (singledata.value && singledata.value.token == token) {
+        singledata.value.ltp = formattedLtp
+
+        // Calculate and update P&L for singledata
+        const pnl = calculatePnL(singledata.value, Number(formattedLtp))
+        singledata.value.rpnl = pnl.rpnl
+        singledata.value.pnlc = pnl.pnlc
     }
 
     // Update DOM elements (same as old code: document.getElementById(`ord${item.idx}|${data.token}ltp`))
@@ -1830,7 +1880,61 @@ onBeforeUnmount(() => {
 :deep(.holdings-table.v-data-table.v-data-table--fixed-header table thead th) {
     font-size: 13px !important;
 }
+
+.smallest-table .v-data-table__th,
+.smallest-table .v-data-table__td {
+    font-size: 13px !important;
+    white-space: nowrap !important;
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+}
+
+/* Header text wrap none */
+.smallest-table .v-data-table__th span {
+    white-space: nowrap !important;
+}
+
+/* Reduce header height */
+.smallest-table thead tr {
+    height: 28px !important;
+}
+
+/* Reduce row height */
+.smallest-table tbody tr {
+    height: 28px !important;
+}
+
 .bgg-color {
     background-color: #F1F3F8 !important;
+}
+</style>
+
+
+<style scoped>
+.order-detail-grid {
+    margin-bottom: 12px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    padding: 8px !important;
+    font-size: 14px;
+}
+
+.label {
+    float: left;
+    color: #6f6f6f;
+    font-size: 14px !important;
+    flex-grow: 1 !important;
+    margin-right: 6px;
+    white-space: nowrap;
+}
+
+.value {
+    font-weight: 500;
+    font-size: 14px !important;
+    white-space: nowrap;
 }
 </style>

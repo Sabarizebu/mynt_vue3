@@ -39,6 +39,11 @@ export const useOrderStore = defineStore('order', {
         // Filter settings for navigation
         orderFilterTab: null,
         orderFilterType: null,
+
+        // Order Book Data
+        orders: [],
+        openOrders: [],
+        executedOrders: [],
     }),
     actions: {
         openOrderDialog() {
@@ -70,6 +75,61 @@ export const useOrderStore = defineStore('order', {
             this.orderFilterTab = null
             this.orderFilterType = null
         },
+
+        // Order Book Actions
+        async fetchOrders() {
+            this.isCalculating = true
+            try {
+                // Dynamic import to avoid circular dependencies if any
+                const { getMOrderbook } = await import('../components/mixins/getAPIdata.js')
+                const res = await getMOrderbook() // No argument to avoid event dispatch
+
+                if (res && res.response) {
+                    this.orders = res.response
+                    this.openOrders = res.openorders || []
+                    this.executedOrders = res.execorders || []
+                    if (res.stat) {
+                        this.setOrderCounts(res.stat)
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching orders:', error)
+            } finally {
+                this.isCalculating = false
+            }
+        },
+
+        updateOrderPrice(data) {
+            if (!data || !this.orders.length) return
+
+            // Update main orders list
+            this.orders.forEach(item => {
+                if (item.token == data.tk || item.token == data.token) {
+                    if (data.lp || data.ltp) {
+                        item.ltp = data.lp || data.ltp
+                    }
+                    if (data.pc || data.chp) {
+                        item.pnlc = data.pc || data.chp
+                    }
+                }
+            })
+
+            // Update open orders list
+            this.openOrders.forEach(item => {
+                if (item.token == data.tk || item.token == data.token) {
+                    if (data.lp || data.ltp) {
+                        item.ltp = data.lp || data.ltp
+                    }
+                    if (data.pc || data.chp) {
+                        item.pnlc = data.pc || data.chp
+                    }
+                }
+            })
+        },
+
+        async handleOrderUpdate() {
+            await this.fetchOrders()
+        }
     },
 })
 

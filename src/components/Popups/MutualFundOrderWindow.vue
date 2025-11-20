@@ -70,9 +70,10 @@
                                     Redemption units
                                     <span class="float-right">Total units : <b>{{ menudata.item.avg_qty }}</b></span>
                                 </p>
-                                <v-text-field height="40px" background-color="secbg" flat class="rounded-pill"
-                                    variant="solo" type="number" hide-details hide-spin-buttons v-model="mf_redqty"
-                                    :min="menudata.item.Minimum_Redemption_Qty" :max="menudata.item.avg_qty"
+                                <v-text-field height="40px" style="background-color: #F1F3F8 !important;"
+                                    density="comfortable" class="rounded-pill" variant="flat" type="number" hide-details
+                                    hide-spin-buttons v-model="mf_redqty" :min="menudata.item.Minimum_Redemption_Qty"
+                                    :max="menudata.item.avg_qty"
                                     @input="mf_invest_amt = (Number(mf_redqty || 0) * menudata.item.avg_qty).toFixed(2)">
                                     <template v-slot:append>
                                         <v-card v-if="menudata.item.avg_qty - mf_redqty > 0"
@@ -83,7 +84,7 @@
                                         </v-card>
                                     </template>
                                 </v-text-field>
-                                <p class="fs-10 subtext--text ml-0 mt-1">Min. redemption uints {{ menudata.item ?
+                                <p class="fs-10 subtext--text ml-4 mt-1">Min. redemption uints {{ menudata.item ?
                                     menudata.item.Minimum_Redemption_Qty : 0 }}</p>
                             </div>
 
@@ -135,7 +136,7 @@
                                                 <v-list-item v-on="on" v-bind="props">
                                                     <v-list-item-content>
                                                         <v-list-item-title class="font-weight-medium">{{ item.MandateId
-                                                            }}
+                                                        }}
 
                                                             <v-tooltip location="top" color="black">
                                                                 <template v-slot:activator="{ props }">
@@ -183,7 +184,7 @@
                                                                 <span>{{ item.Status }}</span>
                                                             </v-tooltip>
                                                             <span class="float-right">{{ Number(item.Amount).toFixed(2)
-                                                                }}</span>
+                                                            }}</span>
                                                         </v-list-item-title>
                                                         <v-list-item-subtitle class="caption">reg date : {{
                                                             item.RegnDate }}
@@ -441,7 +442,7 @@
                         class="font-weight-regular fs-10 subtext--text d-none d-md-block">
                         AUM <span class="text-primary font-weight-bold">{{ Number(menudata.item.AUM /
                             10000000).toFixed(2)
-                            }}</span> Cr.
+                        }}</span> Cr.
                         <br />
                     </span>
                     <v-spacer></v-spacer>
@@ -488,7 +489,7 @@
                                 </v-list-item-title>
                                 <v-list-item-subtitle class="caption">XXXX XXXX {{
                                     item.Bank_AcNo && typeof item.Bank_AcNo === 'string' ? item.Bank_AcNo.slice(-4) : ''
-                                    }}
+                                }}
                                 </v-list-item-subtitle>
                             </v-list-item-content>
                         </v-list-item>

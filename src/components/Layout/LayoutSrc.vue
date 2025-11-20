@@ -632,11 +632,12 @@ onMounted(async () => {
     // Don't remove session status here - only remove it on logout
     // sessionStorage.removeItem("c3RhdHVz")
 
-    // Initialize theme
+    // Initialize theme - default to light
     var theme
     let t = localStorage.getItem("web.theme")
-    if (t == "default") {
-        theme = window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+    if (t == "default" || !t) {
+        // Default to light theme instead of system preference
+        theme = "light"
     } else {
         theme = t == "dark" || t == "light" ? t : "light"
     }
