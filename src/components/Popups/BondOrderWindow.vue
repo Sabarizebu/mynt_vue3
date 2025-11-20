@@ -121,10 +121,11 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import eventBus from '@/utils/eventBus.js'
+import { useAppStore } from '@/stores/appStore'
 import { getBondLedger, getBondOrder } from '@/components/mixins/getAPIdata.js'
 
 const router = useRouter()
+const appStore = useAppStore()
 
 // Reactive data
 const uid = ref(null)
@@ -145,7 +146,7 @@ const totalInvestment = computed(() => {
 
 // Methods
 function snackAlert(color, msg) {
-  eventBus.$emit('snack-event', color, msg)
+  appStore.showSnackbar(color, msg)
 }
 
 function handleQtyKeyup() {
@@ -176,7 +177,7 @@ function decrementQty() {
 }
 
 async function setMenudialog(itemdata, mode) {
-  eventBus.$emit("sub-loader", 1)
+  appStore.showLoader()
   orderpoploader.value = false
   menudata.value = {}
   menudata.value = { ...itemdata }
@@ -185,14 +186,14 @@ async function setMenudialog(itemdata, mode) {
     const ledgerRes = await getBondLedger([uid.value, token.value])
     menudata.value.ledger = ledgerRes && ledgerRes.total > 0 ? Number(ledgerRes.total).toFixed(2) : null
   } catch (error) {
-    console.error('Error fetching ledger:', error)
+    // console.error('Error fetching ledger:', error)
     menudata.value.ledger = null
   }
 
   menudata.value.type = mode
   bondqty.value = itemdata.minbidqty || 0
   bondorderdialog.value = true
-  eventBus.$emit("sub-loader", 0)
+  appStore.hideLoader()
 }
 
 async function setBondorder(mode, item) {
@@ -245,7 +246,7 @@ async function setBondorder(mode, item) {
       snackAlert(success ? 1 : 0, message)
 
       if (mode == 0) {
-        eventBus.$emit("watch-load")
+        window.dispatchEvent(new CustomEvent("watch-load"))
       }
     } else {
       const errorMsg = response && response.emsg
@@ -254,7 +255,7 @@ async function setBondorder(mode, item) {
       snackAlert(2, errorMsg)
     }
   } catch (error) {
-    console.error('Error placing bond order:', error)
+    // console.error('Error placing bond order:', error)
     orderpoploader.value = false
     snackAlert(2, error.message || "Failed to place order")
   }
@@ -271,20 +272,22 @@ function closeMenudialog(type) {
 }
 
 // Event handlers
-function handleMenudialog(type, itemdata, mode) {
+function handleMenudialog(event) {
+  const { type, itemdata, mode } = event.detail || {}
   if (type == "bondorder") {
     setMenudialog(itemdata, mode)
   }
 }
 
-function handleBondModify(data) {
+function handleBondModify(event) {
+  const data = event.detail
   setBondorder(0, data)
 }
 
 // Lifecycle
 onMounted(async () => {
-  eventBus.$on("menudialog", handleMenudialog)
-  eventBus.$on("bondmodify-event", handleBondModify)
+  window.addEventListener("menudialog", handleMenudialog)
+  window.addEventListener("bondmodify-event", handleBondModify)
 
   mtoken.value = sessionStorage.getItem("msession")
   token.value = sessionStorage.getItem("usession")
@@ -292,7 +295,7 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
-  eventBus.$off("menudialog", handleMenudialog)
-  eventBus.$off("bondmodify-event", handleBondModify)
+  window.removeEventListener("menudialog", handleMenudialog)
+  window.removeEventListener("bondmodify-event", handleBondModify)
 })
 </script>

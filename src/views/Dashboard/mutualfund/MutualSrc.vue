@@ -289,7 +289,7 @@
               <span>
                 <v-badge :model-value="mfcategorie.cat" dot> Category </v-badge>
                 <span class="float-right mr-3 fs-12">{{ mfcategorie.cats ? Object.keys(mfcategorie.cats).length : ""
-                  }}</span>
+                }}</span>
               </span>
             </v-expansion-panel-title>
             <v-expansion-panel-text class="px-0">
@@ -313,7 +313,7 @@
               <span>
                 <v-badge :model-value="mfcategorie.sub" dot> Sub category </v-badge>
                 <span class="float-right mr-3 fs-12">{{ mfcategorie.subs ? Object.keys(mfcategorie.subs).length : ""
-                  }}</span>
+                }}</span>
               </span>
             </v-expansion-panel-title>
             <v-expansion-panel-text class="px-0">
@@ -336,7 +336,7 @@
               <span>
                 <v-badge :model-value="mfcategorie.amc" dot> AMC </v-badge>
                 <span class="float-right mr-3 fs-12">{{ mfcategorie.amcs ? Object.keys(mfcategorie.amcs).length : ""
-                  }}</span>
+                }}</span>
               </span>
             </v-expansion-panel-title>
             <v-expansion-panel-text class="px-0">
@@ -446,7 +446,7 @@
               <span>
                 <v-badge :model-value="mfcategorie.cat" dot> Category </v-badge>
                 <span class="float-right mr-3 fs-12">{{ mfcategorie.cats ? Object.keys(mfcategorie.cats).length : ""
-                  }}</span>
+                }}</span>
               </span>
             </v-expansion-panel-title>
             <v-expansion-panel-text class="px-0">
@@ -470,7 +470,7 @@
               <span>
                 <v-badge :model-value="mfcategorie.sub" dot> Sub category </v-badge>
                 <span class="float-right mr-3 fs-12">{{ mfcategorie.subs ? Object.keys(mfcategorie.subs).length : ""
-                  }}</span>
+                }}</span>
               </span>
             </v-expansion-panel-title>
             <v-expansion-panel-text class="px-0">
@@ -493,7 +493,7 @@
               <span>
                 <v-badge :model-value="mfcategorie.amc" dot> AMC </v-badge>
                 <span class="float-right mr-3 fs-12">{{ mfcategorie.amcs ? Object.keys(mfcategorie.amcs).length : ""
-                  }}</span>
+                }}</span>
               </span>
             </v-expansion-panel-title>
             <v-expansion-panel-text class="px-0">
@@ -567,7 +567,7 @@
 </template>
 
 <script>
-import eventBus from "@/utils/eventBus.js";
+import { useAppStore } from "@/stores/appStore";
 import { getnewBestMF, gettopfirstapi, getnewcatgreapi, getMFnofdata } from "@/components/mixins/getAPIdata";
 
 // Import images for Vite
@@ -580,6 +580,10 @@ import balancehybridImg from '@/assets/mf/balancehybrid.svg';
 import noDataImg from '@/assets/no data folder.svg';
 
 export default {
+  setup() {
+    const appStore = useAppStore();
+    return { appStore };
+  },
   data: () => ({
     uid: "",
     token: "",
@@ -687,8 +691,8 @@ export default {
     //
   },
   async mounted() {
-    eventBus.$emit("login-event");
-    eventBus.$emit("tabBar-load");
+    window.dispatchEvent(new CustomEvent('login-event'));
+    window.dispatchEvent(new CustomEvent('tabBar-load'));
 
     // Initialize uid from sessionStorage on mount
     let res = sessionStorage.getItem("c3RhdHVz");
@@ -707,15 +711,17 @@ export default {
     await this.loadMFData();
 
     // Also listen for setRec-event in case parent component handles it
-    eventBus.$on("setRec-event", (value) => {
+    this.setRecHandler = (event) => {
+      const value = event.detail;
       if (value == "stat_ok") {
         this.loadMFData();
       } else if (value && value.stat == "Ok") {
         this.handleMFData(value);
       }
-    });
+    };
+    window.addEventListener('setRec-event', this.setRecHandler);
 
-    eventBus.$on("user-event", () => {
+    this.userEventHandler = () => {
       let res = sessionStorage.getItem("c3RhdHVz");
       if (res == "dmFsaWR1c2Vy") {
         this.token = sessionStorage.getItem("usession");
@@ -724,7 +730,8 @@ export default {
         this.token = "";
         this.uid = "";
       }
-    });
+    };
+    window.addEventListener('user-event', this.userEventHandler);
 
     // Watch for route changes to reload data when coming back
     this.$watch(() => this.$route.path, (newPath, oldPath) => {
@@ -741,8 +748,8 @@ export default {
     }
   },
   beforeUnmount() {
-    eventBus.$off("setRec-event");
-    eventBus.$off("user-event");
+    window.removeEventListener('setRec-event', this.setRecHandler);
+    window.removeEventListener('user-event', this.userEventHandler);
   },
 
   methods: {
@@ -763,7 +770,7 @@ export default {
           getMFnofdata()
         ]);
 
-        console.log("API Responses:", { bestMFRes, topSchemesRes, categoryRes, nfoRes });
+        // console.log("API Responses:", { bestMFRes, topSchemesRes, categoryRes, nfoRes });
 
         // Process NFO count
         if (nfoRes) {
@@ -895,8 +902,8 @@ export default {
         this.mftableloader = false;
         this.mfcatloader = false;
       } catch (error) {
-        console.error("Error loading MF data:", error);
-        eventBus.$emit("snack-event", 0, `Error loading mutual fund data: ${error.message || error}`);
+        // console.error("Error loading MF data:", error);
+        this.appStore.showSnackbar(0, `Error loading mutual fund data: ${error.message || error}`);
         this.mftableloader = false;
         this.mfcatloader = false;
       }
@@ -943,7 +950,7 @@ export default {
         this.mftableloader = false;
         this.mfcatloader = false;
       } else {
-        eventBus.$emit("snack-event", 2, res.msg ? res.msg : res);
+        this.appStore.showSnackbar(2, res.msg ? res.msg : res);
       }
     },
 
@@ -951,7 +958,7 @@ export default {
       return name && name.length > 30 ? `${name.slice(0, 30)}...` : name;
     },
     setSinglepage(item) {
-      console.log("Navigating to single page with item:", item);
+      // console.log("Navigating to single page with item:", item);
       // Store item data in sessionStorage for the single page
       if (item) {
         sessionStorage.setItem('mf_single_data', JSON.stringify(item));
@@ -964,8 +971,8 @@ export default {
           params: { ISIN: identifier }
         });
       } else {
-        console.error("No ISIN or Scheme_Code found in item:", item);
-        eventBus.$emit("snack-event", 0, "Unable to navigate: Missing fund identifier");
+        // console.error("No ISIN or Scheme_Code found in item:", item);
+        this.appStore.showSnackbar(0, "Unable to navigate: Missing fund identifier");
       }
     },
     goToLogin() {
@@ -975,10 +982,14 @@ export default {
       );
     },
     putMForder(item, type) {
-      eventBus.$emit("menudialog", "mforder", type, item);
+      window.dispatchEvent(new CustomEvent('menudialog', {
+        detail: { type: 'mforder', action: type, data: item }
+      }));
     },
     getusedMutual(item) {
-      eventBus.$emit("addscript-wl", item, "mf");
+      window.dispatchEvent(new CustomEvent('addscript-wl', {
+        detail: { item, category: 'mf' }
+      }));
     },
     setChangewl(n) {
       this.showtable = 24;
@@ -1065,5 +1076,9 @@ export default {
   line-height: 1.5 !important;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
+}
+
+:deep(.v-text-field input) {
+  font-size: 14px !important;
 }
 </style>

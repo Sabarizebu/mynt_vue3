@@ -1,19 +1,21 @@
 <template>
     <div>
         <!-- Top multi-tab navigation -->
-        <v-tabs v-model="topTab" color="primary" fixed show-arrows density="compact" class="mb-2">
-            <v-tab v-for="t in navTabs" :key="t.label" class="font-weight-bold subtitle-1 mb-0 text-none" :value="t.to"
-                :disabled="t.disabled" @click="go(t)">
+        <v-tabs v-model="topTab" color="black" fixed show-arrows density="compact" class="mb-2">
+            <v-tab v-for="t in navTabs" density="compact" :key="t.label" :value="t.to" :disabled="t.disabled"
+                @click="go(t)">
                 {{ t.label }}
             </v-tab>
         </v-tabs>
 
-        <v-toolbar flat dense class="tool-sty pl-4 crd-trn my-4">
+        <v-toolbar variant="flat" density="compact" class="tool-sty pl-4 crd-trn my-4">
             <v-tabs v-model="ordertab" color="primary" fixed show-arrows density="compact" @change="onTabChange">
-                <v-tab value="orders" class="font-weight-bold subtitle-1 mb-0 text-none">
+                <v-tab value="orders" style="font-size: 16px !important;letter-spacing: 0px !important;"
+                    class="font-weight-bold mb-0 text-none">
                     Open Orders ({{ openorders.length }})
                 </v-tab>
-                <v-tab value="executed" class="font-weight-bold subtitle-1 mb-0 text-none">
+                <v-tab value="executed" style="font-size: 16px !important;letter-spacing: 0px !important;"
+                    class="font-weight-bold mb-0 text-none">
                     Executed Orders ({{ execorders.length }})
                 </v-tab>
             </v-tabs>
@@ -21,82 +23,80 @@
             <v-text-field v-if="ordertab === 'orders'" style="max-width: 220px" v-model="opensearch" hide-details
                 prepend-inner-icon="mdi-magnify" label="Search" class="rounded-pill mr-4" variant="solo"
                 density="comfortable" :bg-color="'secbg'" />
-            <v-icon :disabled="loading" 
-                :class="['ml-3 cursor-p', { 'reload-rotating': loading }]"
-                @click="getOrderbook" color="maintext"
-                size="24">mdi-reload</v-icon>
+            <v-icon :disabled="loading" :class="['ml-3 cursor-p', { 'reload-rotating': loading }]" @click="getOrderbook"
+                color="maintext" size="24">mdi-reload</v-icon>
         </v-toolbar>
 
         <v-window v-model="ordertab" style="z-index:0">
             <v-window-item value="orders">
-            <v-data-table :headers="openHeaders" :items="searchedOpen" :loading="loading" :hide-default-footer="true"
-                fixed-header class="rounded-lg overflow-y-auto"
-                style="border-radius:4px; border:1px solid #EBEEF0" height="520" :items-per-page="-1">
-                <template #item.tsym="{ item }">
-                    <p class="font-weight-medium maintext--text mb-0 table-hov-text ws-p">
-                        {{ item.tsym || '' }}
-                        <span class="ml-1 subtext--text fs-10">{{ item.exch || '' }}</span>
-                    </p>
-                </template>
-                <template #item.qty="{ item }">
-                    <span class="text-right d-inline-block w-100">{{ item.qty || item.tradedqty || 0 }}</span>
-                </template>
-                <template #item.prc="{ item }">
-                    <span class="text-right d-inline-block w-100">{{ fmt(item.prc) }}</span>
-                </template>
-                <template #item.prctyp="{ item }">
-                    <span class="text-right d-inline-block w-100">{{ item.prctyp || '-' }}</span>
-                </template>
-                <template #item.status="{ item }">
-                    <span class="text-right d-inline-block w-100">{{ item.rejreason || item.status || '-' }}</span>
-                </template>
-                <template #item.exch_tm="{ item }">
-                    <span class="text-right d-inline-block w-100">{{ timeStr(item.exch_tm || item.norentm) }}</span>
-                </template>
-                <template #no-data>
-                    <div class="text-center">
-                        <div class="mx-auto py-16 mt-16">
-                            <img class="mx-auto" width="80px" :src="noDataImg" />
-                            <h4 class="txt-999 font-weight-regular caption">No orders found</h4>
+                <v-data-table :headers="openHeaders" :items="searchedOpen" :loading="loading"
+                    :hide-default-footer="true" fixed-header class="rounded-lg overflow-y-auto"
+                    style="border-radius:4px; border:1px solid #EBEEF0" height="520" :items-per-page="-1">
+                    <template #item.tsym="{ item }">
+                        <p class="font-weight-medium maintext--text mb-0 table-hov-text ws-p">
+                            {{ item.tsym || '' }}
+                            <span class="ml-1 subtext--text fs-10">{{ item.exch || '' }}</span>
+                        </p>
+                    </template>
+                    <template #item.qty="{ item }">
+                        <span class="text-right d-inline-block w-100">{{ item.qty || item.tradedqty || 0 }}</span>
+                    </template>
+                    <template #item.prc="{ item }">
+                        <span class="text-right d-inline-block w-100">{{ fmt(item.prc) }}</span>
+                    </template>
+                    <template #item.prctyp="{ item }">
+                        <span class="text-right d-inline-block w-100">{{ item.prctyp || '-' }}</span>
+                    </template>
+                    <template #item.status="{ item }">
+                        <span class="text-right d-inline-block w-100">{{ item.rejreason || item.status || '-' }}</span>
+                    </template>
+                    <template #item.exch_tm="{ item }">
+                        <span class="text-right d-inline-block w-100">{{ timeStr(item.exch_tm || item.norentm) }}</span>
+                    </template>
+                    <template #no-data>
+                        <div class="text-center">
+                            <div class="mx-auto py-16 mt-16">
+                                <img class="mx-auto" width="80px" :src="noDataImg" />
+                                <h4 class="txt-999 font-weight-regular caption">No orders found</h4>
+                            </div>
                         </div>
-                    </div>
-                </template>
-            </v-data-table>
+                    </template>
+                </v-data-table>
             </v-window-item>
             <v-window-item value="executed">
-            <v-data-table :headers="execHeaders" :items="execItems" :loading="loading" :hide-default-footer="true"
-                fixed-header class="rounded-lg overflow-y-auto"
-                style="border-radius:4px; border:1px solid #EBEEF0" height="520" :items-per-page="-1">
-                <template #item.tsym="{ item }">
-                    <p class="font-weight-medium maintext--text mb-0 table-hov-text ws-p">
-                        {{ item.tsym || '' }}
-                        <span class="ml-1 subtext--text fs-10">{{ item.exch || '' }}</span>
-                    </p>
-                </template>
-                <template #item.tradedqty="{ item }">
-                    <span class="text-right d-inline-block w-100">{{ item.tradedqty || 0 }}</span>
-                </template>
-                <template #item.avgprc="{ item }">
-                    <span class="text-right d-inline-block w-100">{{ fmt(item.avgprc) }}</span>
-                </template>
-                <template #item.prctyp="{ item }">
-                    <span class="text-right d-inline-block w-100">{{ item.prctyp || '-' }}</span>
-                </template>
-                <template #item.status="{ item }">
-                    <span class="text-right d-inline-block w-100">{{ item.status || '-' }}</span>
-                </template>
-                <template #item.exch_tm="{ item }">
-                    <span class="text-right d-inline-block w-100">{{ timeStr(item.exch_tm || item.norentm) }}</span>
-                </template>
-                <template #no-data>
-                    <div class="text-center">
-                        <div class="mx-auto py-16 mt-16">
-                            <img class="mx-auto" width="80px" :src="noDataImg" />
-                            <h4 class="txt-999 font-weight-regular caption">No executed orders</h4>
+                <v-data-table :headers="execHeaders" :items="execItems" :loading="loading" :hide-default-footer="true"
+                    fixed-header class="rounded-lg overflow-y-auto" style="border-radius:4px; border:1px solid #EBEEF0"
+                    height="520" :items-per-page="-1">
+                    <template #item.tsym="{ item }">
+                        <p class="font-weight-medium maintext--text mb-0 table-hov-text ws-p">
+                            {{ item.tsym || '' }}
+                            <span class="ml-1 subtext--text fs-10">{{ item.exch || '' }}</span>
+                        </p>
+                    </template>
+                    <template #item.tradedqty="{ item }">
+                        <span class="text-right d-inline-block w-100">{{ item.tradedqty || 0 }}</span>
+                    </template>
+                    <template #item.avgprc="{ item }">
+                        <span class="text-right d-inline-block w-100">{{ fmt(item.avgprc) }}</span>
+                    </template>
+                    <template #item.prctyp="{ item }">
+                        <span class="text-right d-inline-block w-100">{{ item.prctyp || '-' }}</span>
+                    </template>
+                    <template #item.status="{ item }">
+                        <span class="text-right d-inline-block w-100">{{ item.status || '-' }}</span>
+                    </template>
+                    <template #item.exch_tm="{ item }">
+                        <span class="text-right d-inline-block w-100">{{ timeStr(item.exch_tm || item.norentm) }}</span>
+                    </template>
+                    <template #no-data>
+                        <div class="text-center">
+                            <div class="mx-auto py-16 mt-16">
+                                <img class="mx-auto" width="80px" :src="noDataImg" />
+                                <h4 class="txt-999 font-weight-regular caption">No executed orders</h4>
+                            </div>
                         </div>
-                    </div>
-                </template>
-            </v-data-table>
+                    </template>
+                </v-data-table>
             </v-window-item>
         </v-window>
     </div>
@@ -186,7 +186,7 @@ function setOrderPayload(payload) {
     orderbookdata.value = all
     openorders.value = payload?.openorders || all.filter(o => o.way === 'open')
     execorders.value = payload?.execorders || all.filter(o => o.way !== 'open')
-    
+
     // Update order counts in store if stat array is available
     if (payload?.stat && Array.isArray(payload.stat) && payload.stat.length >= 3) {
         orderStore.setOrderCounts(payload.stat)
@@ -197,7 +197,7 @@ function setOrderPayload(payload) {
         const rejectedCount = execorders.value.filter(o => o.status === 'REJECTED' || o.status === 'CANCELED').length
         orderStore.setOrderCounts([openCount, execCount, rejectedCount])
     }
-    
+
     try {
         sessionStorage.setItem('orders_last', JSON.stringify(payload))
     } catch (e) { }
@@ -239,6 +239,7 @@ watch(() => route.path, (p) => {
 
 onMounted(() => {
     // load cached for optimistic UI
+
     try {
         const cached = sessionStorage.getItem('orders_last')
         if (cached) {
@@ -268,8 +269,23 @@ onBeforeUnmount(() => {
     from {
         transform: rotate(0deg);
     }
+
     to {
         transform: rotate(360deg);
     }
+}
+
+/* Data table header font size */
+:deep(.v-data-table thead th),
+:deep(.v-data-table table thead th),
+:deep(.v-data-table .v-data-table__wrapper table thead th),
+:deep(.v-data-table.v-data-table--fixed-header thead th),
+:deep(.v-data-table.v-data-table--fixed-header table thead th),
+:deep(.holdings-table.v-data-table thead th),
+:deep(.holdings-table.v-data-table table thead th),
+:deep(.holdings-table.v-data-table .v-data-table__wrapper table thead th),
+:deep(.holdings-table.v-data-table.v-data-table--fixed-header thead th),
+:deep(.holdings-table.v-data-table.v-data-table--fixed-header table thead th) {
+    font-size: 13px !important;
 }
 </style>

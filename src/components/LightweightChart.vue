@@ -68,7 +68,7 @@ const getSymbolKey = (sym) => {
 const initializeData = async (resolution, init) => {
     // Prevent duplicate calls
     if (isLoading.value) {
-        console.log('API call already in progress, skipping...')
+        // console.log('API call already in progress, skipping...')
         return
     }
 
@@ -143,7 +143,7 @@ const initializeData = async (resolution, init) => {
         // Don't log error if request was aborted
         // Axios uses 'canceled' message for aborted requests
         if (error.name !== 'CanceledError' && error.message !== 'canceled' && !abortController.signal.aborted) {
-            console.error('Error loading chart data:', error)
+            // console.error('Error loading chart data:', error)
         }
         lwloader.value = false
         isLoading.value = false
@@ -219,7 +219,7 @@ const showDateformat = (date) => {
             return `${day} ${month} ${year}`
         }
     } catch (error) {
-        console.error('Error formatting date:', error)
+        // console.error('Error formatting date:', error)
         return ''
     }
 }
@@ -249,7 +249,7 @@ const optionChainDataParse = (data) => {
 const setLWchart = async (init) => {
     // Prevent duplicate initialization
     if (isInitialized.value && !init) {
-        console.log('Chart already initialized, skipping...')
+        // console.log('Chart already initialized, skipping...')
         return
     }
 
@@ -257,7 +257,7 @@ const setLWchart = async (init) => {
     if (!chartContainer.value) {
         await nextTick()
         if (!chartContainer.value) {
-            console.error('Chart container element not found')
+            // console.error('Chart container element not found')
             return
         }
     }
@@ -270,7 +270,7 @@ const setLWchart = async (init) => {
     }
 
     if (chartContainer.value && (chartContainer.value.offsetWidth === 0 || chartContainer.value.offsetHeight === 0)) {
-        console.warn('Chart container has no dimensions, chart may not render correctly')
+        // console.warn('Chart container has no dimensions, chart may not render correctly')
         // Still try to initialize, but it might fail
     }
 
@@ -402,7 +402,7 @@ const setLWchart = async (init) => {
             toolTip.style.left = left + "px"
             toolTip.style.top = top + "px"
         } catch (error) {
-            console.error('Error updating tooltip:', error)
+            // console.error('Error updating tooltip:', error)
             toolTip.style.display = "none"
         }
     })
@@ -428,7 +428,7 @@ watch(() => props.propstsym, async (newVal, oldVal) => {
 
     // Skip if symbol hasn't actually changed
     if (newSymbolKey && newSymbolKey === oldSymbolKey && newSymbolKey === currentSymbolKey.value) {
-        console.log('Symbol unchanged, skipping API call')
+        // console.log('Symbol unchanged, skipping API call')
         return
     }
 

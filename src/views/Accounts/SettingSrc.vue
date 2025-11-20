@@ -356,10 +356,12 @@
 import { ref, reactive, onMounted, onBeforeUnmount } from 'vue'
 import { useTheme } from 'vuetify'
 import QrcodeVue from 'qrcode.vue'
-import eventBus from "@/utils/eventBus.js"
+import { useAppStore } from "@/stores/appStore"
 import { getApikeyreq, getLoggedIn, getMyntLogout, getDeskLogout, getClientDetails, getUserApikeyreq, getTotpreq, setOrdprefApi } from "@/components/mixins/getAPIdata.js"
 import { mynturl } from "@/apiurl.js"
 import newapikey from "./NewApiKey.vue"
+
+const appStore = useAppStore()
 
 const theme = useTheme()
 
@@ -447,11 +449,13 @@ const orderselect = ref(['Base Key', 'OAuth Key'])
 
 // Methods
 const setWebsocket = (flow, data) => {
-    eventBus.$emit("web-scoketOn", flow, data, 'is', "settings")
+    window.dispatchEvent(new CustomEvent('web-scoketOn', {
+        detail: { flow, data, type: 'is', source: 'settings' }
+    }))
 }
 
 const setWLlayout = () => {
-    eventBus.$emit("wllayout-event")
+    window.dispatchEvent(new CustomEvent('wllayout-event'))
 }
 
 const setClientdata = async () => {
@@ -459,7 +463,7 @@ const setClientdata = async () => {
     if (res && res.stat == "Ok") {
         Object.assign(clientdata, res)
     } else {
-        eventBus.$emit("snack-event", 3, "Failed to fetch client logs.")
+        appStore.showSnackbar(3, "Failed to fetch client logs.")
     }
 }
 
@@ -496,7 +500,7 @@ const toBool = (val) => {
 const setSaveperf = async (type) => {
     if (type) {
         setOrderpre(type)
-        eventBus.$emit("snack-event", 2, "Order preference has been reset.")
+        appStore.showSnackbar(2, "Order preference has been reset.")
     } else {
         orderpref["qtypre"] = qtypre.value
         orderpref["mktpro"] = mktpro.value
@@ -511,9 +515,9 @@ const setSaveperf = async (type) => {
         }
         let res = await setOrdprefApi(data, true)
         if (res && res.status && res.status == "updated") {
-            eventBus.$emit("snack-event", 1, "Order preference has been changed.")
+            appStore.showSnackbar(1, "Order preference has been changed.")
         } else {
-            eventBus.$emit("snack-event", 2, res && res.emsg ? res.emsg : res)
+            appStore.showSnackbar(2, res && res.emsg ? res.emsg : res)
         }
     }
 }
@@ -542,9 +546,9 @@ const setUserAPikeydata = async (status) => {
     let key = await getUserApikeyreq(selectexp.value, status)
     if ((key && key.apistatus == "EXPIRED") || (key && key.status == 'ISSUED') || (key && key.status == 'NOT_PRESENT')) {
         setAPikeydata()
-        eventBus.$emit("snack-event", 1, "API key as generated")
+        appStore.showSnackbar(1, "API key as generated")
     } else {
-        eventBus.$emit("snack-event", 2, key && key.status ? key.status : 'Unknown error')
+        appStore.showSnackbar(2, key && key.status ? key.status : 'Unknown error')
     }
 }
 
@@ -587,15 +591,54 @@ const setTotpdata = async (bool) => {
 }
 
 const setCopyText = (key, text) => {
-    navigator.clipboard.writeText(key)
-    eventBus.$emit("snack-event", 1, `📋 ${text} copied to clipboard!`)
+    // Try modern Clipboard API first
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(key)
+            .then(() => {
+                appStore.showSnackbar(1, `📋 ${text} copied to clipboard!`)
+            })
+            .catch(err => {
+                console.error('Clipboard API failed:', err)
+                fallbackCopyText(key, text)
+            })
+    } else {
+        // Fallback for older browsers or non-HTTPS contexts
+        fallbackCopyText(key, text)
+    }
+}
+
+const fallbackCopyText = (text, label) => {
+    const textArea = document.createElement('textarea')
+    textArea.value = text
+    textArea.style.position = 'fixed'
+    textArea.style.left = '-999999px'
+    textArea.style.top = '-999999px'
+    document.body.appendChild(textArea)
+    textArea.focus()
+    textArea.select()
+    
+    try {
+        const successful = document.execCommand('copy')
+        if (successful) {
+            appStore.showSnackbar(1, `📋 ${label} copied to clipboard!`)
+        } else {
+            appStore.showSnackbar(2, 'Failed to copy to clipboard')
+        }
+    } catch (err) {
+        console.error('Fallback copy failed:', err)
+        appStore.showSnackbar(2, 'Copy not supported in this browser')
+    } finally {
+        document.body.removeChild(textArea)
+    }
 }
 
 const setLogoutseee = async (item) => {
     await getMyntLogout(item.source)
     if (item.source == mynturl.source) {
         await getDeskLogout([uid.value, token.value])
-        eventBus.$emit("storage-reset", true)
+        window.dispatchEvent(new CustomEvent('storage-reset', {
+            detail: { reset: true }
+        }))
     } else {
         setAPikeydata()
     }
@@ -671,8 +714,12 @@ const loadUserData = async () => {
             wllayoutradio.value = wll && wll == 'true' ? 'true' : 'false'
         }
     } else {
-        eventBus.$emit("login")
+        window.dispatchEvent(new CustomEvent('login'))
     }
+}
+
+const userEventHandler = () => {
+    loadUserData()
 }
 
 // Lifecycle hooks
@@ -683,17 +730,15 @@ onMounted(() => {
     loadUserData()
 
     // Also listen for user-event
-    eventBus.$emit("login-event")
+    window.dispatchEvent(new CustomEvent('login-event'))
 
-    eventBus.$on("user-event", () => {
-        loadUserData()
-    })
+    window.addEventListener('user-event', userEventHandler)
 
     setWebsocket('unsub', [])
 })
 
 onBeforeUnmount(() => {
-    eventBus.$off("user-event")
+    window.removeEventListener('user-event', userEventHandler)
     if (intervalId.value) {
         clearInterval(intervalId.value)
     }

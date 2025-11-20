@@ -39,11 +39,11 @@ class WebSocketEventBus {
                 try {
                     callback(...args);
                 } catch (error) {
-                    console.error(`Error in WebSocket event listener for ${event}:`, error);
+                    // console.error(`Error in WebSocket event listener for ${event}:`, error);
                 }
             });
         }
-        
+
         // Also dispatch as DOM event for components using addEventListener
         // For web-scoketConn, maintain the old format with multiple parameters
         const customEvent = new CustomEvent(event, {
@@ -126,13 +126,19 @@ class WebSocketEventBus {
                         }
                     }
 
-                    // Add to rawdata if not present
+                    // Add to rawdata if not present (for orders, positions, etc.)
+                    // This ensures LTP updates work for all subscribed tokens
                     const rawExists = this.wsstocksdata.rawdata.some(o => o.token === item.token);
                     if (!rawExists) {
                         this.wsstocksdata.rawdata.push(info);
                     }
                 }
             });
+
+            // Set the current page for tracking (important for order book LTP updates)
+            if (page && page !== "watchlist") {
+                this.wsstocksdata.raw = page;
+            }
 
             this.setWebsocket(flow, data, is);
         } else if (flow === "sub") {
@@ -150,7 +156,7 @@ class WebSocketEventBus {
 
     // Method to trigger WebSocket connection events for components
     triggerWebSocketConnection(data, page) {
-        
+
         // Dispatch custom event for components listening to web-scoketConn
         const event = new CustomEvent('web-scoketConn', {
             detail: [data, page]
@@ -160,13 +166,13 @@ class WebSocketEventBus {
 
     // Set WebSocket subscription (similar to old LayoutSrc.vue setWebsocket method)
     async setWebsocket(flow, data, is) {
-        
+
         const wsstat = sessionStorage.getItem("wsstat");
         if (wsstat == "Ok") {
             // Import WebSocket functions dynamically to avoid circular dependencies
             try {
                 const { subscribeOnStream, unsubscribeFromStream } = await import('../components/mixins/webSocketstream.js');
-                
+
                 if (flow == "sub") {
                     // Transform data structure to match what subscribeOnStream expects
                     const transformedData = data.flat(1).map(item => ({
@@ -175,8 +181,8 @@ class WebSocketEventBus {
                         name: item.tsym || item.name,
                         tsym: item.tsym
                     }));
-                    
-                    
+
+
                     // Subscribe using the subscribeOnStream method with callback
                     subscribeOnStream(transformedData, undefined, this.optionChainDataParse.bind(this), undefined, undefined, undefined, 'quotes');
                 } else if (flow == "unsub") {
@@ -185,12 +191,12 @@ class WebSocketEventBus {
                     data.map((symbol) => {
                         return (unsubscribeList += `${symbol.exch}|${symbol.token}#`);
                     });
-                    
+
                     const { websocketUnsubscriptionChain } = await import('../components/mixins/webSocketstream.js');
                     await websocketUnsubscriptionChain(unsubscribeList);
                 }
             } catch (error) {
-                console.error("Error in WebSocket subscription:", error);
+                // console.error("Error in WebSocket subscription:", error);
             }
         } else {
             // Retry if WebSocket not ready
@@ -202,10 +208,10 @@ class WebSocketEventBus {
 
     // WebSocket data parsing callback (similar to old LayoutSrc.vue optionChainDataParse)
     optionChainDataParse(data) {
-        
+
         // Handle different data formats (like old LayoutSrc.vue line 838-841)
         let eventData = null;
-        
+
         if (Array.isArray(data)) {
             // Handle array format - extract the actual quote data (like old code: data[0].v)
             eventData = data[0]?.v || data[0] || data;
@@ -216,35 +222,58 @@ class WebSocketEventBus {
             // Handle direct format
             eventData = data;
         }
-        
+
+        // Extract token to check which pages need this update
+        const token = eventData?.token || eventData?.tk || eventData?.t;
+        if (!token) return;
+
+        // Get the current active page
+        const currentPage = this.wsstocksdata.raw;
+
+        // Check if this token is subscribed for orders
+        const isOrderToken = this.wsstocksdata.rawdata && this.wsstocksdata.rawdata.some(item =>
+            item && item.token == token
+        );
+
+        // Update Order Store directly
+        try {
+            const { useOrderStore } = require('../stores/orderStore');
+            const orderStore = useOrderStore();
+            if (orderStore && orderStore.orders.length > 0) {
+                orderStore.updateOrderPrice(eventData);
+            }
+        } catch (e) {
+            // Pinia might not be ready or require failed
+        }
+
         // Emit web-scoketConn event with the current page (like old LayoutSrc.vue line 840)
         // Old code: eventBus.$emit("web-scoketConn", data[0].v, this.wsstocksdata.raw);
-        if (eventData && this.wsstocksdata && this.wsstocksdata.tok && this.wsstocksdata.rawdata) {
-            const currentPage = this.wsstocksdata.raw;
-            const token = eventData.token || eventData.tk;
-            
-            // Emit for the current page (like old code)
+        if (eventData) {
+            // Always emit for the current page if set
             if (currentPage) {
                 const event = new CustomEvent('web-scoketConn', {
                     detail: [eventData, currentPage]
                 });
                 window.dispatchEvent(event);
-                
+
                 // Also emit through the event bus
                 this.emit("web-scoketConn", eventData, currentPage);
             }
-            
+
+            // If token is in orders subscription, also emit specifically for 'orders' page
+            // This ensures order book LTP updates work even if currentPage is different
+            if (isOrderToken) {
+                const ordersEvent = new CustomEvent('web-scoketConn', {
+                    detail: [eventData, 'orders']
+                });
+                window.dispatchEvent(ordersEvent);
+            }
+
             // Also emit for watchlist (backward compatibility)
             const watchlistEvent = new CustomEvent('web-scoketConn', {
                 detail: [eventData, 'watchlist']
             });
             window.dispatchEvent(watchlistEvent);
-        } else if (eventData) {
-            // Fallback: emit for watchlist if no page is tracked
-            const event = new CustomEvent('web-scoketConn', {
-                detail: [eventData, 'watchlist']
-            });
-            window.dispatchEvent(event);
         }
     }
 }
@@ -267,14 +296,14 @@ export const setWebsocket = (flow, data, is) => {
 
 // Legacy Event Bus Adapter — support eventBus.$emit for 'web-scoketOn'
 if (typeof window !== 'undefined') {
-  window.eventBus = window.eventBus || {};
-  window.eventBus.$emit = function(event, ...args) {
-    if (event === 'web-scoketOn') {
-      const detail = Array.isArray(args[0])
-        ? args[0]
-        : (typeof args[0] === 'object' ? args[0] : { flow: args[0], data: args[1], is: args[2], page: args[3] });
-      window.dispatchEvent(new CustomEvent('web-scoketOn', { detail }));
-    }
-    // optionally add more event types here
-  };
+    window.eventBus = window.eventBus || {};
+    window.eventBus.$emit = function (event, ...args) {
+        if (event === 'web-scoketOn') {
+            const detail = Array.isArray(args[0])
+                ? args[0]
+                : (typeof args[0] === 'object' ? args[0] : { flow: args[0], data: args[1], is: args[2], page: args[3] });
+            window.dispatchEvent(new CustomEvent('web-scoketOn', { detail }));
+        }
+        // optionally add more event types here
+    };
 }

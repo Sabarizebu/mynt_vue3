@@ -111,128 +111,146 @@
                 </template>
 
                 <v-card class="table-menu-list">
-                    <v-list>
-                        <v-list-item class="mb-2">
-                            <v-list-item-avatar color="secbg">
-                                <span class="title font-weight-bold">
+                    <v-list class="py-2">
+                        <v-list-item class="px-4 py-3">
+                            <v-row no-gutters align="center">
+                                <v-col cols="2">
+                            <v-avatar color="#F1F3F8" size="40" class="mr-3 ">
+                                <span class="title font-weight-bold fs-20 mt-1">
                                     {{ authStore.clientdata?.CLIENT_NAME ? authStore.clientdata.CLIENT_NAME.slice(0, 1)
-                                        :
-                                        "-" }}
+                                        :"-" }}
                                 </span>
-                            </v-list-item-avatar>
+                            </v-avatar>
+                            </v-col>
+                            <v-col cols="10" class="pl-5 ">
 
-                            <v-list-item-content>
-                                <v-list-item-title class="fs-14 font-weight-bold mb-1">
+                           <div class="fs-14 font-weight-bold mb-1">
                                     {{ authStore.clientdata?.CLIENT_NAME ? authStore.clientdata.CLIENT_NAME : "-" }}
-                                </v-list-item-title>
-                                <v-list-item-subtitle class="fs-12 subtext--text">
+                                </div>
+                                <div class="fs-12 subtext--text">
                                     User ID {{ authStore.clientdata?.CLIENT_ID ? authStore.clientdata.CLIENT_ID : "" }}
-                                </v-list-item-subtitle>
-                            </v-list-item-content>
+                                </div>
+                         </v-col>
+                            </v-row>
                         </v-list-item>
                         <v-divider></v-divider>
 
-                        <v-list-item
+                        <v-list-item class="px-4 py-3"
                             :href="`https://profile.zebuetrade.com/profile?uid=${authStore.uid}&token=${authStore.token}`"
                             target="_blank">
-                            <v-list-item-icon class="mr-3 text-center">
-                                <img width="24px" class="pl-1"
-                                    :src="getAssetPath(`usermenu/${$vuetify.theme.dark ? '1d' : '1'}.svg`)" />
-                            </v-list-item-icon>
-                            <v-list-item-content>
-                                <v-list-item-title class="font-weight-medium fs-14 mb-0">My Account</v-list-item-title>
-                                <v-list-item-subtitle class="fs-10 subtext--text">Profile, Bank, Segment, MTF,
-                                    Closure,
-                                    Downloads</v-list-item-subtitle>
-                            </v-list-item-content>
+                            <v-row no-gutters align="center">
+                                <v-col cols="2" class="d-flex justify-center align-center">
+                                    <img width="20px"
+                                        :src="getAssetPath(`usermenu/${$vuetify.theme.dark ? '1d' : '1'}.svg`)" />
+                                </v-col>
+                                <v-col cols="10" class="pl-2">
+                                    <div class="font-weight-medium fs-14 mb-0">My Account</div>
+                                    <div class="fs-10 subtext--text">Profile, Bank, Segment, MTF, Closure...</div>
+                                </v-col>
+                            </v-row>
                         </v-list-item>
                         <v-divider class="mx-3"></v-divider>
-                        <v-list-item
+
+                        <v-list-item class="px-4 py-3"
                             :href="`https://profile.zebuetrade.com/ledger?uid=${authStore.uid}&token=${authStore.token}`"
                             target="_blank">
-                            <v-list-item-icon class="mr-3 text-center">
-                                <img width="22px" class="pl-1"
-                                    :src="getAssetPath(`usermenu/${$vuetify.theme.dark ? 'reportsd' : 'reports'}.svg`)" />
-                            </v-list-item-icon>
-                            <v-list-item-content>
-                                <v-list-item-title class="font-weight-medium fs-14 mb-0">Reports</v-list-item-title>
-                                <v-list-item-subtitle class="fs-10 subtext--text">Ledger, Holdings, PnL, Tax,
-                                    Downloads</v-list-item-subtitle>
-                            </v-list-item-content>
+                            <v-row no-gutters align="center">
+                                <v-col cols="2" class="d-flex justify-center align-center">
+                                    <img width="20px"
+                                        :src="getAssetPath(`usermenu/${$vuetify.theme.dark ? 'reportsd' : 'reports'}.svg`)" />
+                                </v-col>
+                                <v-col cols="10" class="pl-3">
+                                    <div class="font-weight-medium fs-14 mb-0">Reports</div>
+                                    <div class="fs-10 subtext--text">Ledger, Holdings, PnL, Tax, Downlo...</div>
+                                </v-col>
+                            </v-row>
                         </v-list-item>
                         <v-divider class="mx-3"></v-divider>
-                        <v-list-item
+
+                        <v-list-item class="px-4 py-3"
                             :href="`https://profile.zebuetrade.com/corporateaction?uid=${authStore.uid}&token=${authStore.token}`"
                             target="_blank">
-                            <v-list-item-icon class="mr-3 text-center">
-                                <img width="22px" class="pl-1"
-                                    :src="getAssetPath(`usermenu/${$vuetify.theme.dark ? 'coad' : 'coa'}.svg`)" />
-                            </v-list-item-icon>
-                            <v-list-item-content>
-                                <v-list-item-title class="font-weight-medium fs-14 mb-0">Corporation
-                                    Action</v-list-item-title>
-                                <v-list-item-subtitle class="fs-10 subtext--text">Buyback, Delisting, Takeover,
-                                    OFS</v-list-item-subtitle>
-                            </v-list-item-content>
+                            <v-row no-gutters align="center">
+                                <v-col cols="2" class="d-flex justify-center align-center">
+                                    <img width="20px"
+                                        :src="getAssetPath(`usermenu/${$vuetify.theme.dark ? 'coad' : 'coa'}.svg`)" />
+                                </v-col>
+                                <v-col cols="10" class="pl-2">
+                                    <div class="font-weight-medium fs-14 mb-0">Corporation Action</div>
+                                    <div class="fs-10 subtext--text">Buyback, Delisting, Takeover, OFS</div>
+                                </v-col>
+                            </v-row>
                         </v-list-item>
-                        <v-list-item
+
+
+                        <v-list-item class="px-4 py-3"
                             :href="`https://profile.zebuetrade.com/pledge?uid=${authStore.uid}&token=${authStore.token}`"
                             target="_blank">
-                            <v-list-item-icon class="mr-3 text-center">
-                                <img width="24px" class="pl-1"
-                                    :src="getAssetPath(`usermenu/${$vuetify.theme.dark ? 'pledged' : 'pledge'}.svg`)" />
-                            </v-list-item-icon>
-                            <v-list-item-content>
-                                <v-list-item-title class="font-weight-medium fs-14 mb-0">Pledge &
-                                    Unpledge</v-list-item-title>
-                                <v-list-item-subtitle class="fs-10 subtext--text">Stocks held by various
-                                    accounts</v-list-item-subtitle>
-                            </v-list-item-content>
+                            <v-row no-gutters align="center">
+                                <v-col cols="2" class="d-flex justify-center align-center">
+                                    <img width="20px"
+                                        :src="getAssetPath(`usermenu/${$vuetify.theme.dark ? 'pledged' : 'pledge'}.svg`)" />
+                                </v-col>
+                                <v-col cols="10" class="pl-2">
+                                    <div class="font-weight-medium fs-14 mb-0">Pledge & Unpledge</div>
+                                    <div class="fs-10 subtext--text">Stocks held by various accounts</div>
+                                </v-col>
+                            </v-row>
                         </v-list-item>
                         <v-divider class="mx-3"></v-divider>
-                        <v-list-item href="https://zebuetrade.com/referral" target="_blank">
-                            <v-list-item-icon class="mr-3 text-center">
-                                <img width="22px" class="pl-1"
-                                    :src="getAssetPath(`usermenu/${$vuetify.theme.dark ? 'referald' : 'referal'}.svg`)" />
-                            </v-list-item-icon>
-                            <v-list-item-content>
-                                <v-list-item-title class="font-weight-medium fs-14 mb-0">Refer</v-list-item-title>
-                                <v-list-item-subtitle class="fs-10 subtext--text">Refer your family &
-                                    friends</v-list-item-subtitle>
-                            </v-list-item-content>
+
+                        <v-list-item class="px-4 py-3" href="https://zebuetrade.com/referral" target="_blank">
+                            <v-row no-gutters align="center">
+                                <v-col cols="2" class="d-flex justify-center align-center">
+                                    <img width="20px"
+                                        :src="getAssetPath(`usermenu/${$vuetify.theme.dark ? 'referald' : 'referal'}.svg`)" />
+                                </v-col>
+                                <v-col cols="10" class="pl-2">
+                                    <div class="font-weight-medium fs-14 mb-0">Refer</div>
+                                    <div class="fs-10 subtext--text">Refer your family & friends</div>
+                                </v-col>
+                            </v-row>
                         </v-list-item>
-                        <v-list-item href="https://zebuetrade.com/contactus" target="_blank">
-                            <v-list-item-icon class="mr-3 text-center">
-                                <img width="22px" class="pl-1"
-                                    :src="getAssetPath(`usermenu/${$vuetify.theme.dark ? '6d' : '6'}.svg`)" />
-                            </v-list-item-icon>
-                            <v-list-item-content>
-                                <v-list-item-title class="font-weight-medium fs-14 mb-0">Help &
-                                    Support</v-list-item-title>
-                                <v-list-item-subtitle class="fs-10 subtext--text">Sales, Support &
-                                    Desk</v-list-item-subtitle>
-                            </v-list-item-content>
+                        
+
+                        <v-list-item class="px-4 py-3" href="https://zebuetrade.com/contactus" target="_blank">
+                            <v-row no-gutters align="center">
+                                <v-col cols="2" class="d-flex justify-center align-center">
+                                    <img width="20px"
+                                        :src="getAssetPath(`usermenu/${$vuetify.theme.dark ? '6d' : '6'}.svg`)" />
+                                </v-col>
+                                <v-col cols="10" class="pl-2">
+                                    <div class="font-weight-medium fs-14 mb-0">Help & Support</div>
+                                    <div class="fs-10 subtext--text">Sales, Support & Desk</div>
+                                </v-col>
+                            </v-row>
                         </v-list-item>
-                        <v-list-item to="/settings">
-                            <v-list-item-icon class="mr-3 text-center">
-                                <img width="22px" class="pl-1"
-                                    :src="getAssetPath(`usermenu/${$vuetify.theme.dark ? '7d' : '7'}.svg`)" />
-                            </v-list-item-icon>
-                            <v-list-item-content>
-                                <v-list-item-title class="font-weight-medium fs-14 mb-0">Setting</v-list-item-title>
-                                <v-list-item-subtitle class="fs-10 subtext--text">API key, Change password, Themes,
-                                    Log</v-list-item-subtitle>
-                            </v-list-item-content>
+                     
+
+                        <v-list-item class="px-4 py-3" to="/settings">
+                            <v-row no-gutters align="center">
+                                <v-col cols="2" class="d-flex justify-center align-center">
+                                    <img width="20px"
+                                        :src="getAssetPath(`usermenu/${$vuetify.theme.dark ? '7d' : '7'}.svg`)" />
+                                </v-col>
+                                <v-col cols="10" class="pl-2">
+                                    <div class="font-weight-medium fs-14 mb-0">Setting</div>
+                                    <div class="fs-10 subtext--text">API key, Change password, Themes...</div>
+                                </v-col>
+                            </v-row>
                         </v-list-item>
                         <v-divider class="mx-3"></v-divider>
-                        <v-list-item @click="logOut()">
-                            <v-list-item-icon class="mr-3 text-center">
-                                <img width="22px" class="pl-1"
-                                    :src="getAssetPath(`usermenu/${$vuetify.theme.dark ? '8d' : '8'}.svg`)" />
-                            </v-list-item-icon>
-                            <v-list-item-content>
-                                <v-list-item-title class="font-weight-medium fs-14">Logout</v-list-item-title>
-                            </v-list-item-content>
+
+                        <v-list-item class="px-4 py-3" @click="logOut()">
+                            <v-row no-gutters align="center">
+                                <v-col cols="2" class="d-flex justify-center align-center">
+                                    <img width="20px"
+                                        :src="getAssetPath(`usermenu/${$vuetify.theme.dark ? '8d' : '8'}.svg`)" />
+                                </v-col>
+                                <v-col cols="10" class="pl-3">
+                                    <div class="font-weight-medium fs-14">Logout</div>
+                                </v-col>
+                            </v-row>
                         </v-list-item>
                     </v-list>
                 </v-card>
@@ -326,13 +344,13 @@ const menuOpen = ref(false)
 
 // Handle user ID click
 const handleUserIdClick = (event) => {
-    console.log('🔵 User ID/Client ID clicked:', {
-        uid: authStore.uid,
-        clientId: authStore.clientdata?.CLIENT_ID,
-        clientName: authStore.clientdata?.CLIENT_NAME,
-        displayedValue: authStore.clientdata?.CLIENT_ID || authStore.uid || "-",
-        timestamp: new Date().toISOString()
-    })
+    // console.log('🔵 User ID/Client ID clicked:', {
+    //     uid: authStore.uid,
+    //     clientId: authStore.clientdata?.CLIENT_ID,
+    //     clientName: authStore.clientdata?.CLIENT_NAME,
+    //     displayedValue: authStore.clientdata?.CLIENT_ID || authStore.uid || "-",
+    //     timestamp: new Date().toISOString()
+    // })
 
     // Show tooltip on click
     tooltipVisible.value = true
@@ -412,32 +430,32 @@ const decryptionFunction = (payld) => {
 }
 
 const getUserdata = async (data) => {
-    console.log("📥 AppBar: Getting user data...")
-    console.log("📥 Parameters being sent:", {
-        data,
-        uid: authStore.uid,
-        token: authStore.token ? "***" : "undefined"
-    })
+    // console.log("📥 AppBar: Getting user data...")
+    // console.log("📥 Parameters being sent:", {
+    //     data,
+    //     uid: authStore.uid,
+    //     token: authStore.token ? "***" : "undefined"
+    // })
 
     const cachedConfig = localStorage.getItem("profile_data")
-    console.log("📦 Cached profile_data:", cachedConfig ? "Exists" : "None")
+    // console.log("📦 Cached profile_data:", cachedConfig ? "Exists" : "None")
 
     let config = cachedConfig || await getProfiledata([data, authStore.uid, authStore.token])
 
 
     config = config?.includes?.('str') ? JSON.parse(config) : config
 
-    console.log("🔍 Config after parse:", config)
-    console.log("🔍 config.emsg:", config?.emsg)
-    console.log("🔍 config.str:", config?.str ? "Exists" : "Missing")
+    // console.log("🔍 Config after parse:", config)
+    // console.log("🔍 config.emsg:", config?.emsg)
+    // console.log("🔍 config.str:", config?.str ? "Exists" : "Missing")
 
     if (config?.str && config.emsg !== "invalid token") {
         const res = JSON.parse(decryptionFunction(config.str))
-        console.log("✅ User data decrypted:", res)
-        console.log("📋 client_data:", res?.client_data)
+        // console.log("✅ User data decrypted:", res)
+        // console.log("📋 client_data:", res?.client_data)
 
         if (res?.client_data) {
-            console.log("✅ Setting clientdata with:", res.client_data)
+            // console.log("✅ Setting clientdata with:", res.client_data)
             authStore.setClientdata(res.client_data)
             authStore.setUserdata(res)
             config['uid'] = authStore.uid
@@ -447,19 +465,19 @@ const getUserdata = async (data) => {
                 uid: authStore.uid,
                 data: res.client_data
             }))
-            console.log("✅ User data set in authStore")
-            console.log("✅ clientdata.CLIENT_NAME:", authStore.clientdata?.CLIENT_NAME)
-            console.log("✅ clientdata.CLIENT_ID:", authStore.clientdata?.CLIENT_ID)
+            // console.log("✅ User data set in authStore")
+            // console.log("✅ clientdata.CLIENT_NAME:", authStore.clientdata?.CLIENT_NAME)
+            // console.log("✅ clientdata.CLIENT_ID:", authStore.clientdata?.CLIENT_ID)
         } else {
             authStore.setUserdata(null)
             authStore.setClientdata({})
             localStorage.removeItem("client_data")
-            console.log("⚠️ No client_data in response")
+            // console.log("⚠️ No client_data in response")
         }
     } else {
-        console.log("⚠️ No valid profile data")
+        // console.log("⚠️ No valid profile data")
     }
-    console.log("✅ Setting loading to false")
+    // console.log("✅ Setting loading to false")
     authStore.setLoading(false)
 }
 
@@ -504,12 +522,12 @@ const setConnection = () => {
 }
 
 const checkUserSession = async () => {
-    console.log("🔍 AppBar: Checking user session...")
+    // console.log("🔍 AppBar: Checking user session...")
     let res = sessionStorage.getItem("c3RhdHVz")
-    console.log("🔍 Session status:", res)
+    // console.log("🔍 Session status:", res)
 
     if (res == "dmFsaWR1c2Vy") {
-        console.log("✅ Valid session found, loading user data...")
+        // console.log("✅ Valid session found, loading user data...")
         authStore.token = sessionStorage.getItem("usession")
         authStore.mtoken = sessionStorage.getItem("msession")
         authStore.uid = sessionStorage.getItem("userid")
@@ -527,11 +545,11 @@ const checkUserSession = async () => {
 
             await getUserdata(data)
         } else {
-            console.log("✅ Clientdata already loaded:", authStore.clientdata?.CLIENT_NAME)
+            // console.log("✅ Clientdata already loaded:", authStore.clientdata?.CLIENT_NAME)
             authStore.setLoading(false)
         }
     } else {
-        console.log("❌ No valid session, setting loading to false")
+        // console.log("❌ No valid session, setting loading to false")
         authStore.setLoading(false)
     }
 }
@@ -557,7 +575,7 @@ onMounted(() => {
     sessionCheckInterval = setInterval(() => {
         const sessionStatus = sessionStorage.getItem("c3RhdHVz")
         if (sessionStatus === "dmFsaWR1c2Vy" && authStore.uid && !authStore.clientdata?.CLIENT_ID) {
-            console.log("🔔 Session status is valid, checking user session...")
+            // console.log("🔔 Session status is valid, checking user session...")
             checkUserSession()
             // Clear interval once we've checked and found valid session
             if (sessionCheckInterval) {
@@ -717,7 +735,7 @@ watch(
 
 
 .table-menu-list {
-    width: 100% !important;
+    width: 250px !important;
     border-radius: 8px !important;
     z-index: 9999 !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;

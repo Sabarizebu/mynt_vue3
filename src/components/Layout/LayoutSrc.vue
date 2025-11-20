@@ -17,8 +17,8 @@
                             </template>
                         </v-snackbars>
                         <v-snackbar class="d-none d-md-flex snakbar-sty rounded-pill"
-                            transition="slide-x-reverse-transition" top right v-model="appStore.snackbar"
-                            timeout="4000" :value="true" :color="appStore.snackcolor" absolute text-color="white"
+                            transition="slide-x-reverse-transition" top right v-model="appStore.snackbar" timeout="4000"
+                            :value="true" :color="appStore.snackcolor" absolute text-color="white"
                             style="top: 80px !important; right: 16px !important;">
                             <v-icon class="mr-2" color="#fff">mdi-alert-outline</v-icon>
                             {{ appStore.snacktxt }}
@@ -26,9 +26,9 @@
                                 color="#fff">mdi-close-circle</v-icon>
                         </v-snackbar>
 
-                        <v-snackbar class="d-md-none snakbar-sty rounded-pill"
-                            transition="slide-x-reverse-transition" top right v-model="appStore.snackbar"
-                            timeout="4000" :value="true" :color="appStore.snackcolor" absolute text-color="white"
+                        <v-snackbar class="d-md-none snakbar-sty rounded-pill" transition="slide-x-reverse-transition"
+                            top right v-model="appStore.snackbar" timeout="4000" :value="true"
+                            :color="appStore.snackcolor" absolute text-color="white"
                             style="top: 80px !important; right: 16px !important;">
                             <v-icon class="mr-2" color="#fff">mdi-alert-outline</v-icon>
                             {{ appStore.snacktxt }}
@@ -126,20 +126,20 @@
                         </v-dialog>
                         <v-dialog v-model="riskdialog" persistent width="620">
                             <v-card class="elevation-0 py-4 px-2 rounded-xl">
-                                <v-card-title class="title font-weight-bold mb-2">
+                                <v-card-title class="title font-weight-bold ">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                        fill="none">
+                                        fill="none" class="mt-2">
                                         <path
                                             d="M14 2.26953V6.40007C14 6.96012 14 7.24015 14.109 7.45406C14.2049 7.64222 14.3578 7.7952 14.546 7.89108C14.7599 8.00007 15.0399 8.00007 15.6 8.00007H19.7305M16 13H8M16 17H8M10 9H8M14 2H8.8C7.11984 2 6.27976 2 5.63803 2.32698C5.07354 2.6146 4.6146 3.07354 4.32698 3.63803C4 4.27976 4 5.11984 4 6.8V17.2C4 18.8802 4 19.7202 4.32698 20.362C4.6146 20.9265 5.07354 21.3854 5.63803 21.673C6.27976 22 7.11984 22 8.8 22H15.2C16.8802 22 17.7202 22 18.362 21.673C18.9265 21.3854 19.3854 20.9265 19.673 20.362C20 19.7202 20 18.8802 20 17.2V8L14 2Z"
                                             :stroke="theme.current.value.dark ? 'white' : 'black'" stroke-width="2"
                                             stroke-linecap="round" stroke-linejoin="round" />
                                     </svg>
-                                    <span class="ml-3"> Risk disclosures on derivatives </span>
+                                    <span class="ml-3 pb-2"> Risk disclosures on derivatives </span>
                                 </v-card-title>
                                 <v-divider class="mx-4"></v-divider>
                                 <v-card-text class="px-4 px-md-8 py-7 riskpopup">
                                     <ul :class="theme.current.value.dark ? 'white--text' : 'black--text'"
-                                        class="subtitle-1 mb-4">
+                                        class="subtitle-1 mb-4 pl-6">
                                         <li style="line-height: 24px" class="mb-2">9 out of 10 individual traders in the
                                             equity Futures and
                                             Options
@@ -158,7 +158,7 @@
                                             transaction costs.</li>
                                     </ul>
 
-                                    <p class="caption mb-0">
+                                    <p class="caption mb-0 fs-12">
                                         Source:
                                         <a target="_blank" style="text-decoration: none; color: #0037B7"
                                             href="https://www.sebi.gov.in/reports-and-statistics/research/jan-2023/study-analysis-of-profit-and-loss-of-individual-traders-dealing-in-equity-fando-segment_67525.html">
@@ -175,9 +175,10 @@
                                 <v-divider class="mx-4"></v-divider>
                                 <v-card-actions class="mt-3">
                                     <v-spacer></v-spacer>
-                                    <v-btn color="#0037B7" dark
+                                    <v-btn color="#0037B7" dark variant="elevated"
                                         class="elevation-0 text-none font-weight-bold rounded-pill px-4"
-                                        @click="closeRisk()"> I Understand </v-btn>
+                                        @click="closeRisk()"> I Understand
+                                    </v-btn>
                                 </v-card-actions>
                             </v-card>
                         </v-dialog>
@@ -336,11 +337,11 @@ import { useAppStore } from '../../stores/appStore'
 import { useNavStore } from '../../stores/navStore'
 import { useAuthStore } from '../../stores/authStore'
 import { useSessionStore } from '../../stores/sessionStore'
+import { useWebsocketStore } from '../../stores/websocketStore'
 import { getActiveSession, getReSession, setOrdprefApi, getcallApi } from "../mixins/getAPIdata.js"
 import { seyCheckwebsocket } from "../mixins/webSocketstream.js"
 import { mynturl } from "../../apiurl.js"
 import apiurl from "../../apiurl.js"
-import webSocketEventBus from "../../utils/webSocketEventBus.js"
 import { getAssetPath } from '../../utils/assetHelper.js'
 
 // Import static assets for production compatibility
@@ -354,6 +355,7 @@ const wsOrderObjects = computed(() => appStore.wsorderalertdata.slice())
 const navStore = useNavStore()
 const authStore = useAuthStore()
 const sessionStore = useSessionStore()
+const websocketStore = useWebsocketStore()
 
 const route = useRoute()
 const theme = useTheme()
@@ -443,7 +445,7 @@ const goSso = (flow) => {
 
 const setTabway = () => {
     const pathname = route.path
-    console.log(pathname, "-------------------")
+    // console.log(pathname, "-------------------")
     if (pathname.includes("stocks")) {
         bodytab.value = "Stocks"
         apptab.value = 0
@@ -475,16 +477,10 @@ const closeRisk = () => {
     riskdialog.value = false
 }
 
-// WebSocket data parsing method (similar to old implementation)
-const optionChainDataParse = (data) => {
-    console.log("📊 optionChainDataParse called with:", data)
-    if (webSocketEventBus.wsstocksdata && webSocketEventBus.wsstocksdata.tok && webSocketEventBus.wsstocksdata.rawdata) {
-        // Emit web-scoketConn event with actual data (similar to old implementation)
-        const eventData = Array.isArray(data) ? data[0]?.v : data
-        const currentPage = webSocketEventBus.wsstocksdata.raw
-        console.log("📡 Emitting web-scoketConn with data:", eventData, "page:", currentPage)
-        webSocketEventBus.emit("web-scoketConn", eventData, currentPage)
-    }
+// WebSocket event handler for 'web-scoketOn' custom events
+const handleWebSocketEvent = (event) => {
+    const { flow, data, is, page } = event.detail
+    websocketStore.handleWebSocketRequest(flow, data, is, page)
 }
 
 const getPublicIP = async () => {
@@ -493,7 +489,7 @@ const getPublicIP = async () => {
         const data = await response.json()
         localStorage.setItem("uuidipadd", data.ip)
     } catch (error) {
-        console.error(error)
+        // console.error(error)
     }
 }
 
@@ -501,10 +497,10 @@ const getUserSession = async (k) => {
     appStore.showLoader()
     if (authStore.uid) {
         let sessvalid = await getActiveSession(authStore.uid)
-        console.log("🔍 Session validation result:", sessvalid)
+        // console.log("🔍 Session validation result:", sessvalid)
 
         if (sessvalid && sessvalid.stat == "Ok" && sessvalid.apitoken && sessvalid.token) {
-            console.log("✅ Session valid, proceeding...")
+            // console.log("✅ Session valid, proceeding...")
 
             // IMPORTANT: Update mynturl BEFORE calling seyCheckwebsocket
             // Ensure clientid is added if not in sessvalid
@@ -516,20 +512,8 @@ const getUserSession = async (k) => {
             // IMPORTANT: Set session status BEFORE calling WebSocket functions
             sessionStorage.setItem("c3RhdHVz", "dmFsaWR1c2Vy")
 
-            // Initialize WebSocket event bus for component communication
-
-            // Set up WebSocket data handling similar to old implementation
-            webSocketEventBus.on("web-scoketOn", (flow, data, is, page) => {
-                console.log("📡 WebSocket Event Bus received:", { flow, data, is, page })
-                webSocketEventBus.handleWebSocketRequest(flow, data, is, page)
-            })
-
             // Listen for custom WebSocket events from components
-            window.addEventListener('web-scoketOn', (event) => {
-                const { flow, data, is, page } = event.detail
-                console.log("📡 Custom WebSocket event received:", { flow, data, is, page })
-                webSocketEventBus.handleWebSocketRequest(flow, data, is, page)
-            })
+            window.addEventListener('web-scoketOn', handleWebSocketEvent)
 
             await seyCheckwebsocket()
 
@@ -542,7 +526,7 @@ const getUserSession = async (k) => {
             if (sessvalid.apitoken) {
                 // Don't update msession - it should remain as the original sess from URL
                 // authStore.mtoken should also remain as the original msession value
-                console.log("✅ Session validated with apitoken:", sessvalid.apitoken)
+                // console.log("✅ Session validated with apitoken:", sessvalid.apitoken)
             }
 
             if (k) {
@@ -575,10 +559,10 @@ const getUserSession = async (k) => {
             }
 
             // Hide loader after successful session validation
-            console.log("✅ Hiding loader...")
+            // console.log("✅ Hiding loader...")
             appStore.setMainLoader(false)
             appStore.hideLoader()
-            console.log("✅ Loader hidden, mainloader value:", appStore.mainloader)
+            // console.log("✅ Loader hidden, mainloader value:", appStore.mainloader)
 
             // Clear the loader timeout since we've successfully loaded
             if (window.__loaderTimeout) {
@@ -590,7 +574,7 @@ const getUserSession = async (k) => {
             // It only checks session on login, not periodically
         } else if (authStore.uid && authStore.token && sessvalid && sessvalid.emsg) {
             // Handle error case (exactly like old app: lines 712-717)
-            console.error("❌ Session validation failed:", sessvalid.emsg)
+            // console.error("❌ Session validation failed:", sessvalid.emsg)
 
             // Use sessionStore to handle error (exact old app behavior)
             // Old app: this.snackAlert(2, sessvalid.emsg ? sessvalid.emsg : sessvalid);
@@ -608,7 +592,7 @@ const getUserSession = async (k) => {
                 delete window.__loaderTimeout
             }
         } else {
-            console.log("⚠️ No valid session found")
+            // console.log("⚠️ No valid session found")
             // Only clear session status if we have credentials but they're invalid
             if (authStore.token && authStore.uid) {
                 sessionStorage.removeItem("c3RhdHVz")
@@ -644,15 +628,16 @@ const getUserSession = async (k) => {
 
 // Lifecycle
 onMounted(async () => {
-    console.log("🚀 LayoutSrc onMounted starting...")
+    // console.log("🚀 LayoutSrc onMounted starting...")
     // Don't remove session status here - only remove it on logout
     // sessionStorage.removeItem("c3RhdHVz")
 
-    // Initialize theme
+    // Initialize theme - default to light
     var theme
     let t = localStorage.getItem("web.theme")
-    if (t == "default") {
-        theme = window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+    if (t == "default" || !t) {
+        // Default to light theme instead of system preference
+        theme = "light"
     } else {
         theme = t == "dark" || t == "light" ? t : "light"
     }
@@ -668,7 +653,7 @@ onMounted(async () => {
 
     // Fail-safe: Always hide loader after 30 seconds to prevent infinite loading
     window.__loaderTimeout = setTimeout(() => {
-        console.warn("⚠️ Loader timeout - force hiding loader")
+        // console.warn("⚠️ Loader timeout - force hiding loader")
         appStore.setMainLoader(false)
         appStore.hideLoader()
     }, 30000)
@@ -681,24 +666,24 @@ onMounted(async () => {
     var suser = url.searchParams.get("sUserId")
     var stoken = url.searchParams.get("sToken")
 
-    console.log("🔍 Checking for shared session parameters:", { suser, stoken })
+    // console.log("🔍 Checking for shared session parameters:", { suser, stoken })
 
     if (typeof suser == "string" && typeof stoken == "string") {
-        console.log("📡 Found shared session, calling redirect API...")
+        // console.log("📡 Found shared session, calling redirect API...")
         let sessvalid = await getReSession([suser, stoken, url.pathname])
-        console.log("📡 Redirect API response:", sessvalid)
+        // console.log("📡 Redirect API response:", sessvalid)
 
         if (sessvalid && sessvalid.stat == "Ok" && sessvalid.apitoken && sessvalid.token) {
             const redirectUrl = `${url.origin}${url.pathname}?uid=${sessvalid.clientid}&sess=${sessvalid.apitoken}&token=${sessvalid.token}&imei=${sessvalid.timei}&src=${sessvalid.source}`
-            console.log("✅ Redirecting to:", redirectUrl)
+            // console.log("✅ Redirecting to:", redirectUrl)
             window.location.assign(redirectUrl)
             return // Exit early to prevent further execution
         } else {
-            console.error("❌ Redirect API failed:", sessvalid.emsg)
+            // console.error("❌ Redirect API failed:", sessvalid.emsg)
             appStore.showSnackbar(2, sessvalid.emsg ? sessvalid.emsg : sessvalid)
         }
     } else {
-        console.log("✅ No shared session parameters found")
+        // console.log("✅ No shared session parameters found")
     }
 
     // Check for regular session parameters - Same logic as old app
@@ -707,7 +692,7 @@ onMounted(async () => {
     var sess = url.searchParams.get("sess")
 
     if (typeof actid == "string" && typeof token == "string") {
-        console.log("📥 Fresh login detected, setting up session...")
+        // console.log("📥 Fresh login detected, setting up session...")
         // Clear cached profile data
         localStorage.removeItem("profile_data")
 
@@ -741,15 +726,15 @@ onMounted(async () => {
         const sessionStatus = sessionStorage.getItem("c3RhdHVz")
 
         if (uid && token && sessionStatus === "dmFsaWR1c2Vy") {
-            console.log("✅ Valid session found, loading data without validation...")
+            // console.log("✅ Valid session found, loading data without validation...")
 
             // Load mynturl from sessionStorage first
             const mynturlLoaded = sessionStore.loadMyntUrl(uid)
-            console.log("📦 mynturl loaded from sessionStorage:", mynturlLoaded ? "Yes" : "No")
+            // console.log("📦 mynturl loaded from sessionStorage:", mynturlLoaded ? "Yes" : "No")
 
             // If mynturl wasn't loaded, we need to fetch it
             if (!mynturlLoaded) {
-                console.log("⚠️ mynturl not in sessionStorage, calling getUserSession to fetch it...")
+                // console.log("⚠️ mynturl not in sessionStorage, calling getUserSession to fetch it...")
                 await getUserSession(uid)
                 return // Exit here, getUserSession will handle everything
             }
@@ -764,7 +749,7 @@ onMounted(async () => {
                     log = JSON.parse(log)
                     appStore.snackalerts = log && log.length > 0 ? log : []
                 } catch (e) {
-                    console.error("Error parsing alerts:", e)
+                    // console.error("Error parsing alerts:", e)
                     appStore.snackalerts = []
                 }
             }
@@ -775,15 +760,12 @@ onMounted(async () => {
                 appStore.setWatchlistLayout(wllayout === 'true')
             }
 
-            // IMPORTANT: Initialize WebSocket event bus for existing sessions too
-            console.log("🔌 Initializing WebSocket Event Bus for existing session...")
-            webSocketEventBus.on("web-scoketOn", (flow, data, is, page) => {
-                console.log("📡 WebSocket Event Bus received:", { flow, data, is, page })
-                webSocketEventBus.handleWebSocketRequest(flow, data, is, page)
-            })
+            // IMPORTANT: Initialize WebSocket listener for existing sessions too
+            // console.log("🔌 Initializing WebSocket listener for existing session...")
+            window.addEventListener('web-scoketOn', handleWebSocketEvent)
 
             // IMPORTANT: Load order preferences API (this was being skipped!)
-            console.log("📥 Loading order preferences...")
+            // console.log("📥 Loading order preferences...")
 
             // Update global uid variable for API calls
             await seyCheckwebsocket() // This updates the global uid variable
@@ -792,7 +774,7 @@ onMounted(async () => {
             const { seyCheckwebsocket: seyCheckwebsocketAPI } = await import("../mixins/getAPIdata.js")
             await seyCheckwebsocketAPI() // This updates uid in getAPIdata.js
 
-            console.log("✅ WebSocket session checked, mynturl stat:", apiurl.mynturl?.stat)
+            // console.log("✅ WebSocket session checked, mynturl stat:", apiurl.mynturl?.stat)
 
             var ordpre = await setOrdprefApi()
             if (!(ordpre && ordpre.metadata && ordpre.metadata.mainpreitems)) {
@@ -806,7 +788,7 @@ onMounted(async () => {
                 }
                 await setOrdprefApi({ "clientid": uid, "metadata": data, "source": "WEB" }, true)
             }
-            console.log("✅ Order preferences loaded")
+            // console.log("✅ Order preferences loaded")
 
             // Note: Old app does NOT check session on page refresh
             // It only checks session on login, not when loading from sessionStorage
@@ -880,9 +862,11 @@ watch(
 
 // Cleanup on unmount
 onUnmounted(() => {
-    console.log("🧹 LayoutSrc unmounting, stopping session monitoring...")
+    // console.log("🧹 LayoutSrc unmounting, stopping session monitoring...")
     // Stop session monitoring
     sessionStore.stopSessionMonitoring()
+    // Remove WebSocket event listener
+    window.removeEventListener('web-scoketOn', handleWebSocketEvent)
 })
 </script>
 

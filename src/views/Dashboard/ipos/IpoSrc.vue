@@ -468,7 +468,7 @@ const getIposApis = async () => {
     // Process and set data
     getiposdata(iposdatasObj)
   } catch (error) {
-    console.error('Error fetching IPO data:', error)
+    // console.error('Error fetching IPO data:', error)
     loading.value = false
   }
 }

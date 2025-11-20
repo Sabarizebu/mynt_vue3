@@ -8,7 +8,7 @@ export const useNavStore = defineStore('navigation', () => {
 
   // Action to navigate to single stock details
   const navigateToStockDetails = (type, token, exch, tsym, trantype, item) => {
-    console.log(type, token, exch, tsym, trantype, item)
+    // console.log(type, token, exch, tsym, trantype, item)
     if (type === "detail") {
       router.push({ 
         name: "single stocks", 

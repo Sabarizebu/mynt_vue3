@@ -18,7 +18,6 @@
 <script>
 import { widget } from "../../public/charting_library";
 import Datafeed from "../components/mixins/feedFactory.js";
-// import eventBus from "../eventBus.js"; // Removed - using Pinia stores instead
 import { setIndicators, getIndicators } from "./mixins/getAPIdata";
 
 export default {
@@ -129,17 +128,20 @@ export default {
 
   methods: {
     captureSelectedTVChart() {
-      eventBus.$emit('section-clicked', this.containerId)
-      eventBus.$on('section-clicked', (containerId) => {
+      window.dispatchEvent(new CustomEvent('section-clicked', {
+        detail: { containerId: this.containerId }
+      }))
+
+      const sectionClickHandler = (event) => {
+        const containerId = event.detail?.containerId
         if (containerId === this.containerId) {
           this.activeTVChartSection = true;
         } else {
           this.activeTVChartSection = false;
         }
         // console.log("containerId on :::: current",this.containerId,"  next : ",containerId)
-
-      })
-
+      }
+      window.addEventListener('section-clicked', sectionClickHandler)
     },
 
 
@@ -160,7 +162,7 @@ export default {
             indicators = res;
           }
           catch (e) {
-            console.log(e);
+            // console.log(e);
           }
         }
       }, 5000);
@@ -325,7 +327,16 @@ export default {
                 position: "top",
                 text: "Set Alert " + "(" + price?.toFixed(2) + ")",
                 click: function Callback() {
-                  eventBus.$emit('menudialog', 'alert', localStorage.getItem("ssdtoken"), localStorage.getItem("ssdtsym").split(':')[0], localStorage.getItem("ssdtsym").split(':')[1], 'a', { price: price?.toFixed(2) })
+                  window.dispatchEvent(new CustomEvent('menudialog', {
+                    detail: {
+                      type: 'alert',
+                      token: localStorage.getItem("ssdtoken"),
+                      exch: localStorage.getItem("ssdtsym")?.split(':')[0],
+                      tsym: localStorage.getItem("ssdtsym")?.split(':')[1],
+                      action: 'a',
+                      data: { price: price?.toFixed(2) }
+                    }
+                  }))
                   // self.altsymbol = window[this.containerId].activeChart().symbol();
                   // self.alrprice = price?.toFixed(2);
                   // self.altconval = self.altconitem[0];

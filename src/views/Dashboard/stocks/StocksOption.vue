@@ -286,13 +286,13 @@
                                                 <span class="optiondatasty optionbartext">
                                                     <span :id="`upcall${script.token}oi`">{{ script.oi ? script.oi :
                                                         '0.00'
-                                                        }}</span>
+                                                    }}</span>
                                                     <span :id="`upcall${script.token}oiclr`"
                                                         :style="`color:${script.oich > 0 ? '#43A833' : script.oich < 0 ? '#F23645' : 'none'};`"
                                                         class="optionchsty">
                                                         <span :id="`upcall${script.token}oich`">({{ script.oich ?
                                                             script.oich : '0.00'
-                                                            }})</span>
+                                                        }})</span>
                                                     </span>
                                                 </span>
                                             </div>
@@ -317,7 +317,7 @@
                                                 :style="`color:${script.ch > 0 ? '#43A833' : script.ch < 0 ? '#F23645' : ''};`"
                                                 :id="`upcall${script.token}chpclr`" class="optiondatasty">
                                                 <span :id="`upcall${script.token}ch`">{{ script.ch ? script.ch : '0.00'
-                                                    }}</span>
+                                                }}</span>
                                                 <span :id="`upcall${script.token}chp`" class="optionchsty">
                                                     ({{ script.chp ? script.chp : '0.00' }}%)
                                                 </span>
@@ -602,13 +602,13 @@
                                                 <span class="optiondatasty optionbartext">
                                                     <span :id="`dwncall${script.token}oi`">{{ script.oi ? script.oi :
                                                         '0.00'
-                                                        }}</span>
+                                                    }}</span>
                                                     <span :id="`dwncall${script.token}oiclr`"
                                                         :style="`color:${script.oich > 0 ? '#43A833' : script.oich < 0 ? '#F23645' : 'none'};`"
                                                         class="optionchsty">
                                                         <span :id="`dwncall${script.token}oich`">({{ script.oich ?
                                                             script.oich : '0.00'
-                                                            }})</span>
+                                                        }})</span>
                                                     </span>
                                                 </span>
                                             </div>
@@ -632,7 +632,7 @@
                                                 :id="`dwncall${script.token}chpclr`" class="optiondatasty">
                                                 <span :id="`dwncall${script.token}ch`">{{ script.ch ? script.ch :
                                                     '0.00'
-                                                    }}</span>
+                                                }}</span>
                                                 <span :id="`dwncall${script.token}chp`" class="optionchsty">
                                                     ({{ script.chp ? script.chp : '0.00' }}%)
                                                 </span>
@@ -945,7 +945,7 @@
                                             <v-card class="elevation-0 text-center" color="secbg" tile>
                                                 <span class="optionheadsty">{{ optionsStore.pcrputRatio > 0 ?
                                                     optionsStore.pcrputRatio : '0'
-                                                    }}</span>
+                                                }}</span>
                                             </v-card>
                                         </th>
                                         <th colspan="2">
@@ -1309,7 +1309,7 @@ async function optionchainMet(exit, windata, tokenis) {
                 }
 
                 if (qu) {
-                    console.log('[Options] Spot price data:', qu)
+                    // console.log('[Options] Spot price data:', qu)
                     optionsStore.subscriptionchainStocksList.push({
                         exch: qu.exch,
                         token: qu.token,
@@ -1322,30 +1322,30 @@ async function optionchainMet(exit, windata, tokenis) {
                     }
                     optionsStore.optionStockName = optionsStore.optionStockSymbolInfo.tsym || ''
                     optionsStore.optionStockSpot = qu.lp || 0
-                    console.log('[Options] Spot price:', optionsStore.optionStockSpot)
-                    console.log('[Options] Symbol info:', optionsStore.optionStockSymbolInfo)
+                    // console.log('[Options] Spot price:', optionsStore.optionStockSpot)
+                    // console.log('[Options] Symbol info:', optionsStore.optionStockSymbolInfo)
 
                     // Match old code: call optionChainDate without await (it will set loading state internally)
                     optionChainDate()
                 } else {
-                    console.error('[Options] No quote data available')
+                    // console.error('[Options] No quote data available')
                     optionsStore.coractloader = false
                     optionsStore.coractdata = false
                     appStore.showSnackbar(2, 'Unable to fetch spot price data')
                 }
             } else {
-                console.error('[Options] Symbol has no tradable futures or options')
+                // console.error('[Options] Symbol has no tradable futures or options')
                 optionsStore.coractloader = false
                 optionsStore.coractdata = false
                 appStore.showSnackbar(2, 'The symbol has no tradable futures or options.')
             }
         } else {
-            console.error('[Options] Missing security info or expiry data')
+            // console.error('[Options] Missing security info or expiry data')
             optionsStore.coractloader = false
             optionsStore.coractdata = false
         }
     } catch (error) {
-        console.error('[Options] Error in optionchainMet:', error)
+        // console.error('[Options] Error in optionchainMet:', error)
         optionsStore.coractloader = false
         optionsStore.coractdata = false
         appStore.showSnackbar(2, `Error: ${error.message || 'Unknown error'}`)
@@ -1354,9 +1354,9 @@ async function optionchainMet(exit, windata, tokenis) {
 
 async function optionChainDate() {
     try {
-        console.log('[Options] Starting optionChainDate...')
-        console.log('[Options] Current expiry filter:', optionsStore.lsexdfilter)
-        console.log('[Options] Available expiry dates:', optionsStore.lsexd)
+        // console.log('[Options] Starting optionChainDate...')
+        // console.log('[Options] Current expiry filter:', optionsStore.lsexdfilter)
+        // console.log('[Options] Available expiry dates:', optionsStore.lsexd)
 
         // Match old code: Reset state first (like old code line 1187-1193)
         // NOTE: Old code does NOT set coractloader = true here - it's already set in optionchainMet
@@ -1374,9 +1374,9 @@ async function optionChainDate() {
         const ccc = ['5', '10', '15', '30', '50']
         optionsStore.chainCount = ccc[optionsStore.ccfilter] || '10'
 
-        console.log('[Options] Selected expiry:', optionsStore.lsexdval)
-        console.log('[Options] Chain count:', optionsStore.chainCount)
-        console.log('[Options] Data1 length:', optionsStore.data1?.length || 0)
+        // console.log('[Options] Selected expiry:', optionsStore.lsexdval)
+        // console.log('[Options] Chain count:', optionsStore.chainCount)
+        // console.log('[Options] Data1 length:', optionsStore.data1?.length || 0)
 
         let result = optionsStore.data1?.find((item) => item.exd === optionsStore.lsexdval)
 
@@ -1407,8 +1407,8 @@ async function optionChainDate() {
         // Match old code: Fetch options chain directly (like old code line 1211)
         // Note: Old code doesn't check if result exists before using it - we need result for API call
         if (!result) {
-            console.error('[Options] Expiry date not found in data1:', optionsStore.lsexdval)
-            console.error('[Options] Available data1:', optionsStore.data1)
+            // console.error('[Options] Expiry date not found in data1:', optionsStore.lsexdval)
+            // console.error('[Options] Available data1:', optionsStore.data1)
             optionsStore.coractloader = false
             optionsStore.coractdata = false
             appStore.showSnackbar(2, `Expiry date ${optionsStore.lsexdval} not found`)
@@ -1423,20 +1423,20 @@ async function optionChainDate() {
         const tsymEncoded = result.tsym.includes('&') ? result.tsym.replace('&', '%26') : result.tsym
         const query = `jData={"uid":"${userid}","exch":"${result.exch}","tsym":"${tsymEncoded}","cnt":"${optionsStore.chainCount}","strprc":"${optionsStore.optionStockSpot}"}&jKey=${usession}`
 
-        console.log('[Options] Fetching options chain...')
-        console.log('[Options] Query params:', {
-            exch: result.exch,
-            tsym: tsymEncoded,
-            cnt: optionsStore.chainCount,
-            strprc: optionsStore.optionStockSpot
-        })
+        // console.log('[Options] Fetching options chain...')
+        // console.log('[Options] Query params:', {
+        //     exch: result.exch,
+        //     tsym: tsymEncoded,
+        //     cnt: optionsStore.chainCount,
+        //     strprc: optionsStore.optionStockSpot
+        // })
 
         let ocdata = null
         try {
             ocdata = await getOptionschain(query)
-            console.log('[Options] API Response:', ocdata)
+            // console.log('[Options] API Response:', ocdata)
         } catch (error) {
-            console.error('[Options] API Error:', error)
+            // console.error('[Options] API Error:', error)
             optionsStore.coractloader = false
             optionsStore.coractdata = false
             appStore.showSnackbar(2, `Error fetching options chain: ${error.message || 'Unknown error'}`)
@@ -1444,7 +1444,7 @@ async function optionChainDate() {
         }
 
         if (!ocdata) {
-            console.error('[Options] No data returned from API')
+            // console.error('[Options] No data returned from API')
             optionsStore.coractloader = false
             optionsStore.coractdata = false
             appStore.showSnackbar(2, 'No data returned from options chain API')
@@ -1453,8 +1453,8 @@ async function optionChainDate() {
 
         // Match old code: Check stat == 'Ok' (like old code line 1213)
         if (ocdata && ocdata.stat == 'Ok') {
-            console.log('[Options] API Success - Processing data...')
-            console.log('[Options] Values count:', ocdata.values?.length || 0)
+            // console.log('[Options] API Success - Processing data...')
+            // console.log('[Options] Values count:', ocdata.values?.length || 0)
 
             // Match old code: Set optionchain and chainStocksList directly (like old code line 1214-1215)
             optionsStore.optionchain = ocdata
@@ -1619,7 +1619,7 @@ async function optionChainDate() {
                 try {
                     await setPositionbook()
                 } catch (error) {
-                    console.error('[Options] Error loading positions:', error)
+                    // console.error('[Options] Error loading positions:', error)
                     // Don't block rendering if positions fail to load
                 }
             }
@@ -1632,21 +1632,21 @@ async function optionChainDate() {
             optionsStore.coractdata = true
             optionsStore.coractloader = false
 
-            console.log('[Options] Data loaded successfully!')
-            console.log('[Options] upcallSO count:', optionsStore.upcallSO.length)
-            console.log('[Options] upputSO count:', optionsStore.upputSO.length)
-            console.log('[Options] dwncallSO count:', optionsStore.dwncallSO.length)
-            console.log('[Options] dwnputSO count:', optionsStore.dwnputSO.length)
+            // console.log('[Options] Data loaded successfully!')
+            // console.log('[Options] upcallSO count:', optionsStore.upcallSO.length)
+            // console.log('[Options] upputSO count:', optionsStore.upputSO.length)
+            // console.log('[Options] dwncallSO count:', optionsStore.dwncallSO.length)
+            // console.log('[Options] dwnputSO count:', optionsStore.dwnputSO.length)
         } else {
             // API returned error
-            console.error('[Options] API Error:', ocdata?.stat, ocdata?.emsg)
+            // console.error('[Options] API Error:', ocdata?.stat, ocdata?.emsg)
             optionsStore.coractloader = false
             optionsStore.coractdata = false
             appStore.showSnackbar(2, ocdata?.emsg || 'Failed to fetch options chain')
         }
     } catch (error) {
         // Catch any unexpected errors
-        console.error('[Options] Unexpected error in optionChainDate:', error)
+        // console.error('[Options] Unexpected error in optionChainDate:', error)
         optionsStore.coractloader = false
         optionsStore.coractdata = false
         appStore.showSnackbar(2, `Unexpected error: ${error.message || 'Unknown error'}`)
@@ -1678,7 +1678,7 @@ function simpleTablestyle() {
         if (optionsStore && typeof optionsStore.updateColumnVisibility === 'function') {
             optionsStore.updateColumnVisibility()
         } else {
-            console.error('[Options] updateColumnVisibility is not available')
+            // console.error('[Options] updateColumnVisibility is not available')
             return
         }
 
@@ -1689,7 +1689,7 @@ function simpleTablestyle() {
             }
         }
     } catch (error) {
-        console.error('[Options] Error in simpleTablestyle:', error)
+        // console.error('[Options] Error in simpleTablestyle:', error)
     }
 }
 
@@ -2204,7 +2204,7 @@ async function getGreekValues(section, optionData, index) {
             }
         }
     } catch (error) {
-        console.error('Error calculating Greeks:', error)
+        // console.error('Error calculating Greeks:', error)
     } finally {
         // Decrement counter on completion (even if error)
         // Note: This might need adjustment based on actual requirements

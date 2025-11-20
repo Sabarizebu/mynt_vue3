@@ -159,7 +159,12 @@ button,
 span,
 p,
 div,
-h1, h2, h3, h4, h5, h6,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
 label {
   font-family: 'Tenon', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
 }
@@ -1571,8 +1576,10 @@ tr:hover,
   max-height: calc(100vh - 300px) !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
-  scrollbar-width: none !important; /* Firefox */
-  -ms-overflow-style: none !important; /* IE/Edge */
+  scrollbar-width: none !important;
+  /* Firefox */
+  -ms-overflow-style: none !important;
+  /* IE/Edge */
   scroll-behavior: auto !important;
   position: relative !important;
   will-change: scroll-position;
@@ -1581,6 +1588,7 @@ tr:hover,
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
 }
+
 .watchlist-scroll::-webkit-scrollbar {
   display: none !important;
   width: 0 !important;
@@ -1597,45 +1605,71 @@ tr:hover,
     overflow-x: auto !important;
     min-width: 670px;
   }
-  .tool-sty, .stat-card, .v-toolbar {
+
+  .tool-sty,
+  .stat-card,
+  .v-toolbar {
     padding-left: 0.5rem !important;
     padding-right: 0.5rem !important;
   }
+
   .stat-card {
     flex-direction: column;
     align-items: flex-start;
     min-width: unset;
   }
-  .v-btn, .v-chip {
+
+  .v-btn,
+  .v-chip {
     font-size: 14px !important;
     height: 32px;
     min-width: 32px;
     border-radius: 18px !important;
   }
+
   .v-chip {
     padding: 4px 10px !important;
   }
-  .maintext--text, .font-weight-bold, .font-weight-medium {
+
+  .maintext--text,
+  .font-weight-bold,
+  .font-weight-medium {
     font-size: 15px !important;
   }
-  .subtitle-1, .title {
+
+  .subtitle-1,
+  .title {
     font-size: 16px !important;
   }
-  .px-4, .px-6 {
-    padding-left: 12px!important; padding-right: 12px!important; }
-  .py-8, .py-16 {
-    padding-top: 28px!important; padding-bottom: 28px!important; }
-  .rounded-lg, .rounded-xl {
+
+  .px-4,
+  .px-6 {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  .py-8,
+  .py-16 {
+    padding-top: 28px !important;
+    padding-bottom: 28px !important;
+  }
+
+  .rounded-lg,
+  .rounded-xl {
     border-radius: 10px !important;
   }
-  .table-row, tr {
+
+  .table-row,
+  tr {
     min-height: 40px !important;
   }
+
   /* Drawer: full width on very small screens */
   .v-navigation-drawer {
     width: 97vw !important;
     max-width: 420px !important;
   }
+
   .v-navigation-drawer .v-icon[aria-label="Close"],
   .v-navigation-drawer .v-icon {
     font-size: 1.9rem !important;
@@ -1647,41 +1681,79 @@ tr:hover,
   .v-data-table {
     min-width: 420px;
   }
+
   .v-navigation-drawer {
     max-width: 99vw !important;
     padding: 0 !important;
   }
-  .maintext--text, .caption, .py-8, .py-16 { font-size: 14px !important; }
-  .table-row, tr { min-height: 32px !important; }
-  .v-btn, .v-chip { font-size: 13px !important; }
+
+  .maintext--text,
+  .caption,
+  .py-8,
+  .py-16 {
+    font-size: 14px !important;
+  }
+
+  .table-row,
+  tr {
+    min-height: 32px !important;
+  }
+
+  .v-btn,
+  .v-chip {
+    font-size: 13px !important;
+  }
 }
 
 /* Sticky toolbar and stats on top for mobile */
 @media (max-width: 900px) {
-  .tool-sty, .stat-card {
+
+  .tool-sty,
+  .stat-card {
     position: sticky;
     top: 0;
     z-index: 10;
     background: #fff;
   }
-  .v-toolbar { position: sticky; top: 0; }
+
+  .v-toolbar {
+    position: sticky;
+    top: 0;
+  }
 }
 
 /* Horizontal scroll always on table for small screens */
-.v-data-table { overflow-x: auto !important; }
+.v-data-table {
+  overflow-x: auto !important;
+}
 
 /* Spacing for Exit button on mobile */
 @media (max-width: 600px) {
-  .v-toolbar .v-btn.ml-4 { margin: 14px 0 0 0!important; float: right; }
+  .v-toolbar .v-btn.ml-4 {
+    margin: 14px 0 0 0 !important;
+    float: right;
+  }
 }
 
 /* Padding for navigation drawer details sections */
-.v-navigation-drawer .v-list-item-title { padding-bottom: 10px; }
-.v-navigation-drawer .v-divider { margin: 6px 0 !important; }
+.v-navigation-drawer .v-list-item-title {
+  padding-bottom: 10px;
+}
+
+.v-navigation-drawer .v-divider {
+  margin: 6px 0 !important;
+}
 
 /* Collapsible (expandable) UI for drawer sections, preparatory style for future enhancement */
-.collapsible-section { cursor: pointer; transition: color .1s; }
-.collapsible-section.expanded { font-weight: bold; color: #0037B7; }
+.collapsible-section {
+  cursor: pointer;
+  transition: color .1s;
+}
+
+.collapsible-section.expanded {
+  font-weight: bold;
+  color: #0037B7;
+}
 
 /* --------------------------------------------------------------------------------------------------------------------- */
 
@@ -1891,6 +1963,7 @@ tr:hover,
 .mftextfieldlastcolor {
   color: #0037B7;
 }
+
 .futtable-hov {
   display: none !important;
   opacity: 0 !important;
@@ -1955,16 +2028,25 @@ tr:hover,
 
 .table-row:hover .table-hov,
 .futtable.v-data-table>.v-data-table__wrapper>table>tbody>tr:hover .futtable-hov,
-.holdings-table.v-data-table .v-data-table__wrapper table tbody tr:hover .table-hov,
-.holdings-table.v-data-table .v-data-table__wrapper table tbody tr.table-row:hover .table-hov,
-.holdings-table.v-data-table .v-data-table__wrapper table tbody tr:hover .pos-abs.table-hov,
-.holdings-table.v-data-table .v-data-table__wrapper table tbody tr:hover .table-hov.d-flex,
-.holdings-table.v-data-table table tbody tr:hover .table-hov,
-.holdings-table.v-data-table table tbody tr.table-row:hover .table-hov,
-.holdings-table table tbody tr:hover .table-hov,
-.holdings-table tbody tr:hover .table-hov,
-tr.table-row:hover .table-hov,
-tr:hover .table-hov {
+.futtable.v-data-table>.v-data-table__wrapper>table>tbody>tr:hover .futtable-hov,
+.futtable.v-data-table .v-data-table__wrapper table tbody tr:hover .futtable-hov,
+.futtable.v-data-table .v-data-table__wrapper table tbody tr:hover td .futtable-hov,
+.futtable tbody tr:hover .futtable-hov,
+.futtable tbody tr:hover td .futtable-hov,
+.futtable .v-data-table__wrapper tbody tr:hover .futtable-hov,
+.futtable .v-data-table__wrapper tbody tr:hover td .futtable-hov,
+.futtable tbody tr:hover .pos-rlt .futtable-hov,
+.futable.v-data-table>.v-data-table__wrapper>table>tbody>tr:hover .futtable-hov,
+.futable.v-data-table .v-data-table__wrapper table tbody tr:hover .futtable-hov,
+.futable.v-data-table .v-data-table__wrapper table tbody tr:hover td .futtable-hov,
+.futable.v-data-table .v-data-table__wrapper table tbody tr:hover td .pos-rlt .futtable-hov,
+.futable tbody tr:hover .futtable-hov,
+.futable tbody tr:hover td .futtable-hov,
+.futable tbody tr:hover td .pos-rlt .futtable-hov,
+.futable .v-data-table__wrapper tbody tr:hover .futtable-hov,
+.futable .v-data-table__wrapper tbody tr:hover td .futtable-hov,
+.futable .v-data-table__wrapper tbody tr:hover td .pos-rlt .futtable-hov,
+.futable tbody tr:hover .pos-rlt .futtable-hov {
   display: flex !important;
   align-items: center !important;
   opacity: 1 !important;
@@ -2062,7 +2144,7 @@ tr:hover .table-hov {
 .v-data-table.v-data-table--fixed-header thead th {
   background-color: #F1F3F8 !important;
   color: #666666 !important;
-  font-size: 12px !important;
+  font-size: 13px !important;
   font-weight: 500 !important;
   line-height: 16px !important;
   border-bottom: 1px solid #EBEEF0 !important;
@@ -2072,7 +2154,7 @@ tr:hover .table-hov {
 .holdings-table.v-data-table.v-data-table--fixed-header thead th {
   background-color: #F1F3F8 !important;
   color: #666666 !important;
-  font-size: 12px !important;
+  font-size: 13px !important;
   font-weight: 500 !important;
   line-height: 16px !important;
   border-bottom: 1px solid #EBEEF0 !important;
@@ -2083,7 +2165,7 @@ tr:hover .table-hov {
 .holdings-table.v-data-table thead th {
   background-color: #F1F3F8 !important;
   color: #666666 !important;
-  font-size: 12px !important;
+  font-size: 13px !important;
   font-weight: 500 !important;
 }
 
@@ -2139,4 +2221,85 @@ tr:hover .table-hov {
   border-bottom: 1px solid #EBEEF0 !important;
   vertical-align: middle !important;
   background-color: #ffffff !important;
+}
+
+.search-field-center .v-field__input {
+  display: flex !important;
+  align-items: center !important;
+}
+
+.search-field-center input {
+  line-height: 1.5 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.search-field-center .v-field__input input {
+  line-height: 1.5 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+
+
+bg-color {
+  background-color: #0037b7d0 !important;
+}
+
+/* MIS/NRML Switch Styling */
+.mis-nrml-switch .v-switch__track {
+  background-color: #E0E0E0 !important;
+  opacity: 1 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+}
+
+.mis-nrml-switch .v-switch__thumb {
+  background-color: #000000 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+}
+
+.mis-nrml-switch.v-switch--density-compact .v-switch__track {
+  height: 20px !important;
+  width: 36px !important;
+}
+
+.mis-nrml-switch.v-switch--density-compact .v-switch__thumb {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.crd-trn .v-slider-track__background,
+.crd-trn .v-slider-track__fill {
+  height: 3px !important;
+  /* thinner track */
+  border-radius: 1.5px !important;
+
+}
+
+.crd-trn .v-slider-thumb {
+  width: 2px !important;
+  /* smaller thumb */
+  height: 2px !important;
+  margin-top: -4px !important;
+  /* vertically center thumb with track */
+}
+/* Global Placeholder Color Override */
+::placeholder {
+  color: #000000 !important;
+  opacity: 1 !important; /* Firefox */
+}
+
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+  color: #000000 !important;
+}
+
+::-ms-input-placeholder { /* Microsoft Edge */
+  color: #000000 !important;
+}
+
+/* Vuetify 3 specific overrides */
+.v-field__input::placeholder,
+.v-field__input input::placeholder {
+    color: #000000 !important;
+    opacity: 1 !important;
 }

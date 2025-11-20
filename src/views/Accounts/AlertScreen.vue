@@ -309,7 +309,7 @@ function setSSDtab(type, token, exch, tsym, trantype, item) {
 
     // Validate required parameters
     if (!finalToken || !finalExch || !finalTsym) {
-        console.error('Missing required parameters:', { type, token, exch, tsym, trantype, item })
+        // console.error('Missing required parameters:', { type, token, exch, tsym, trantype, item })
         appStore.showSnackbar(2, 'Invalid instrument data')
         return
     }
@@ -390,7 +390,7 @@ function setSSDtab(type, token, exch, tsym, trantype, item) {
             }
         }
     } catch (error) {
-        console.error('Error in setSSDtab:', error)
+        // console.error('Error in setSSDtab:', error)
         appStore.showSnackbar(2, 'Failed to open window')
     }
 }
@@ -415,7 +415,7 @@ async function setCancelalert() {
             appStore.showSnackbar(2, alert.emsg || alert)
         }
     } catch (error) {
-        console.error('Error cancelling alert:', error)
+        // console.error('Error cancelling alert:', error)
         appStore.showSnackbar(2, 'Failed to cancel alert')
     } finally {
         loader.value = false

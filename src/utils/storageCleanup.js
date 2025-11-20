@@ -22,17 +22,17 @@ export function cleanupFirebaseStorage() {
         keysToRemove.forEach(key => {
             try {
                 localStorage.removeItem(key)
-                console.log(`🧹 Cleaned up Firebase key: ${key}`)
+                // console.log(`🧹 Cleaned up Firebase key: ${key}`)
             } catch (e) {
-                console.warn(`⚠️ Could not remove Firebase key ${key}:`, e)
+                // console.warn(`⚠️ Could not remove Firebase key ${key}:`, e)
             }
         })
 
         if (keysToRemove.length > 0) {
-            console.log(`✅ Cleaned up ${keysToRemove.length} Firebase storage keys`)
+            // console.log(`✅ Cleaned up ${keysToRemove.length} Firebase storage keys`)
         }
     } catch (error) {
-        console.warn('⚠️ Error cleaning Firebase storage:', error)
+        // console.warn('⚠️ Error cleaning Firebase storage:', error)
     }
 }
 
@@ -70,13 +70,13 @@ export function cleanupOldSessionData() {
         keysToRemove.forEach(key => {
             try {
                 localStorage.removeItem(key)
-                console.log(`🧹 Cleaned up old key: ${key}`)
+                // console.log(`🧹 Cleaned up old key: ${key}`)
             } catch (e) {
-                console.warn(`⚠️ Could not remove key ${key}:`, e)
+                // console.warn(`⚠️ Could not remove key ${key}:`, e)
             }
         })
     } catch (error) {
-        console.warn('⚠️ Error cleaning old session data:', error)
+        // console.warn('⚠️ Error cleaning old session data:', error)
     }
 }
 
@@ -105,15 +105,15 @@ export function checkAndCleanupStorage() {
         const size = getStorageSize()
         const maxSize = 5 * 1024 * 1024 // 5MB (browsers typically allow 5-10MB)
         
-        console.log(`📊 Current storage size: ${(size / 1024).toFixed(2)}KB / ${(maxSize / 1024).toFixed(2)}KB`)
+        // console.log(`📊 Current storage size: ${(size / 1024).toFixed(2)}KB / ${(maxSize / 1024).toFixed(2)}KB`)
         
         if (size > maxSize * 0.8) { // Clean up if > 80% full
-            console.log('🧹 Storage > 80% full, cleaning up...')
+            // console.log('🧹 Storage > 80% full, cleaning up...')
             cleanupFirebaseStorage()
             cleanupOldSessionData()
         }
     } catch (error) {
-        console.warn('⚠️ Error checking storage:', error)
+        // console.warn('⚠️ Error checking storage:', error)
     }
 }
 
@@ -126,7 +126,7 @@ export function safeSetItem(key, value) {
         return true
     } catch (error) {
         if (error.name === 'QuotaExceededError' || error.code === 22) {
-            console.warn('⚠️ QuotaExceededError, cleaning up storage...')
+            // console.warn('⚠️ QuotaExceededError, cleaning up storage...')
             // Clean up before retrying
             cleanupFirebaseStorage()
             cleanupOldSessionData()
@@ -134,10 +134,10 @@ export function safeSetItem(key, value) {
             try {
                 // Retry after cleanup
                 localStorage.setItem(key, value)
-                console.log('✅ Successfully stored after cleanup')
+                // console.log('✅ Successfully stored after cleanup')
                 return true
             } catch (retryError) {
-                console.error('❌ Still out of quota after cleanup:', retryError)
+                // console.error('❌ Still out of quota after cleanup:', retryError)
                 // Last resort: remove some less critical data
                 try {
                     const keysToRemove = ['firebase:previous_websocket_failure']
@@ -145,12 +145,12 @@ export function safeSetItem(key, value) {
                     localStorage.setItem(key, value)
                     return true
                 } catch (finalError) {
-                    console.error('❌ Failed to store after all cleanup attempts:', finalError)
+                    // console.error('❌ Failed to store after all cleanup attempts:', finalError)
                     return false
                 }
             }
         }
-        console.error('❌ Error storing data:', error)
+        // console.error('❌ Error storing data:', error)
         return false
     }
 }

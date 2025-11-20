@@ -57,8 +57,10 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import eventBus from "@/utils/eventBus.js"
+import { useAppStore } from "@/stores/appStore"
 import { getApikeyData, getApiKeyStore } from "@/components/mixins/getAPIdata.js"
+
+const appStore = useAppStore()
 
 const clientId = ref('')
 const secretCode = ref('')
@@ -97,7 +99,7 @@ const toggleSecretVisibility = () => {
 const copyToClipboard = async (text) => {
     try {
         await navigator.clipboard.writeText(text)
-        eventBus.$emit("snack-event", 1, 'Copied to clipboard!')
+        appStore.showSnackbar(1, 'Copied to clipboard!')
     } catch (err) {
         // Fallback for older browsers
         const textArea = document.createElement('textarea')
@@ -106,7 +108,7 @@ const copyToClipboard = async (text) => {
         textArea.select()
         document.execCommand('copy')
         document.body.removeChild(textArea)
-        eventBus.$emit("snack-event", 1, 'Copied to clipboard!')
+        appStore.showSnackbar(1, 'Copied to clipboard!')
     }
 }
 
@@ -169,22 +171,22 @@ const sha256 = async (message) => {
 
 const setAPikeydata = async () => {
     let key = await getApikeyData()
-    console.log("key.ipaddr", key)
+    // console.log("key.ipaddr", key)
     if (key && key.stat == 'Not_Ok') {
-        console.log("iffff1111")
+        // console.log("iffff1111")
         // Ensure uid is available, fallback to sessionStorage if needed
         const userId = uid.value || sessionStorage.getItem("userid") || ''
         if (userId) {
             let hashedText = await sha256(userId)
             clientId.value = userId + '_U'
             secretCode.value = hashedText
-            console.log("clientId:", clientId.value, typeof clientId.value)
+            // console.log("clientId:", clientId.value, typeof clientId.value)
         } else {
-            console.warn("User ID not available for clientId generation")
+            // console.warn("User ID not available for clientId generation")
             clientId.value = ''
         }
     } else if (key && key.stat == 'Ok') {
-        console.log("elseeeeeeeeeeeeeee")
+        // console.log("elseeeeeeeeeeeeeee")
         clientId.value = key.app_key || ''
         secretCode.value = key.sec_code || ''
         formData.value.url = key.red_url || ''
@@ -202,14 +204,14 @@ const handleUpdate = async () => {
 
     if (isFormValid.value) {
         updateload.value = true
-        console.log('=== API Key Update Data ===')
-        console.log('Client ID:', clientId.value)
-        console.log('Secret Code:', secretCode.value)
-        console.log('URL:', formData.value.url)
-        console.log('Primary IP Address:', formData.value.primaryIp)
-        console.log('Backup IP Address:', formData.value.backupIp || 'Not provided')
-        console.log('High Volume Orders:', formData.value.highVolumeOrders ? 'Yes' : 'No')
-        console.log('========================')
+        // console.log('=== API Key Update Data ===')
+        // console.log('Client ID:', clientId.value)
+        // console.log('Secret Code:', secretCode.value)
+        // console.log('URL:', formData.value.url)
+        // console.log('Primary IP Address:', formData.value.primaryIp)
+        // console.log('Backup IP Address:', formData.value.backupIp || 'Not provided')
+        // console.log('High Volume Orders:', formData.value.highVolumeOrders ? 'Yes' : 'No')
+        // console.log('========================')
 
         const apiKeyUpdateData = {
             clientId: clientId.value,
@@ -223,13 +225,13 @@ const handleUpdate = async () => {
         let key = await getApiKeyStore(apiKeyUpdateData)
         updateload.value = false
         if (key && key.stat == 'Ok') {
-            eventBus.$emit("snack-event", 1, "API Key Updated.")
+            appStore.showSnackbar(1, "API Key Updated.")
             await setAPikeydata()
         } else {
-            eventBus.$emit("snack-event", 2, key && key.emsg ? key.emsg : 'Unknown error')
+            appStore.showSnackbar(2, key && key.emsg ? key.emsg : 'Unknown error')
         }
     } else {
-        eventBus.$emit("snack-event", 2, 'Please fix the validation errors before updating')
+        appStore.showSnackbar(2, 'Please fix the validation errors before updating')
     }
 }
 
@@ -242,8 +244,12 @@ const loadApiKeyData = async () => {
             await setAPikeydata()
         }
     } else {
-        eventBus.$emit("login")
+        window.dispatchEvent(new CustomEvent('login'))
     }
+}
+
+const userEventHandler = () => {
+    loadApiKeyData()
 }
 
 onMounted(() => {
@@ -251,15 +257,13 @@ onMounted(() => {
     loadApiKeyData()
 
     // Also listen for user-event
-    eventBus.$emit("login-event")
+    window.dispatchEvent(new CustomEvent('login-event'))
 
-    eventBus.$on("user-event", () => {
-        loadApiKeyData()
-    })
+    window.addEventListener('user-event', userEventHandler)
 })
 
 onBeforeUnmount(() => {
-    eventBus.$off("user-event")
+    window.removeEventListener('user-event', userEventHandler)
 })
 </script>
 

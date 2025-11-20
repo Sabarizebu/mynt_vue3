@@ -70,9 +70,10 @@
                                     Redemption units
                                     <span class="float-right">Total units : <b>{{ menudata.item.avg_qty }}</b></span>
                                 </p>
-                                <v-text-field height="40px" background-color="secbg" flat class="rounded-pill"
-                                    variant="solo" type="number" hide-details hide-spin-buttons v-model="mf_redqty"
-                                    :min="menudata.item.Minimum_Redemption_Qty" :max="menudata.item.avg_qty"
+                                <v-text-field height="40px" style="background-color: #F1F3F8 !important;"
+                                    density="comfortable" class="rounded-pill" variant="flat" type="number" hide-details
+                                    hide-spin-buttons v-model="mf_redqty" :min="menudata.item.Minimum_Redemption_Qty"
+                                    :max="menudata.item.avg_qty"
                                     @input="mf_invest_amt = (Number(mf_redqty || 0) * menudata.item.avg_qty).toFixed(2)">
                                     <template v-slot:append>
                                         <v-card v-if="menudata.item.avg_qty - mf_redqty > 0"
@@ -83,7 +84,7 @@
                                         </v-card>
                                     </template>
                                 </v-text-field>
-                                <p class="fs-10 subtext--text ml-6 mt-1">Min. redemption uints {{ menudata.item ?
+                                <p class="fs-10 subtext--text ml-4 mt-1">Min. redemption uints {{ menudata.item ?
                                     menudata.item.Minimum_Redemption_Qty : 0 }}</p>
                             </div>
 
@@ -260,7 +261,7 @@
                                         </svg>
                                     </template>
                                 </v-text-field>
-                                <p class="fs-10 subtext--text ml-6 mt-1">Min. ₹{{ menudata.sipvalue && mf_frequency ?
+                                <p class="fs-10 subtext--text ml-0 mt-1">Min. ₹{{ menudata.sipvalue && mf_frequency ?
                                     menudata.sipvalue[mf_frequency].SIP_MINIMUM_INSTALLMENT_AMOUNT : 0.0 }} (multiple of
                                     1.0)</p>
 
@@ -300,7 +301,7 @@
                                     :step="menudata.sipvalue[mf_frequency].SIP_MINIMUM_INSTALLMENT_NUMBERS"
                                     v-model="mf_noof_instal">
                                 </v-text-field>
-                                <p class="fs-10 subtext--text ml-6 mt-1">Min. duration {{ menudata.sipvalue &&
+                                <p class="fs-10 subtext--text ml-0 mt-1">Min. duration {{ menudata.sipvalue &&
                                     mf_frequency ?
                                     menudata.sipvalue[mf_frequency].SIP_MINIMUM_INSTALLMENT_NUMBERS : 0 }} {{
                                         menudata.sipvalue &&
@@ -334,7 +335,7 @@
                                         </svg>
                                     </template>
                                 </v-text-field>
-                                <p class="fs-10 subtext--text ml-6 mt-1">Min. ₹{{ menudata.item ?
+                                <p class="fs-10 subtext--text ml-0 mt-1">Min. ₹{{ menudata.item ?
                                     menudata.item.Minimum_Purchase_Amount :
                                     0.0 }} (multiple of 1.0)</p>
                             </div>
@@ -467,25 +468,24 @@
 
         <v-dialog v-model="orderiniteddai" persistent max-width="400">
             <v-card v-if="ordersignale == 'waitpay'"
-                class="pb-5 pa-5 overflow-hidden d-flex flex-column align-center justify-center" color="cardbg"
-                height="400">
+                class=" pb-5 pa-5 overflow-hidden d-flex flex-column align-center justify-center" color="cardbg"
+                >
                 <v-icon color="green" size="35">mdi-check-circle</v-icon>
                 <p class="font-weight-bold subtitle-1 mt-2">Order Initiated</p>
             </v-card>
-            <v-card v-else class="pb-5 pa-5 " color="cardbg" :loading="orderpoploadernew">
+            <v-card v-else class="pb-5 pa-5" color="cardbg" :loading="orderpoploadernew" style="border-radius: 16px;">
 
-                <p class="font-weight-bold subtitle-1 mb-2">Pay With</p>
-                <v-divider></v-divider>
+                <p class="font-weight-bold text-h6 mb-4">Pay With</p>
+                <v-divider class="mb-4"></v-divider>
 
-                <p class="font-weight-regular fs-14 subtext--text mb-2 mt-4">Bank Account</p>
+                <p class="font-weight-medium fs-12 subtext--text mb-2">Bank Account</p>
                 <v-select v-model="mf_accact" hide-details :items="menudata.mf_bankaccs" return-object
-                    item-title="Bank_Name" item-value="Bank_AcNo" append-icon="mdi-chevron-down"
-                    background-color="secbg" flat class="rounded-pill mb-4" placeholder="bank" variant="solo">
+                    item-title="Bank_Name" item-value="Bank_AcNo" 
+                    bg-color="#F2F3F8" flat density="compact" variant="solo-filled" rounded="pill" class=" mb-4" placeholder="bank" style="font-size: 14px;">
                     <template v-slot:item="{ item, props, on }">
                         <v-list-item v-on="on" v-bind="props">
                             <v-list-item-content class="py-1">
                                 <v-list-item-title class="font-weight-bold fs-14">{{ item.Bank_Name }}
-
                                 </v-list-item-title>
                                 <v-list-item-subtitle class="caption">XXXX XXXX {{
                                     item.Bank_AcNo && typeof item.Bank_AcNo === 'string' ? item.Bank_AcNo.slice(-4) : ''
@@ -496,38 +496,45 @@
                     </template>
                 </v-select>
 
-                <p class="font-weight-regular fs-14 subtext--text mt-4 mb-2">Payment method</p>
-                <v-select v-model="mfpayinmode" hide-details :items="mfpayinmodes" item-title="val" item-value="key"
-                    append-icon="mdi-chevron-down" background-color="secbg" flat class="rounded-pill mb-3"
-                    placeholder="UPI, Net banking" variant="solo"> </v-select>
+                <p class="font-weight-medium fs-12 subtext--text mb-2">Payment method<span class="red--text" style="font-size: 18px; line-height: 0;"></span></p>
+                <v-select v-model="mfpayinmode" hide-details  :items="mfpayinmodes" item-title="val" item-value="key" 
+                      bg-color="#F2F3F8" flat density="compact" variant="solo-filled"  rounded="pill" class="rounded-pill mb-6"
+                    placeholder="UPI, Net banking" style="font-size: 14px;"> </v-select>
 
 
                 <v-form v-if="mfpayinmode == 'UPI'" ref="mfupiform" v-model="mfupivalid"
                     @submit.prevent="setmfUpiValidnew()" lazy-validation>
-                    <p class="font-weight-regular fs-14 subtext--text mb-2">UPI ID (Virtual payment
+                    <p class="font-weight-medium fs-12 subtext--text mb-2">UPI ID (Virtual payment
                         address)</p>
 
-                    <v-text-field :disabled="orderpoploader" required height="40px" density="compact"
-                        background-color="secbg" flat class="rounded-pill" variant="solo" v-model="mfpainids"
+                    <v-text-field :disabled="orderpoploader" required density="compact"
+                        bg-color="#F2F4F8" flat variant="solo-filled" rounded="pill" class="rounded-lg mb-4" v-model="mfpainids"
                         @keyup="upiidfield = false"
                         :rules="[(v) => !!v || 'Upi Id is required', (v) => /.+@.+/.test(v) || 'Upi Id must be valid']"
-                        placeholder="Add UPI ID" :error-messages="upiIDerrors">
+                        placeholder="Add UPI ID" :error-messages="upiIDerrors" style="font-size: 14px;">
                     </v-text-field>
                 </v-form>
-                <v-toolbar class="tool-sty elevation-0 pt-4 mb-2  crd-trn" density="compact">
-                    <v-row>
-                        <v-col cols="12">
-                            <v-btn @click="setmfUpiValidnew()"
-                                :disabled="!mf_accact || !mfpayinmode || (mfpayinmode === 'UPI' && !mfpainids)"
-                                :loading="orderpoploadernew" color="btnclr"
-                                class="text-none rounded-pill elevation-0 btntext--text" block height="40px"> Pay - One
-                                Time
-                            </v-btn>
-                        </v-col>
-                    </v-row>
-                </v-toolbar>
+                
+                <v-row class="mt-2">
+                    <v-col cols="6">
+                         <v-btn @click="orderiniteddai = false"
+                            color="#F2F4F8"
+                            class="text-none rounded-pill elevation-0 maintext--text font-weight-bold" block height="45px">
+                            Cancel
+                        </v-btn>
+                    </v-col>
+                    <v-col cols="6">
+                        <v-btn @click="setmfUpiValidnew()"
+                            :disabled="!mf_accact || !mfpayinmode || (mfpayinmode === 'UPI' && !mfpainids)"
+                            :loading="orderpoploadernew" color="black"
+                            class="text-none rounded-pill elevation-0 white--text font-weight-bold" block height="45px">
+                            Pay - One Time
+                        </v-btn>
+                    </v-col>
+                </v-row>
             </v-card>
         </v-dialog>
+
         <v-dialog v-model="paymentcheck" persistent max-width="400">
             <v-card width="100%" class="elevation-0 px-5 text-center py-8 mx-auto rounded-lg"
                 style="background-color: #ffffff;">
@@ -578,10 +585,15 @@
 
 <script>
 import apiurl from "../../apiurl.js";
-import eventBus from "@/utils/eventBus.js";
+import { useAppStore } from "../../stores/appStore";
 import { getMFsipvalue, getMFmandate, getMFAddmandate, getUpivpa, getMFplaceoredr, getMFallpayments, getMFBankdetails, getFundsupis, getsendpaymentrequt, getcheckpaystatus } from "../mixins/getAPIdata.js";
 export default {
     name: 'MutualFundOrderWindow',
+
+    setup() {
+        const appStore = useAppStore();
+        return { appStore };
+    },
 
     data: () => ({
         uid: null,
@@ -640,28 +652,32 @@ export default {
     }),
 
     async mounted() {
-        eventBus.$on("menudialog", (type, mode, itemdata) => {
+        // Create bound handlers to maintain 'this' context
+        this.handleMenuDialog = (event) => {
+            const { type, action, data } = event.detail || {};
             if (type == "mforder") {
-                this.setMenudialog(mode, itemdata);
+                this.setMenudialog(action, data);
             }
-        });
+        };
 
-        // Listen for user login events to update uid
-        eventBus.$on("user-event", () => {
+        this.handleUserEvent = () => {
             this.mtoken = sessionStorage.getItem("msession");
             this.token = sessionStorage.getItem("usession");
             this.uid = sessionStorage.getItem("userid");
-            console.log("User event - UID updated:", this.uid);
-        });
+            // console.log("User event - UID updated:", this.uid);
+        };
+
+        window.addEventListener("menudialog", this.handleMenuDialog);
+        window.addEventListener("user-event", this.handleUserEvent);
 
         this.mtoken = sessionStorage.getItem("msession");
         this.token = sessionStorage.getItem("usession");
         this.uid = sessionStorage.getItem("userid");
-        console.log("Mounted - Initial UID:", this.uid);
+        // console.log("Mounted - Initial UID:", this.uid);
     },
     beforeUnmount() {
-        eventBus.$off("menudialog");
-        eventBus.$off("user-event");
+        window.removeEventListener("menudialog", this.handleMenuDialog);
+        window.removeEventListener("user-event", this.handleUserEvent);
         if (this.intervalId) {
             clearInterval(this.intervalId);
             this.intervalId = null;
@@ -712,7 +728,7 @@ export default {
             this.mf_invest_amt = Number(this.mf_invest_amt) + Number(amt)
         },
         snackAlert(color, msg) {
-            eventBus.$emit('snack-event', color, msg)
+            this.appStore.showSnackbar(color, msg)
         },
         formatDate(date) {
             if (!date) return null;
@@ -746,22 +762,22 @@ export default {
             return new Date(year, month, day);
         },
         async setMenudialog(mode, itemdata) {
-            eventBus.$emit("sub-loader", 1);
-            console.log("itemdataitemdata", itemdata);
-            console.log("modemodemodemode", mode);
+            this.appStore.showLoader();
+            // console.log("itemdataitemdata", itemdata);
+            // console.log("modemodemodemode", mode);
 
             // Refresh uid and token from sessionStorage
             this.mtoken = sessionStorage.getItem("msession");
             this.token = sessionStorage.getItem("usession");
             this.uid = sessionStorage.getItem("userid");
 
-            console.log("UID from sessionStorage:", this.uid);
-            console.log("Token from sessionStorage:", this.token);
+            // console.log("UID from sessionStorage:", this.uid);
+            // console.log("Token from sessionStorage:", this.token);
 
             if (!this.uid) {
-                console.error("UID is null! Please check sessionStorage for 'userid'");
-                eventBus.$emit("snack-event", 2, "User session expired. Please login again.");
-                eventBus.$emit("sub-loader", 0);
+                // console.error("UID is null! Please check sessionStorage for 'userid'");
+                this.appStore.showSnackbar(2, "User session expired. Please login again.");
+                this.appStore.hideLoader();
                 return;
             }
 
@@ -771,7 +787,7 @@ export default {
             this.mf_tenure = mode == "sip" ? true : false;
             this.menudata["types"] = mode;
             this.menudata["item"] = itemdata;
-            console.log("   this.menudata[", this.menudata["item"]);
+            // console.log("   this.menudata[", this.menudata["item"]);
 
             if (mode == "redem") {
                 this.menudata.item.Minimum_Redemption_Qty = Number(this.menudata.item.Minimum_Redemption_Qty);
@@ -827,7 +843,7 @@ export default {
                 this.mf_initial_amt = itemdata.Minimum_Purchase_Amount;
                 this.mforderdialog = true;
             }
-            eventBus.$emit("sub-loader", 0);
+            this.appStore.hideLoader();
         },
 
         setDefaultmandate() {
@@ -897,13 +913,13 @@ export default {
             }
 
             if (!this.uid) {
-                console.error("UID is null! Cannot place order.");
-                eventBus.$emit("snack-event", 2, "User session expired. Please login again.");
+                // console.error("UID is null! Cannot place order.");
+                this.appStore.showSnackbar(2, "User session expired. Please login again.");
                 this.orderpoploader = false;
                 return;
             }
 
-            console.log("Placing order with UID:", this.uid);
+            // console.log("Placing order with UID:", this.uid);
             this.orderpoploader = true;
             let data;
             if (this.mf_tenure && this.menudata.types != "redem") {
@@ -939,7 +955,7 @@ export default {
             let res = await getMFplaceoredr(url, JSON.stringify(data));
 
             if (res.stat == "Ok") {
-                console.log("iffff elseeee order");
+                // console.log("iffff elseeee order");
                 this.mf_tenure = true
 
                 if (this.menudata.types == "redem") {
@@ -948,15 +964,15 @@ export default {
                     this.snackAlert(res.stat == 'Ok' ? 1 : 2, res.stat == 'Ok' ? 'Redemption Order  Initiated' : res);
                 } else {
                     if (this.mf_tenure) {
-                        console.log("ifif 111");
+                        // console.log("ifif 111");
 
                         if (this.mf_sipinit) {
-                            console.log("ifif sip");
-                            console.log("############")
+                            // console.log("ifif sip");
+                            // console.log("############")
 
                             this.setMfpayment(this.mf_initial_amt, res.OrderNumber);
                         } else {
-                            console.log("ifif elseee");
+                            // console.log("ifif elseee");
 
                             this.orderpoploader = false;
                             this.snackAlert(res.stat == "Ok" ? 1 : 0, (res.Remarks == 'Order Confirmed From STARMF' && res.status == 'PAYMENT NOT INITIATED') ? "Order Initiated successful" : res.error ? res.error : res);
@@ -967,14 +983,14 @@ export default {
                         }
                         this.closeMenudialog("mforder");
                     } else {
-                        console.log("1234@@@@@@@@@");
+                        // console.log("1234@@@@@@@@@");
 
                         this.setMfpayment(this.mf_invest_amt, res.order_number);
 
                     }
                 }
             } else {
-                console.log("elseeee order");
+                // console.log("elseeee order");
 
                 this.closeMenudialog("mforder");
                 this.orderpoploader = false;
@@ -1080,7 +1096,7 @@ export default {
                 "vpa_id": this.mfpainids
             })
             let res = await getsendpaymentrequt(data)
-            console.log("res", res);
+            // console.log("res", res);
             if (res.stat == 'Ok' && res.type == 'UPI') {
                 this.orderiniteddai = false
                 this.paymentcheck = true
@@ -1115,18 +1131,18 @@ export default {
             try {
                 this.paystausres = []
                 let res = await getcheckpaystatus(data);
-                console.log("paymentatusapicall:", res);
+                // console.log("paymentatusapicall:", res);
                 this.paystausres = res
 
                 if (res.status === "PAYMENT APPROVED" || res.status === "PAYMENT DECLINED" || res.status == 'PAYMENT REJECTED') {
-                    console.log("✅ Payment OK, stopping calls...");
+                    // console.log("✅ Payment OK, stopping calls...");
                     this.stopPaymentCheck();
                     this.paymentcheck = false; // stop loader
                     this.paymentconfirm = true
                     this.orderpoploadernew = false
 
                 } else if (res.stat !== "ok") {
-                    console.log("❌ Error response, stopping calls...");
+                    // console.log("❌ Error response, stopping calls...");
                     this.stopPaymentCheck();
                     this.paymentcheck = false;
                     this.snackAlert(2, res);
@@ -1135,7 +1151,7 @@ export default {
                 }
 
             } catch (err) {
-                console.error("API error:", err);
+                // console.error("API error:", err);
                 this.stopPaymentCheck();
                 this.paymentcheck = false;
                 this.snackAlert(2, "Something went wrong");

@@ -189,7 +189,7 @@
 </template>
 
 <script>
-import eventBus from "@/utils/eventBus.js";
+import { useAppStore } from "@/stores/appStore";
 import { getnewBestMF, getnewcatgreapi } from "@/components/mixins/getAPIdata";
 
 // Import images
@@ -202,6 +202,10 @@ import balancehybridImg from '@/assets/mf/balancehybrid.svg';
 import noDataImg from '@/assets/no data folder.svg';
 
 export default {
+  setup() {
+    const appStore = useAppStore();
+    return { appStore };
+  },
   data: () => ({
     uid: "",
     token: "",
@@ -267,7 +271,7 @@ export default {
       try {
         this.paramsdata = JSON.parse(categoryData);
       } catch (e) {
-        console.error("Error parsing category data:", e);
+        // console.error("Error parsing category data:", e);
       }
     }
 
@@ -287,24 +291,26 @@ export default {
       return;
     }
 
-    console.log("Category data:", this.paramsdata);
+    // console.log("Category data:", this.paramsdata);
 
-    eventBus.$emit("tabBar-load");
-    eventBus.$emit("login-event");
+    window.dispatchEvent(new CustomEvent('tabBar-load'));
+    window.dispatchEvent(new CustomEvent('login-event'));
 
     // Load data directly
     await this.loadCategoryData();
 
     // Also listen for setRec-event in case parent component handles it
-    eventBus.$on("setRec-event", (mfdata) => {
+    this.setRecHandler = (event) => {
+      const mfdata = event.detail;
       if (mfdata == "stat_ok") {
         this.loadCategoryData();
       } else {
         this.handleMFData(mfdata);
       }
-    });
+    };
+    window.addEventListener('setRec-event', this.setRecHandler);
 
-    eventBus.$on("user-event", () => {
+    this.userEventHandler = () => {
       let res = sessionStorage.getItem("c3RhdHVz");
       if (res == "dmFsaWR1c2Vy") {
         this.token = sessionStorage.getItem("usession");
@@ -313,7 +319,8 @@ export default {
         this.token = "";
         this.uid = "";
       }
-    });
+    };
+    window.addEventListener('user-event', this.userEventHandler);
 
     // Watch for route changes to reload data
     this.$watch(() => this.$route.query, (newQuery) => {
@@ -330,8 +337,8 @@ export default {
     });
   },
   beforeUnmount() {
-    eventBus.$off("setRec-event");
-    eventBus.$off("user-event");
+    window.removeEventListener('setRec-event', this.setRecHandler);
+    window.removeEventListener('user-event', this.userEventHandler);
   },
 
   methods: {
@@ -358,9 +365,9 @@ export default {
         // Load best MF data to get category data
         const bestMFRes = await getnewBestMF();
 
-        console.log("Best MF Response:", bestMFRes);
-        console.log("Params data:", this.paramsdata);
-        console.log("Looking for category:", this.paramsdata?.title);
+        // console.log("Best MF Response:", bestMFRes);
+        // console.log("Params data:", this.paramsdata);
+        // console.log("Looking for category:", this.paramsdata?.title);
 
         let categoryDataFound = false;
 
@@ -377,77 +384,77 @@ export default {
             bestMFData = bestMFRes.data;
           }
 
-          console.log("Processed bestMFData:", bestMFData);
-          console.log("bestMFData keys:", Object.keys(bestMFData || {}));
+          // console.log("Processed bestMFData:", bestMFData);
+          // console.log("bestMFData keys:", Object.keys(bestMFData || {}));
 
           // Structure 1: { newapilist: { data: { baskets: { "Tax Saving": [...] } } } }
           if (bestMFData.newapilist && bestMFData.newapilist.data && bestMFData.newapilist.data.baskets) {
             const categoryKey = this.paramsdata.title;
-            console.log("Checking baskets structure:", bestMFData.newapilist.data.baskets);
-            console.log("Available basket keys:", Object.keys(bestMFData.newapilist.data.baskets || {}));
+            // console.log("Checking baskets structure:", bestMFData.newapilist.data.baskets);
+            // console.log("Available basket keys:", Object.keys(bestMFData.newapilist.data.baskets || {}));
             if (bestMFData.newapilist.data.baskets[categoryKey]) {
               this.mftabledata = Array.isArray(bestMFData.newapilist.data.baskets[categoryKey])
                 ? bestMFData.newapilist.data.baskets[categoryKey]
                 : [];
               categoryDataFound = true;
-              console.log("Found data in newapilist.data.baskets:", this.mftabledata.length);
+              // console.log("Found data in newapilist.data.baskets:", this.mftabledata.length);
             }
           }
 
           // Structure 2: { baskets: { "Tax Saving": [...], "High Growth Equity": [...] } }
           if (!categoryDataFound && bestMFData.baskets) {
             const categoryKey = this.paramsdata.title;
-            console.log("Checking baskets direct:", bestMFData.baskets);
-            console.log("Available basket keys:", Object.keys(bestMFData.baskets || {}));
+            // console.log("Checking baskets direct:", bestMFData.baskets);
+            // console.log("Available basket keys:", Object.keys(bestMFData.baskets || {}));
             if (bestMFData.baskets[categoryKey]) {
               this.mftabledata = Array.isArray(bestMFData.baskets[categoryKey])
                 ? bestMFData.baskets[categoryKey]
                 : [];
               categoryDataFound = true;
-              console.log("Found data in baskets:", this.mftabledata.length);
+              // console.log("Found data in baskets:", this.mftabledata.length);
             }
           }
 
           // Structure 3: { baskets_length: [{ title: "Tax Saving", data: [...] }, ...] }
           if (!categoryDataFound && bestMFData.baskets_length && Array.isArray(bestMFData.baskets_length)) {
-            console.log("Checking baskets_length:", bestMFData.baskets_length);
+            // console.log("Checking baskets_length:", bestMFData.baskets_length);
             const match = bestMFData.baskets_length.find(basket =>
               basket.title && basket.title.trim() === this.paramsdata.title.trim()
             );
             if (match) {
-              console.log("Found match in baskets_length:", match);
+              // console.log("Found match in baskets_length:", match);
               this.mftabledata = Array.isArray(match.data)
                 ? match.data
                 : (Array.isArray(match.funds) ? match.funds : []);
               categoryDataFound = true;
-              console.log("Found data in baskets_length:", this.mftabledata.length);
+              // console.log("Found data in baskets_length:", this.mftabledata.length);
             }
           }
 
           // Structure 4: { "taxSaving": [...], "highGrowthEquity": [...] }
           if (!categoryDataFound && this.paramsdata.titlekey && bestMFData[this.paramsdata.titlekey]) {
-            console.log("Checking titlekey:", this.paramsdata.titlekey, bestMFData[this.paramsdata.titlekey]);
+            // console.log("Checking titlekey:", this.paramsdata.titlekey, bestMFData[this.paramsdata.titlekey]);
             this.mftabledata = Array.isArray(bestMFData[this.paramsdata.titlekey])
               ? bestMFData[this.paramsdata.titlekey]
               : [];
             categoryDataFound = true;
-            console.log("Found data using titlekey:", this.mftabledata.length);
+            // console.log("Found data using titlekey:", this.mftabledata.length);
           }
 
           // Structure 5: Check if data is nested further (e.g., data.newapilist or data.baskets)
           if (!categoryDataFound && bestMFData.data) {
-            console.log("Checking nested data structure:", bestMFData.data);
+            // console.log("Checking nested data structure:", bestMFData.data);
             const nestedData = bestMFData.data;
 
             if (nestedData.newapilist && nestedData.newapilist.data && nestedData.newapilist.data.baskets) {
               const categoryKey = this.paramsdata.title;
-              console.log("Checking nested baskets structure:", nestedData.newapilist.data.baskets);
+              // console.log("Checking nested baskets structure:", nestedData.newapilist.data.baskets);
               if (nestedData.newapilist.data.baskets[categoryKey]) {
                 this.mftabledata = Array.isArray(nestedData.newapilist.data.baskets[categoryKey])
                   ? nestedData.newapilist.data.baskets[categoryKey]
                   : [];
                 categoryDataFound = true;
-                console.log("Found data in nested newapilist.data.baskets:", this.mftabledata.length);
+                // console.log("Found data in nested newapilist.data.baskets:", this.mftabledata.length);
               }
             }
 
@@ -458,7 +465,7 @@ export default {
                   ? nestedData.baskets[categoryKey]
                   : [];
                 categoryDataFound = true;
-                console.log("Found data in nested baskets:", this.mftabledata.length);
+                // console.log("Found data in nested baskets:", this.mftabledata.length);
               }
             }
           }
@@ -466,12 +473,12 @@ export default {
 
         // If no data found in bestMF, try getnewcatgreapi
         if (!categoryDataFound || !this.mftabledata || this.mftabledata.length === 0) {
-          console.warn("No data found in bestMF response, trying getnewcatgreapi");
+          // console.warn("No data found in bestMF response, trying getnewcatgreapi");
 
           try {
             const categoryRes = await getnewcatgreapi();
-            console.log("Category API Response:", categoryRes);
-            console.log("Category API Response keys:", Object.keys(categoryRes || {}));
+            // console.log("Category API Response:", categoryRes);
+            // console.log("Category API Response keys:", Object.keys(categoryRes || {}));
 
             if (categoryRes) {
               let categoryData = categoryRes;
@@ -484,19 +491,19 @@ export default {
                 categoryData = categoryRes.data;
               }
 
-              console.log("Processed categoryData:", categoryData);
-              console.log("Is array:", Array.isArray(categoryData));
+              // console.log("Processed categoryData:", categoryData);
+              // console.log("Is array:", Array.isArray(categoryData));
 
               // Process category data structure
               if (Array.isArray(categoryData)) {
-                console.log("Category data array length:", categoryData.length);
-                console.log("Category data array:", categoryData);
-                console.log("First item:", categoryData[0]);
+                // console.log("Category data array length:", categoryData.length);
+                // console.log("Category data array:", categoryData);
+                // console.log("First item:", categoryData[0]);
 
                 // Find the matching category group - try multiple matching strategies
                 let categoryGroup = categoryData.find(group => {
                   const match = group.name && group.name.toLowerCase() === this.paramsdata.title.toLowerCase();
-                  console.log("Comparing:", group.name, "with", this.paramsdata.title, "=", match);
+                  // console.log("Comparing:", group.name, "with", this.paramsdata.title, "=", match);
                   return match;
                 });
 
@@ -506,7 +513,7 @@ export default {
                     const groupName = group.name ? group.name.toLowerCase() : '';
                     const title = this.paramsdata.title ? this.paramsdata.title.toLowerCase() : '';
                     const match = groupName.includes(title) || title.includes(groupName);
-                    console.log("Partial match:", group.name, "with", this.paramsdata.title, "=", match);
+                    // console.log("Partial match:", group.name, "with", this.paramsdata.title, "=", match);
                     return match;
                   });
                 }
@@ -514,8 +521,8 @@ export default {
                 // If still not found, check if the array contains the category data directly
                 if (!categoryGroup && categoryData.length > 0) {
                   // Maybe the structure is different - check if first item has the structure we need
-                  console.log("No category group found, checking array structure");
-                  console.log("All category names:", categoryData.map(g => g.name));
+                  // console.log("No category group found, checking array structure");
+                  // console.log("All category names:", categoryData.map(g => g.name));
 
                   // Try to find by titlekey or other matching
                   categoryGroup = categoryData.find(group => {
@@ -529,18 +536,18 @@ export default {
                   });
                 }
 
-                console.log("Found category group:", categoryGroup);
+                // console.log("Found category group:", categoryGroup);
 
                 if (categoryGroup) {
                   // Check different possible data structures
                   if (categoryGroup.values && Array.isArray(categoryGroup.values)) {
-                    console.log("Category group values:", categoryGroup.values);
-                    console.log("First value item:", categoryGroup.values[0]);
+                    // console.log("Category group values:", categoryGroup.values);
+                    // console.log("First value item:", categoryGroup.values[0]);
 
                     // Flatten nested structure if needed
                     const flatValues = categoryGroup.values.flatMap(subGroup => {
                       if (subGroup.values && Array.isArray(subGroup.values)) {
-                        console.log("Found nested values in subGroup:", subGroup.values.length);
+                        // console.log("Found nested values in subGroup:", subGroup.values.length);
                         return subGroup.values;
                       }
                       // If subGroup itself is an object with fund data, return it
@@ -552,23 +559,23 @@ export default {
 
                     this.mftabledata = flatValues || [];
                     categoryDataFound = true;
-                    console.log("Found data in category API:", this.mftabledata.length);
+                    // console.log("Found data in category API:", this.mftabledata.length);
                   } else if (Array.isArray(categoryGroup)) {
                     // If categoryGroup itself is an array
                     this.mftabledata = categoryGroup;
                     categoryDataFound = true;
-                    console.log("Category group is array, using directly:", this.mftabledata.length);
+                    // console.log("Category group is array, using directly:", this.mftabledata.length);
                   } else if (categoryGroup.data && Array.isArray(categoryGroup.data)) {
                     // If data is in categoryGroup.data
                     this.mftabledata = categoryGroup.data;
                     categoryDataFound = true;
-                    console.log("Found data in categoryGroup.data:", this.mftabledata.length);
+                    // console.log("Found data in categoryGroup.data:", this.mftabledata.length);
                   }
                 }
               }
             }
           } catch (catError) {
-            console.error("Error loading from category API:", catError);
+            // console.error("Error loading from category API:", catError);
           }
         }
 
@@ -599,8 +606,8 @@ export default {
           this.paramsdata.funds = `${this.mftabledata.length} funds`;
         }
 
-        console.log("Final mftabledata:", this.mftabledata?.length || 0, "items");
-        console.log("First item:", this.mftabledata?.[0]);
+        // console.log("Final mftabledata:", this.mftabledata?.length || 0, "items");
+        // console.log("First item:", this.mftabledata?.[0]);
 
         this.mftableloader = false;
         this.mfallsearchloader = false;
@@ -615,8 +622,8 @@ export default {
           this.uid = "";
         }
       } catch (error) {
-        console.error("Error loading category data:", error);
-        eventBus.$emit("snack-event", 0, `Error loading category data: ${error.message || error}`);
+        // console.error("Error loading category data:", error);
+        this.appStore.showSnackbar(0, `Error loading category data: ${error.message || error}`);
         this.mftableloader = false;
         this.mfallsearchloader = false;
       }
@@ -639,7 +646,7 @@ export default {
         this.mftableloader = false;
         this.mfallsearchloader = false;
       } else if (mfdata) {
-        eventBus.$emit("snack-event", 2, mfdata.msg ? mfdata.msg : mfdata);
+        this.appStore.showSnackbar(2, mfdata.msg ? mfdata.msg : mfdata);
         this.mfallsearchloader = false;
       }
     },
@@ -648,7 +655,7 @@ export default {
       return name && name.length > 30 ? `${name.slice(0, 30)}...` : name;
     },
     setSinglepage(item) {
-      console.log("Navigating to single page with item:", item);
+      // console.log("Navigating to single page with item:", item);
       // Store item data in sessionStorage for the single page
       if (item) {
         sessionStorage.setItem('mf_single_data', JSON.stringify(item));
@@ -661,8 +668,8 @@ export default {
           params: { ISIN: identifier }
         });
       } else {
-        console.error("No ISIN or Scheme_Code found in item:", item);
-        eventBus.$emit("snack-event", 0, "Unable to navigate: Missing fund identifier");
+        // console.error("No ISIN or Scheme_Code found in item:", item);
+        this.appStore.showSnackbar(0, "Unable to navigate: Missing fund identifier");
       }
     },
     async setMFcatdata() {
@@ -685,10 +692,14 @@ export default {
       );
     },
     putMForder(item, type) {
-      eventBus.$emit("menudialog", "mforder", type, item);
+      window.dispatchEvent(new CustomEvent('menudialog', {
+        detail: { type: 'mforder', action: type, data: item }
+      }));
     },
     getusedMutual(item) {
-      eventBus.$emit("addscript-wl", item, "mf");
+      window.dispatchEvent(new CustomEvent('addscript-wl', {
+        detail: { item, category: 'mf' }
+      }));
     },
     setChangewl() {
       this.showtable = 24;

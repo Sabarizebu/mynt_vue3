@@ -70,9 +70,9 @@ export const useAuthStore = defineStore('auth', () => {
     if (profileData) {
       try {
         user.value = JSON.parse(profileData)
-        console.log(user.value, "user.value")
+        // console.log(user.value, "user.value")
       } catch (e) {
-        console.error("Error parsing profile data:", e)
+        // console.error("Error parsing profile data:", e)
         user.value = null
       }
     }
@@ -85,10 +85,10 @@ export const useAuthStore = defineStore('auth', () => {
         // Only use if the uid matches (prevent using stale data from another user)
         if (parsedClientData.uid === uid.value && parsedClientData.data) {
           clientdata.value = parsedClientData.data
-          console.log("✅ Clientdata loaded from localStorage:", clientdata.value)
+          // console.log("✅ Clientdata loaded from localStorage:", clientdata.value)
         }
       } catch (e) {
-        console.error("Error parsing client_data from localStorage:", e)
+        // console.error("Error parsing client_data from localStorage:", e)
       }
     }
   }

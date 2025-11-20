@@ -89,7 +89,7 @@ export var common = {
                     previousDate = 0 === i ? NaN : dateMonthYear(bars[i - 1].time), timeWiseBars[barTime] = { open: barOpen, high: barHigh, low: barLow, previousDate: previousDate, close: barClose };
                   }
                 } catch (error) {
-                  console.log("Error in convertBarsToObject : ", error);
+                  // console.log("Error in convertBarsToObject : ", error);
                 }
                 return timeWiseBars;
               }(response['bars']);
@@ -104,12 +104,12 @@ export var common = {
                     previousDate = 0 === i ? NaN : weekMonthYear(bars[i - 1].time), previousDateUTC = 0 === i ? NaN : bars[i - 1].time, timeWiseBars[barTime] = { open: barOpen, high: barHigh, low: barLow, previousDate: previousDate, previousDateUTC: previousDateUTC, close: barClose };
                   }
                 } catch (error) {
-                  console.log("Error in convertBarsToObject : ", error);
+                  // console.log("Error in convertBarsToObject : ", error);
                 }
                 return timeWiseBars;
               }(response['bars']);
             })["catch"](function (error) {
-              console.log("getIndicatorValues : failed to load all bars", error), resolve();
+              // console.log("getIndicatorValues : failed to load all bars", error), resolve();
             }));
         });
       }, getMapping: function () {
@@ -521,12 +521,12 @@ export var common = {
                 return [daily_pivot, prev_day_high, prev_day_low, daily_bc, daily_tc, daily_s1, daily_r1, daily_s2,
                   daily_r2, daily_s3, daily_r3, daily_s4, daily_r4]
               } catch (e) {
-                console.error("catch 1", e)
+                // console.error("catch 1", e)
                 return [NaN]
               }
 
             } catch (e) {
-              console.error("catch 2", e)
+              // console.error("catch 2", e)
               return [NaN]
             }
           };
@@ -694,7 +694,7 @@ export var common = {
               try {
                 return [prev_day_high, prev_day_low, coler]
               } catch (e) {
-                console.error("catch 1", e)
+                // console.error("catch 1", e)
                 return [NaN]
               }
 
@@ -965,7 +965,7 @@ export var common = {
               try {
                 return [d, p, color];
               } catch (e) {
-                console.error("catch 1", e)
+                // console.error("catch 1", e)
                 return [NaN]
               }
             };
@@ -1014,7 +1014,7 @@ export var common = {
                 var previousDate = curMapping.previousDate, prevMapping = customIndicator["getMapping"]()[symbol][previousDate];
                 return prevMapping ? (prev_day_high = prevMapping.high, prev_day_low = prevMapping.low, prev_day_close = prevMapping.close, prev_day_open = prevMapping.open, [prev_day_high, prev_day_close, prev_day_open, prev_day_low]) : [NaN];
               } catch (error) {
-                return console.log("Error ohcl module indicator: ", error), [NaN];
+                return (() => { /* console.log("Error ohcl module indicator: ", error) */ })(), [NaN];
               }
             };
           }
@@ -1206,7 +1206,7 @@ export async function getcprData(symbolInfo, periodParams, token) {
   // Check if API URL is ready before making request
   const apiUrl = params ? myntappurl.myntapi : mynturl.myntapi;
   if (!apiUrl) {
-    console.warn("⚠️ API URL not ready for EODChartData, returning empty data");
+    // console.warn("⚠️ API URL not ready for EODChartData, returning empty data");
     return Promise.resolve("API URL not ready");
   }
   let data11 = await makeApiRequest(`${apiUrl}EODChartData`, requestOptions);
@@ -1283,6 +1283,6 @@ function mapCPRData(data, symbol) {
     }
     dayWiseDataMap[symbol]["dataArray"] = tempArray1.reverse();
   } catch (e) {
-    console.error(e);
+    // console.error(e);
   }
 }

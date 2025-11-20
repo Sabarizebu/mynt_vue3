@@ -221,7 +221,7 @@
                             <v-col cols="4">
                                 <div class="text-center cursor-pointer" @click="navigateToOrders('orders', null)">
                                     <p class="fs-16 font-weight-bold mb-0">
-                                        {{ orderCounts.open }}
+                                        {{ orderCounts.open || 0 }}
                                     </p>
                                     <span class="fs-14 font-weight-regular">Open Orders</span>
                                 </div>
@@ -229,7 +229,7 @@
                             <v-col cols="4">
                                 <div class="text-center cursor-pointer" @click="navigateToOrders('executed', null)">
                                     <p class="fs-16 font-weight-bold mb-0">
-                                        {{ orderCounts.executed }}
+                                        {{ orderCounts.executed || 0 }}
                                     </p>
                                     <span class="fs-14 font-weight-regular">Execute Orders</span>
                                 </div>
@@ -238,7 +238,7 @@
                                 <div class="text-center cursor-pointer"
                                     @click="navigateToOrders('executed', 'REJECTED')">
                                     <p class="fs-16 font-weight-bold mb-0">
-                                        {{ orderCounts.rejected }}
+                                        {{ orderCounts.rejected || 0 }}
                                     </p>
                                     <span class="fs-14 font-weight-regular">Rejected</span>
                                 </div>
@@ -274,12 +274,12 @@
                                         <div v-bind="attrs" v-on="on" class="text-center">
                                             <p style="color: black !important;"
                                                 :class="['fs-16 font-weight-bold mb-0', margins.avbma < 0 ? 'mainred--text' : 'subtext--text']">
-                                                {{ formattedAvbma }}
+                                                {{ formattedAvbma || 0 }}
                                             </p>
                                             <span class="fs-14 font-weight-regular">Available balance</span>
                                         </div>
                                     </template>
-                                    <span>{{ formattedAvbma }}</span>
+                                    <span>{{ formattedAvbma || 0 }}</span>
                                 </v-tooltip>
                             </v-col>
                             <v-col cols="4">
@@ -287,12 +287,12 @@
                                     <template v-slot:activator="{ on, attrs }">
                                         <div v-bind="attrs" v-on="on" class="text-center">
                                             <p class="fs-16 font-weight-bold mb-0">
-                                                {{ formattedTotal }}
+                                                {{ formattedTotal || 0 }}
                                             </p>
                                             <span class="fs-14 font-weight-regular">Total credits</span>
                                         </div>
                                     </template>
-                                    <span>{{ formattedTotal }}</span>
+                                    <span>{{ formattedTotal || 0 }}</span>
                                 </v-tooltip>
                             </v-col>
                             <v-col cols="4">
@@ -300,12 +300,12 @@
                                     <template v-slot:activator="{ on, attrs }">
                                         <div v-bind="attrs" v-on="on" class="text-center">
                                             <p class="fs-16 font-weight-bold mb-0">
-                                                {{ formattedMarginused }}
+                                                {{ formattedMarginused || 0 }}
                                             </p>
                                             <span class="fs-14 font-weight-regular">Margin used</span>
                                         </div>
                                     </template>
-                                    <span>{{ formattedMarginused }}</span>
+                                    <span>{{ formattedMarginused || 0 }}</span>
                                 </v-tooltip>
                             </v-col>
                         </v-row>
@@ -395,7 +395,7 @@ async function reloadAllStats() {
 
         // NOTE: Removed automatic margin refresh - Limits API called only once on initial load
     } catch (err) {
-        console.error('❌ Error reloading all stats:', err)
+        // console.error('❌ Error reloading all stats:', err)
     }
 }
 
@@ -416,7 +416,7 @@ const refreshMarginsDebounced = () => {
 const refreshMargins = () => {
     // Prevent concurrent API calls
     if (isRefreshMarginsPending) {
-        console.log('⏸️ Margin refresh already pending, skipping...')
+        // console.log('⏸️ Margin refresh already pending, skipping...')
         return
     }
 
@@ -435,10 +435,10 @@ const refreshMargins = () => {
             // Trigger the event handler which will call updateMarginsStats
             handleTempEvent({ detail: data })
         } else {
-            console.warn('⚠️ Margin data not OK:', data)
+            // console.warn('⚠️ Margin data not OK:', data)
         }
     }).catch(err => {
-        console.error('❌ Error refreshing margins:', err)
+        // console.error('❌ Error refreshing margins:', err)
     }).finally(() => {
         isRefreshMarginsPending = false
     })
@@ -449,11 +449,19 @@ const handleTempEvent = (evt) => {
         const payload = evt?.detail
         if (!payload) return
         if (Array.isArray(payload.response)) {
-            // Holdings payload
-            holdingsList.value = payload.response || []
+            // Holdings payload - filter out invalid holdings (zero quantity or missing required fields)
+            const validHoldings = (payload.response || []).filter((h) => {
+                const netqty = toNumber(h.netqty ?? h.holdqty ?? h.qty);
+                // Only include holdings with non-zero quantity and valid token
+                return netqty !== 0 && h.token && h.token !== '';
+            });
+
+            holdingsList.value = validHoldings;
             holdingIndexByToken = {}
             for (let i = 0; i < holdingsList.value.length; i++) {
-                holdingIndexByToken[holdingsList.value[i].token] = i
+                if (holdingsList.value[i].token) {
+                    holdingIndexByToken[holdingsList.value[i].token] = i
+                }
             }
             updateHoldingsStats(holdingsList.value)
             // Subscribe to WS for live lp updates
@@ -477,7 +485,7 @@ const handleTempEvent = (evt) => {
             // Margins payload - check for marginused too or stat === 'Ok' from getMLimits
             // Also check if it has any margin-related fields
             if (payload.collateral !== undefined || payload.cash !== undefined || payload.marginused !== undefined) {
-                console.log('📊 Detected margins payload in handleTempEvent:', payload)
+                // console.log('📊 Detected margins payload in handleTempEvent:', payload)
                 updateMarginsStats(payload)
             }
         }
@@ -494,125 +502,193 @@ const updateText = (id, text) => {
     if (el) el.innerText = text
 }
 
+// Format number exactly like old code's setFormatNumber
 const formatMoney = (amt) => {
     const n = toNumber(amt);
-    if (n >= 1_00_00_000) return `${(n / 1_00_00_000).toFixed(2)}Cr`;
-    if (n >= 1_00_000) return `${(n / 1_00_000).toFixed(2)}L`;
-    if (n >= 1_000) return `${(n / 1_000).toFixed(2)}K`;
-    return `${n.toFixed(2)}`;
+    if (n > 9999999) {
+        return `${(n / 10000000).toFixed(2)}Cr`;
+    } else if (n > 99999) {
+        return `${(n / 100000).toFixed(2)}L`;
+    } else if (n > 9999) {
+        return `${(n / 1000).toFixed(2)}K`;
+    } else if (n > 0) {
+        return Number(n).toFixed(2);
+    }
+    if (n < 0) {
+        return `-${formatMoney(Math.abs(n))}`;
+    }
+    return n;
 };
 
+// Calculate holdings stats exactly like old code (lines 429-496)
 const updateHoldingsStats = (list) => {
-    let invested = 0
-    let current = 0
-    let totalPnl = 0
-    let totalPnlPct = 0
-    let dayPnl = 0
-    let dayPnlPct = 0
-    let posCount = 0
-    let negCount = 0
+    // Filter out invalid holdings (zero quantity, missing token, or invalid data)
+    const validList = list.filter((it) => {
+        const netqty = toNumber(it.netqty ?? it.holdqty ?? it.qty);
+        return netqty !== 0 && it.token && it.token !== '';
+    });
 
-    for (const it of list) {
-        const qty = toNumber(it.netqty ?? it.holdqty ?? it.qty)
-        const avg = toNumber(it.avgprc ?? it.uravgprc ?? it.avgprc1)
-        const ltp = toNumber(it.ltp ?? it.lp)
-        const close = toNumber(it.close ?? it.cp ?? it.prev_close_price)
+    // If no valid holdings, reset everything to zero
+    if (validList.length === 0) {
+        updateText('holdstatinv', '0.00');
+        updateText('holdstatval', '0.00');
+        updateText('holdstatpnl', '0.00');
+        updateText('holdstatpnlc', '0.00');
+        updateText('holdstatdpnl', '0.00');
+        updateText('holdstatdpnlc', '0.00');
+        updateText('holdingsCount', '0');
+        updateText('positiveHoldings', '0');
+        updateText('negativeHoldings', '0');
 
-        invested += qty * avg
-        current += qty * ltp
-        const pnl = qty * (ltp - avg)
-        totalPnl += pnl
-        // daily change by close
-        const dpnl = qty * (ltp - close)
-        dayPnl += dpnl
-        if (ltp - close > 0) posCount++
-        else if (ltp - close < 0) negCount++
+        // Reset colors
+        const setColor = (id, val) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.classList.remove('maingreen--text', 'mainred--text', 'subtext--text');
+            el.classList.add('subtext--text');
+        };
+        setColor('holdstatpnlcclr', 0);
+        setColor('holdstatdpnlcclr', 0);
+
+        // Reset bars
+        nextTick(() => {
+            const posBar = document.getElementById('holdstatavdp');
+            const negBar = document.getElementById('holdstatavdn');
+            if (posBar) posBar.setAttribute("style", `width: 0% !important;`);
+            if (negBar) negBar.setAttribute("style", `width: 0% !important;`);
+        });
+        return;
     }
 
-    totalPnlPct = invested > 0 ? (totalPnl / invested) * 100 : 0
-    dayPnlPct = current - dayPnl > 0 ? (dayPnl / (current - dayPnl)) * 100 : 0
+    // First, ensure each item has inv, curr, pnl, pnlc, d_pnl, d_cpnl fields (like old code)
+    const processedList = validList.map((it) => {
+        const netqty = toNumber(it.netqty ?? it.holdqty ?? it.qty);
+        const netqtyAbs = Math.abs(netqty);
+        const upldprc = toNumber(it.upldprc ?? it.avgprc ?? it.uravgprc ?? it.avgprc1);
+        const ltp = toNumber(it.ltp ?? it.lp);
+        const prevClose = toNumber(it.close ?? it.cp ?? it.prev_close_price ?? it.previous_close);
 
-    updateText('holdstatinv', formatMoney(invested))
-    updateText('holdstatval', formatMoney(current))
-    updateText('holdstatpnl', formatMoney(totalPnl))
-    updateText('holdstatpnlc', toNumber(totalPnlPct).toFixed(2))
-    updateText('holdstatdpnl', formatMoney(dayPnl))
-    updateText('holdstatdpnlc', toNumber(dayPnlPct).toFixed(2))
-    updateText('holdingsCount', String(list.length))
-    updateText('positiveHoldings', String(posCount))
-    updateText('negativeHoldings', String(negCount))
+        // Use upldprc if available and > 0, otherwise use ltp (matching old code line 437)
+        const avgPrice = upldprc !== 0 ? upldprc : ltp;
 
-    // color updates
+        // Calculate inv and curr exactly like old code (lines 437-438)
+        const inv = (avgPrice * netqtyAbs).toFixed(2);
+        const curr = (ltp * netqtyAbs).toFixed(2);
+
+        // Calculate pnl and pnlc exactly like old code (lines 440-441)
+        const pnl = (Number(curr) - Number(inv)).toFixed(2);
+        const pnlc = Number(inv) > 0 ? ((Number(pnl) / Number(inv)) * 100).toFixed(2) : "0.00";
+
+        // Calculate d_pnl and d_cpnl exactly like old code (lines 442-443)
+        const d_pnl = ((ltp - prevClose) * netqtyAbs).toFixed(2);
+        const d_cpnl = Number(inv) > 0 ? ((Number(d_pnl) / Number(inv)) * 100).toFixed(2) : "0.00";
+
+        return {
+            ...it,
+            inv: Number(inv),
+            curr: Number(curr),
+            pnl: Number(pnl),
+            pnlc: Number(pnlc),
+            d_pnl: Number(d_pnl),
+            d_cpnl: Number(d_cpnl)
+        };
+    });
+
+    // Calculate totals exactly like old code (lines 453-464)
+    const stockvalue = processedList.reduce((acc, o) => acc + (Number(o.curr) || 0), 0);
+    const invested = processedList.reduce((acc, o) => acc + (Number(o.inv) || 0), 0);
+    const totalPnl = processedList.reduce((acc, o) => acc + (Number(o.pnl) || 0), 0);
+    const totalDPnl = processedList.reduce((acc, o) => acc + (Number(o.d_pnl) || 0), 0);
+
+    // Format values exactly like old code (lines 454, 456, 459, 463)
+    const formattedStockvalue = stockvalue > 0 || stockvalue < 0 ? formatMoney(Math.abs(stockvalue)) : "0.00";
+    const formattedInvested = invested > 0 || invested < 0 ? formatMoney(Math.abs(invested)) : "0.00";
+    const formattedDPnl = totalDPnl > 0 || totalDPnl < 0 ? Math.abs(totalDPnl).toFixed(2) : "0.00";
+    const formattedPnl = totalPnl > 0 || totalPnl < 0 ? formatMoney(Math.abs(totalPnl)) : "0.00";
+
+    // Calculate percentages exactly like old code (lines 460, 464)
+    const d_cpnl = totalDPnl > 0 || totalDPnl < 0
+        ? ((totalDPnl / invested) * 100).toFixed(2)
+        : "0.00";
+    const cpnl = totalPnl > 0 || totalPnl < 0
+        ? ((totalPnl / invested) * 100).toFixed(2)
+        : "0.00";
+
+    // Count positive/negative based on pnlc exactly like old code (lines 450-451)
+    const positive = processedList.filter((x) => x.pnlc > 0);
+    const negative = processedList.filter((x) => x.pnlc < 0);
+
+    // Update DOM elements exactly like old code (lines 469-488)
+    updateText('holdstatinv', formattedInvested);
+    updateText('holdstatval', formattedStockvalue);
+    updateText('holdstatpnl', formattedPnl);
+    updateText('holdstatpnlc', cpnl);
+    updateText('holdstatdpnl', formattedDPnl);
+    updateText('holdstatdpnlc', d_cpnl);
+    updateText('holdingsCount', String(validList.length));
+    updateText('positiveHoldings', String(positive.length));
+    updateText('negativeHoldings', String(negative.length));
+
+    // Color updates exactly like old code (lines 479-487)
     const setColor = (id, val) => {
-        const el = document.getElementById(id)
-        if (!el) return
-        el.classList.remove('maingreen--text', 'mainred--text', 'subtext--text')
-        el.classList.add(val > 0 ? 'maingreen--text' : val < 0 ? 'mainred--text' : 'subtext--text')
-    }
-    setColor('holdstatpnlcclr', totalPnl)
-    setColor('holdstatdpnlcclr', dayPnl)
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.remove('maingreen--text', 'mainred--text', 'subtext--text');
+        el.classList.add(val > 0 ? 'maingreen--text' : val < 0 ? 'mainred--text' : 'subtext--text');
+    };
+    setColor('holdstatpnlcclr', Number(cpnl));
+    setColor('holdstatdpnlcclr', Number(d_cpnl));
 
-    // Adv/Dec bar widths and colors for Holdings (migrated from Vue 2)
+    // Adv/Dec bar calculation exactly like old code (lines 489-494)
     nextTick(() => {
-        const totalCount = list.length
-        const pAdv = totalCount > 0 ? Math.round((posCount / totalCount) * 100) : 0
-        const nAdv = 100 - pAdv
-        const posBar = document.getElementById('holdstatavdp')
-        const negBar = document.getElementById('holdstatavdn')
+        const totalCount = validList.length;
+        const pAdv = totalCount > 0 ? Math.round((positive.length / totalCount) * 100) : 0;
+        const nAdv = Math.round(100 - pAdv);
+        const posBar = document.getElementById('holdstatavdp');
+        const negBar = document.getElementById('holdstatavdn');
 
-        // Update bar widths
-        if (posBar) posBar.style.width = `${pAdv}%`
-        if (negBar) negBar.style.width = `${nAdv}%`
+        // Update bar widths exactly like old code (line 492-493)
+        if (posBar) posBar.setAttribute("style", `width: ${pAdv}% !important;`);
+        if (negBar) negBar.setAttribute("style", `width: ${nAdv}% !important;`);
 
-        // Update colors directly via DOM (fallback to ensure colors show)
+        // Update colors directly via DOM
         if (totalCount > 0) {
-            // Positive bar: update all stripes to green colors
-            const posBarCards = posBar?.querySelectorAll('.v-card')
+            const posBarCards = posBar?.querySelectorAll('.v-card');
             if (posBarCards) {
                 posBarCards.forEach((card, idx) => {
                     if (idx % 2 === 0) {
-                        card.style.backgroundColor = '#ECF8F1'
+                        card.style.backgroundColor = '#ECF8F1';
                     } else {
-                        card.style.backgroundColor = '#43A833'
+                        card.style.backgroundColor = '#43A833';
                     }
-                })
+                });
             }
 
-            // Negative bar: update all stripes to red colors
-            const negBarCards = negBar?.querySelectorAll('.v-card')
+            const negBarCards = negBar?.querySelectorAll('.v-card');
             if (negBarCards) {
                 negBarCards.forEach((card, idx) => {
                     if (idx % 2 === 0) {
-                        card.style.backgroundColor = '#ffcdcd90'
+                        card.style.backgroundColor = '#ffcdcd90';
                     } else {
-                        card.style.backgroundColor = '#F23645'
+                        card.style.backgroundColor = '#F23645';
                     }
-                })
+                });
             }
         } else {
-            // No data: set to background colors
-            const posBarCards = posBar?.querySelectorAll('.v-card')
-            const negBarCards = negBar?.querySelectorAll('.v-card')
+            const posBarCards = posBar?.querySelectorAll('.v-card');
+            const negBarCards = negBar?.querySelectorAll('.v-card');
             if (posBarCards) {
                 posBarCards.forEach((card, idx) => {
-                    card.style.backgroundColor = idx % 2 === 0 ? '#F1F3F8' : '#ffffff'
-                })
+                    card.style.backgroundColor = idx % 2 === 0 ? '#F1F3F8' : '#ffffff';
+                });
             }
             if (negBarCards) {
                 negBarCards.forEach((card, idx) => {
-                    card.style.backgroundColor = idx % 2 === 0 ? '#F1F3F8' : '#ffffff'
-                })
+                    card.style.backgroundColor = idx % 2 === 0 ? '#F1F3F8' : '#ffffff';
+                });
             }
         }
-
-        // console.log('📊 Holdings Adv/Dec Bar updated:', {
-        //     totalCount,
-        //     posCount,
-        //     negCount,
-        //     pAdv: `${pAdv}%`,
-        //     nAdv: `${nAdv}%`
-        // })
-    })
+    });
 }
 
 const updatePositionsStats = (posPayload) => {
@@ -702,7 +778,7 @@ const updateMarginsStats = (limits) => {
         // Update the store with margins data
         marginsStore.setMargins(limits)
     } catch (err) {
-        console.error('❌ Error updating margins stats:', err)
+        // console.error('❌ Error updating margins stats:', err)
     }
 }
 
@@ -723,10 +799,23 @@ async function loadAll() {
     // Trigger API load; handlers will compute once responses arrive
     try {
         const holdingsData = await getMHoldings(true)
-        if (holdingsData && holdingsData.response && Array.isArray(holdingsData.response) && holdingsData.response.length > 0) {
+        // Always process holdings data, even if empty, to reset display
+        if (holdingsData && holdingsData.response && Array.isArray(holdingsData.response)) {
             setTimeout(() => { handleTempEvent({ detail: holdingsData }) }, 200)
+        } else {
+            // If no data or invalid response, reset to zero
+            setTimeout(() => {
+                holdingsList.value = []
+                holdingIndexByToken = {}
+                updateHoldingsStats([])
+            }, 200)
         }
-    } catch (_) { }
+    } catch (_) {
+        // On error, reset to zero
+        holdingsList.value = []
+        holdingIndexByToken = {}
+        updateHoldingsStats([])
+    }
 
     try {
         const positionData = await getMPosotion(true)
@@ -767,7 +856,7 @@ async function loadAll() {
             setTimeout(() => { handleTempEvent({ detail: marginsData }) }, 300)
         }
     } catch (err) {
-        console.error('❌ Error loading initial margins:', err)
+        // console.error('❌ Error loading initial margins:', err)
     }
 }
 
@@ -837,7 +926,7 @@ onBeforeUnmount(() => {
     }
 })
 
-// Handle websocket ticks to refresh holdings totals using latest lp
+// Handle websocket ticks exactly like old code's optionChainHoldDataParse (lines 429-497)
 const handleWsUpdate = (event) => {
     try {
         const detail = event.detail
@@ -847,10 +936,25 @@ const handleWsUpdate = (event) => {
         if (!token || holdingIndexByToken[token] == null) return
 
         const idx = holdingIndexByToken[token]
-        const ltp = Number(data.lp || data.ltp)
-        const prev = Number(data.c || data.prev_close_price)
-        if (isFinite(ltp) && holdingsList.value[idx]) holdingsList.value[idx].ltp = ltp
-        if (isFinite(prev) && holdingsList.value[idx]) holdingsList.value[idx].close = prev
+        const holding = holdingsList.value[idx]
+        if (!holding) return
+
+        // Handle MF (Mutual Fund) case exactly like old code (lines 433-436)
+        if (holding.exchs === "MF") {
+            data["lp"] = holding.quotes && holding.quotes.nav ? holding.quotes.nav : 0;
+        }
+
+        // Update raw fields - updateHoldingsStats will recalculate inv, curr, pnl, etc.
+        holding.ltp = holding.exchs === "MF" ? Number(data.lp) : Number(data.lp).toFixed(2);
+
+        // Update close price for future calculations
+        const prevClose = Number(data.prev_close_price || data.c || data.close);
+        if (isFinite(prevClose)) {
+            holding.close = prevClose;
+            holding.prev_close_price = prevClose;
+        }
+
+        // Recalculate stats with updated data (this will recalculate inv, curr, pnl, pnlc, d_pnl, d_cpnl)
         updateHoldingsStats(holdingsList.value)
     } catch (_) { }
 }

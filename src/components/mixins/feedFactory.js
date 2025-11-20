@@ -302,7 +302,7 @@ export default {
                     return;
                 }
             } catch (error) {
-                console.error('Fetch failed:', error);
+                // console.error('Fetch failed:', error);
                 onHistoryCallback([], { noData: true });
                 return;
             }
@@ -316,7 +316,7 @@ export default {
             // Check if API URL is ready before making request
             const apiUrl = params ? myntappurl.myntapi : mynturl.myntapi;
             if (!apiUrl) {
-                console.warn("⚠️ API URL not ready for TPSeries, returning no data");
+                // console.warn("⚠️ API URL not ready for TPSeries, returning no data");
                 onHistoryCallback([], { noData: true });
                 return;
             }
@@ -566,7 +566,7 @@ async function getAllSymbols(searchInput, exchange, symbolType) {
         }
         // Check if mynturl is ready before making API call
         if (!mynturl.myntapi) {
-            console.warn("⚠️ mynturl.myntapi not ready for SearchScrip, returning empty results");
+            // console.warn("⚠️ mynturl.myntapi not ready for SearchScrip, returning empty results");
             return [];
         }
         const allSymbols = await makeApiRequest(mynturl.myntapi + "SearchScrip", request);

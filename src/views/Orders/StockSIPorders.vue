@@ -1,7 +1,7 @@
 <template>
     <div>
         <!-- Toolbar -->
-        <v-toolbar flat dense class="tool-sty my-6 pl-4 crd-trn">
+        <v-toolbar flat dense class="tool-sty my-1 pl-1 crd-trn">
             <v-btn :disabled="allbasketsdata && allbasketsdata.length >= 10"
                 class="elevation-0 rounded-pill font-weight-bold text-none" variant="elevated" color="primary"
                 height="40" @click="setSIPdialog(null)">+ Create SIP</v-btn>
@@ -40,13 +40,28 @@
             </template>
             <template #item.actions="{ item }">
                 <div @click.stop>
-                    <v-btn icon size="small" class="mr-1 elevation-0" style="background-color: transparent !important;"
-                        @click="setSIPdialog(item)">
-                        <v-icon>mdi-square-edit-outline</v-icon>
+                    <!-- Edit icon matching old app (custom SVG) -->
+                    <v-btn icon size="small" class="text-align-center mr-1 mt-2 elevation-0"
+                        style="background-color: transparent !important;" @click="setSIPdialog(item)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 28 28" fill="none">
+                            <path
+                                d="M5 18.7782C5.00006 18.481 5.11819 18.1959 5.32841 17.9858L17.8214 5.49281C17.9775 5.33658 18.1629 5.21264 18.3669 5.12808C18.571 5.04352 18.7897 5 19.0106 5C19.2315 5 19.4502 5.04352 19.6542 5.12808C19.8583 5.21264 20.0437 5.33658 20.1998 5.49281L23.0972 8.3902C23.2534 8.54634 23.3774 8.73173 23.4619 8.93578C23.5465 9.13983 23.59 9.35854 23.59 9.57942C23.59 9.8003 23.5465 10.019 23.4619 10.2231C23.3774 10.4271 23.2534 10.6125 23.0972 10.7686L10.6042 23.2616C10.3941 23.4718 10.109 23.5899 9.81179 23.59H6.12085C5.82358 23.59 5.53849 23.4719 5.32829 23.2617C5.11809 23.0515 5 22.7664 5 22.4692V18.7782ZM6.12085 18.7782V22.4692H9.81179L22.3047 9.9762C22.3569 9.92414 22.3983 9.8623 22.4266 9.79421C22.4548 9.72613 22.4694 9.65313 22.4694 9.57942C22.4694 9.5057 22.4548 9.43271 22.4266 9.36463C22.3983 9.29654 22.3569 9.2347 22.3047 9.18264L19.4074 6.28525C19.3553 6.23306 19.2935 6.19165 19.2254 6.1634C19.1573 6.13515 19.0843 6.12061 19.0106 6.12061C18.9369 6.12061 18.8639 6.13515 18.7958 6.1634C18.7277 6.19165 18.6659 6.23306 18.6138 6.28525L6.12085 18.7782Z"
+                                fill="currentColor" />
+                            <path
+                                d="M16.3721 7.73451L20.8555 12.2179L21.649 11.4243L17.1657 6.94095L16.3721 7.73451ZM6.28448 17.8221L10.7679 22.3055L11.5614 21.512L7.07804 17.0286L6.28448 17.8221Z"
+                                fill="currentColor" />
+                            <path d="M18.6138 9.18265L8.52618 19.2703L9.31974 20.0638L19.4074 9.97621L18.6138 9.18265Z"
+                                fill="currentColor" />
+                        </svg>
                     </v-btn>
-                    <v-btn icon size="small" class="elevation-0" style="background-color: transparent !important;"
-                        @click="openCancelDialog(item)">
-                        <v-icon>mdi-trash-can-outline</v-icon>
+                    <!-- Delete icon matching old app (custom SVG) -->
+                    <v-btn icon size="small" class="text-align-center mt-2 elevation-0"
+                        style="background-color: transparent !important;" @click="openCancelDialog(item)">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="24" height="24">
+                            <path fill="currentColor" fill-rule="evenodd"
+                                d="M11.5 6a.5.5 0 0 0-.5.5V8h6V6.5a.5.5 0 0 0-.5-.5h-5zM18 8V6.5c0-.83-.67-1.5-1.5-1.5h-5c-.83 0-1.5.67-1.5 1.5V8H5.5a.5.5 0 0 0 0 1H7v12.5A2.5 2.5 0 0 0 9.5 24h9a2.5 2.5 0 0 0 2.5-2.5V9h1.5a.5.5 0 0 0 0-1H18zm2 1H8v12.5c0 .83.67 1.5 1.5 1.5h9c.83 0 1.5-.67 1.5-1.5V9zm-8.5 3c.28 0 .5.22.5.5v7a.5.5 0 0 1-1 0v-7c0-.28.22-.5.5-.5zm5.5.5a.5.5 0 0 0-1 0v7a.5.5 0 0 0 1 0v-7z">
+                            </path>
+                        </svg>
                     </v-btn>
                 </div>
             </template>
@@ -61,10 +76,10 @@
         </v-data-table>
 
         <!-- SIP Dialog -->
-        <v-dialog v-model="basketdialog" width="680" max-width="680" scrollable>
+        <v-dialog v-model="basketdialog" width="680" max-width="680" :scrim="false" scrollable>
             <v-card class="pb-6 px-6 rounded-lg" color="cardbg" style="max-height: 85vh;">
                 <v-list-item-title class="font-weight-bold title maintext--text mt-4 pb-2"
-                    style="border-bottom: 1px solid #EBEEF0;">
+                    style="border-bottom: 1px solid #EBEEF0;font-size: 20px !important;">
                     {{ setmode ? 'Create' : 'Edit' }} SIP order
                     <v-icon @click="closeSIPDialog" class="float-right" color="maintext"
                         :disabled="orderloader">mdi-close</v-icon>
@@ -108,6 +123,7 @@
                     </v-col>
                     <!-- Phase 7: Add uppercase conversion on input matching old app -->
                     <v-col cols="10" class="ml-auto">
+                        <!-- Autocomplete selection: @update:model-value fires when item is selected (matching old app @change behavior) -->
                         <v-autocomplete :disabled="model && model.set" @update:model-value="setListinbsk"
                             :loading="searchloading" item-title="tsym" return-object rounded="xl" class="" flat
                             variant="solo" :bg-color="'secbg'" density="compact" v-model="model" v-model:search="search"
@@ -118,10 +134,10 @@
                 </v-row>
 
                 <!-- Phase 7: Add must-sort and sort-by to match old app -->
-                <v-data-table v-if="!model || !model.token" must-sort :sort-by="['idx']" :sort-desc="[true]"
-                    fixed-header :hide-default-footer="true" :loading="loading" class="mt-0 rounded-lg overflow-y-auto"
-                    style="border: 1px solid #EBEEF0" :height="getTableHeight" :headers="singlebskheader"
-                    :items="orderbookdata" :items-per-page="-1">
+                <!-- Table should always be visible, even after selecting from autocomplete (matching old app behavior) -->
+                <v-data-table must-sort :sort-by="['idx']" :sort-desc="[true]" fixed-header :hide-default-footer="true"
+                    :loading="loading" class="mt-0 rounded-lg overflow-y-auto" style="border: 1px solid #EBEEF0"
+                    :height="getTableHeight" :headers="singlebskheader" :items="orderbookdata" :items-per-page="-1">
                     <template #item.tsym="{ item }">
                         <p class="font-weight-medium maintext--text mb-0 ws-p">
                             {{ item.tsym || '' }}
@@ -129,21 +145,21 @@
                         </p>
                     </template>
                     <template #item.qty="{ item }">
-                        <v-text-field v-if="item.invby === 'Qty'" height="30" hide-details density="compact"
-                            style="border-radius: 10px !important;" class="rounded-lg" type="number" hide-spin-buttons
+                        <v-text-field v-if="item.invby === 'Qty'" height="20" hide-details density="compact"
+                            style="border-radius: 10px !important;" rounded="lg" type="number" hide-spin-buttons
                             variant="outlined" v-model="item.qty" />
                         <span v-else>{{ '--' }}</span>
                     </template>
                     <template #item.prc="{ item }">
                         <v-text-field v-if="item.invby === 'Amount'" hide-details density="compact"
-                            style="border-radius: 10px !important;" class="rounded-lg" type="number" hide-spin-buttons
+                            style="border-radius: 10px !important;" rounded="lg" type="number" hide-spin-buttons
                             variant="outlined" v-model="item.prc" />
                         <span v-else>{{ '--' }}</span>
                     </template>
                     <template #item.invby="{ item }">
-                        <v-select @update:model-value="setInvestby(item)" height="30" hide-details density="compact"
+                        <v-select @update:model-value="setInvestby(item)" height="20" hide-details density="compact"
                             v-model="item.invby" :items="['Qty', 'Amount']" variant="outlined"
-                            style="border-radius: 10px !important;" class="rounded-lg" />
+                            style="border-radius: 10px !important;" rounded="lg" />
                     </template>
                     <!-- Phase 7: Use SVG icon matching old app -->
                     <template #item.actions="{ item }">
@@ -189,18 +205,20 @@
         <!-- Cancel Dialog -->
         <v-dialog v-model="canceldialog" max-width="400">
             <v-card class="rounded-xl elevation-0 text-center pt-8 pb-6 overflow-hidden">
-                <img :src="cancelIcon" alt="cancel icon" />
-                <p class="font-weight-medium mt-3 fs-22 lh-24 mb-8">
-                    Are you sure you want to <br />
+                <div class="text-center">
+                    <img src="@/assets/orderbook/cancel-icon.svg" width="50px" alt="cancel icon" />
+                </div>
+                <p class="font-weight-medium mt-3 lh-24 mb-8" style="font-size: 22px !important;">
+                    Are you sure you want to<br />
                     delete this <b>{{ singledata?.sip_name || '' }}</b> SIP order?
                 </p>
                 <v-row class="px-6" no-gutters>
-                    <v-col cols="6">
+                    <v-col cols="6" class="px-2">
                         <v-btn @click="canceldialog = false; singledata = null" color="outline"
                             class="rounded-pill text-none subtext--text font-weight-bold elevation-0" block
                             height="40">No</v-btn>
                     </v-col>
-                    <v-col cols="6">
+                    <v-col cols="6" class="px-2">
                         <v-btn @click="setcancelBSK" color="btnclr"
                             class="rounded-pill text-none btntext--text font-weight-bold elevation-0" block
                             height="40">Yes</v-btn>
@@ -214,7 +232,6 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import noDataImg from '@/assets/no data folder.svg'
-import cancelIcon from '@/assets/orderbook/cancel-icon.svg'
 import { useAppStore } from '@/stores/appStore'
 import { getSiporderbook, getSIPOrderset, getKambalaSearch } from '@/components/mixins/getAPIdata'
 import moment from 'moment'
@@ -393,39 +410,74 @@ function onSearchInputUppercase(value) {
     }
 }
 
-// Phase 6: Add scrip from search autocomplete
+// Phase 6: Add scrip from search autocomplete (matching old app behavior)
+// Flag to prevent duplicate calls
+let isProcessingSelection = false
+
 function setListinbsk() {
-    if (model.value && model.value.token) {
-        // Phase 6: Check for duplicates before adding
-        const exists = orderbookdata.value.find(
-            o => String(o.token) === String(model.value.token) && o.exch === model.value.exch
-        )
+    // Prevent duplicate calls
+    if (isProcessingSelection) {
+        return
+    }
 
-        if (exists) {
-            appStore.showSnackbar(2, `${model.value.tsym} is already in the SIP order`)
-            model.value = null
-            search.value = null
-            return
-        }
+    // Ensure model has a value and token (same as old app check)
+    if (!model.value || !model.value.token) {
+        return
+    }
 
-        // Phase 6 & 7: Add scrip with proper defaults and idx for sorting
-        const scrip = {
-            exch: model.value.exch,
-            tsym: model.value.tsym,
-            token: model.value.token,
-            prd: 'C', // Default to Delivery
-            invby: 'Qty', // Default investment type
-            qty: Number(model.value.ls || 1), // Default quantity to lot size (as number for editing)
-            idx: orderbookdata.value.length, // Phase 7: Add idx for sorting
-        }
+    // Set processing flag
+    isProcessingSelection = true
 
-        orderbookdata.value.push(scrip)
-        // Force reactivity update
-        orderbookdata.value = [...orderbookdata.value]
+    // Check for duplicates before adding (improvement over old app)
+    const exists = orderbookdata.value.find(
+        o => String(o.token) === String(model.value.token) && o.exch === model.value.exch
+    )
 
+    if (exists) {
+        appStore.showSnackbar(2, `${model.value.tsym} is already in the SIP order`)
+        // Clear model and search after showing error
+        isClearingModel = true
         model.value = null
         search.value = null
+        nextTick(() => {
+            isClearingModel = false
+            isProcessingSelection = false
+        })
+        return
     }
+
+    // Store model values before clearing (needed for creating scrip object)
+    const selectedModel = model.value
+
+    // Add scrip with proper defaults matching old app format
+    // Old app: { exch, invby: "Qty", prd: "C", qty: "1", token, tsym }
+    const scrip = {
+        exch: selectedModel.exch,
+        tsym: selectedModel.tsym,
+        token: selectedModel.token,
+        prd: 'C', // Default to Delivery (same as old app)
+        invby: 'Qty', // Default investment type (same as old app)
+        qty: Number(selectedModel.ls || 1), // Default quantity to lot size or 1 (matching old app: qty: "1")
+        idx: orderbookdata.value.length, // Add idx for sorting
+    }
+
+    // Add to orderbookdata first (same as old app: this.orderbookdata.push(...))
+    orderbookdata.value.push(scrip)
+
+    // Force reactivity update to ensure table refreshes and shows the new item
+    orderbookdata.value = [...orderbookdata.value]
+
+    // Clear model and search immediately after adding (same as old app: this.model = [])
+    // Set flag to prevent watcher from triggering
+    isClearingModel = true
+    model.value = null
+    search.value = null
+
+    // Reset flags after clearing
+    nextTick(() => {
+        isClearingModel = false
+        isProcessingSelection = false
+    })
 }
 
 // Phase 6: Change investment type (Qty/Amount) for a scrip
@@ -698,6 +750,22 @@ async function setPlaceorder() {
     }
 }
 
+// Watch model to handle autocomplete selection (matching old app @change behavior)
+// This ensures items are added to table when selected from autocomplete
+let isClearingModel = false // Flag to prevent watcher from triggering when we clear the model
+watch(model, (newVal, oldVal) => {
+    // Skip if we're in the process of clearing the model
+    if (isClearingModel) {
+        return
+    }
+
+    // Only trigger when a new item is selected (not when clearing)
+    if (newVal && newVal.token && (!oldVal || !oldVal.token || oldVal.token !== newVal.token)) {
+        // Call setListinbsk when model changes (same as old app @change="setListinbsk()")
+        setListinbsk()
+    }
+}, { deep: true })
+
 watch(search, async (val) => {
     if (val && val.length > 2) {
         searchloading.value = true
@@ -736,7 +804,7 @@ function handleSIPOrderTrigger(event) {
     const securityData = event.detail
 
     // Debug: Log to verify event is received
-    console.log('SIP order trigger received:', securityData)
+    // console.log('SIP order trigger received:', securityData)
 
     if (securityData && securityData.token) {
         // Initialize dialog in create mode (reset all fields)
@@ -786,7 +854,7 @@ function handleSIPOrderTrigger(event) {
 
         // Dialog is already opened by setSIPdialog(null)
         // Verify dialog is opened
-        console.log('SIP dialog should be open. basketdialog:', basketdialog.value)
+        // console.log('SIP dialog should be open. basketdialog:', basketdialog.value)
 
         // Clear URL query params after dialog opens (clean URL)
         // Use nextTick to ensure dialog is fully opened
@@ -796,12 +864,12 @@ function handleSIPOrderTrigger(event) {
                 if (currentPath === '/orders' && window.location.search) {
                     // Clear query params from URL
                     window.history.replaceState({}, '', '/orders')
-                    console.log('[StockSIPorders] Cleared URL query params after dialog opened')
+                    // console.log('[StockSIPorders] Cleared URL query params after dialog opened')
                 }
             }, 200) // Small delay to ensure dialog is fully rendered
         })
     } else {
-        console.log('SIP order trigger received but no token found:', securityData)
+        // console.log('SIP order trigger received but no token found:', securityData)
     }
 }
 
@@ -813,7 +881,7 @@ onMounted(() => {
 
     // Check for pending SIP data on mount (in case event was dispatched before component mounted)
     if (typeof window !== 'undefined' && window.__pendingSIPData) {
-        console.log('[StockSIPorders] Found pending SIP data on mount:', window.__pendingSIPData)
+        // console.log('[StockSIPorders] Found pending SIP data on mount:', window.__pendingSIPData)
         // Wait a bit to ensure component is fully initialized
         setTimeout(() => {
             if (window.__pendingSIPData) {
@@ -865,5 +933,27 @@ onBeforeUnmount(() => {
     to {
         transform: rotate(360deg);
     }
+}
+
+.maintext--text {
+    color: black !important;
+}
+
+:deep(.v-text-field input) {
+    font-size: 14px !important;
+}
+
+/* Data table header font size */
+:deep(.v-data-table thead th),
+:deep(.v-data-table table thead th),
+:deep(.v-data-table .v-data-table__wrapper table thead th),
+:deep(.v-data-table.v-data-table--fixed-header thead th),
+:deep(.v-data-table.v-data-table--fixed-header table thead th),
+:deep(.holdings-table.v-data-table thead th),
+:deep(.holdings-table.v-data-table table thead th),
+:deep(.holdings-table.v-data-table .v-data-table__wrapper table thead th),
+:deep(.holdings-table.v-data-table.v-data-table--fixed-header thead th),
+:deep(.holdings-table.v-data-table.v-data-table--fixed-header table thead th) {
+    font-size: 13px !important;
 }
 </style>
