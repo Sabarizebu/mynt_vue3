@@ -17,7 +17,7 @@
 
         <!-- Tradebook Table -->
         <v-data-table :headers="orderheader" :items="filteredItems" fixed-header :hide-default-footer="true"
-            :loading="loading" class="tradebook-table mt-3"
+            :loading="loading" class="tradebook-table holdings-table mt-3"
             style="border-radius: 4px; border: 1px solid #EBEEF0; background-color: #ffffff;" height="480"
             :items-per-page="-1" :sort-by="[{ key: 'norentm', order: 'desc' }]" must-sort item-value="token"
             @click:row="(_, { item }) => setOrderrowdata(item)">

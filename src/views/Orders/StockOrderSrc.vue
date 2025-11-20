@@ -2,7 +2,7 @@
     <div>
         <div>
             <!-- Toolbar -->
-            <v-toolbar variant="flat" density="compact" class="tool-sty pl-4 crd-trn order-main-toolbar"
+            <v-toolbar variant="flat" density="compact" class="tool-sty pl-0 crd-trn order-main-toolbar"
                 style="border-bottom: 1px solid #EBEEF0;">
                 <v-tabs v-model="bodytab" color="black" fixed show-arrows density="compact"
                     @update:model-value="onTabChange" class="order-main-tabs">

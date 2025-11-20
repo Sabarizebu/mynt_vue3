@@ -882,7 +882,7 @@ function setHoldingsPayload(payload) {
     })
 
     holdings.value = list
-
+console.log('📦 Processed Holdings List:', JSON.stringify(list, null, 2));
     // Subscribe to WebSocket for live updates
     if (list.length > 0) {
         window.dispatchEvent(new CustomEvent('web-scoketOn', {

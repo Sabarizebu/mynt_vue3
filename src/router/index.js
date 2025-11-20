@@ -118,7 +118,7 @@ const routes = [
             component: StocksIndices
           },
           {
-            path: '/stocks/market',
+            path: '/stocks/market/:abc?',
             name: 'stocks market',
             component: StockMarket
           },
@@ -128,7 +128,7 @@ const routes = [
             component: StockScreener
           },
           {
-            path: '/stocks/advance_decline',
+            path: '/stocks/advance_decline/:abc?/:main?',
             name: 'stocks advance decline',
             component: StockAD
           },
@@ -330,18 +330,18 @@ router.beforeEach(async (to, from) => {
   const authStore = useAuthStore()
   const sessionStore = useSessionStore()
   const appStore = useAppStore()
-  
+
   // Only check if user appears to be logged in
   if (authStore.uid && authStore.token) {
     const sessionStatus = sessionStorage.getItem("c3RhdHVz")
-    
+
     // If session status is missing but user has credentials, session might have ended
     if (!sessionStatus || sessionStatus !== "dmFsaWR1c2Vy") {
       // console.log("⚠️ Session status missing on route change, checking session...")
-      
+
       // Check session immediately
       const result = await sessionStore.checkSession(authStore.uid)
-      
+
       if (!result || !result.valid) {
         // console.error("❌ Session invalid on route change, logging out immediately")
         // Handle session error immediately (logout and navigate)

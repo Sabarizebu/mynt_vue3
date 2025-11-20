@@ -1,6 +1,6 @@
 <template>
     <div>
-        <v-tabs v-model="tab" color="primary" fixed show-arrows density="compact" class="mt-1">
+        <v-tabs v-model="tab" color="primary" fixed show-arrows density="compact" class="mt-3">
             <v-tab :value="'sip'" class="text-none">Active SIP's</v-tab>
             <v-tab :value="'orders'" class="text-none">Order Book</v-tab>
             <v-tab :value="'siphis'" class="text-none">SIP Order Book</v-tab>

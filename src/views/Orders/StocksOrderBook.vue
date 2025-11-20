@@ -1,7 +1,7 @@
 <template>
     <div>
         <!-- Toolbar -->
-        <v-toolbar variant="flat" density="compact" class="tool-sty my-1 mt-2 pl-4 crd-trn">
+        <v-toolbar variant="flat" density="compact" class="tool-sty my-1 mt-2 pl-0 crd-trn">
             <v-tabs v-model="ordertab" color="#2B38B7" fixed show-arrows density="compact">
                 <v-tab value="orders" density="compact"
                     style="font-size: 16px !important;letter-spacing: 0px !important;"
