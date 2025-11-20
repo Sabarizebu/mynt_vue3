@@ -12,12 +12,12 @@
                             </div>
                             <div class="alert-price-info">
                                 <span class="alert-price">₹<span id="laypopltp">{{ menudata.ltp ? menudata.ltp : "0.00"
-                                }}</span></span>
+                                        }}</span></span>
                                 <span class="alert-price-change" id="laypopchpclr"
                                     :class="menudata.ch > 0 ? 'maingreen--text' : menudata.ch < 0 ? 'mainred--text' : 'subtext--text'">
                                     <span id="laypopch">{{ menudata && menudata.ch ? `${menudata.ch}` : "0.00" }}</span>
                                     (<span id="laypopchp">{{ menudata && menudata.chp ? `${menudata.chp}` : "0.00"
-                                    }}</span>%)
+                                        }}</span>%)
                                 </span>
                             </div>
                         </div>
@@ -167,6 +167,7 @@ const setMenudialog = async (type, token, exch, item) => {
                                                 : "LTP"
                 : "LTP"
             alertvalue.value = item.d || 0
+            alertremarks.value = item.remarks || ""
             menudata.value["malert"] = true
             menudata.value["alertd"] = item
         } else {

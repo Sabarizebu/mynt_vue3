@@ -52,8 +52,8 @@
           <p class="font-weight-regular fs-14 subtext--text mb-2">Units</p>
           <v-text-field :model-value="bondqty" @update:model-value="bondqty = $event" @keyup="handleQtyKeyup"
             density="compact" variant="solo" flat rounded="pill" :bg-color="'secbg'" class="rounded-pill" type="number"
-            hide-spin-buttons :min="menudata.minbidqty" hide-details :step="menudata.lotbitsize"
-            :max="menudata.maxbidqty">
+            hide-spin-buttons :min="menudata?.minbidqty || 0" hide-details :step="menudata?.lotbitsize || 1"
+            :max="menudata?.maxbidqty || 0">
             <template #append-inner>
               <v-btn @click="incrementQty" icon class="elevation-0" variant="text" size="small">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -75,19 +75,20 @@
           </v-text-field>
 
           <p class="fs-10 subtext--text ml-6 mt-2">
-            Units limit {{ menudata.minbidqty || 0 }} - {{ menudata.maxbidqty || 0 }}
+            Units limit {{ menudata?.minbidqty || 0 }} - {{ menudata?.maxbidqty || 0 }}
           </p>
 
           <p class="subtext--text fs-12 mt-3 mb-0">
-            Ledger balance : <b>₹{{ menudata.ledger ? menudata.ledger : "0.00" }}</b>
+            Ledger balance : <b>₹{{ menudata?.ledger ? menudata.ledger.toFixed(2) : "0.00" }}</b>
           </p>
 
-          <v-card v-if="menudata.ledger < menudata.cutoffPrice * bondqty" color="primhover"
-            class="rounded-lg px-4 py-2 elevation-0 mt-4">
+          <v-card
+            v-if="menudata?.ledger !== undefined && menudata?.cutoffPrice && bondqty && menudata.ledger < menudata.cutoffPrice * bondqty"
+            color="primhover" class="rounded-lg px-4 py-2 elevation-0 mt-4">
             <div class="mb-0 primary--text fs-12 d-flex align-center" style="gap: 4px; white-space: nowrap;">
               <v-icon size="16" color="primary">mdi-information-outline</v-icon>
               <span class="text-primary">
-                Insufficient balance, Add fund ₹{{ (menudata.cutoffPrice * bondqty).toFixed(2) }}
+                Insufficient balance, Add fund ₹{{ ((menudata?.cutoffPrice || 0) * bondqty).toFixed(2) }}
               </span>
               <v-btn @click="closeMenudialog('bondorder')" variant="text" class="text-none font-weight-black px-0"
                 size="small" color="primary" to="/funds">
@@ -101,15 +102,16 @@
         <v-toolbar class="tool-sty elevation-0 pt-4 mb-2 px-4 px-md-6 crd-trn" density="compact">
           <span class="font-weight-regular fs-12 subtext--text">
             Price : <span class="text-primary font-weight-bold">
-              ₹{{ menudata.cutoffPrice ? menudata.cutoffPrice.toFixed(2) : "0.00" }}
+              ₹{{ menudata?.cutoffPrice ? menudata.cutoffPrice.toFixed(2) : "0.00" }}
             </span>
           </span>
           <v-spacer></v-spacer>
 
-          <v-btn :disabled="bondqty < menudata.minbidqty || menudata.ledger < menudata.cutoffPrice * bondqty"
+          <v-btn
+            :disabled="bondqty < (menudata?.minbidqty || 0) || (menudata?.cutoffPrice && bondqty ? menudata.ledger < menudata.cutoffPrice * bondqty : false)"
             @click="setBondorder()" :loading="orderpoploader" text-color="white"
             class="blk text-none rounded-pill elevation-0  px-4 ml-4" height="40px">
-            Invest ₹{{ menudata.cutoffPrice && bondqty ? Math.round(menudata.cutoffPrice * bondqty) : "0" }}
+            Invest ₹{{ menudata?.cutoffPrice && bondqty ? Math.round(menudata.cutoffPrice * bondqty) : "0" }}
 
           </v-btn>
         </v-toolbar>
@@ -152,26 +154,26 @@ function snackAlert(color, msg) {
 function handleQtyKeyup() {
   if (bondqty.value) {
     bondqty.value = Number(bondqty.value)
-  } else if (bondqty.value < menudata.value.minbidqty) {
+  } else if (menudata.value?.minbidqty && bondqty.value < menudata.value.minbidqty) {
     bondqty.value = menudata.value.minbidqty
   }
 }
 
 function incrementQty() {
-  if (menudata.value.lotbitsize) {
+  if (menudata.value?.lotbitsize) {
     bondqty.value = (bondqty.value || 0) + menudata.value.lotbitsize
-    if (menudata.value.maxbidqty && bondqty.value > menudata.value.maxbidqty) {
+    if (menudata.value?.maxbidqty && bondqty.value > menudata.value.maxbidqty) {
       bondqty.value = menudata.value.maxbidqty
     }
   }
 }
 
 function decrementQty() {
-  if (menudata.value.lotbitsize) {
+  if (menudata.value?.lotbitsize) {
     if (bondqty.value === menudata.value.lotbitsize) {
       bondqty.value = menudata.value.lotbitsize
     } else {
-      bondqty.value = Math.max((bondqty.value || 0) - menudata.value.lotbitsize, menudata.value.minbidqty || 0)
+      bondqty.value = Math.max((bondqty.value || 0) - menudata.value.lotbitsize, menudata.value?.minbidqty || 0)
     }
   }
 }
@@ -184,14 +186,14 @@ async function setMenudialog(itemdata, mode) {
 
   try {
     const ledgerRes = await getBondLedger([uid.value, token.value])
-    menudata.value.ledger = ledgerRes && ledgerRes.total > 0 ? Number(ledgerRes.total).toFixed(2) : null
+    menudata.value.ledger = ledgerRes && ledgerRes.total ? Number(ledgerRes.total) : 0
   } catch (error) {
     // console.error('Error fetching ledger:', error)
-    menudata.value.ledger = null
+    menudata.value.ledger = 0
   }
 
   menudata.value.type = mode
-  bondqty.value = itemdata.minbidqty || 0
+  bondqty.value = itemdata?.minbidqty || 0
   bondorderdialog.value = true
   appStore.hideLoader()
 }

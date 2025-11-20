@@ -130,7 +130,7 @@
                 </template>
                 <template #item.Amount="{ item }">
                     <span class="text-right tabletextnew tabletextnew d-inline-block w-100">₹{{ fmt(item.OrderVal)
-                    }}</span>
+                        }}</span>
                 </template>
                 <template #item.DPFolioNo="{ item }">
                     <span class="tabletextnew">{{ item.DPFolioNo || '-' }}</span>
@@ -249,21 +249,8 @@
                     <span class="text-right d-inline-block w-100">₹{{ fmt(item.InstallmentAmount) }}</span>
                 </template>
                 <template #item.status="{ item }">
-                    <div class="d-flex">
-                        <svg v-if="item.status == 'CANCELLED'" xmlns="http://www.w3.org/2000/svg" width="20" height="15"
-                            viewBox="0 0 20 15" fill="none">
-                            <rect width="20" height="15" rx="7" fill="#DC2626" />
-                            <path d="M7.5 10L12.5 5M7.5 5L12.5 10" stroke="white" stroke-width="1.2"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        <svg v-else xmlns="http://www.w3.org/2000/svg" width="20" height="15" viewBox="0 0 20 15"
-                            fill="none">
-                            <rect width="20" height="15" rx="7" fill="#2DB266" />
-                            <path d="M6.25 8.2475L8.415 10.4125L13.8275 5" stroke="white" stroke-width="1.2"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        <p class="ws-p ml-2 font-weight-medium maintext--text mb-0">{{ item.status || '' }}</p>
-                    </div>
+
+
                     <div class="d-flex">
                         <svg v-if="item.status == 'CANCELLED'" xmlns="http://www.w3.org/2000/svg" width="20" height="15"
                             viewBox="0 0 20 15" fill="none">

@@ -164,7 +164,7 @@
                     style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
                     <img style="display: block; margin-bottom: 16px;" width="80px" :src="noDataImg" />
                     <h4 class="txt-999 font-weight-regular caption text-center">There is no {{ getBondTypeName(bondtype)
-                      }} data here yet!</h4>
+                    }} data here yet!</h4>
                   </div>
                 </td>
               </tr>
@@ -208,7 +208,7 @@
                   <v-col cols="6">
                     <p class="mb-1 fs-12 txt-666">
                       Min. qty: <span class="font-weight-bold black--text">{{ item.lotSize ? item.lotSize / 100 : "0"
-                        }}</span>
+                      }}</span>
                     </p>
                     <p class="mb-1 fs-12 txt-666">
                       Min. Inv: <span class="font-weight-bold black--text">₹{{ item.lotSize ?
@@ -460,7 +460,7 @@ function bondOrder(item, type) {
     item["maxbidqty"] = item.maxQuantity ? item.maxQuantity / 100 : 0
     item["lotbitsize"] = item.lotSize ? item.lotSize / 100 : 0
     window.dispatchEvent(new CustomEvent('menudialog', {
-      detail: { type: 'bondorder', data: item, action: type }
+      detail: { type: 'bondorder', itemdata: item, mode: type }
     }))
   } else {
     token.value = ""
