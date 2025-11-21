@@ -518,17 +518,25 @@
                             <p class="maintext--text mb-0 table-hov-text fs-14">
                                 {{ w.name }}
                             </p>
-                            <v-chip-group column class="mb-0">
-                                <v-chip color="secbg" size="x-small" variant="flat"
-                                    style="border-radius: 4px; padding: 10px 8px !important">
-                                    <span class="font-weight-medium">
+                                <v-chip-group column class="mb-0">
+                                <v-chip size="x-small" variant="flat" class="mr-1 mb-1" :style="{
+                                    backgroundColor: '#F1F3F8',
+                                    color: '#666666',
+                                    borderRadius: '5px',
+                                    height: '20px'
+                                }">
+                                    <span class="fs-10">
                                         {{ w.Type ? w.Type : "" }}
                                     </span>
                                 </v-chip>
-                                <v-chip color="secbg" size="x-small" variant="flat"
-                                    style="border-radius: 4px; padding: 10px 8px !important">
-                                    <span class="font-weight-medium">
-                                        {{ w.SubType ? w.SubType : "" }}
+                                <v-chip v-if="w.SubType" size="x-small" variant="flat" class="mr-1 mb-1" :style="{
+                                    backgroundColor: '#F1F3F8',
+                                    color: '#666666',
+                                    borderRadius: '5px',
+                                    height: '20px'
+                                }">
+                                    <span class="fs-10">
+                                        {{ w.SubType ? w.SubType : "" }}43534
                                     </span>
                                 </v-chip>
                             </v-chip-group>
@@ -3304,8 +3312,8 @@ const setSinglepage = (item) => {
     }
 }
 
-const putMForder = (value, item) => {
-    window.dispatchEvent(new CustomEvent('menudialog', { detail: { type: "mforder", item: item, value: value } }))
+const putMForder = (item, action) => {
+    window.dispatchEvent(new CustomEvent('menudialog', { detail: { type: "mforder", action: action, data: item } }))
 }
 
 // Options Chain Basket Methods
@@ -4337,6 +4345,7 @@ onMounted(async () => {
 
     // Listen for option-search event
     window.addEventListener('option-search', handleOptionSearchEvent)
+    
 
     // Get client exchange data
     await getClientexch()
