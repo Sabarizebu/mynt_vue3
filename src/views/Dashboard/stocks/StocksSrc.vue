@@ -5,13 +5,13 @@
         </div>
         <!-- <img src="@/assets/stat.svg" width="100%" alt=""> -->
         <v-card v-else class="elevation-0 mb-4 mb-md-14 pa-4 pa-md-6 rounded-lg pos-rlt" color="#51FFB6"
-            style="overflow: visible;">
+            style="overflow: visible; height: 168px;">
             <v-row>
                 <!-- Text Column -->
                 <v-col cols="12" md="4">
                     <p class="fs-26 d-md-none font-weight-bold lh-24 black--text">Simple. <br /> Insightful. <br />
                         Incremental.</p>
-                    <p class="fs-36 d-none d-md-flex font-weight-bold lh-32 black--text">Simple. <br /> Insightful.
+                    <p class="fs-36 d-none d-md-flex font-weight-bold lh-40 black--text">Simple. <br /> Insightful.
                         <br />
                         Incremental.
                     </p>
@@ -20,27 +20,27 @@
 
             <!-- Three Cards Div - Position Absolute -->
             <div class="pos-abs d-none d-md-flex align-stretch"
-                style="right: 16px; top: 130px; transform: translateY(-50%); gap: 12px;">
-                <v-card width="170px" class="pb-4 stk-land-crds rounded-lg text-center d-flex flex-column"
-                    style="height: 200px;">
-                    <img :src="mainCard1" class="px-4 pt-6 pb-2" alt="main-card-1" width="79%" />
-                    <p class="fs-16 font-weight-bold lh-16 px-4 mt-1 mb-0 maintext--text">
+                style="right: 16px; top: 125px; transform: translateY(-50%); gap: 12px;">
+                <v-card width="170px" class="pb-4    stk-land-crds text-center d-flex flex-column"
+                    style="height: 200px; border-radius: 15px;">
+                    <img :src="mainCard1" class="px-2 " alt="main-card-1" width="100%" />
+                    <p class="fs-16 font-weight-bold lh-16 pl-4 mt-1 mb-0 maintext--text text-left">
                         Buy stocks<br />
                         with a click.
                     </p>
                 </v-card>
-                <v-card width="170px" class="pb-4 stk-land-crds rounded-lg text-center d-flex flex-column"
-                    style="height: 200px;">
-                    <img :src="mainCard2" class="px-4 pt-6 pb-2" alt="main-card-2" width="79%" />
-                    <p class="fs-16 font-weight-bold lh-16 px-4 mt-1 mb-0 maintext--text">
+                <v-card width="170px" class="pb-4 stk-land-crds  text-center d-flex flex-column"
+                    style="height: 200px; border-radius: 15px;">
+                    <img :src="mainCard2" class="px-2" alt="main-card-2" width="100%" />
+                    <p class="fs-16 font-weight-bold lh-16 pl-4 mt-1 mb-0 maintext--text text-left">
                         Invest safely<br />
                         in bonds.
                     </p>
                 </v-card>
-                <v-card width="170px" class="pb-4 stk-land-crds rounded-lg text-center d-flex flex-column"
-                    style="height: 200px;">
-                    <img :src="mainCard3" class="px-4 pt-6 pb-2" alt="main-card-3" width="79%" />
-                    <p class="fs-16 font-weight-bold lh-16 px-4 mt-1 mb-0 maintext--text">
+                <v-card width="170px" class="pb-4 stk-land-crds  text-center d-flex flex-column"
+                    style="height: 200px; border-radius: 15px;">
+                    <img :src="mainCard3" class="px-2" alt="main-card-3" width="100%" />
+                    <p class="fs-16 font-weight-bold lh-16 pl-4 mt-1 mb-0 maintext--text text-left">
                         Discover IPO<br />
                         early winners.
                     </p>
@@ -2622,19 +2622,6 @@ const optionChainDataParse = (data) => {
 .black--text {
     color: black !important;
 }
-
-.stk-land-crds {
-    background-color: #fff !important;
-    border: 1px solid #EBEEF0 !important;
-    box-shadow: 0px 38.519px 25.482px 0px rgba(83, 30, 0, 0.04), 0px 20px 13px 0px rgba(83, 30, 0, 0.04), 0px 8.148px 6.519px 0px rgba(83, 30, 0, 0.03), 0px 1.852px 3.148px 0px rgba(83, 30, 0, 0.02) !important;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.stk-land-crds:hover {
-    transform: translateY(-2px);
-    box-shadow: 0px 48px 32px 0px rgba(83, 30, 0, 0.06), 0px 24px 16px 0px rgba(83, 30, 0, 0.05), 0px 12px 8px 0px rgba(83, 30, 0, 0.04), 0px 4px 4px 0px rgba(83, 30, 0, 0.03) !important;
-}
-
 /* Ensure ECharts container stretches fully */
 #avddecchart {
     width: 100% !important;

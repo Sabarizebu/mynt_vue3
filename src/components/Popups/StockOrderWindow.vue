@@ -54,12 +54,12 @@
         <!-- Main Order Dialog -->
         <v-card v-if="orderDialog" id="maindiv" elevation="6"
             :class="['pb-5 overflow-hidden rounded-lg', isStickyDialog ? 'sticky-dialog' : '']" :style="dialogStyle"
-            color="cardbg" :width="isQuickOrder ? '360px' : '540px'" height="auto">
-            <v-card id="maindivheader" :loading="isPlacingOrder" class="elevation-0 rounded-b-0"
-                :class="isQuickOrder ? 'py-2' : 'pt-4 pb-2'" :color="!buyOrSellIsSell ? 'secgreen' : 'secred'">
-                <v-toolbar class="elevation-0 crd-trn" :class="isQuickOrder ? 'pr-4' : 'px-2'" density="compact"
+            color="cardbg" :width="isQuickOrder ? '400px' : '540px'" height="auto" >
+            <v-card id="maindivheader" :loading="isPlacingOrder" class="elevation-0 rounded-b-0 "
+                :class="isQuickOrder ? 'py-2 pt-3' : 'pt-4 pb-2'" :color="!buyOrSellIsSell ? 'secgreen' : 'secred'">
+                <v-toolbar class="elevation-0 " :class="isQuickOrder ? 'pr-4' : 'px-2'" density="compact"
                     style="background-color: #00000000 !important;">
-                    <div class="px-5">
+                    <div :class="isQuickOrder ? 'px-5 pt-3 ' : 'px-5'">
                         <p class="font-weight-bold  maintext--text mb-0" style="font-size: 16px !important;">
                             {{ menudata[0]?.tsym || '' }} <span class="ml-1 subtext--text fs-10">{{ menudata[0]?.exch ||
                                 '' }}</span>
@@ -73,7 +73,7 @@
                     <v-spacer></v-spacer>
                     <v-card class="rounded-md elevation-0 py-1 px-2 font-weight-bold fs-10 white--text mr-0"
                         color="maingreen">B</v-card>
-                    <v-switch v-model="buyOrSellIsSell" inset hide-details class="mx-2"></v-switch>
+                    <v-switch v-model="buyOrSellIsSell"  hide-details class="mx-2 tenure-switch"></v-switch>
                     <v-card class="rounded-md elevation-0 py-1 px-2 font-weight-bold fs-10 white--text ml-0"
                         color="mainred">S</v-card>
                 </v-toolbar>
@@ -236,7 +236,7 @@
 
                                 <!-- Quantity Field -->
                                 <v-text-field density="compact" bg-color="secbg" rounded="xl" variant="flat"
-                                    type="number" v-model.number="quantity" hide-details hide-spin-buttons
+                                    type="number" v-model.number="quantity" hide-details hide-spin-buttons single-line
                                     class="font-weight-bold fs-16" @blur="validateQuantity">
                                     <!-- PREPEND ( - ) -->
                                     <template #prepend-inner>
@@ -328,7 +328,7 @@
                             <v-row no-gutters v-if="isQuickOrder">
                                 <v-col cols="5" class="pr-2">
                                     <div class="d-flex rounded-pill overflow-hidden "
-                                        style="background-color: #F1F3F8; height: 40px;">
+                                        style="background-color: #F1F3F8; height: 40px; width: 128px;">
                                         <v-btn class="rounded-0 text-none font-weight-bold fs-12"
                                             :color="(priceType === 'LMT' || priceType === 'SL-LMT') ? 'black' : 'transparent'"
                                             :variant="priceType === 'LMT' ? 'flat' : 'flat'" height="100%"
@@ -370,7 +370,11 @@
                                         </template>
                                     </v-text-field>
                                 </v-col>
-                                <v-col cols="12">
+                                <v-col cols="5">
+
+                                </v-col>
+                    
+                                <v-col cols="6">
                                     <p v-if="menudata[1]" class="lh-16 fs-10 subtext--text mb-0 mt-1">Circuit level: {{
                                         menudata[1]?.lc ?? '-' }} - {{ menudata[1]?.uc ?? '-' }}</p>
                                 </v-col>
@@ -417,7 +421,7 @@
                         <!-- SL/Trigger -->
                         <div class="mt-2">
                             <v-checkbox v-model="showTrigger" label="SL/Trigger" density="compact" hide-details
-                                color="black" class="font-weight-bold"></v-checkbox>
+                                 class="font-weight-bold"></v-checkbox>
                             <!-- <v-text-field v-if="showTrigger" density="compact" bg-color="secbg" variant="flat"
                                 rounded="xl" type="number" v-model.number="triggerPrice" hide-details class="mt-1">
                                 <template #prepend-inner><span class="text-grey mr-1">₹</span></template>
@@ -3742,4 +3746,6 @@ onBeforeUnmount(() => {
 .fs-12 {
     font-size: 12px !important;
 }
+
+
 </style>
