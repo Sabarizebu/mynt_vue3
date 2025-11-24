@@ -557,8 +557,6 @@ const handleAddToWatchlist = async (item) => {
         if (res.stat === "Ok") {
             const scriptName = item.tsym || item.tsyms || 'Script'
             appStore.showSnackbar(1, `${scriptName} added to watchlist`)
-            // Dispatch event to notify WatchList to refresh
-            window.dispatchEvent(new CustomEvent('addscript-wl', { detail: item }))
         } else {
             appStore.showSnackbar(0, res.emsg || 'Failed to add to watchlist')
         }

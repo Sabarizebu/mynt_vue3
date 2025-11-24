@@ -542,9 +542,10 @@
                             ?
                             allcropact.length : ".." }})</p>
                         <div v-if="croploading">
-                            <v-container fill-height>
-                                <v-card class=" elevation-0 mx-auto py-16">
+                            <v-container fill-height class="d-flex justify-center align-center">
+                                <v-card class=" elevation-0 mx-auto py-16 d-block">
                                     <v-progress-circular size="80" indeterminate color="#1e53e5"></v-progress-circular>
+                                    
                                 </v-card>
                             </v-container>
                         </div>
@@ -1556,7 +1557,21 @@ const isVisible = (el) => {
 const setSinglestock = (tsym, item) => {
     if (uid.value) {
         let path = [0, item.token, item.exch, item.tsym];
-        router.push({ name: "stocks details", params: { val: path } });
+        // Store params for refresh persistence
+        localStorage.setItem('ssdParams', JSON.stringify(path));
+        localStorage.setItem('ssdtsym', `${item.exch}:${item.tsym}`);
+        localStorage.setItem('ssdtoken', item.token);
+        // Use query params to force route change detection
+        router.push({ 
+            name: "stocks details", 
+            params: { val: path },
+            query: { 
+                type: '0', 
+                token: item.token, 
+                exch: item.exch, 
+                tsym: item.tsym 
+            }
+        });
     } else if (item.exch == "NSE") {
         router.push(`/stocks/${tsym.toLowerCase()}`);
     }
