@@ -72,8 +72,6 @@ import ViewsLayout from '../views/ViewsLayout.vue'
 import NotFoundPage from '../views/NotFoundPage.vue'
 import StartCheck from '../views/StartCheck.vue'
 
-// Use Firebase Analytics instance from firebase.js
-
 const routes = [
   {
     path: '/sc',
@@ -131,6 +129,11 @@ const routes = [
             path: '/stocks/advance_decline/:abc?/:main?',
             name: 'stocks advance decline',
             component: StockAD
+          },
+          {
+            path: '/stocks/:symbol',
+            name: 'single stocks',
+            component: SingleStocks,
           },
           {
             path: '/stocks/details',
@@ -276,12 +279,6 @@ const routes = [
             path: '/notification',
             name: 'alert screen',
             component: AlertScreen,
-          },
-          {
-            path: '/stocks/single',
-            alias: '/stocks/*',
-            name: 'single stocks',
-            component: SingleStocks,
           },
           {
             path: '/portifilo',

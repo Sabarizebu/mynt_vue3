@@ -64,10 +64,8 @@
                 class="px-3 py-2 crd-trn pos-rlt table-row" :class="l != pdmwdata.length - 1 ? 'mr-4' : ''"
                 min-width="160px" style="border: 1px solid #EBEEF0 !important;">
                 <div v-if="uid" @click.stop class="pos-abs table-hov" style="bottom: 35px; right: 4px;">
-                    <v-btn :disabled="!s.too"
-                        @click="navigateToAdvanceDecline(s.too)"
-                        min-width="20px" color="mainbg" class="px-0 font-weight-bold white--text elevation-0 mr-1"
-                        size="23">
+                    <v-btn :disabled="!s.too" @click="navigateToAdvanceDecline(s.too)" min-width="20px" color="mainbg"
+                        class="px-0 font-weight-bold white--text elevation-0 mr-1" size="23">
                         <v-icon size="18" color="maintext">mdi-format-line-weight</v-icon>
                     </v-btn>
                 </div>
@@ -231,7 +229,7 @@
                                                 <span :id="`ssdad${i.data.token}ltp`">₹{{
                                                     advdecitems.wsdata[i.data.token].ltp
                                                     || '0.00'
-                                                    }}</span> &nbsp;<span class="fs-12"
+                                                }}</span> &nbsp;<span class="fs-12"
                                                     :class="getSectorColorClass(i.data.token)"
                                                     :id="`ssdad${i.data.token}chpclr`"><span
                                                         :id="`ssdad${i.data.token}ch`">{{
@@ -349,8 +347,7 @@
                                 : l == 1 ? "Top losers" : l == 2 ? "Volume breakout" : "" }}</p>
 
                         <v-spacer></v-spacer>
-                        <v-btn :disabled="isloading"
-                            @click="navigateToMarket(l)" text
+                        <v-btn :disabled="isloading" @click="navigateToMarket(l)" text
                             class="text-none px-0 primary--text" size="small">See all</v-btn>
                     </v-toolbar>
                     <v-data-table hide-default-footer fixed-header :loading="isloading"
@@ -464,7 +461,7 @@
                     <p class="mb-0 lh-18">
                         <span class="d-none" v-if="!uid">{{ setScrpitCH("", item,
                             "SCR")
-                            }}</span>
+                        }}</span>
 
                         <span class="font-weight-medium maintext--text black--text">₹<span :id="`ssdsc${item.token}ltp`"
                                 v-text="item.lp ? Number(item.lp).toFixed(2) : '0.00'"></span></span> <br />
@@ -484,25 +481,25 @@
                     <span class="font-weight-medium maintext--text black--text" :id="`ssdsc${item.token}op`">{{ item.ap
                         ? item.ap :
                         "0.00"
-                        }}</span>
+                    }}</span>
                 </template>
                 <template v-slot:[`item.cp`]="{ item }">
                     <span class="font-weight-medium maintext--text black--text" :id="`ssdsc${item.token}cp`">{{ item.c ?
                         item.c :
                         "0.00"
-                        }}</span>
+                    }}</span>
                 </template>
                 <template v-slot:[`item.high`]="{ item }">
                     <span class="font-weight-medium maintext--text black--text" :id="`ssdsc${item.token}high`">{{ item.h
                         ? item.h :
                         "0.00"
-                        }}</span>
+                    }}</span>
                 </template>
                 <template v-slot:[`item.low`]="{ item }">
                     <span class="font-weight-medium maintext--text black--text" :id="`ssdsc${item.token}low`">{{ item.l
                         ? item.l :
                         "0.00"
-                        }}</span>
+                    }}</span>
                 </template>
 
                 <template v-slot:no-data>
@@ -559,7 +556,7 @@
                                         </p>
                                         <p class="maintext--text mb-0 font-weight-medium fs-10 text-capitalize">{{
                                             d.registrar }} <span class="fs-10">({{ d.issueType
-                                                }})</span></p>
+                                            }})</span></p>
                                     </v-col>
 
                                     <v-col cols="4" class="pa-3">
@@ -577,7 +574,7 @@
                                         </p>
                                         <p class="maintext--text mb-0 font-weight-medium fs-10 text-capitalize">₹{{
                                             d.minPrice ? Number(d.minPrice).toFixed(2) : "0.00"
-                                            }}</p>
+                                        }}</p>
                                     </v-col>
                                 </v-row>
                             </v-card>
@@ -622,7 +619,7 @@
                         <p class="font-weight-bold title mb-md-4 mb-6">News ({{ allnews && allnews.length > 0 ?
                             allnews.length :
                             ".."
-                            }})</p>
+                        }})</p>
                         <div v-if="newsloading">
                             <v-container fill-height>
                                 <v-card class="crd-trn elevation-0 mx-auto py-16">
@@ -647,7 +644,7 @@
                                                     {{ n.title }}
                                                 </p>
                                                 <v-list-item-subtitle class="fs-12 font-weight-regular">{{ n.isdate
-                                                    }}</v-list-item-subtitle>
+                                                }}</v-list-item-subtitle>
                                             </v-list-item-content>
                                         </v-list-item>
                                     </v-col>
@@ -1555,12 +1552,17 @@ const isVisible = (el) => {
 
 const setSinglestock = (tsym, item) => {
     if (uid.value) {
+        // For logged-in users: use the detailed stocks view with trading features
         let path = [0, item.token, item.exch, item.tsym];
         router.push({ name: "stocks details", params: { val: path } });
-    } else if (item.exch == "NSE") {
-        router.push(`/stocks/${tsym.toLowerCase()}`);
+    } else {
+        // For non-logged-in users: redirect to SingleStocks.vue (public stock analysis page)
+        // Extract only the stock symbol without exchange suffix
+        const stockSymbol = tsym.split('-')[0]; // Remove -EQ, -BE, etc. suffixes
+        router.push(`/stocks/${stockSymbol.toLowerCase()}`);
     }
 }
+
 
 const scrollToo = (id, value) => {
     const element = document.getElementById(`${id}`);
@@ -2191,7 +2193,7 @@ const getNews = async () => {
 const getCorpationaction = async () => {
     croploading.value = true;
     allcropact.value = [];
-    
+
     try {
         // Use direct fetch to avoid timeout issues (wait indefinitely for response)
         const response = await fetch(apiurl.iposapi + "getCorporateAction", {
@@ -2199,7 +2201,7 @@ const getCorpationaction = async () => {
             headers: { "Content-Type": "application/json" },
             body: ""
         });
-        
+
         if (response.ok) {
             const data = await response.json();
             if (data && data.corporateAction && data.corporateAction.length > 0) {
@@ -2209,7 +2211,7 @@ const getCorpationaction = async () => {
     } catch (error) {
         // console.error('Error fetching corporate actions:', error);
     }
-    
+
     croploading.value = false;
 }
 
@@ -2241,9 +2243,9 @@ const setSSDtab = (type, token, exch, tsym) => {
 
 const navigateToAdvanceDecline = (indexName) => {
     if (indexName) {
-        router.push({ 
-            name: 'stocks advance decline', 
-            params: { abc: indexName } 
+        router.push({
+            name: 'stocks advance decline',
+            params: { abc: indexName }
         }).catch((error) => {
             // console.error('[StocksSrc] Navigation error:', error);
         });
@@ -2251,9 +2253,9 @@ const navigateToAdvanceDecline = (indexName) => {
 }
 
 const navigateToMarket = (categoryIndex) => {
-    router.push({ 
-        name: 'stocks market', 
-        params: { abc: categoryIndex } 
+    router.push({
+        name: 'stocks market',
+        params: { abc: categoryIndex }
     }).catch((error) => {
         // console.error('[StocksSrc] Navigation error:', error);
     });
