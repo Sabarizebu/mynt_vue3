@@ -423,7 +423,7 @@
                 </v-toolbar>
 
                 <v-data-table must-sort :sort-by="['market_cap_Held']" :sort-desc="[true]" hide-default-footer
-                    fixed-header class="rounded-0" :headers="mfholdheader" :items="mfholdings" :search="mfsearch"
+                    fixed-header class="rounded-0 holdings-table" :headers="mfholdheader" :items="mfholdings" :search="mfsearch"
                     :items-per-page="mfholdings.length">
                     <template v-slot:[`item.mutual_fund`]="{ item }">
                         <td class="">
@@ -1794,6 +1794,7 @@ watch(() => shareholdings.y, () => {
 :deep(.v-select .v-field__input) {
     text-align: left !important;
     padding-left: 12px !important;
+    padding-bottom: 10px !important;
 }
 
 :deep(.v-select .v-field__input input) {

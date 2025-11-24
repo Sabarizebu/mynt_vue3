@@ -2148,15 +2148,7 @@ tr:hover,
   padding: 12px 16px !important;
 }
 
-.holdings-table.v-data-table.v-data-table--fixed-header thead th {
-  background-color: #F1F3F8 !important;
-  color: #666666 !important;
-  font-size: 13px !important;
-  font-weight: 500 !important;
-  line-height: 16px !important;
-  border-bottom: 1px solid #EBEEF0 !important;
-  padding: 12px 16px !important;
-}
+
 
 /* Additional selectors to ensure header background is applied */
 .holdings-table.v-data-table thead th {
@@ -2166,10 +2158,6 @@ tr:hover,
   font-weight: 500 !important;
 }
 
-.holdings-table.v-data-table .v-data-table__wrapper thead th {
-  background-color: #F1F3F8 !important;
-  color: #666666 !important;
-}
 
 .holdings-table.v-data-table .v-data-table__wrapper table thead th {
   background-color: #F1F3F8 !important;

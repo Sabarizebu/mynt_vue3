@@ -1,13 +1,13 @@
 <template>
     <div>
-        <div class="overflow-y-auto h91vh ss-cust-scroll overflow-x-hidden" @scroll.passive="handleScroll">
+        <div class="overflow-y-auto h91vh overflow-x-hidden hide-scrollbar">
             <div class="body-part">
                 <div class="mb-6 pos-rlt">
                     <!-- Desktop Navigation Tabs -->
                     <v-toolbar class="d-none d-md-block px-0 pos-stk z-i3" style="top: 0px" flat dense color="cardbg">
                         <v-tabs v-model="bodytab" @update:model-value="setbodyTab" color="maintext" show-arrows
                             density="compact">
-                            <v-tab v-for="(t, index) in dashitems" :key="index" class="text-none text-start min-w-fit">
+                            <v-tab v-for="(t, index) in dashitems" :key="index" class="text-none text-start">
                                 <span class="text-center tab-txt">{{ t.txt }}</span>
                             </v-tab>
                         </v-tabs>
@@ -28,7 +28,7 @@
                                                 <v-avatar color="#fbfbfb" size="56">
                                                     <img v-if="imageicon" :src="imageicon" @error="imageLoadError"
                                                         class="pa-1" :alt="imageicon" width="100%" />
-                                                    <span class="headline font-weight-bold" v-else>
+                                                    <span class="font-weight-bold  fs-30" v-else>
                                                         {{ menudata[0] ? (menudata[0].cname ? menudata[0].cname :
                                                             menudata[0].symname).slice(0, 1) : "" }}
                                                     </span>
@@ -41,11 +41,12 @@
                                             </v-list-item-title>
 
                                             <v-chip-group class="my-0 py-0">
-                                                <v-chip label size="small" color="cardbg"
+                                                <v-chip label size="small" variant="flat" 
+                                                style="border-radius: 5px; background-color: #ffffff !important; color: #666666 !important;"
                                                     class="font-weight-medium fs-10">
                                                     {{ menudata.f ? menudata.f.industry : "Industry" }}
                                                 </v-chip>
-                                                <v-chip label size="small" color="cardbg"
+                                                <v-chip label size="small" variant="flat" style="border-radius: 5px; background-color: #ffffff !important; color: #666666 !important;"
                                                     class="font-weight-medium fs-10">
                                                     {{ menudata.f ? menudata.f.market_cap_type : "Market cap type" }}
                                                 </v-chip>
@@ -69,24 +70,24 @@
                             </v-card>
 
                             <!-- Price Chart Section -->
-                            <div class="py-3 py-md-6">
-                                <v-toolbar class="nav-drawer elevation-0 px-md-2 px-0 crd-trn" density="compact">
-                                    <p class="wid-160 font-weight-bold title mb-0">Price Chart</p>
+                            <div class="py-3 py-md-3">
+                                <v-toolbar class="  elevation-0 px-md-4 px-0 crd-trn" density="compact">
+                                    <p class=" font-weight-bold fs-20 mb-0 px-2">Price Chart</p>
                                     <v-spacer></v-spacer>
                                 </v-toolbar>
-                                <v-divider></v-divider>
+                              <v-divider :thickness="2"></v-divider>
 
                                 <v-row class="pt-md-6 pb-md-3 pl-md-6 pr-md-8 flex-column-reverse flex-md-row">
                                     <!-- Key Metrics -->
                                     <v-col cols="12" md="4" class="px-7 px-md-3">
                                         <v-row no-gutters>
                                             <v-col cols="6">
-                                                <v-list-item class="px-0">
+                                                <v-list-item class="pt-2 px-0">
                                                     <v-list-item-subtitle
-                                                        class="font-weight-regular fs-10 subtext--text mb-2">Market
+                                                        class="font-weight-regular fs-10 subtext--text mb-1">Market
                                                         Cap</v-list-item-subtitle>
                                                     <v-list-item-title
-                                                        class="maintext--text font-weight-medium fs-12 mb-1">
+                                                        class="maintext--text font-weight-medium fs-12 mb-0">
                                                         {{ menudata.f ?
                                                             `${Number(menudata.f.market_cap).toLocaleString()}` : "0.00" }}
                                                         Cr
@@ -96,11 +97,11 @@
                                             </v-col>
 
                                             <v-col cols="6">
-                                                <v-list-item class="px-0">
+                                                <v-list-item class="pt-2 px-0">
                                                     <v-list-item-subtitle
-                                                        class="font-weight-regular fs-10 subtext--text mb-2">Volume</v-list-item-subtitle>
+                                                        class="font-weight-regular fs-10 subtext--text mb-1">Volume</v-list-item-subtitle>
                                                     <v-list-item-title
-                                                        class="maintext--text font-weight-medium fs-12 mb-1">
+                                                        class="maintext--text font-weight-medium fs-12 mb-0">
                                                         {{ menudata[0] && menudata[0].v ?
                                                             `${Number(menudata[0].v).toLocaleString()}` : "0.00" }}
                                                     </v-list-item-title>
@@ -109,11 +110,11 @@
                                             </v-col>
 
                                             <v-col cols="6">
-                                                <v-list-item class="px-0">
+                                                <v-list-item class="pt-6 px-0">
                                                     <v-list-item-subtitle
-                                                        class="font-weight-regular fs-10 subtext--text mb-2">Open</v-list-item-subtitle>
+                                                        class="font-weight-regular fs-10 subtext--text mb-1">Open</v-list-item-subtitle>
                                                     <v-list-item-title
-                                                        class="maintext--text font-weight-medium fs-12 mb-1">
+                                                        class="maintext--text font-weight-medium fs-12 mb-0">
                                                         {{ menudata[0] && Number(menudata[0].o) ?
                                                             `₹${Number(menudata[0].o).toFixed(2)}` : "0.00" }}
                                                     </v-list-item-title>
@@ -122,11 +123,11 @@
                                             </v-col>
 
                                             <v-col cols="6">
-                                                <v-list-item class="px-0">
+                                                <v-list-item class="pt-6 px-0">
                                                     <v-list-item-subtitle
-                                                        class="font-weight-regular fs-10 subtext--text mb-2">Close</v-list-item-subtitle>
+                                                        class="font-weight-regular fs-10 subtext--text mb-1">Close</v-list-item-subtitle>
                                                     <v-list-item-title
-                                                        class="maintext--text font-weight-medium fs-12 mb-1">
+                                                        class="maintext--text font-weight-medium fs-12 mb-0">
                                                         {{ menudata[0] && Number(menudata[0].c) ?
                                                             `₹${Number(menudata[0].c).toFixed(2)}` : "0.00" }}
                                                     </v-list-item-title>
@@ -135,7 +136,7 @@
                                             </v-col>
 
                                             <!-- High-Low Range -->
-                                            <v-col cols="12">
+                                            <v-col cols="12" class="pt-6">
                                                 <p class="font-weight-regular fs-10 subtext--text mb-0">High - Low</p>
                                                 <div class="d-flex flex-row mb-1">
                                                     <span class="maintext--text font-weight-medium fs-12 pt-1 lh-24">
@@ -146,7 +147,7 @@
                                                         class="crd-trn elevation-0 px-2">
                                                         <v-slider hide-details thumb-color="maintext" color="subtext"
                                                             :model-value="menudata[0].lp" readonly
-                                                            :min="Number(menudata[0].l)" :max="Number(menudata[0].h)"
+                                                            :min="Number(menudata[0].l)" :max="Number(menudata[0].h)"  thumb-size="12"
                                                             track-color="maintext"></v-slider>
                                                     </v-card>
                                                     <span
@@ -159,7 +160,7 @@
                                             </v-col>
 
                                             <!-- 52 Week Range -->
-                                            <v-col cols="12">
+                                            <v-col cols="12" class="pt-6">
                                                 <p class="font-weight-regular fs-10 subtext--text mb-0">52 Weeks high -
                                                     52 Weeks low</p>
                                                 <div class="d-flex flex-row mb-1">
@@ -170,7 +171,7 @@
                                                     </span>
                                                     <v-card v-if="menudata[0]" width="100%"
                                                         class="crd-trn elevation-0 px-2">
-                                                        <v-slider hide-details thumb-color="maintext" color="subtext"
+                                                        <v-slider hide-details thumb-color="maintext" color="subtext"  thumb-size="12"
                                                             :model-value="menudata[0].lp" readonly
                                                             :min="Number(menudata[0].wk52_l)"
                                                             :max="Number(menudata[0].wk52_h)"
@@ -192,7 +193,7 @@
                                     <v-col cols="12" md="8" class="pa-md-0 pt-4 pb-0 px-6">
                                         <v-card class="elevation-0 rounded-0 ss-adv-chart" v-if="menudata[0]">
                                             <iframe v-if="chartUrl" :src="chartUrl" class="brd-0" width="100%"
-                                                height="100%"></iframe>
+                                                height="60%"></iframe>
                                         </v-card>
                                     </v-col>
                                 </v-row>
@@ -201,16 +202,16 @@
                             <!-- Stock Overview & Returns -->
                             <div class="px-md-6 px-4">
                                 <v-divider class="mb-4 d-none d-md-flex"></v-divider>
-                                <p class="font-weight-bold title mb-1 text-capitalize">
+                                <p class="font-weight-bold fs-20 mb-1 text-capitalize">
                                     {{ menudata[0] ? menudata[0].symname : "" }} Stock overview
                                 </p>
-                                <p class="fs-12 subtext--text txt-x-j">{{ menudata.d ? menudata.d : "" }}</p>
+                                <p class="fs-12 mb-4" style="color: #666666;">{{ menudata.d ? menudata.d : "" }}</p>
 
-                                <p class="font-weight-bold subtitle-2 mb-1">Returns</p>
+                                <p class="font-weight-bold fs-14 mb-1">Returns</p>
                                 <v-row no-gutters class="mt-0 pb-6">
-                                    <v-col cols="6" md="2" v-for="(r, l) in stockreturns" :key="l" class="pt-0">
+                                    <v-col cols="6" md="2" v-for="(r, l) in stockreturns" :key="l" class="pt-0" style="flex: 1 1 0; min-width: 80px; padding: 4px;">
                                         <v-card :color="r.returns > 0 ? 'secgreen' : r.returns < 0 ? 'secred' : 'secbg'"
-                                            class="rounded-lg px-3 py-2 elevation-0 brd-1-solid-ccc text-center"
+                                            class="rounded-lg px-3 py-2 elevation-0  text-center"
                                             width="100%">
                                             <p :class="returnsClass(r.returns)" class="fs-18 font-weight-bold mb-2">
                                                 {{ Number(r.returns) ? r.returns : "0.00" }}%
@@ -228,10 +229,10 @@
                         <v-card id="fun" class="crd-trn ss-cards overflow-hidden mb-md-6" width="100%">
                             <div class="py-3 py-md-6">
                                 <v-toolbar class="elevation-0 px-md-2 px-0 crd-trn" density="compact">
-                                    <v-list-item class="px-0">
-                                        <v-list-item-title class="font-weight-bold title mb-2">Fundamental
+                                    <v-list-item class="">
+                                        <v-list-item-title class="font-weight-bold fs-20 mb-1">Fundamental
                                             ratios</v-list-item-title>
-                                        <v-list-item-subtitle class="maintext--text font-weight-medium fs-12">
+                                        <v-list-item-subtitle class="maintext--text  fs-12">
                                             Fundamental breakdown of {{ menudata[0] ? menudata[0].symname : "" }}
                                             information
                                         </v-list-item-subtitle>
@@ -240,8 +241,8 @@
 
                                 <v-row class="px-4 px-md-6 mt-md-4 mt-2">
                                     <v-col cols="4" class="pb-0" v-for="(t, d, l) in Fundamentalsfield" :key="l">
-                                        <v-text-field class="funda-field" readonly color="maintext" :label="d"
-                                            :model-value="t ? t : '-'" variant="outlined"
+                                        <v-text-field class="funda-field fs-13" readonly color="maintext" :label="d"
+                                            :model-value="t ? t : '-'" variant="underlined"
                                             density="compact"></v-text-field>
                                     </v-col>
                                 </v-row>
@@ -252,8 +253,8 @@
                         <v-card id="fin" class="crd-trn ss-cards overflow-hidden mb-md-6" width="100%">
                             <div class="pt-md-6 pt-4 px-4 px-md-6">
                                 <v-list-item class="px-0">
-                                    <v-list-item-title class="font-weight-bold title mb-2">Financial</v-list-item-title>
-                                    <v-list-item-subtitle class="maintext--text font-weight-medium fs-12">
+                                    <v-list-item-title class="font-weight-bold fs-20 mb-1">Financial</v-list-item-title>
+                                    <v-list-item-subtitle class="maintext--text  fs-12">
                                         Financial breakdown of {{ menudata[0] ? menudata[0].symname : "" }} information
                                     </v-list-item-subtitle>
                                 </v-list-item>
@@ -282,48 +283,47 @@
                                     </v-list-item>
                                     <v-spacer></v-spacer>
                                     <v-select v-model="fin_fiter" @update:model-value="setFinchartdata" hide-details
-                                        append-inner-icon="mdi-chevron-down"
                                         :items="[{ title: 'Standalone', value: 'stockFinancialsStandalone' }, { title: 'Consolidated', value: 'stockFinancialsConsolidated' }]"
-                                        item-title="title" item-value="value" class="rounded-pill max-w-160"
+                                        item-title="title" item-value="value" class=" max-w-160" rounded="pill"
                                         density="compact" variant="solo" flat bg-color="secbg"
-                                        label="Filter"></v-select>
+                                       ></v-select>
                                 </v-toolbar>
                             </div>
                             <v-data-table :headers="financialheader"
                                 :items="financialitem[fin_fiter] ? (financialtab == 0 ? financialitem[fin_fiter].incomeSheet : financialtab == 1 ? financialitem[fin_fiter].balanceSheet : financialitem[fin_fiter].cashflowSheet) : []"
-                                :search="financialsearch" class="financialtabel rounded-0" :items-per-page="-1"
+                                :search="financialsearch" class="financialtabel rounded-0 holdings-table" :items-per-page="-1"
                                 hide-default-footer>
                                 <template v-slot:[`item.exp`]="{ item }">
-                                    <span class="font-weight-medium maintext--text text-capitalize"
+                                    <span class="font-weight-medium txt-000"
                                         :class="finKeyname(item.name).includes('-') ? 'mainred--text' : ''">{{
-                                            finKeyname(item.name) }}</span>
+                                            finKeyname(item.name).charAt(0).toUpperCase() + finKeyname(item.name).slice(1)  }}</span>
                                 </template>
                                 <template v-slot:[`item.y1`]="{ item }">
-                                    <span :class="item.y1 < 0 ? 'mainred--text' : ''">
+                                    <span class="txt-000"   :class="item.y1 < 0 ? 'mainred--text' : ''">
                                         {{ item.sym == "₹" ? item.sym : "" }}{{ item.y1 }}{{ item.sym == "%" ? item.sym
                                             : "" }}
                                     </span>
                                 </template>
                                 <template v-slot:[`item.y2`]="{ item }">
-                                    <span :class="item.y2 < 0 ? 'mainred--text' : ''">
+                                    <span class="txt-000" :class="item.y2 < 0 ? 'mainred--text' : ''">
                                         {{ item.sym == "₹" ? item.sym : "" }}{{ item.y2 }}{{ item.sym == "%" ? item.sym
                                             : "" }}
                                     </span>
                                 </template>
                                 <template v-slot:[`item.y3`]="{ item }">
-                                    <span :class="item.y3 < 0 ? 'mainred--text' : ''">
+                                    <span class="txt-000" :class="item.y3 < 0 ? 'mainred--text' : ''">
                                         {{ item.sym == "₹" ? item.sym : "" }}{{ item.y3 }}{{ item.sym == "%" ? item.sym
                                             : "" }}
                                     </span>
                                 </template>
                                 <template v-slot:[`item.y4`]="{ item }">
-                                    <span :class="item.y4 < 0 ? 'mainred--text' : ''">
+                                    <span class="txt-000" :class="item.y4 < 0 ? 'mainred--text' : ''">
                                         {{ item.sym == "₹" ? item.sym : "" }}{{ item.y4 }}{{ item.sym == "%" ? item.sym
                                             : "" }}
                                     </span>
                                 </template>
                                 <template v-slot:[`item.y5`]="{ item }">
-                                    <span :class="item.y5 < 0 ? 'mainred--text' : ''">
+                                    <span class="txt-000" :class="item.y5 < 0 ? 'mainred--text' : ''">
                                         {{ item.sym == "₹" ? item.sym : "" }}{{ item.y5 }}{{ item.sym == "%" ? item.sym
                                             : "" }}
                                     </span>
@@ -333,9 +333,9 @@
 
                         <!-- Peers Section -->
                         <v-card id="peers" class="crd-trn ss-cards overflow-hidden mb-md-6 pt-6" width="100%">
-                            <v-toolbar class="elevation-0 px-md-2 px-0 crd-trn" density="compact">
+                            <v-toolbar class="elevation-0 px-md-5 px-0 crd-trn" density="compact">
                                 <v-list-item class="px-0">
-                                    <v-list-item-title class="font-weight-bold title mb-2">Peers
+                                    <v-list-item-title class="font-weight-bold fs-20     mb-1">Peers
                                         Comparison</v-list-item-title>
                                     <v-list-item-subtitle class="maintext--text font-weight-medium fs-12">
                                         Peers Comparison breakdown of {{ peeritem[0] ? peeritem[0].industry : "" }}
@@ -343,24 +343,56 @@
                                     </v-list-item-subtitle>
                                 </v-list-item>
                                 <v-spacer></v-spacer>
-                                <v-text-field v-model="peersearch" hide-details prepend-inner-icon="mdi-magnify"
-                                    label="Search" class="rounded-pill mb-2 d-none d-md-flex" density="compact"
-                                    variant="solo" flat bg-color="secbg"></v-text-field>
+                                 <v-text-field rounded="pill" v-model="peersearch" hide-details prepend-inner-icon="mdi-magnify"
+                        label="Search" class="pwidth rounded-pill mr-4 d-none d-md-flex search-field-center"
+                        density="compact" variant="flat" bg-color="secbg"></v-text-field>
                             </v-toolbar>
                             <v-data-table :headers="peerheader" :items="peeritem" :search="peersearch"
-                                class="rounded-0 overflow-y-auto mt-4" hide-default-footer>
+                                class="rounded-0 overflow-y-auto mt-4 holdings-table" hide-default-footer>
                                 <template v-slot:[`item.SYMBOL`]="{ item }">
-                                    <span class="font-weight-medium maintext--text text-capitalize">
+                                    <span class="font-weight-medium txt-000">
                                         {{ item.SYMBOL.split(":")[1] }}
                                     </span>
                                 </template>
-                                <template v-slot:[`item.ltp`]="{ item }">
+                                <template v-slot:[`item.ltp`]="{ item }"><span class="txt-000">
                                     {{ item.ltp && item.ltp.lp ? Number(item.ltp.lp).toFixed(2) : "0.00" }}
-                                </template>
-                                <template v-slot:[`item.dividend_yield_percent`]="{ item }">
-                                    <span>{{ item.dividend_yield_percent ? `${item.dividend_yield_percent}%` : "---"
-                                        }}</span>
-                                </template>
+                                </span></template>
+                                 <template v-slot:[`item.market_cap`]="{ item }">
+                        <td class="pl-0 d-none d-md-table-cell">
+                            <span class="txt-000">{{ item.market_cap ? item.market_cap.toFixed(2) : "0.00" }}</span>
+                        </td>
+                    </template>
+                    <template v-slot:[`item.pe`]="{ item }">
+                        <td class=" d-none d-md-table-cell">
+                            <span class="txt-000">{{ item.pe ? item.pe : "0.00" }}</span>
+                        </td>
+                    </template>
+                    <template v-slot:[`item.price_book_value`]="{ item }">
+                        <td class=" d-none d-md-table-cell">
+                            <span class="txt-000">{{ item.price_book_value ? item.price_book_value : "0.00" }}</span>
+                        </td>
+                    </template>
+                    <template v-slot:[`item.roce_percent`]="{ item }">
+                        <td class="d-none d-md-table-cell">
+                            <span class="txt-000">{{ item.roce_percent ? item.roce_percent : "0.00" }}</span>
+                        </td>
+                    </template>
+                    <template v-slot:[`item.ev_ebitda`]="{ item }">
+                        <td class=" d-none d-md-table-cell">
+                            <span class="txt-000">{{ item.ev_ebitda ? item.ev_ebitda : "0.00" }}</span>
+                        </td>
+                    </template>
+                    <template v-slot:[`item.debt_to_equity`]="{ item }">
+                        <td class=" d-none d-md-table-cell">
+                            <span class="txt-000">{{ item.debt_to_equity ? item.debt_to_equity : "0.00" }}</span>
+                        </td>
+                    </template>
+                    <template v-slot:[`item.dividend_yield_percent`]="{ item }">
+                        <td class=" d-none d-md-table-cell">
+                            <span class="txt-000">{{ item.dividend_yield_percent ? `${item.dividend_yield_percent}%` :
+                                "---" }}</span>
+                        </td>
+                    </template>
                             </v-data-table>
                         </v-card>
 
@@ -368,7 +400,7 @@
                             <div class="pt-6 pb-4 pl-md-6 pl-4">
                                 <v-toolbar flat density="compact" class="tool-sty mb-5 crd-trn">
                                     <v-list-item class="px-0">
-                                        <v-list-item-title class="font-weight-bold title mb-2">Price
+                                        <v-list-item-title class="font-weight-bold fs-20 mb-1">Price
                                             Comparison</v-list-item-title>
                                         <v-list-item-subtitle class="subtext--text font-weight-medium fs-12">Compare
                                             <span class="primary--text">{{ menudata[0] ? menudata[0].symname : ""
@@ -383,10 +415,10 @@
 
                         <!-- Holdings Section -->
                         <v-card id="hold" class="crd-trn ss-cards overflow-hidden mb-md-6" width="100%">
-                            <div class="pt-6 pb-md-4 pb-8 px-md-9 px-7">
+                            <div class="pt-6 pb-md-4 pb-8 px-md-6 px-7">
                                 <v-row no-gutters>
                                     <v-col cols="12" md="7" class="pa-0">
-                                        <p class="font-weight-bold title mb-md-2 mb-0">Holdings</p>
+                                        <p class="font-weight-bold fs-20 mb-md-2 mb-0">Holdings</p>
                                         <v-chip-group v-if="shareholdings.all" v-model="holdtab" mandatory class="mb-2">
                                             <v-chip v-for="(h, j) in shareholdings.all" :key="j" variant="outlined"
                                                 class="font-weight-medium fs-14 maintext--text"
@@ -399,7 +431,7 @@
                                             </v-chip>
                                         </v-chip-group>
 
-                                        <p class="font-weight-bold subtitle-1 font-weight-medium mb-2">Shareholding
+                                        <p class="font-weight-bold fs-16 mb-2">Shareholding
                                             Breakdown</p>
                                         <v-card width="100%" color="#DEDEDE" height="36px"
                                             class="d-inline-flex elevation-0 rounded-0 mb-3">
@@ -409,15 +441,15 @@
                                         </v-card>
 
                                         <v-data-table :headers="holdingheader" :items="shareholdings.table || []"
-                                            hide-default-footer class="rounded-0 overflow-y-auto">
+                                            hide-default-footer class="rounded-0 overflow-y-auto dtable" style="border:none"> 
                                             <template v-slot:[`item.investor`]="{ item }">
-                                                <p class="font-weight-medium maintext--text mb-0 d-inline-flex">
-                                                    <v-card :color="item.color" class="mt-1 mr-2 elevation-0"
+                                                <p class="font-weight-medium txt-000 mb-0 d-inline-flex">
+                                                    <v-card :color="item.color" class="mt-1 mr-2 elevation-0 "
                                                         width="12px" height="12px"></v-card> {{ item.investor }}
                                                 </p>
                                             </template>
                                             <template v-slot:[`item.holding`]="{ item }">
-                                                <span class="maintext--text">{{ shareholdings.table && item.shares ?
+                                                <span class="txt-000">{{ shareholdings.table && item.shares ?
                                                     shareholdings.all[shareholdings.x][item.shares].toFixed(2) : "0.00"
                                                     }}
                                                     %</span>
@@ -426,51 +458,88 @@
                                     </v-col>
 
                                     <v-col cols="12" md="5" class="pr-md-0 pl-md-4 px-0 pb-0">
-                                        <v-card variant="outlined" class="crd-trn pa-3 rounded-lg">
-                                            <p class="font-weight-bold subtitle-1 font-weight-medium mb-1">Shareholding
-                                                History</p>
-                                            <v-select v-model="shareholdings.y" @update:model-value="setHoldchartdata"
-                                                :items="shareholdings.table" item-title="investor" item-value="shares"
-                                                density="compact" variant="solo" flat bg-color="secbg" label="Filter"
-                                                hide-details append-inner-icon="mdi-chevron-down"
-                                                class="rounded-pill"></v-select>
-                                            <v-card height="294px" width="100%" id="holdchart"
-                                                class="crd-trn rounded-lg elevation-0"></v-card>
-                                        </v-card>
+                                      <v-card variant="outlined" class="bordercss pa-3 rounded-lg">
+                                <p class="font-weight-bold fs-16  mb-1">Shareholding History</p>
+                                <p class="subtext--text mb-4 fs-12">Select a segment from the breakdowns
+                                    to see its
+                                    pattern here</p>
+                              <v-select hide-details v-model="shareholdings.y" rounded="pill"
+                                    :items="shareholdings.table || []" item-title="investor" item-value="shares" block
+                                    class="mt-2 text-left" density="compact" variant="flat" bg-color="secbg"
+                                     @update:model-value="setHoldchartdata()">
+                                </v-select>
+                                <v-card height="294px" width="100%" id="holdchart"
+                                    class="crd-trn rounded-lg elevation-0"> </v-card>
+                            </v-card>
                                     </v-col>
                                 </v-row>
                             </div>
 
                             <v-divider class="my-4 d-none d-md-flex"></v-divider>
                             <v-toolbar flat density="compact" class="tool-sty px-md-6 px-4 mb-4 crd-trn">
-                                <v-list-item class="px-0">
-                                    <v-list-item-title class="font-weight-bold fs-16 mb-2">Mutual Funds Holding
-                                        Trend</v-list-item-title>
-                                </v-list-item>
+                                   <v-list-item class="px-0">
+                        <v-list-item-title class="font-weight-bold fs-20 mb-1">Mutual Funds Holding
+                            Trend</v-list-item-title>
+                        <v-list-item-subtitle class="subtext--text mb-0 font-weight-medium fs-12">In last 3 months,
+                            mutual fund
+                            holding
+                            of the
+                            company has almost stayed constant</v-list-item-subtitle>
+                    </v-list-item>
                                 <v-spacer></v-spacer>
-                                <v-text-field v-model="mfsearch" hide-details prepend-inner-icon="mdi-magnify"
-                                    label="Search" class="rounded-pill mb-2 d-none d-md-flex" density="compact"
-                                    variant="solo" flat bg-color="secbg"></v-text-field>
+                              <v-text-field rounded="pill" v-model="mfsearch" hide-details prepend-inner-icon="mdi-magnify"
+                        label="Search" class="pwidth rounded-pill mr-4 d-none d-md-flex search-field-center"
+                        density="compact" variant="flat" bg-color="secbg"></v-text-field>
                             </v-toolbar>
-                            <v-data-table :headers="mfholdheader" :items="mfholdings" :search="mfsearch"
-                                hide-default-footer class="rounded-0">
-                                <template v-slot:[`item.mutual_fund`]="{ item }">
-                                    <span class="font-weight-medium maintext--text text-capitalize"> {{
-                                        item.mutual_fund.split("-") ? item.mutual_fund.split("-")[0] : item.mutual_fund
-                                        }}</span>
-                                </template>
-                                <template v-slot:[`item.market_cap_Held`]="{ item }">
-                                    <span>{{ item.market_cap_Held ? `${item.market_cap_Held.toFixed(4)}` : "0.0000"
-                                        }}%</span>
-                                </template>
-                                <template v-slot:[`item.mf_holding_percent`]="{ item }">
-                                    <span>{{ item.mf_holding_percent ? `${item.mf_holding_percent.toFixed(2)}` : "0.00"
-                                        }}%</span>
-                                </template>
-                                <template v-slot:[`item.mf_aum`]="{ item }">
-                                    <span>{{ item.mf_aum ? `${item.mf_aum.toFixed(2)}` : "0.00" }}</span>
-                                </template>
-                            </v-data-table>
+                               <v-data-table must-sort :sort-by="['market_cap_Held']" :sort-desc="[true]" hide-default-footer
+                    fixed-header class="rounded-0 holdings-table" :headers="mfholdheader" :items="mfholdings" :search="mfsearch"
+                    :items-per-page="mfholdings.length">
+                    <template v-slot:[`item.mutual_fund`]="{ item }">
+                        <td class="">
+                            <span class="txt-000 font-weight-medium text-capitalize"> {{
+                                item.mutual_fund.split("-") ? item.mutual_fund.split("-")[0] : item.mutual_fund
+                                }}</span>
+                        </td>
+                    </template>
+                    <template v-slot:[`item.market_cap_Held`]="{ item }">
+                        <td class="text-right  d-none d-md-table-cell">
+                            <span class="txt-000">{{ item.market_cap_Held ? `${item.market_cap_Held.toFixed(4)}` :
+                                "0.0000" }}%</span>
+                        </td>
+                    </template>
+                    <template v-slot:[`item.mf_holding_percent`]="{ item }">
+                        <td class="pr-4 text-right d-none d-md-table-cell">
+                            <span class="txt-000">{{ item.mf_holding_percent ? `${item.mf_holding_percent.toFixed(2)}` :
+                                "0.00"
+                            }}%</span>
+                        </td>
+                    </template>
+                    <template v-slot:[`item.mf_aum`]="{ item }">
+                        <td class="text-right pr-4 d-none d-md-table-cell">
+                            <span class="txt-000">{{ item.mf_aum ? `${item.mf_aum.toFixed(2)}` : "0.00" }}</span>
+                        </td>
+                    </template>
+                    <template v-slot:[`item.mftrend`]="{ item }">
+                        <td class="pr-4 text-right d-md-none">
+                            <span v-if="mf_table == 'market_cap_Held'" class="txt-000"> {{ item.market_cap_Held ?
+                                `${item.market_cap_Held.toFixed(4)}` : "0.0000" }}%</span>
+                            <span v-else-if="mf_table == 'mf_holding_percent'" class="txt-000"> {{
+                                item.mf_holding_percent ?
+                                    `${item.mf_holding_percent.toFixed(2)}` : "0.00" }}% </span>
+                            <span v-else class="txt-000">{{ item[mf_table] ? item[mf_table].toFixed(2) : "0.00"
+                            }}</span>
+                        </td>
+                    </template>
+                    <template v-slot:no-data>
+                        <v-col cols="12" class="text-center pa-16">
+                            <div class="mx-auto">
+                                <img class="align-self-stretch mx-auto" width="80px"
+                                    src="/src/assets/no data folder.svg" alt="no data" />
+                                <h5 class="txt-999 font-weight-regular">There is no Peers comparison data here yet!</h5>
+                            </div>
+                        </v-col>
+                    </template>
+                </v-data-table>
                         </v-card>
 
                         <!-- Events Section -->
@@ -486,34 +555,42 @@
                                 </v-chip-group>
 
                                 <div v-if="stockEvents && stockEvents[eventchip] && stockEvents[eventchip].length > 0">
-                                    <v-card v-for="(d, e, f) in stockEvents[eventchip]" :key="f" variant="outlined"
-                                        class="mb-3 rounded-lg" color="secbg">
-                                        <v-list-item>
-                                            <template v-for="(g, h, i) in d" :key="i">
-                                                <v-list-item-subtitle
-                                                    class="txt-5E6 mb-2 font-weight-medium fs-13 text-capitalize">
-                                                    {{ finKeyname(h) }}
-                                                </v-list-item-subtitle>
-                                                <v-list-item-title
-                                                    class="txt-000 font-weight-medium fs-14 text-capitalize mb-3">
-                                                    <span v-if="h.includes('date')">{{ formatDate(g) }}</span>
-                                                    <span v-else>{{ g }}</span>
-                                                </v-list-item-title>
-                                            </template>
-                                        </v-list-item>
-                                    </v-card>
-                                </div>
+                        <v-card style="background-color: #F1F3F8;" variant="outlined"
+                            v-for="(d, e, f) in stockEvents[eventchip]" :key="f" class="mb-3 rounded-lg px-4 py-3"
+                            color="secbg">
+                            <v-row align="start">
+                                <v-col v-for="(g, h, i) in d" :key="i" :cols="12 / Object.keys(d).length"
+                                    class="d-flex flex-column">
+                                    <!-- Header -->
+                                    <div class="txt-5E6 font-weight-medium fs-13 text-capitalize mb-1">
+                                        {{ finKeyname(h) }}
+                                    </div>
 
-                                <div v-else>
-                                    <v-col cols="12" class="text-center pa-16">
-                                        <div class="mx-auto">
-                                            <v-icon size="80" color="grey-lighten-1">mdi-folder-open-outline</v-icon>
-                                            <h5 class="txt-999 font-weight-regular mt-4">
-                                                There is no {{ eventchip }} events data here yet!
-                                            </h5>
-                                        </div>
-                                    </v-col>
-                                </div>
+                                    <!-- Value -->
+                                    <div class="txt-000 font-weight-medium fs-14 text-capitalize">
+                                        <template v-if="h.includes('date')">
+                                          {{ new Date(g).toISOString().slice(0, 10) }}
+                                        </template>
+                                        <template v-else>
+                                            {{ truncateText(g) }}
+                                        </template>
+                                    </div>
+                                </v-col>
+                            </v-row>
+                        </v-card>
+
+
+                    </div>
+                    <div v-else>
+                        <v-col cols="12" class="text-center pa-16">
+                            <div class="mx-auto">
+                                <img class="align-self-stretch mx-auto" width="80px"
+                                    src="/src/assets/no data folder.svg" alt="no data" />
+                                <h5 class="txt-999 font-weight-regular">There is no {{ eventchip }} events data here
+                                    yet!</h5>
+                            </div>
+                        </v-col>
+                    </div>
                             </div>
                         </v-card>
 
@@ -550,9 +627,9 @@
                                                 <v-row no-gutters>
                                                     <v-col cols="4" sm="3" xl="2">
                                                         <v-card class="rounded-lg elevation-0">
-                                                            <v-img :src="n.image" width="100%" height="60px"
-                                                                class="rounded-lg" :alt="n.image" cover></v-img>
-                                                        </v-card>
+                                                <img :src="n.image" width="100%" height="60px" class="rounded-lg"
+                                                    :alt="n.image" />
+                                            </v-card>
                                                     </v-col>
                                                     <v-col cols="8" sm="9" xl="10" class="pl-0 pl-sm-2 pt-2">
                                                         <v-list-item two-line class="px-0 pr-sm-3">
@@ -717,7 +794,7 @@ const financialheader = ref([
     { title: "MM YYYY", key: "y3", sortable: false, align: "end", class: "d-none d-md-table-cell" },
     { title: "MM YYYY", key: "y2", sortable: false, align: "end", class: "d-none d-md-table-cell" },
     { title: "MM YYYY", key: "y1", sortable: false, align: "end", class: "pr-md-6 pr-4 d-none d-md-table-cell" },
-    { title: "MM YYYY", key: "y0", sortable: false, align: "end", class: "pr-4 d-md-none" },
+    // { title: "MM YYYY", key: "y0", sortable: false, align: "end", class: "pr-4 d-md-none" },
 ])
 
 const financialStatementTitle = computed(() => {
@@ -729,15 +806,15 @@ const financialStatementTitle = computed(() => {
 const peerheader = computed(() => {
     return [
         { title: "Stocks", key: "SYMBOL", sortable: false, class: "peer-w-head pl-md-6 pl-4" },
-        { title: "LTP", key: "ltp", sortable: false, align: "end", class: "d-none d-md-table-cell" },
-        { title: "Mkt. Cap", key: "market_cap", sortable: false, align: "end", class: "ws-p d-none d-md-table-cell" },
-        { title: "PE Ratio", key: "pe", sortable: false, align: "end", class: "ws-p d-none d-md-table-cell" },
-        { title: "PB Ratio", key: "price_book_value", sortable: false, align: "end", class: "ws-p d-none d-md-table-cell" },
-        { title: "ROCE%", key: "roce_percent", sortable: false, align: "end", class: "d-none d-md-table-cell" },
-        { title: "Evebitda", key: "ev_ebitda", sortable: false, align: "end", class: "d-none d-md-table-cell" },
-        { title: "Debt to EQ", key: "debt_to_equity", sortable: false, align: "end", class: "ws-p d-none d-md-table-cell" },
-        { title: "Div yield", key: "dividend_yield_percent", sortable: false, align: "end", class: "pr-md-6 pr-4 ws-p d-none d-md-table-cell" },
-        { title: "Peers", key: "peers", sortable: false, align: "end", class: "pr-md-6 pr-4 ws-p d-md-none" },
+        { title: "LTP", key: "ltp", sortable: false, align: "start", class: "d-none d-md-table-cell " },
+        { title: "Mkt. Cap", key: "market_cap", sortable: false, align: "start", class: "ws-p d-none d-md-table-cell txt-000" },
+        { title: "PE Ratio", key: "pe", sortable: false, align: "start", class: "ws-p d-none d-md-table-cell" },
+        { title: "PB Ratio", key: "price_book_value", sortable: false, align: "start", class: "ws-p d-none d-md-table-cell" },
+        { title: "ROCE%", key: "roce_percent", sortable: false, align: "start", class: "d-none d-md-table-cell" },
+        { title: "Evebitda", key: "ev_ebitda", sortable: false, align: "start", class: "d-none d-md-table-cell" },
+        { title: "Debt to EQ", key: "debt_to_equity", sortable: false, align: "start", class: "ws-p d-none d-md-table-cell" },
+        { title: "Div yield", key: "dividend_yield_percent", sortable: false, align: "start", class: "pr-md-6 pr-4 ws-p d-none d-md-table-cell" },
+        // { title: "Peers", key: "peers", sortable: false, align: "start", class: "pr-md-6 pr-4 ws-p d-md-none" },
     ]
 })
 
@@ -751,10 +828,10 @@ const holdingheader = computed(() => {
 const mfholdheader = computed(() => {
     return [
         { title: "Mutual Fund", key: "mutual_fund", sortable: false, class: "pl-md-6 pl-4" },
-        { title: "Mkt. Cap Held", key: "market_cap_Held", sortable: true, align: "end", class: "d-none d-md-table-cell" },
-        { title: "Holding %", key: "mf_holding_percent", sortable: false, align: "end", class: "pr-md-6 pr-4 d-none d-md-table-cell" },
-        { title: "AUM", key: "mf_aum", sortable: false, align: "end", class: "d-none d-md-table-cell" },
-        { title: "Trend", key: "mftrend", sortable: false, align: "end", class: "pr-4 d-md-none" },
+        { title: "Mkt. Cap Held", key: "market_cap_Held", sortable: true, align: "start", class: "d-none d-md-table-cell" },
+        { title: "Weight %", key: "mf_holding_percent", sortable: false, align: "start", class: "pr-md-6 pr-4 d-none d-md-table-cell" },
+        { title: "AUM", key: "mf_aum", sortable: false, align: "start", class: "d-none d-md-table-cell" },
+        // { title: "Trend", key: "mftrend", sortable: false, align: "start", class: "pr-4 d-md-none" },
     ]
 })
 
@@ -784,16 +861,16 @@ const imageLoadError = () => {
     imageicon.value = null
 }
 
-const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    })
-}
+
 
 const finKeyname = (key) => {
     return key.replace(/_/g, ' ')
+}
+const truncateText = (text, maxWords = 5) => {
+    if (!text || typeof text !== 'string') return text
+    const words = text.trim().split(/\s+/)
+    if (words.length <= maxWords) return text
+    return words.slice(0, maxWords).join(' ') + '...'
 }
 
 const setFiltere = (p) => {
@@ -1124,8 +1201,29 @@ const setSingleData = async (token, exch, tsym, quotesdata) => {
     }
     menudata.value[0].lp = Number(quotesdata.lp) ? Number(quotesdata.lp) :
         Number(menudata.value.g.lp)
-    menudata.value["ch"] = menudata.value.g ? (Number(menudata.value.g.lp) -
-        Number(menudata.value.g.close)).toFixed(2) : ""
+    
+    // Calculate price change: current LTP - previous close
+    const currentLTP = Number(menudata.value.g?.lp) || Number(quotesdata.lp) || 0
+    const previousClose = Number(quotesdata.c) || 0
+    
+    // Calculate absolute change
+    menudata.value["ch"] = previousClose > 0 ? (currentLTP - previousClose).toFixed(2) : "0.00"
+    
+    // Ensure menudata.g exists and has all necessary fields
+    if (!menudata.value.g) {
+        menudata.value.g = {}
+    }
+    
+    // Set LTP in menudata.g (used by template)
+    menudata.value.g.lp = currentLTP
+    
+    // Calculate percentage change
+    menudata.value.g.change = previousClose > 0 
+        ? (((currentLTP - previousClose) / previousClose) * 100).toFixed(2) 
+        : "0.00"
+    
+  
+    
     menudata.value["d"] = data.stockDescription ? data.stockDescription : ""
 
     if (data && data.fundamental && data.fundamental[0]) {
@@ -1210,11 +1308,23 @@ const setSingleData = async (token, exch, tsym, quotesdata) => {
     if (data.peersComparison && data.peersComparison.peers && data.peersComparison.peers.length > 0) {
         let peers = []
         data.peersComparison.peers.map((element) => {
-            peers.push({ token: element.zebuToken ? element.zebuToken : "0", exch: element.SYMBOL.split(":")[0] })
+            // Extract tsym from SYMBOL (format: "NSE:SYMBOL-EQ" -> "SYMBOL-EQ")
+            const symbolParts = element.SYMBOL.split(":")
+            const exch = symbolParts[0]
+            const tsym = symbolParts[1] || element.SYMBOL
+            
+            peers.push({ 
+                token: element.zebuToken ? element.zebuToken : "0", 
+                exch: exch,
+                tsym: tsym
+            })
         })
+      
         let ltpraws = await getLtpdata(peers)
+
         data.peersComparison.peers.map((element) => {
             element["ltp"] = (ltpraws && ltpraws.data && element.zebuToken) ? ltpraws.data[element.zebuToken] : null
+           
         })
         peeritem.value = data.peersComparison.peers
         if (ltpraw && ltpraw.data) {
@@ -1302,6 +1412,11 @@ const getNews = async () => {
     }
     newsloading.value = false
 }
+watch([financialtab, fin_fiter], () => {
+    if (Object.keys(financialitem).length > 0) {
+        setFinchartdata()
+    }
+})
 watch(() => route.path, (newPath, oldPath) => {
     if (newPath !== oldPath && newPath.includes('/stocks/')) {
         // Reset state
@@ -1335,6 +1450,7 @@ onMounted(async () => {
     // Initial data fetch
     await updateParams()
 })
+  setFinchartdata()
 
 onBeforeUnmount(() => {
     // Cleanup if needed
@@ -1343,12 +1459,12 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .ss-adv-chart {
-    min-height: 480px;
+    min-height: 300px !important;
 }
 
 .ss-adv-chart iframe {
     border: 0;
-    min-height: 480px;
+    min-height: 300px !important;
 }
 
 .h91vh {
@@ -1444,17 +1560,13 @@ onBeforeUnmount(() => {
     border: 0;
 }
 
-.brd-1-solid-ccc {
-    border: 1px solid #ccc;
-}
+
 
 .min-w-fit {
     min-width: fit-content;
 }
 
-.wid-160 {
-    width: 160px;
-}
+
 
 .cursor-pointer {
     cursor: pointer;
@@ -1469,21 +1581,51 @@ onBeforeUnmount(() => {
     text-overflow: ellipsis;
 }
 
-.ss-cust-scroll::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+/* Hide scrollbar but keep scroll functionality */
+.hide-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
 }
 
-.ss-cust-scroll::-webkit-scrollbar-track {
-    background: transparent;
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
 }
 
-.ss-cust-scroll::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 3px;
+/* Ensure select text is left-aligned */
+:deep(.v-select .v-field__input) {
+    text-align: left !important;
+    padding-left: 12px !important;
+    padding-bottom: 7px !important;
 }
 
-.ss-cust-scroll::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.3);
+:deep(.v-select .v-field__input input) {
+    text-align: left !important;
+}
+
+:deep(.v-select .v-select__selection) {
+    text-align: left !important;
+    justify-content: flex-start !important;
+    width: 100%;
+}
+
+:deep(.v-select .v-field__input .v-select__selection-text) {
+    text-align: left !important;
+    width: 100%;
+}
+
+/* Grey header for shareholding table */
+.dtable.v-data-table thead th,
+.dtable.v-data-table .v-data-table__wrapper thead th,
+.dtable.v-data-table .v-data-table__wrapper table thead th {
+  background-color: #F1F3F8 !important;
+  color: #666666 !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  border-bottom: 1px solid #EBEEF0 !important;
+}
+
+:deep(.dtable .v-data-table__th) {
+  background-color: #F1F3F8 !important;
+  color: #666666 !important;
 }
 </style>

@@ -1556,6 +1556,8 @@ const setSinglestock = (tsym, item) => {
         // For logged-in users: use the detailed stocks view with trading features
         let path = [0, item.token, item.exch, item.tsym];
         // Store params for refresh persistence
+        console.log("iffffffffff");
+        
         localStorage.setItem('ssdParams', JSON.stringify(path));
         localStorage.setItem('ssdtsym', `${item.exch}:${item.tsym}`);
         localStorage.setItem('ssdtoken', item.token);
@@ -1570,8 +1572,16 @@ const setSinglestock = (tsym, item) => {
                 tsym: item.tsym
             }
         });
-    } else if (item.exch == "NSE") {
+    } else if (item.exch == "NSE" && item.tsym.slice(-2) ==  "EQ") {
         router.push(`/stocks/${tsym.toLowerCase()}`);
+        
+        
+        
+    }
+    else{
+        router.push(`/stocks`);
+       
+        
     }
 }
 

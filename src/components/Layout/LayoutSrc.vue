@@ -158,7 +158,7 @@
                                             transaction costs.</li>
                                     </ul>
 
-                                    <p class="caption mb-0 fs-12">
+                                    <p class="caption subtext--text mb-0 fs-12">
                                         Source:
                                         <a target="_blank" style="text-decoration: none; color: #0037B7"
                                             href="https://www.sebi.gov.in/reports-and-statistics/research/jan-2023/study-analysis-of-profit-and-loss-of-individual-traders-dealing-in-equity-fando-segment_67525.html">
