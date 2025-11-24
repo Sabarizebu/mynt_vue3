@@ -16,8 +16,8 @@
           <!-- Three Cards Div - Position Absolute -->
           <div class="pos-abs d-none d-md-flex align-stretch"
             style="right: 16px; top: 130px; transform: translateY(-50%); gap: 12px;">
-            <v-card width="170px" class="pb-4 stk-land-crds rounded-xl text-center d-flex flex-column align-center"
-              style="height: 200px;">
+            <v-card width="170px" class="pb-4 stk-land-crds  text-center d-flex flex-column align-center" 
+              style="height: 200px; border-radius: 15px;">
               <img src="@/assets/Bonds/main-card-1.svg" class="d-block mx-auto pt-6 pb-2" alt="main-card-1"
                 style="width: 50%;" />
               <p class="fs-16 font-weight-bold lh-16 px-4 mt-1 mb-0">
@@ -26,8 +26,8 @@
                 Securities
               </p>
             </v-card>
-            <v-card width="170px" class="pb-4 stk-land-crds rounded-xl text-center d-flex flex-column align-center"
-              style="height: 200px; ">
+            <v-card width="170px" class="pb-4 stk-land-crds  text-center d-flex flex-column align-center"
+              style="height: 200px; border-radius: 15px;">
               <img src="@/assets/Bonds/main-card-2.svg" class="d-block mx-auto pt-6 pb-2" alt="main-card-2"
                 style="width: 58%;" />
               <p class="fs-16 font-weight-bold lh-16 px-4 mt-1 mb-0">
@@ -36,8 +36,8 @@
                 Bonds is easy
               </p>
             </v-card>
-            <v-card width="170px" class="pb-4 stk-land-crds rounded-xl text-center d-flex flex-column align-center"
-              style="height: 200px;">
+            <v-card width="170px" class="pb-4 stk-land-crds text-center d-flex flex-column align-center"
+              style="height: 200px; border-radius: 15px;">
               <img src="@/assets/Bonds/main-card-3.svg" class="d-block mx-auto pt-6 pb-2" alt="main-card-3"
                 style="width: 50%;" />
               <p class="fs-16 font-weight-bold lh-16 px-4 mt-1 mb-0">

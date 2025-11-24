@@ -40,7 +40,7 @@
                                 <router-view @snack="snackAlert" @menudialog="setMenudialog" @gologin="goSso"
                                     @loader="setLoaderstatus" />
                             </v-col>
-                            <v-col cols="3" class="pos-rlt pb-0 px-1 d-none d-md-block"
+                            <v-col cols="3" class="pos-rlt pb-0 px-1 pt-6 d-none d-md-block"
                                 :class="authStore.uid ? appStore.wllayout ? 'sec-watchlist-r' : 'sec-watchlist-l' : ''"
                                 style="width: 340px">
                                 <div v-if="authStore.uid" class=""
@@ -48,18 +48,18 @@
                                     <WatchList />
                                 </div>
                                 <div v-else class="pos-stk top-80">
-                                    <v-card outlined
-                                        class="overflow-hidden ss-login-card px-10 rounded-xl pos-rlt crd-trn d-flex"
-                                        width="100%">
+                                    <v-card outlined rounded="lg"
+                                        class=" ss-login-card bordercss px-10 pt-4 elevation-0  pos-rlt  d-flex"
+                                        width="100%"  style="overflow: visible !important;">
                                         <div class="my-auto">
                                             <img :src="getAssetPath(`products-sec/${bodytab == 'Mutual funds' ? 'mutual-funds' : bodytab == 'IPOs' ? 'ipos' : bodytab == 'Bonds' ? 'bonds' : 'Stocks-ETFs'}.png`)"
                                                 :alt="bodytab" class="" width="100%" />
                                             <p class="font-weight-bold fs-32 mb-3">Ready to invest in {{ bodytab }}?</p>
-                                            <p class="subtext--text font-weight-medium fs-2 mb-8">
+                                            <p class="subtext--text  fs-16 mb-8">
                                                 Open your demat account <br /> effortlessly
                                                 with our six-click process.
                                             </p>
-                                            <v-card class="elevation-0 rounded-0 crd-trn" width="100%">
+                                            <v-card class="elevation-0 rounded-0 crd-trn" width="100%" style="overflow: visible !important;">
                                                 <v-form ref="form" v-model="valid" lazy-validation
                                                     @submit.prevent="getCall()">
                                                     <v-row no-gutters>
@@ -68,27 +68,27 @@
                                                                 @keypress="NumberValid($event)" @keyup.enter="getCall()"
                                                                 :maxlength="10" :rules="numberis"
                                                                 oninput="this.value = this.value.toUpperCase()" required
-                                                                hide-spin-buttons flat hide-details solo
+                                                                hide-spin-buttons flat hide-details solo single-line
                                                                 background-color="secbg"
                                                                 style="background-color: #F1F3F8 !important;"
                                                                 class="sign-up-filed elevation-0 rounded-pill caption mb-3 px-3"
                                                                 placeholder="Enter Client ID/Mobile to begin">
                                                                 <template #prepend-inner>
-                                                                    <img :src="phoneIconSrc" width="16" height="16"
+                                                                    <img class="pt-0" :src="phoneIconSrc" width="16" height="16"
                                                                         alt="phone-icon" />
                                                                 </template>
                                                             </v-text-field>
                                                         </v-col>
-                                                        <v-col cols="2" class="d-flex align-center">
-                                                            <v-btn class="mb-3 elevation-0" color="transparent"
+                                                        <v-col cols="2" class="d-flex align-center" style="margin-right: -48px; overflow: visible;">
+                                                            <v-btn class="mb-3 elevation-0"  color="transparent"
                                                                 @click="goSso(true)" fab small>
-                                                                <v-icon>
+                                                                <v-icon size="24">
                                                                     mdi-qrcode-scan
                                                                 </v-icon>
                                                             </v-btn>
                                                         </v-col>
                                                     </v-row>
-                                                    <v-btn type="submit" block height="48px" color="#FFF07E"
+                                                    <v-btn type="submit" block height="48px"   color="#FFF07E"
                                                         class="text-none rounded-pill elevation-0"><span
                                                             class="black--text font-weight-bold">Continue</span></v-btn>
                                                 </v-form>

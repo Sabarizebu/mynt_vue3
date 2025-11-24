@@ -1246,35 +1246,4 @@ export default {
 
 
 
-.tenure-switch {
-    flex: 0 0 auto;
-}
-
-.tenure-switch .v-switch__track {
-    background-color: #E0E0E0 !important;
-    /* border-radius: 20px !important; */
-    height: 25px !important;
-    width: 56px !important;
-}
-
-.tenure-switch .v-switch__thumb {
-    background-color: #000000 !important;
-    /* border-radius: 50% !important; */
-    width: 28px !important;
-    height: 20px !important;
-    /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important; */
-}
-
-.tenure-switch.v-switch--checked .v-switch__track {
-    background-color: #000000 !important;
-}
-
-.tenure-switch.v-switch--checked .v-switch__thumb {
-    background-color: #FFFFFF !important;
-    transform: translateX(24px) !important;
-}
-
-.tenure-switch:not(.v-switch--checked) .v-switch__thumb {
-    transform: translateX(0px) !important;
-}
 </style>

@@ -54,12 +54,12 @@
         <!-- Main Order Dialog -->
         <v-card v-if="orderDialog" id="maindiv" elevation="6"
             :class="['pb-5 overflow-hidden rounded-lg', isStickyDialog ? 'sticky-dialog' : '']" :style="dialogStyle"
-            color="cardbg" :width="isQuickOrder ? '360px' : '540px'" height="auto">
-            <v-card id="maindivheader" :loading="isPlacingOrder" class="elevation-0 rounded-b-0"
-                :class="isQuickOrder ? 'py-2' : 'pt-4 pb-2'" :color="!buyOrSellIsSell ? 'secgreen' : 'secred'">
-                <v-toolbar class="elevation-0 crd-trn" :class="isQuickOrder ? 'pr-4' : 'px-2'" density="compact"
+            color="cardbg" :width="isQuickOrder ? '400px' : '540px'" height="auto" >
+            <v-card id="maindivheader" :loading="isPlacingOrder" class="elevation-0 rounded-b-0 "
+                :class="isQuickOrder ? 'py-2 pt-3' : 'pt-4 pb-2'" :color="!buyOrSellIsSell ? 'secgreen' : 'secred'">
+                <v-toolbar class="elevation-0 " :class="isQuickOrder ? 'pr-4' : 'px-2'" density="compact"
                     style="background-color: #00000000 !important;">
-                    <div class="px-5">
+                    <div :class="isQuickOrder ? 'px-5 pt-3 ' : 'px-5'">
                         <p class="font-weight-bold  maintext--text mb-0" style="font-size: 16px !important;">
                             {{ menudata[0]?.tsym || '' }} <span class="ml-1 subtext--text fs-10">{{ menudata[0]?.exch ||
                                 '' }}</span>
@@ -73,7 +73,7 @@
                     <v-spacer></v-spacer>
                     <v-card class="rounded-md elevation-0 py-1 px-2 font-weight-bold fs-10 white--text mr-0"
                         color="maingreen">B</v-card>
-                    <v-switch v-model="buyOrSellIsSell" inset hide-details class="mx-2"></v-switch>
+                    <v-switch v-model="buyOrSellIsSell"  hide-details class="mx-2 tenure-switch"></v-switch>
                     <v-card class="rounded-md elevation-0 py-1 px-2 font-weight-bold fs-10 white--text ml-0"
                         color="mainred">S</v-card>
                 </v-toolbar>
@@ -226,6 +226,7 @@
                         <v-col :cols="isQuickOrder ? 12 : 12" :md="isQuickOrder ? 12 : 6">
                             <!-- Quick Order Quantity UI -->
                             <div v-if="isQuickOrder">
+                                <!-- Header -->
                                 <div class="d-flex justify-space-between align-center mb-2 mt-n3">
                                     <p class="font-weight-regular fs-14 subtext--text mb-0">Quantity</p>
                                     <p class="font-weight-regular fs-14 subtext--text mb-0 text-right">
@@ -233,13 +234,13 @@
                                     </p>
                                 </div>
 
+                                <!-- Quantity Field -->
                                 <v-text-field density="compact" bg-color="secbg" rounded="xl" variant="flat"
-                                    type="number" v-model.number="quantity" hide-spin-buttons="true" hide-details
-                                    @blur="validateQuantity" class="font-weight-bold fs-16">
-                                    <!-- PREPEND: - button -->
+                                    type="number" v-model.number="quantity" hide-details hide-spin-buttons single-line
+                                    class="font-weight-bold fs-16" @blur="validateQuantity">
+                                    <!-- PREPEND ( - ) -->
                                     <template #prepend-inner>
-                                        <v-btn @click="decreaseQuantity()" icon class="elevation-0" :ripple="false"
-                                            :overlay="false" :disabled="quantity <= 1" :disable-focus-on-click="true"
+                                        <v-btn @click="decreaseQuantity()" icon class="elevation-0"
                                             style="background-color: transparent !important;">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                 viewBox="0 0 24 24" fill="none">
@@ -250,10 +251,9 @@
                                         </v-btn>
                                     </template>
 
-                                    <!-- APPEND: + button -->
+                                    <!-- APPEND ( + ) -->
                                     <template #append-inner>
-                                        <v-btn @click="increaseQuantity()" icon class="elevation-0" :ripple="false"
-                                            :overlay="false" :disable-focus-on-click="true"
+                                        <v-btn @click="increaseQuantity()" icon class="elevation-0"
                                             style="background-color: transparent !important;">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                 viewBox="0 0 24 24" fill="none">
@@ -267,10 +267,12 @@
                                     </template>
                                 </v-text-field>
 
+                                <!-- Freeze qty -->
                                 <p v-if="menudata[1]" class="lh-16 fs-10 subtext--text mb-0 mt-1">
                                     Freeze qty: {{ menudata[1]?.frzqty ?? '-' }}
                                 </p>
                             </div>
+
 
 
                             <!-- Advanced Order Quantity UI -->
@@ -282,7 +284,7 @@
                                 </div>
                                 <v-text-field density="compact" bg-color="secbg" rounded="xl" variant="flat"
                                     type="number" v-model.number="quantity" :rules="quantityRules" hide-details
-                                    @blur="validateQuantity">
+                                    hide-spin-buttons @blur="validateQuantity">
                                     <template #append-inner>
                                         <v-btn @click="increaseQuantity()" icon class="elevation-0"
                                             style="background-color: transparent !important;">
@@ -326,7 +328,7 @@
                             <v-row no-gutters v-if="isQuickOrder">
                                 <v-col cols="5" class="pr-2">
                                     <div class="d-flex rounded-pill overflow-hidden "
-                                        style="background-color: #F1F3F8; height: 40px;">
+                                        style="background-color: #F1F3F8; height: 40px; width: 128px;">
                                         <v-btn class="rounded-0 text-none font-weight-bold fs-12"
                                             :color="(priceType === 'LMT' || priceType === 'SL-LMT') ? 'black' : 'transparent'"
                                             :variant="priceType === 'LMT' ? 'flat' : 'flat'" height="100%"
@@ -368,7 +370,11 @@
                                         </template>
                                     </v-text-field>
                                 </v-col>
-                                <v-col cols="12">
+                                <v-col cols="5">
+
+                                </v-col>
+                    
+                                <v-col cols="6">
                                     <p v-if="menudata[1]" class="lh-16 fs-10 subtext--text mb-0 mt-1">Circuit level: {{
                                         menudata[1]?.lc ?? '-' }} - {{ menudata[1]?.uc ?? '-' }}</p>
                                 </v-col>
@@ -415,7 +421,7 @@
                         <!-- SL/Trigger -->
                         <div class="mt-2">
                             <v-checkbox v-model="showTrigger" label="SL/Trigger" density="compact" hide-details
-                                color="black" class="font-weight-bold"></v-checkbox>
+                                 class="font-weight-bold"></v-checkbox>
                             <!-- <v-text-field v-if="showTrigger" density="compact" bg-color="secbg" variant="flat"
                                 rounded="xl" type="number" v-model.number="triggerPrice" hide-details class="mt-1">
                                 <template #prepend-inner><span class="text-grey mr-1">₹</span></template>
@@ -836,8 +842,7 @@
                     <!-- No content needed here as SIP tab click is handled automatically -->
 
                     <!-- Validity & Disclosed Qty -->
-                    <div v-if="orderType !== 3 && orderType !== 4 && !isQuickOrder" class="mt-4"
-                        style="border-top: 1px solid #e0e0e0;">
+                    <div v-if="orderType !== 3 && orderType !== 4 && !isQuickOrder">
                         <v-checkbox color="maintext" v-model="addValidityQty" hide-details>
                             <template #label>
                                 <p class="font-weight-regular fs-14 subtext--text mb-0">Add Validity & Disclosed Qty</p>
@@ -944,36 +949,90 @@
                         </v-btn>
                     </div>
 
-                    <!-- Margin Preview -->
-                    <v-divider v-if="!isQuickOrder" class="my-3"></v-divider>
-                    <div class="d-flex align-center" :class="isQuickOrder && 'mt-3'">
-                        <p class="font-weight-medium fs-12 subtext--text mb-0">
-                            <span>Margin </span>
-                            <span class="ml-1 primary--text">
-                                <b>₹{{ orderMarginDisplay }}</b>
-                                <span class="ml-1"> + </span>
-                                <span class="ml-1 primary--text">
-                                    <b>₹{{ chargesDisplay }}</b>
-                                </span>
-                            </span>
-                            <v-icon class="ml-1" size="14" color="maintext">mdi-information-outline</v-icon>
-                        </p>
-                    </div>
-                    <div class="d-flex align-center mt-2">
-                        <p class="font-weight-medium fs-12 subtext--text mb-0">
-                            <span>Avail </span>
-                            <span class="ml-1 primary--text">
-                                <b>₹{{ cashAvailableDisplay }}</b>
-                            </span>
-                            <span class="ml-1 primary--text cursor-pointer" @click="router.push('/funds')">+ Add
-                                fund</span>
-                            <v-icon class="ml-1" size="14" color="mainred">mdi-alert-octagon</v-icon>
-                        </p>
-                    </div>
                 </div>
             </div>
+            <!-- Margin Preview -->
 
-            <v-divider></v-divider>
+            <div class="d-flex align-center pl-5 pr-2 flex-nowrap" :class="isQuickOrder && 'mt-10'">
+                <v-menu offset-y location="top">
+                    <template v-slot:activator="{ props }">
+                        <div v-bind="props" class="d-flex align-center flex-nowrap cursor-pointer">
+                            <p class="font-weight-medium fs-12 subtext--text mb-0">
+                                <span>Margin </span>
+                                <span class="ml-1 primary--text">
+                                    <b>₹{{ orderMarginDisplay }}</b>
+                                    <span class="ml-1"> + </span>
+                                    <span class="ml-1 primary--text">
+                                        <b>₹{{ chargesDisplay }}</b>
+                                    </span>
+                                </span>
+                                <v-icon class="ml-1" size="14"
+                                    :color="marginRemarks === 'Order Success' ? 'maingreen' : 'mainred'">
+                                    {{ marginRemarks === 'Order Success' ? 'mdi-checkbox-marked-circle' :
+                                        'mdi-alert-octagon' }}
+                                </v-icon>
+                                <span class="ml-1">Avail </span>
+                                <span class="ml-1 primary--text">
+                                    <b>₹{{ cashAvailableDisplay }}</b>
+                                </span>
+                                <span v-if="$route.name !== 'funds'" class="ml-1 primary--text cursor-pointer"
+                                    @click.stop="router.push('/funds')">+ Add fund</span>
+                            </p>
+                        </div>
+                    </template>
+
+                    <v-list density="compact" min-width="260px" class="py-2">
+                        <!-- Order Margin -->
+                        <v-list-item class="px-3">
+                            <v-list-item-title class="font-weight-medium fs-12 subtext--text mb-0">
+                                Order margin:
+                                <span class="ml-1 float-right maintext--text">
+                                    <b>₹{{ orderMarginDisplay }}</b>
+                                </span>
+                            </v-list-item-title>
+                        </v-list-item>
+
+                        <!-- Available Balance -->
+                        <v-list-item class="px-3">
+                            <v-list-item-title class="font-weight-medium fs-12 subtext--text mb-0">
+                                Available balance to trade:
+                                <span class="ml-1 float-right maintext--text">
+                                    <b>₹{{ cashAvailableDisplay }}</b>
+                                </span>
+                            </v-list-item-title>
+                        </v-list-item>
+
+                        <!-- Remarks -->
+                        <v-list-item class="px-3">
+                            <v-list-item-title class="font-weight-medium fs-12 subtext--text mb-0">
+                                Remarks:
+                                <span class="ml-1 float-right">
+                                    <b
+                                        :style="marginRemarks === 'Order Success' ? 'color: #43A833 !important;' : 'color: #FF1717 !important;'">
+                                        {{ marginRemarks || '' }}
+                                    </b>
+                                </span>
+                            </v-list-item-title>
+                        </v-list-item>
+
+                        <v-divider class="mx-3 mb-2 mt-1"></v-divider>
+
+                        <!-- Charges Breakdown -->
+                        <v-list-item v-for="(item, index) in chargeItemsList" :key="index" class="px-3">
+                            <v-list-item-title class="font-weight-medium fs-12 subtext--text mb-0">
+                                {{ item.label }}:
+                                <span class="ml-1 maintext--text float-right">
+                                    <b>₹{{ formatNumber(brokerageData[item.key] || 0) }}</b>
+                                </span>
+                            </v-list-item-title>
+                        </v-list-item>
+                    </v-list>
+                </v-menu>
+                <v-spacer></v-spacer>
+                <v-btn icon variant="text" density="compact" :loading="isRefreshingFunds" @click="refreshFunds">
+                    <v-icon size="16">mdi-refresh</v-icon>
+                </v-btn>
+            </div>
             <!-- Button Section for Regular/Cover/Bracket orders -->
             <div v-if="orderType !== 3" class="px-6 py-3">
                 <v-row no-gutters>
@@ -1012,7 +1071,8 @@
 import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAppStore } from '@/stores/appStore'
-import { getQuotesdata, getSecuritydata, getPlaceOrder, getOrderMargin, getBrokerage, setOrdprefApi, getGTTPlaceOrder } from '@/components/mixins/getAPIdata'
+import { useMarginsStore } from '@/stores/marginsStore'
+import { getQuotesdata, getSecuritydata, getPlaceOrder, getOrderMargin, getBrokerage, setOrdprefApi, getGTTPlaceOrder, forceRefreshMLimits } from '@/components/mixins/getAPIdata'
 
 const router = useRouter()
 
@@ -1124,20 +1184,45 @@ watch(showTarget, (newVal) => {
     if (!newVal) targetPrice.value = null
 })
 
+// Watch quickOrderDefault to update isQuickOrder when user toggles the Quick Order switch
+// This matches old app behavior: this.quickord = this.quickordswt
+watch(quickOrderDefault, (newVal) => {
+    isQuickOrder.value = newVal
+})
+
 const saveOrderPreferences = async () => {
+    // Update localStorage immediately
     localStorage.setItem('isStickyDialog', isStickyDialog.value)
     localStorage.setItem('quickOrderDefault', quickOrderDefault.value)
 
     // Also save to backend API (like old code setStickyupdate)
     try {
-        await setOrdprefApi({
-            quickord: quickOrderDefault.value,
-            ordsrcpop: isStickyDialog.value,
-            // We send current values for other fields to avoid overwriting them with defaults if the API replaces the whole object
-            investype: investType.value,
-            prc: priceType.value,
-            ordqty: quantity.value
-        }, true)
+        const uid = sessionStorage.getItem('userid')
+        // First get existing preferences to avoid overwriting
+        const ordpre = await setOrdprefApi({}, false)
+
+        if (ordpre && ordpre.stat === 'Ok' && ordpre.metadata) {
+            // Update only the sticky and quick order settings in metadata
+            ordpre.metadata.stickysrc = isStickyDialog.value
+            ordpre.metadata.quicksrc = quickOrderDefault.value
+
+            // Save updated metadata back to API
+            await setOrdprefApi({
+                clientid: uid,
+                metadata: ordpre.metadata,
+                source: 'WEB'
+            }, true)
+        } else {
+            // If no existing preferences, create new with minimal data
+            await setOrdprefApi({
+                clientid: uid,
+                metadata: {
+                    stickysrc: isStickyDialog.value,
+                    quicksrc: quickOrderDefault.value
+                },
+                source: 'WEB'
+            }, true)
+        }
     } catch (e) {
         // console.error('Failed to save preferences to backend', e)
     }
@@ -1152,11 +1237,12 @@ onMounted(() => {
     const savedQuick = localStorage.getItem('quickOrderDefault')
     if (savedQuick !== null) {
         quickOrderDefault.value = savedQuick === 'true'
-        isQuickOrder.value = quickOrderDefault.value
+        // Don't set isQuickOrder here - always start with Advanced Order (false)
     }
 })
 
 const appStore = useAppStore()
+const marginsStore = useMarginsStore()
 
 const ltpDisplay = computed(() => {
     const ltp = menudata.value[0]?.ltp || menudata.value[0]?.lp || menudata.value?.ltp || 0
@@ -1211,6 +1297,39 @@ const cashAvailable = ref(0)
 const orderMarginDisplay = computed(() => formatNumber(orderMargin.value || 0))
 const cashAvailableDisplay = computed(() => formatNumber(cashAvailable.value || 0))
 const chargesDisplay = computed(() => formatNumber(charges.value || 0))
+
+// Brokerage breakdown data for tooltip
+const brokerageData = ref({})
+const marginRemarks = ref('')
+
+// Charge items for tooltip display
+const chargeItemsList = computed(() => [
+    { label: 'Brokerage amt', key: 'brkage_amt' },
+    { label: 'STT Chrg', key: 'stt_amt' },
+    { label: 'Exch Chrg', key: 'exch_chrg' },
+    { label: 'SEBI Chrg', key: 'sebi_chrg' },
+    { label: 'Stamp duty', key: 'stamp_duty' },
+    { label: 'Clearing Chrg', key: 'clr_chrg' },
+    { label: 'GST Chrg', key: 'gst' }
+])
+
+const isRefreshingFunds = ref(false)
+
+async function refreshFunds() {
+    if (isRefreshingFunds.value) return
+    isRefreshingFunds.value = true
+    try {
+        const response = await forceRefreshMLimits(false)
+        if (response && response.stat === 'Ok') {
+            cashAvailable.value = Number(response.avbma || response.avbal || 0)
+            marginsStore.setMargins(response)
+        }
+    } catch (e) {
+        console.error('Error refreshing funds', e)
+    } finally {
+        isRefreshingFunds.value = false
+    }
+}
 
 // Quantity validation rules (no helper text - only for basic validation)
 const quantityRules = computed(() => {
@@ -1669,9 +1788,12 @@ async function computeMarginAndBrokerage() {
         if (m && m.stat === 'Ok') {
             orderMargin.value = Number(m.ordermargin || 0)
             cashAvailable.value = Number(m.avbal || m.avbma || 0)
+            marginRemarks.value = m.remarks || ''
         }
         if (b && b.stat === 'Ok') {
             charges.value = Number(b.brkage_amt || b.charges || 0)
+            // Store entire brokerage breakdown for tooltip
+            brokerageData.value = b
         }
     } catch (e) {
         // silent - don't show error on every input change
@@ -1913,6 +2035,10 @@ async function handleMenuDialogEvent(event) {
         orderContextType.value = type
         existingOrderItem.value = item || null
 
+        // Reset dialog position - always open at center
+        localStorage.removeItem('stockOrderWindow_position')
+        dialogStyle.value = {}
+
         // CRITICAL: Open dialog immediately with basic data to avoid delay on first click
         // Create minimal quote data from available info to show dialog instantly
         const basicQuote = {
@@ -1932,7 +2058,7 @@ async function handleMenuDialogEvent(event) {
         buyOrSellIsSell.value = (trantype || '').toLowerCase() === 's'
         investType.value = (exch === 'NSE' || exch === 'BSE') ? 'C' : 'I'
         priceType.value = 'LMT'
-        isQuickOrder.value = quickOrderDefault.value
+        // Don't set isQuickOrder from quickOrderDefault - always start with Advanced Order (false)
         orderType.value = 0
         // Don't set default quantity if it's modify/re-order - let the prefill logic handle it
         if (!item || (type !== 'mod-order' && type !== 're-order' && type !== 'exit-order')) {
@@ -2187,8 +2313,25 @@ async function handleMenuDialogEvent(event) {
         // Load preferences in background (non-blocking, best-effort)
         setOrdprefApi({}, false).then(pref => {
             if (pref && pref.stat === 'Ok') {
-                if (pref.quickord !== undefined) isQuickOrder.value = pref.quickord
-                if (pref.ordsrcpop !== undefined) isStickyDialog.value = pref.ordsrcpop
+                // Load sticky and quick order settings from metadata (like old app: orepre['stickysrc'] and orepre['quicksrc'])
+                if (pref.metadata) {
+                    if (pref.metadata.stickysrc !== undefined) {
+                        isStickyDialog.value = pref.metadata.stickysrc === true || pref.metadata.stickysrc === 'true'
+                    }
+                    if (pref.metadata.quicksrc !== undefined) {
+                        const quickSrc = pref.metadata.quicksrc === true || pref.metadata.quicksrc === 'true'
+                        quickOrderDefault.value = quickSrc
+                        // Don't set isQuickOrder here - always start with Advanced Order (false)
+                    }
+                }
+                // Legacy support for old format (if metadata doesn't exist)
+                if (pref.quickord !== undefined && !pref.metadata?.quicksrc) {
+                    quickOrderDefault.value = pref.quickord === true || pref.quickord === 'true'
+                    // Don't set isQuickOrder here - always start with Advanced Order (false)
+                }
+                if (pref.ordsrcpop !== undefined && !pref.metadata?.stickysrc) {
+                    isStickyDialog.value = pref.ordsrcpop === true || pref.ordsrcpop === 'true'
+                }
                 if (pref.investype) investType.value = pref.investype
                 // Don't overwrite price type if it's modify/re-order - it's already set from item
                 if (pref.prc && (!item || (type !== 'mod-order' && type !== 're-order' && type !== 'exit-order'))) {
@@ -2611,6 +2754,10 @@ function closeOrderDialog() {
     // Reset last price tracking
     lastPriceForMargin = null
 
+    // Reset dialog position - always open at center next time
+    localStorage.removeItem('stockOrderWindow_position')
+    dialogStyle.value = {}
+
     // Unsubscribe from websocket before closing
     if (menudata.value[0] && menudata.value[0].token && menudata.value[0].exch) {
         try {
@@ -2674,6 +2821,8 @@ function closeOrderDialog() {
         ocoTriggerPrice.value = null
         ocoPriceType.value = 'LMT'
         ocoValue.value = 0
+        // Reset to Advanced Order mode (not Quick Order)
+        isQuickOrder.value = false
         // Reset slice order state
         sliceFzqty.value = []
         sliceFq.value = 1
@@ -3214,8 +3363,8 @@ async function placeOrder(loop, fqty = null) {
             if (resGtt?.stat !== 'Ok' && resGtt?.stat !== 'OI created' && resGtt?.stat !== 'OI replaced') {
                 appStore.showSnackbar(2, resGtt?.emsg || 'GTT order failed')
             } else {
-                // Close dialog first (like old app) - close on successful order regardless of sticky setting
-                if (!loop) {
+                // Close dialog only if sticky is OFF (like old app: if (loop != true && !this.ordsrcpop))
+                if (!loop && !isStickyDialog.value) {
                     orderDialog.value = false
                     // Use nextTick to ensure dialog closes before showing snackbar
                     await nextTick()
@@ -3285,8 +3434,8 @@ async function placeOrder(loop, fqty = null) {
         if (res?.stat !== 'Ok') {
             appStore.showSnackbar(2, res?.emsg || 'Order failed')
         } else {
-            // Close dialog first (like old app) - close on successful order regardless of sticky setting
-            if (!loop) {
+            // Close dialog only if sticky is OFF (like old app: if (loop != true && !this.ordsrcpop))
+            if (!loop && !isStickyDialog.value) {
                 orderDialog.value = false
                 // Use nextTick to ensure dialog closes before showing snackbar
                 await nextTick()
@@ -3328,9 +3477,9 @@ async function placeOrder(loop, fqty = null) {
         // console.error('Order placement error:', e)
     } finally {
         isPlacingOrder.value = false
-        // Only close order dialog if not opening slice dialog
+        // Only close order dialog if sticky is OFF and not opening slice dialog
         // The slice dialog opening logic handles closing the order dialog
-        if (!sliceDialog.value) {
+        if (!sliceDialog.value && !isStickyDialog.value) {
             orderDialog.value = false
         }
     }
@@ -3593,4 +3742,10 @@ onBeforeUnmount(() => {
 :deep(.v-menu__content) {
     z-index: 10000 !important;
 }
+
+.fs-12 {
+    font-size: 12px !important;
+}
+
+
 </style>

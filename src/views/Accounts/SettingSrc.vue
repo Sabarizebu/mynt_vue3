@@ -8,38 +8,38 @@
             width="100%">
             <v-expansion-panels v-model="panel" multiple flat>
                 <v-expansion-panel class="crd-trn" flat>
-                    <v-expansion-panel-title class="fs-16 font-weight-medium">User details</v-expansion-panel-title>
+                    <v-expansion-panel-title class="fs-16 ">User details</v-expansion-panel-title>
                     <v-expansion-panel-text class="fs-14">
                         <v-row no-gutters>
                             <v-col cols="2">Name</v-col>
-                            <v-col cols="10">: <span class="font-weight-medium subtext--text pl-2">{{ clientdata.cliname
+                            <v-col cols="10">: <span class="fs-14 subtext--text pl-2">{{ clientdata.cliname
                                 ?
                                 clientdata.cliname : "-" }}</span></v-col>
 
                             <v-col cols="2">Mobile no</v-col>
-                            <v-col cols="10">: <span class="font-weight-medium subtext--text pl-2">{{ clientdata.m_num ?
+                            <v-col cols="10">: <span class="fs-14 subtext--text pl-2">{{ clientdata.m_num ?
                                 clientdata.m_num : "-" }}</span></v-col>
 
                             <v-col cols="2">Email</v-col>
-                            <v-col cols="10">: <span class="font-weight-medium subtext--text pl-2">{{ clientdata.email ?
+                            <v-col cols="10">: <span class="fs-14 subtext--text pl-2">{{ clientdata.email ?
                                 clientdata.email : "-" }}</span></v-col>
 
                             <v-col cols="12" class="mt-2"
                                 v-if="clientdata.bankdetails && clientdata.bankdetails.length">Bank:-</v-col>
                             <v-col cols="10" v-for="(a, s) in (clientdata.bankdetails || [])" :key="s">
-                                Name:<span class="font-weight-medium subtext--text pl-2">{{ a.bankn }}</span> | Account
-                                no:<span class="font-weight-medium subtext--text pl-2">{{ a.acctnum }}</span></v-col>
+                                Name:<span class="fs-14 subtext--text pl-2">{{ a.bankn }}</span> | Account
+                                no:<span class="fs-14 subtext--text pl-2">{{ a.acctnum }}</span></v-col>
 
                             <v-col cols="12" class="mt-2"
                                 v-if="clientdata.dp_acct_num && clientdata.dp_acct_num.length">DP no:-</v-col>
                             <v-col cols="10" v-for="(a, s) in (clientdata.dp_acct_num || [])" :key="s">
-                                {{ s + 1 }}: <span class="font-weight-medium subtext--text pl-2">{{ a.dpnum
+                                {{ s + 1 }}: <span class="fs-14 subtext--text pl-2">{{ a.dpnum
                                 }}</span></v-col>
                         </v-row>
                     </v-expansion-panel-text>
                 </v-expansion-panel>
                 <v-expansion-panel class="crd-trn" flat>
-                    <v-expansion-panel-title class="fs-16 font-weight-medium">API key</v-expansion-panel-title>
+                    <v-expansion-panel-title class="fs-16">API key</v-expansion-panel-title>
                     <v-expansion-panel-text class="fs-14">
                         <v-tabs v-model="ordertype" color="maintext" class="px-0">
                             <v-tab v-for="(t, index) in orderselect" :key="index" class="text-none text-start"
@@ -113,7 +113,7 @@
                     </v-expansion-panel-text>
                 </v-expansion-panel>
                 <v-expansion-panel class="crd-trn" flat>
-                    <v-expansion-panel-title class="fs-16 font-weight-medium">TOTP</v-expansion-panel-title>
+                    <v-expansion-panel-title class="fs-16 ">TOTP</v-expansion-panel-title>
                     <v-expansion-panel-text class="fs-14">
                         <div v-if="totpdata && totpdata.pwd">
 
@@ -161,9 +161,9 @@
                     </v-expansion-panel-text>
                 </v-expansion-panel>
                 <v-expansion-panel class="crd-trn" flat>
-                    <v-expansion-panel-title class="fs-16 font-weight-medium">Password &
+                    <v-expansion-panel-title class="fs-16 ">Password &
                         Security</v-expansion-panel-title>
-                    <v-expansion-panel-text class="fs-14">
+                    <v-expansion-panel-text class="fs-14 pt-0">
                         <v-btn @click="setChangepws()" class="text-none font-weight-bold elevation-0"
                             color="secbg">Change
                             Password</v-btn>
@@ -172,7 +172,11 @@
 
                         <p class="font-weight-medium subtext--text">Loggedin sessions</p>
                         <v-data-table :headers="sessionheader" :items="logsitems" :items-per-page="5"
-                            class="elevation-0" disable-sort hide-default-footer>
+                            class="elevation-0 session-table" disable-sort hide-default-footer>
+                            <template v-slot:[`item.uid`]="{ item }">
+                                <span class="txt-000">{{ item.uid }}</span>
+                            </template>
+
                             <template v-slot:[`item.actions`]="{ item }">
                                 <v-btn variant="text" class="font-weight-bold text-none px-0" color="primary"
                                     @click="setLogoutseee(item)">
@@ -180,19 +184,19 @@
                             </template>
 
                             <template v-slot:[`item.llt`]="{ item }">
-                                <span> {{ new Date(item.llt * 1000).toLocaleString() }}</span>
+                                <span class="txt-000"> {{ new Date(item.llt * 1000).toLocaleString() }}</span>
                             </template>
 
                             <template v-slot:[`item.source`]="{ item }">
                                 <v-badge color="primary" dot :model-value="item.source == source">
-                                    <span> {{ item.source }}</span>
+                                    <span class="txt-000"> {{ item.source }}</span>
                                 </v-badge>
                             </template>
                         </v-data-table>
                     </v-expansion-panel-text>
                 </v-expansion-panel>
-                <v-expansion-panel flat>
-                    <v-expansion-panel-title class="fs-16 font-weight-medium">Themes</v-expansion-panel-title>
+                <!-- <v-expansion-panel flat>
+                    <v-expansion-panel-title class="fs-16">Themes</v-expansion-panel-title>
                     <v-expansion-panel-text class="fs-14">
                         <v-radio-group @update:model-value="setChangeTheme()" v-model="themeradio">
                             <v-row>
@@ -211,117 +215,120 @@
                             </v-row>
                         </v-radio-group>
                     </v-expansion-panel-text>
-                </v-expansion-panel>
+                </v-expansion-panel> -->
                 <v-expansion-panel class="crd-trn" flat>
-                    <v-expansion-panel-title class="fs-16 font-weight-medium">Order Preference</v-expansion-panel-title>
+                    <v-expansion-panel-title class="fs-16">Order Preference</v-expansion-panel-title>
                     <v-expansion-panel-text class="fs-14">
-                        <p class="font-weight-medium subtext--text mb-2">Exchange default values</p>
-                        <v-row no-gutters class="mb-4">
-                            <v-col cols="6" md="3" class="pr-2">
-                                <v-select class="rounded-lg" append-inner-icon="mdi-chevron-down" v-model="exchtype"
-                                    :items="exchitems" label="Exchange" variant="outlined" hide-details
-                                    density="compact"></v-select>
+                        <p class="subtext--text fs-14 mb-5">Exchange default values</p>
+                        <v-row class="mb-6">
+                            <v-col cols="12" sm="6" md="3">
+                                <v-select v-model="exchtype" :items="exchitems" label="Exchange"  rounded="lg"
+                                    variant="outlined" hide-details density="compact" class="rounded-lg">
+                                </v-select>
                             </v-col>
-                            <v-col cols="6" md="3" class="px-1">
-                                <v-select class="rounded-lg" append-inner-icon="mdi-chevron-down"
-                                    v-model="qtypreitems[exchtype][0]"
-                                    :items="['NSE', 'BSE'].includes(exchtype) ? prditemso : prditemst" label="Product"
-                                    variant="outlined" hide-details density="compact"></v-select>
+                            <v-col cols="12" sm="6" md="3">
+                                <v-select v-model="qtypreitems[exchtype][0]"
+                                    :items="['NSE', 'BSE'].includes(exchtype) ? prditemso : prditemst" 
+                                    label="Product" variant="outlined" hide-details density="compact" 
+                                    rounded="lg">
+                                </v-select>
                             </v-col>
-                            <v-col cols="6" md="3" class="px-1">
-                                <v-select class="rounded-lg" append-inner-icon="mdi-chevron-down"
-                                    v-model="qtypreitems[exchtype][1]" item-title="txt" item-value="val"
+                            <v-col cols="12" sm="6" md="3">
+                                <v-select v-model="qtypreitems[exchtype][1]" item-title="txt" item-value="val"
                                     :items="['CO', 'BO'].includes(qtypreitems[exchtype][0]) ? ordtypeitemst : ordtypeitemso"
-                                    label="Order type" variant="outlined" hide-details density="compact"></v-select>
+                                    label="Order type" variant="outlined" hide-details density="compact" 
+                                    rounded="lg">
+                                </v-select>
                             </v-col>
-                            <v-col cols="6" md="3" class="pl-2">
-                                <v-select class="rounded-lg" append-inner-icon="mdi-chevron-down"
-                                    v-model="qtypreitems[exchtype][2]"
+                            <v-col cols="12" sm="6" md="3">
+                                <v-select v-model="qtypreitems[exchtype][2]"
                                     :items="['BFO', 'BCD'].includes(exchtype) ? duritemst : ['BSE'].includes(exchtype) ? duritemsr : duritemso"
-                                    label="Duration" variant="outlined" hide-details density="compact"></v-select>
+                                    label="Duration" variant="outlined" hide-details density="compact" 
+                                    rounded="lg">
+                                </v-select>
                             </v-col>
                         </v-row>
 
-                        <p class="font-weight-medium subtext--text mb-2">Quantity preferences</p>
-                        <v-radio-group v-model="qtypre" row class="mb-2">
+                        <p class="subtext--text fs-14 mb-3">Quantity preferences</p>
+                        <v-radio-group v-model="qtypre" class="mb-2 ml-0 pl-0" inline hide-details>
                             <v-radio label="Minimum quantity" value="0"></v-radio>
                             <v-radio label="Set no.of market lots" value="1"></v-radio>
                         </v-radio-group>
-                        <v-row no-gutters class="mb-4">
-                            <v-col cols="4" sm="3" md="2" v-for="(e, x) in qtypreitems" :key="x" class="pr-1">
-                                <v-text-field :disabled="qtypre == '0'" class="rounded-lg" v-model="qtypreitems[x][3]"
-                                    :label="x" type="number" placeholder="1" hide-spin-buttons variant="outlined"
-                                    hide-details density="compact"></v-text-field>
+                        <v-row class="mb-6">
+                            <v-col cols="6" sm="4" md="2" v-for="(e, x) in qtypreitems" :key="x">
+                                <v-text-field :disabled="qtypre == '0'" v-model="qtypreitems[x][3]"
+                                    :label="x" type="number" placeholder="1" hide-spin-buttons 
+                                    variant="outlined" rounded="lg" hide-details density="compact">
+                                </v-text-field>
                             </v-col>
                         </v-row>
 
-                        <p class="font-weight-medium subtext--text mb-2">Market protection % preferences</p>
-                        <v-text-field class="max-w-280 mb-4 rounded-lg" append-inner-icon="mdi-percent" v-model="mktpro"
-                            label="Market protection %" type="number" hide-spin-buttons variant="outlined" hide-details
-                            density="compact"></v-text-field>
+                        <p class="subtext--text fs-14 mb-5">Market protection % preferences</p>
+                        <v-text-field v-model="mktpro" label="Market protection %" 
+                            type="number" hide-spin-buttons variant="outlined" hide-details
+                            density="compact" rounded="lg" class=" mb-6" style="max-width: 280px;"
+                            append-inner-icon="mdi-percent">
+                        </v-text-field>
 
-                        <p class="font-weight-medium subtext--text mb-2">Position exit</p>
-                        <v-select class="max-w-280 mb-4 rounded-lg" append-inner-icon="mdi-chevron-down" v-model="expos"
-                            item-title="txt" item-value="val" :items="ordtypeitemex" label="Order type"
-                            variant="outlined" hide-details density="compact"></v-select>
+                        <p class="subtext--text fs-14 mb-5">Position exit</p>
+                        <v-select v-model="expos" item-title="txt" item-value="val" 
+                            :items="ordtypeitemex" label="Order type" variant="outlined" 
+                            hide-details density="compact" rounded="lg" class=" mb-6" 
+                            style="max-width: 280px;">
+                        </v-select>
 
-
-                        <p class="font-weight-medium subtext--text mb-2">Order screen</p>
-                        <v-row no-gutters class="mb-4">
-                            <v-col cols="12" sm="6" class="pr-2">
-                                <v-card class="elevation-0 rounded-xl my-1 ordsrcpop-switch" color="transparent">
-                                    <v-switch color="mt-n01 pt-n01" v-model="ordsrcpop" hide-details>
-                                        <template #label>
-                                            <v-tooltip location="bottom" color="black">
-                                                <template v-slot:activator="{ props }">
-                                                    <p v-bind="props" class="pl-1 fw-6 fs-13 maintext--text mb-0 pt-1">
-                                                        Sticky
-                                                        {{
-                                                            ordsrcpop ? "On" : "Off" }} <v-icon color="maintext"
-                                                            size="12">mdi-information-outline</v-icon></p>
-                                                </template>
-                                                <span>The order screen stays <br />
-                                                    open after order placement.</span>
-                                            </v-tooltip>
-                                        </template>
+                        <p class="subtext--text fs-14 mb-5">Order screen</p>
+                        <v-row class="mb-6">
+                            <v-col cols="12" md="6">
+                                <div class="d-flex align-center">
+                                    <v-switch v-model="ordsrcpop" hide-details  
+                                        density="compact" class="mr-2">
                                     </v-switch>
-                                </v-card>
+                                    <span class="txt-000 fs-14">Sticky {{ ordsrcpop ? "Off" : "On" }}</span>
+                                    <v-tooltip location="top" color="black">
+                                        <template v-slot:activator="{ props }">
+                                            <v-icon v-bind="props" size="16" class="ml-1" color="subtext">
+                                                mdi-information-outline
+                                            </v-icon>
+                                        </template>
+                                        <span>The order screen stays<br />open after order placement.</span>
+                                    </v-tooltip>
+                                </div>
                             </v-col>
-                            <v-col cols="12" sm="6" class="pl-2">
-                                <v-card class="elevation-0 rounded-xl my-1 ordsrcpop-switch" color="transparent">
-                                    <v-switch color="mt-n01 pt-n01" v-model="quickord" hide-details>
-                                        <template #label>
-                                            <v-tooltip location="bottom" color="black">
-                                                <template v-slot:activator="{ props }">
-                                                    <p v-bind="props" class="pl-1 fw-6 fs-13 maintext--text mb-0 pt-1">
-                                                        Quick
-                                                        Order screen
-                                                        {{
-                                                            quickord ? "enable" : "disable" }} <v-icon color="maintext"
-                                                            size="12">mdi-information-outline</v-icon></p>
-                                                </template>
-                                                <span>The Quick Order screen <br /> will enable default</span>
-                                            </v-tooltip>
-                                        </template>
+                            <v-col cols="12" md="6">
+                                <div class="d-flex align-center">
+                                    <v-switch v-model="quickord" hide-details  
+                                        density="compact" class="mr-2">
                                     </v-switch>
-                                </v-card>
+                                    <span class="txt-000 fs-14">Quick Order screen {{ quickord ? "enable" : "disable" }}</span>
+                                    <v-tooltip location="top" color="black">
+                                        <template v-slot:activator="{ props }">
+                                            <v-icon v-bind="props" size="16" class="ml-1" color="subtext">
+                                                mdi-information-outline
+                                            </v-icon>
+                                        </template>
+                                        <span>The Quick Order screen<br />will enable default</span>
+                                    </v-tooltip>
+                                </div>
                             </v-col>
                         </v-row>
 
-                        <v-row no-gutters class="mt-4">
-                            <v-col cols="auto">
+                        <v-row class="mt-4">
+                            <v-col cols="auto" class="pt-0">
                                 <v-btn @click="setSaveperf()" color="btnclr"
-                                    class="font-weight-bold text-none rounded-pill elevation-0 btntext--text mr-4 px-6">
-                                    Apply </v-btn>
-                                <v-btn @click="setSaveperf(true)" color="secbg"
-                                    class="font-weight-bold text-none rounded-pill elevation-0 subtext--text px-6">
-                                    Reset </v-btn>
+                                    class="text-none rounded-pill elevation-0 btntext--text mr-3 px-8">
+                                    Apply
+                                </v-btn>
+                                <v-btn @click="setSaveperf(true)" variant="outlined"
+                                    class="text-none rounded-pill elevation-0 px-8">
+                                    Reset
+                                </v-btn>
                             </v-col>
                         </v-row>
                     </v-expansion-panel-text>
                 </v-expansion-panel>
                 <v-expansion-panel class="crd-trn" flat>
-                    <v-expansion-panel-title class="fs-16 font-weight-medium">Layout
+                    <v-expansion-panel-title class="fs-16">Layout
                         Preference</v-expansion-panel-title>
                     <v-expansion-panel-text class="fs-14">
                         <p class="font-weight-medium subtext--text pb-0">WatchList</p>
@@ -329,11 +336,11 @@
                             <v-row>
                                 <v-col cols="6" md="2"><v-card height="60px" style="border: 1px solid #e0e0e0;"
                                         variant="outlined" class="pa-3 rounded-lg" width="100%"> <v-radio label="Left"
-                                            value="true"></v-radio>
+                                            value="false"></v-radio>
                                     </v-card></v-col>
                                 <v-col cols="6" md="2"><v-card height="60px" style="border: 1px solid #e0e0e0;"
                                         variant="outlined" class="pa-3 rounded-lg" width="100%"> <v-radio label="Right"
-                                            value="false"></v-radio>
+                                            value="true"></v-radio>
                                     </v-card></v-col>
                             </v-row>
                         </v-radio-group>
@@ -344,7 +351,14 @@
                     <v-expansion-panel-title class="fs-16 font-weight-medium">Log</v-expansion-panel-title>
                     <v-expansion-panel-text class="fs-14">
                         <v-data-table hide-default-footer :headers="snackheaders" :items="snacklogs"
-                            must-sort></v-data-table>
+                            must-sort class="logs-table">
+                            <template v-slot:[`item.time`]="{ item }">
+                                <span class="txt-000">{{ item.time }}</span>
+                            </template>
+                            <template v-slot:[`item.msg`]="{ item }">
+                                <span class="txt-000">{{ item.msg }}</span>
+                            </template>
+                        </v-data-table>
                     </v-expansion-panel-text>
                 </v-expansion-panel>
             </v-expansion-panels>
@@ -420,7 +434,7 @@ const mktpro = ref(5)
 const orderpref = reactive({})
 
 const sessionheader = ref([
-    { title: "User Id", align: "start", sortable: false, key: "uid" },
+    { title: "User Id", align: "start", sortable: false, key: "uid" ,class:"txt-000"},
     { title: "Source", key: "source", sortable: false },
     { title: "Last loggedin time", key: "llt", sortable: false },
     { title: "Actions", key: "actions", align: "start", sortable: false },
@@ -455,7 +469,21 @@ const setWebsocket = (flow, data) => {
 }
 
 const setWLlayout = () => {
-    window.dispatchEvent(new CustomEvent('wllayout-event'))
+    // Convert string value to boolean (now: false = Left, true = Right)
+    const layoutValue = wllayoutradio.value === 'true'
+    
+    // Update the app store (this triggers reactive updates)
+    appStore.setWatchlistLayout(layoutValue)
+    
+    // Save to localStorage
+    localStorage.setItem(`${uid.value}_wllayout`, wllayoutradio.value)
+    
+    // Dispatch event with the layout value for any components listening
+    window.dispatchEvent(new CustomEvent('wllayout-event', { 
+        detail: { layout: layoutValue } 
+    }))
+    
+  
 }
 
 const setClientdata = async () => {
@@ -744,3 +772,19 @@ onBeforeUnmount(() => {
     }
 })
 </script>
+
+<style scoped>
+.session-table :deep(thead tr th) {
+    background-color: transparent !important;
+    color: grey !important;
+}
+
+.logs-table :deep(thead tr th) {
+    background-color: transparent !important;
+    color: grey !important;
+}
+
+.v-label {
+  color: black !important;
+}
+</style>

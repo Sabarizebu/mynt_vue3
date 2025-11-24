@@ -17,8 +17,8 @@
           <!-- Three Cards Div - Position Absolute -->
           <div class="pos-abs d-none d-md-flex align-stretch"
             style="right: 16px; top: 130px; transform: translateY(-50%); gap: 12px;">
-            <v-card width="170px" class="pb-4 stk-land-crds rounded-lg text-center d-flex flex-column"
-              style="height: 200px;">
+            <v-card width="170px" class="pb-4 stk-land-crds  text-center d-flex flex-column"
+              style="height: 200px; border-radius: 15px;">
               <img :src="mainCard1Src" class="px-4 pt-6 pb-2" alt="main-card-1" width="79%" />
               <p class="fs-16 font-weight-bold lh-16 px-4 mt-1 mb-0 maintext--text">
                 Build wealth<br />
@@ -26,8 +26,8 @@
                 main IPOs
               </p>
             </v-card>
-            <v-card width="170px" class="pb-4 stk-land-crds rounded-lg text-center d-flex flex-column"
-              style="height: 200px;">
+            <v-card width="170px" class="pb-4 stk-land-crds  text-center d-flex flex-column"
+              style="height: 200px; border-radius: 15px;">
               <img :src="mainCard2Src" class="px-4 pt-6 pb-2" alt="main-card-2" width="79%" />
               <p class="fs-16 font-weight-bold lh-16 px-4 mt-1 mb-0 maintext--text">
                 Invest safely<br />
@@ -35,8 +35,8 @@
                 via UPI.
               </p>
             </v-card>
-            <v-card width="170px" class="pb-4 stk-land-crds rounded-lg text-center d-flex flex-column"
-              style="height: 200px;">
+            <v-card width="170px" class="pb-4 stk-land-crds  text-center d-flex flex-column"
+              style="height: 200px; border-radius: 15px;">
               <img :src="mainCard3Src" class="px-4 pt-6 pb-2" alt="main-card-3" width="79%" />
               <p class="fs-16 font-weight-bold lh-16 px-4 mt-1 mb-0 maintext--text">
                 Check IPO <br />
@@ -558,10 +558,7 @@ const differentDate = (date) => {
 </script>
 
 <style>
-.stk-land-crds {
-  background-color: linear-gradient(270deg, #fff 77.04%, #f6f6f6 115%), #fff !important;
-  box-shadow: 0px 38.519px 25.482px 0px rgba(83, 30, 0, 0.04), 0px 20px 13px 0px rgba(83, 30, 0, 0.04), 0px 8.148px 6.519px 0px rgba(83, 30, 0, 0.03), 0px 1.852px 3.148px 0px rgba(83, 30, 0, 0.02) !important;
-}
+
 
 .grey--text {
   color: grey;

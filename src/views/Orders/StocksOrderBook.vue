@@ -537,7 +537,7 @@
 
                 <div v-if="singledata.status !== 'COMPLETE'" style="border-bottom: 1px solid #EBEEF0;">
                     <div class="px-4 py-2">
-                        <p class="subtext--text font-weight-medium fs-13 mb-1">Rejected reason</p>
+                        <p class="fs-16 mb-1">Rejected reason</p>
                         <p class="error--text font-weight-bold fs-14 mb-0" style="color: #F05152 !important;">{{
                             singledata.rejreason ||
                             '-' }}
@@ -628,16 +628,16 @@
 
         <!-- Order History Dialog -->
         <v-dialog v-model="orderhistory" max-width="720" :scrim="false" scrollable>
-            <v-card elevation="4" style="border-radius: 20px !important;" class="py-4 overflow-hidden">
+            <v-card elevation="10" style="border-radius: 20px !important;" class="py-4 overflow-hidden">
                 <div class="px-6" v-if="orderhistorydata && orderhistorydata[0]">
                     <v-list-item-title class="font-weight-bold fs-20 title maintext--text mb-0"
                         style="border-bottom: 1px solid #EBEEF0;">Order history
                         <v-icon @click="orderhistory = false; orderhistorydata = []" class="float-right"
-                            color="maintext">mdi-close</v-icon>
+                            color="maintext" size="25">mdi-close</v-icon>
                     </v-list-item-title>
 
                     <!-- First Row: Order Number, User ID, Account Id, Exchange, Product -->
-                    <v-card class="elevation-0 py-2 mt-2" color="secbg">
+                    <v-card class="elevation-0 py-2 mt-3" color="secbg">
                         <v-row class="pa-3">
                             <v-col cols="2" class="py-0 mr-4">
                                 <p class="caption mb-1 fs-12 text-no-wrap">Order Number</p>
@@ -725,15 +725,30 @@
 
 
                     <!-- Data Table -->
-                    <v-card style="border: 1px solid #E4E4E4;" class="mb-3 mt-2">
-                        <v-data-table fixed-header dense height="128" :headers="orderhistoryhead"
-                            :items="orderhistorydata" :items-per-page="-1" class="elevation-0 rounded-lg smallest-table"
+                    
+                        <v-data-table fixed-header dense disable-sort="true" :headers="orderhistoryhead" 
+                            :items="orderhistorydata" :items-per-page="-1" elevation="0" solo class="rounded-lg smallest-table holdings-table mb-3 mt-3"
                             hide-default-footer>
                             <template #item.qty="{ item }">
                                 <span>{{ item.qty / (item.exch === 'MCX' ? item.ls : 1) }}</span>
                             </template>
+                            <template #item.norentm="{ item }">
+                                <span class="fs-13">{{ item.norentm }}</span>
+                            </template>
+                            <template #item.exch="{ item }">
+                                <span class="fs-13">{{ item.exch }}</span>
+                            </template>
+                                <template #item.prc="{ item }">
+                                <span class="fs-13">{{ item.prc }}</span>
+                            </template>
+                            <template #item.status="{ item }">
+                                <span class="fs-13">{{ item.status }}</span>
+                            </template>
+                            <template #item.modifi="{ item }">
+                                <span class="fs-13">{{ item.modifi }}</span>
+                            </template>
                         </v-data-table>
-                    </v-card>
+            
 
 
                     <!-- Additional Details Grid -->
@@ -828,7 +843,7 @@
 
                     <!-- Rejected Reason -->
                     <div class="mt-3">
-                        <p class="font-weight-medium fs-16 mb-1 maintext--text">Rejected reason</p>
+                        <p class=" fs-16 mb-1 maintext--text">Rejected reason</p>
                         <p class="mainred--text fs-16 mb-0">{{ orderhistorydata?.[0]?.rejreason || '-' }}</p>
                     </div>
                 </div>
@@ -992,7 +1007,7 @@ const orderheader = [
 ]
 
 const orderhistoryhead = [
-    { title: 'Date Time', key: 'norentm' },
+    { title: 'Date Time', key: 'norentm' , },
     { title: 'Exch Time', key: 'exch' },
     { title: 'Price', key: 'prc' },
     { title: 'Pending Qty', key: 'qty' },
@@ -1902,50 +1917,82 @@ onBeforeUnmount(() => {
     color: black !important;
 }
 
-/* Data table header font size */
-:deep(.v-data-table thead th),
-:deep(.v-data-table table thead th),
-:deep(.v-data-table .v-data-table__wrapper table thead th),
-:deep(.v-data-table.v-data-table--fixed-header thead th),
-:deep(.v-data-table.v-data-table--fixed-header table thead th),
-:deep(.holdings-table.v-data-table thead th),
-:deep(.holdings-table.v-data-table table thead th),
-:deep(.holdings-table.v-data-table .v-data-table__wrapper table thead th),
-:deep(.holdings-table.v-data-table.v-data-table--fixed-header thead th),
-:deep(.holdings-table.v-data-table.v-data-table--fixed-header table thead th) {
-    font-size: 13px !important;
-}
-
+/* Table font size */
 .smallest-table .v-data-table__th,
 .smallest-table .v-data-table__td {
     font-size: 13px !important;
-    white-space: nowrap !important;
-    padding-top: 4px !important;
-    padding-bottom: 4px !important;
+    white-space: nowrap;
+ 
 }
 
-/* Header text wrap none */
+
+
+/* Header text color grey */
+.smallest-table .v-data-table__th,
 .smallest-table .v-data-table__th span {
-    white-space: nowrap !important;
+    color: #999 !important;  /* grey */
 }
+
+/* All table body cells use txt-000 styling */
+.smallest-table .v-data-table__td,
+.smallest-table .v-data-table__td span {
+    /* apply your txt-000 class styles here */
+    color: #000 !important; /* example: black text */
+    /* add other txt-000 styles below if any */
+}
+
 
 /* Reduce header height */
 .smallest-table thead tr {
-    height: 28px !important;
+  height: 20px !important;
+  min-height: 20px !important;
 }
+
+/* Reduce the height of each TH cell */
+.smallest-table .v-data-table__th {
+  padding-top: 0px !important;
+  padding-bottom: 0px !important;
+  padding-left: 6px !important;
+  padding-right: 6px !important;
+  height: 20px !important;
+  min-height: 20px !important;
+  line-height: 20px !important;
+}
+
+
+
+
 
 /* Reduce row height */
 .smallest-table tbody tr {
     height: 28px !important;
 }
 
+/* Remove all shadows */
+.smallest-table .v-data-table {
+    box-shadow: none !important;
+}
+.v-data-table .v-data-table__td {
+  white-space: nowrap !important;
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+}
+/* Reduce TD height */
+.smallest-table .v-data-table__td {
+  padding-top: 2px !important;
+  padding-bottom: 2px !important;
+  height: 20px !important;
+  line-height: 18px !important;
+  vertical-align: middle !important;
+}
+
+
 .bgg-color {
     background-color: #F1F3F8 !important;
 }
-</style>
 
 
-<style scoped>
+
 .order-detail-grid {
     margin-bottom: 12px;
 }
@@ -1960,7 +2007,7 @@ onBeforeUnmount(() => {
 
 .label {
     float: left;
-    color: #6f6f6f;
+    color:black;
     font-size: 14px !important;
     flex-grow: 1 !important;
     margin-right: 6px;
