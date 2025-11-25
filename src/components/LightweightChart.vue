@@ -17,7 +17,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch, nextTick, toRaw } from 'vue'
 import { useTheme } from 'vuetify'
 import axios from 'axios'
 import { mynturl } from '@/apiurl'
@@ -339,56 +339,70 @@ const setLWchart = async (init) => {
 
     const container = chartContainer.value
 
+    // Remove existing tooltip if any to prevent duplicates
+    const existingTooltip = container.querySelector('.lw-tooltip')
+    if (existingTooltip) {
+        existingTooltip.remove()
+    }
+
     const toolTipWidth = 80
     const toolTipHeight = 80
-    const toolTipMargin = 16
+    const toolTipMargin = 15
 
     const toolTip = document.createElement("div")
-    toolTip.style = `position: absolute; display: none; box-sizing: border-box; z-index: 1000; top: 12px; left: 12px; pointer-events: none; border: 1px solid; border-radius: 6px;`
-    toolTip.style.background = isDark ? "#000" : "#fff"
-    toolTip.style.borderColor = "#EBEEF0"
+    toolTip.className = 'lw-tooltip'
+    toolTip.style.position = 'absolute'
+    toolTip.style.display = 'none'
+    toolTip.style.boxSizing = 'border-box'
+    toolTip.style.zIndex = '1000'
+    toolTip.style.top = '12px'
+    toolTip.style.left = '12px'
+    toolTip.style.pointerEvents = 'none'
+    toolTip.style.border = '1px solid'
+    toolTip.style.borderRadius = '4px'
+    toolTip.style.padding = '8px'
+    toolTip.style.background = isDark ? "rgba(0, 0, 0, 0.8)" : "rgba(255, 255, 255, 0.9)"
+    toolTip.style.borderColor = isDark ? "#333" : "#eee"
+    toolTip.style.color = isDark ? "#fff" : "#000"
+    toolTip.style.boxShadow = "0 2px 5px rgba(0,0,0,0.2)"
+    
     container.appendChild(toolTip)
 
     chart.value.subscribeCrosshairMove((param) => {
-        // Comprehensive validation checks
         if (
             param.point === undefined ||
             !param.time ||
             param.point.x < 0 ||
             param.point.x > container.clientWidth ||
             param.point.y < 0 ||
-            param.point.y > container.clientHeight ||
-            !param.seriesData ||
-            !lineSeries.value ||
-            !symbol.value ||
-            !symbol.value.tsym
+            param.point.y > container.clientHeight
         ) {
             toolTip.style.display = "none"
             return
         }
 
-        // Get series data and validate
-        const data = param.seriesData.get(lineSeries.value)
-        if (!data) {
-            toolTip.style.display = "none"
-            return
-        }
-
-        // Validate price data exists
-        const price = data.value !== undefined ? data.value : (data.close !== undefined ? data.close : null)
-        if (price === null || price === undefined || isNaN(price)) {
-            toolTip.style.display = "none"
-            return
-        }
-
-        // time will be in the same format that we supplied to setData.
-        // thus it will be YYYY-MM-DD
         const dateStr = param.time
         toolTip.style.display = "block"
-
-        try {
-            toolTip.innerHTML = `<div class=" rounded-lg px-2 pt-2 pb-1"><div class="font-weight-medium maintext--text fs-14">${symbol.value.tsym || ''}</div> <div class="font-weight-bold maintext--text fs-16 py-1">₹${Math.round(100 * price) / 100}</div> <div class="font-weight-medium subtext--text fs-12">${showDateformat(dateStr)}</div></div>`
-
+        
+        // Find the series data using toRaw to handle Vue proxies
+        const series = toRaw(lineSeries.value)
+        const data = param.seriesData.get(series)
+        const price = data ? (data.value !== undefined ? data.value : data.close) : null
+        
+        if (price !== null && price !== undefined) {
+             toolTip.innerHTML = `
+                <div style="font-size: 12px; font-weight: 500; margin-bottom: 4px;">${symbol.value.tsym || ''}</div>
+                <div style="font-size: 14px; font-weight: 700; color: ${isDark ? '#fff' : '#000'}">₹${Number(price).toFixed(2)}</div>
+                <div style="font-size: 11px; color: ${isDark ? '#aaa' : '#666'}">${showDateformat(dateStr)}</div>
+            `
+            
+            // Use the raw series for coordinate conversion too
+            const coordinate = series.priceToCoordinate(price)
+            
+            if (coordinate === null) {
+                return
+            }
+            
             const y = param.point.y
             let left = param.point.x + toolTipMargin
             if (left > container.clientWidth - toolTipWidth) {
@@ -399,10 +413,10 @@ const setLWchart = async (init) => {
             if (top > container.clientHeight - toolTipHeight) {
                 top = y - toolTipHeight - toolTipMargin
             }
+            
             toolTip.style.left = left + "px"
             toolTip.style.top = top + "px"
-        } catch (error) {
-            // console.error('Error updating tooltip:', error)
+        } else {
             toolTip.style.display = "none"
         }
     })

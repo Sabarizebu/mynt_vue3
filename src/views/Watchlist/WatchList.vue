@@ -63,10 +63,10 @@
                         :class="mwfilter === item.key ? 'primary--text bg-primary-lighten-5' : ''"
                         class="px-4 py-2 cursor-pointer" style="font-size: 10px !important;">
                         <p :class="mwfilter === item.key ? 'font-weight-bold' : ''"
-                            style="font-size: 10px !important;padding-block: 2px !important;">
+                            style="font-size: 13px !important;padding-block: 2px !important;">
                             {{ item.text }}
                         </p>
-                        <v-icon v-if="mwfilter === item.key" color="primary" size="small">mdi-check</v-icon>
+                      
                     </div>
                 </v-card>
             </v-menu>
@@ -320,10 +320,10 @@
 
 
         <!-- Floating Basket Button (when minimized) -->
-        <div v-if="!optchainbasket && optchainbasketdata && optchainbasketdata.length > 0" class="pos-abs"
-            style="bottom: 0; right: 0">
+        <div v-if="!optchainbasket && optchainbasketdata && optchainbasketdata.length > 0" class="fixed-bottom-button"
+            >
             <v-btn @click="optchainbasket = true" color="primary" icon="true" variant="elevated">
-                <v-badge :content="optchainbasketdata.length" color="warning">
+                <v-badge :content="optchainbasketdata.length" color="warning" size="25">
                     <img width="24px" :src="getAssetPath('usermenu/9d.svg')" />
                 </v-badge>
             </v-btn>
@@ -760,7 +760,7 @@
                                                             color="#506D84">{{ m.icon }}</v-icon>
                                                         <v-icon v-else color="#506D84">{{ m.icon }}</v-icon>
                                                     </template>
-                                                    <v-list-item-title class="subline--text font-weight-medium fs-14">
+                                                    <v-list-item-title class="subline--text font-weight-medium fs-14 pl-3">
                                                         {{ m.name }}
                                                     </v-list-item-title>
                                                 </v-list-item>
@@ -890,7 +890,7 @@
                                                     color="#506D84">{{ m.icon }}</v-icon>
                                                 <v-icon v-else color="#506D84">{{ m.icon }}</v-icon>
                                             </template>
-                                            <v-list-item-title class="subline--text font-weight-medium fs-14 pl-2">
+                                            <v-list-item-title class="subline--text font-weight-medium fs-14 pl-2 ">
                                                 {{ m.name }}
                                             </v-list-item-title>
                                         </v-list-item>

@@ -3,7 +3,10 @@
         <v-app-bar color="cardbg" width="100%" permanent class="cust-appbar">
             <img @click="toHome()" :src="$vuetify.theme.dark ? logod : logo" width="80px" alt="zebulogo" class="mr-4" />
 
-            <v-btn :to="t.path != '/optionz' ? t.path : ''" @click="appMainPage(t)" v-for="(t, index) in dashitems"
+            <v-btn 
+                :to="t.path != '/optionz' ? t.path : ''"
+                @click="t.path === '/optionz' ? appMainPage(t, $event) : null"
+                v-for="(t, index) in dashitems"
                 :key="index" text variant="plain" exact
                 :class="['menu-btn', 'text-capitalize', 'd-none', 'd-sm-flex', { 'menu-btn-active': isRouteActive(t.path) }]"
                 :active="isRouteActive(t.path)">
@@ -485,8 +488,11 @@ const toHome = () => {
     router.push("/stocks")
 }
 
-const appMainPage = async (t) => {
+const appMainPage = async (t, event) => {
     if (t.path === "/optionz") {
+        // Prevent default navigation since we're opening in new window
+        if (event) event.preventDefault()
+        
         if (!authStore.useris()) {
             goLogin()
             return

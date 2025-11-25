@@ -163,29 +163,43 @@ export default {
       var indicators = await getIndicators();
 
       setInterval(async function () {
-        var d = window.tvWidget.activeChart().getAllStudies();
-        var c = [];
-        for (var i = 0; i < d.length; i++) {
-          var a = d[i].name;
-          if (a != "Volume") {
-            c.push(a);
-          }
+        // Check if widget exists and is ready before accessing
+        if (!window.tvWidget || !window.tvWidget.activeChart) {
+          return;
         }
-        if (JSON.stringify(indicators.data) != JSON.stringify(c)) {
-          try {
-            let res = await setIndicators(c)
-            indicators = res;
+        
+        try {
+          var d = window.tvWidget.activeChart().getAllStudies();
+          var c = [];
+          for (var i = 0; i < d.length; i++) {
+            var a = d[i].name;
+            if (a != "Volume") {
+              c.push(a);
+            }
           }
-          catch (e) {
-            // console.log(e);
+          if (JSON.stringify(indicators.data) != JSON.stringify(c)) {
+            try {
+              let res = await setIndicators(c)
+              indicators = res;
+            }
+            catch (e) {
+              // console.log(e);
+            }
           }
+        } catch (e) {
+          // Chart not ready yet, skip this interval
         }
       }, 5000);
 
-      if (indicators.data) {
-        for (var i = 0; i < indicators.data.length; i++) {
-          // console.log(indicators['data'][0])
-          window.tvWidget.activeChart().createStudy(indicators['data'][i], false, false);
+      // Check if widget is ready before creating studies
+      if (indicators.data && window.tvWidget && window.tvWidget.activeChart) {
+        try {
+          for (var i = 0; i < indicators.data.length; i++) {
+            // console.log(indicators['data'][0])
+            window.tvWidget.activeChart().createStudy(indicators['data'][i], false, false);
+          }
+        } catch (e) {
+          // Chart not ready, studies will be added later
         }
       }
     },

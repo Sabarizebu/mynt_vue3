@@ -921,7 +921,7 @@ const updateParams = async () => {
     } else if (local && local.includes(":")) {
         checkScript(local)
     } else {
-        router.push(`/symbol_not_found`)
+        router.push(`/stocks`)
     }
 }
 
@@ -931,7 +931,7 @@ const checkScript = async (params) => {
         setSingleData(quotesdata.token, quotesdata.exch, quotesdata.tsym, quotesdata)
         localStorage.setItem("Cdfgh=", params.tsym ? params.tsym : params)
     } else {
-        router.push(`/symbol_not_found`)
+        router.push(`/stocks`)
     }
 }
 

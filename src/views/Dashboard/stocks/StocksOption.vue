@@ -331,13 +331,13 @@
                                             <!-- Hover Action Buttons (Left Side) -->
                                     <tr v-if="script.token" class="opdatacallupbtn lfttrbtn"
                                         style="margin-left: -192px">
-                                        <th colspan="1" @click="chartOption(script)">
+                                        <th colspan="1" @click="setSSDtab('chart', script.token, script.exch, script.tsym)">
                                             <div style="min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
                                                 class="cursor-p mr-1">
                                                 <v-icon size="16" color="maintext">mdi-chart-line-variant</v-icon>
                                             </div>
                                         </th>
-                                        <th colspan="1" @click="depthOption(script)">
+                                        <th colspan="1" @click="setSSDtab('depth', script.token, script.exch, script.tsym)">
                                             <div style="min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
                                                 class="cursor-p mr-1">
                                                 <v-icon size="16" color="maintext">mdi-format-align-center</v-icon>
@@ -349,7 +349,7 @@
                                                 <img width="16px" :src="getBasketIcon()" />
                                             </div>
                                         </th>
-                                        <th colspan="1" @click="addOption(script)">
+                                        <th colspan="1" @click.stop="handleAddToWatchlist(script)">
                                             <div style="min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
                                                 class="cursor-p mr-1">
                                                 <v-icon size="16" color="maintext">mdi-bookmark-outline</v-icon>
@@ -442,7 +442,7 @@
                                                 <div style="background-color: #F23645 !important;color: #fff !important;"
                                                     class="newhoverbtn newhoverbtnsize white--text cursor-p">S</div>
                                             </th>
-                                            <th colspan="1" @click="addOption(script, optionsStore.upputSO)">
+                                            <th colspan="1" @click="handleAddToWatchlist(script)">
                                                 <div style="min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
                                                     class="cursor-p">
                                                     <v-icon size="16" color="maintext">mdi-bookmark-outline</v-icon>
@@ -454,13 +454,13 @@
                                                     <img width="16px" :src="getBasketIcon()" />
                                                 </div>
                                             </th>
-                                            <th colspan="1" @click="depthOption(script, optionsStore.upputSO)">
+                                            <th colspan="1" @click="setSSDtab('depth', script.token, script.exch, script.tsym)">
                                                 <div style="min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
                                                     class="cursor-p ml-1">
                                                     <v-icon size="16" color="maintext">mdi-format-align-center</v-icon>
                                                 </div>
                                             </th>
-                                            <th colspan="1" @click="chartOption(script, optionsStore.upputSO)">
+                                            <th colspan="1" @click="setSSDtab('chart', script.token, script.exch, script.tsym)">
                                                 <div style="min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
                                                     class="cursor-p ml-1">
                                                     <v-icon size="16" color="maintext">mdi-chart-line-variant</v-icon>
@@ -646,13 +646,13 @@
                                             <!-- Hover Action Buttons (Left Side) -->
                                     <tr v-if="script.token" class="opdatacallupbtn lfttrbtn"
                                         style="margin-left: -192px">
-                                        <th colspan="1" @click="chartOption(script)">
+                                        <th colspan="1" @click="setSSDtab('chart', script.token, script.exch, script.tsym)">
                                             <div style="min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
                                                 class="cursor-p mr-1">
                                                 <v-icon size="16" color="maintext">mdi-chart-line-variant</v-icon>
                                             </div>
                                         </th>
-                                        <th colspan="1" @click="depthOption(script)">
+                                        <th colspan="1" @click="setSSDtab('depth', script.token, script.exch, script.tsym)">
                                             <div style="min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
                                                 class="cursor-p mr-1">
                                                 <v-icon size="16" color="maintext">mdi-format-align-center</v-icon>
@@ -664,7 +664,7 @@
                                                 <img width="16px" :src="getBasketIcon()" />
                                             </div>
                                         </th>
-                                        <th colspan="1" @click="addOption(script)">
+                                        <th colspan="1" @click="handleAddToWatchlist(script)">
                                             <div style="min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
                                                 class="cursor-p mr-1">
                                                 <v-icon size="16" color="maintext">mdi-bookmark-outline</v-icon>
@@ -757,7 +757,7 @@
                                                 <div style="background-color: #F23645"
                                                     class="newhoverbtn newhoverbtnsize white--text cursor-p">S</div>
                                             </th>
-                                            <th colspan="1" @click="addOption(script, optionsStore.dwnputSO)">
+                                            <th colspan="1" @click="handleAddToWatchlist(script)">
                                                 <div style="min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
                                                     class="cursor-p">
                                                     <v-icon size="16" color="maintext">mdi-bookmark-outline</v-icon>
@@ -769,13 +769,13 @@
                                                     <img width="16px" :src="getBasketIcon()" />
                                                 </div>
                                             </th>
-                                            <th colspan="1" @click="depthOption(script, optionsStore.dwnputSO)">
+                                            <th colspan="1" @click="setSSDtab()">
                                                 <div style="min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
                                                     class="cursor-p ml-1">
                                                     <v-icon size="16" color="maintext">mdi-format-align-center</v-icon>
                                                 </div>
                                             </th>
-                                            <th colspan="1" @click="chartOption(script, optionsStore.dwnputSO)">
+                                            <th colspan="1" @click="setSSDtab('chart', script.token, script.exch, script.tsym)">
                                                 <div style="min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
                                                     class="cursor-p ml-1">
                                                     <v-icon size="16" color="maintext">mdi-chart-line-variant</v-icon>
@@ -1113,7 +1113,7 @@ import { useTheme } from 'vuetify'
 import { useOptionsStore } from '@/stores/optionsStore'
 import { useAuthStore } from '@/stores/authStore'
 import { useAppStore } from '@/stores/appStore'
-import { getMasters, getOptionschain, getQuotesdata, getGreekoptions, getMPosotion } from '@/components/mixins/getAPIdata'
+import { getMasters, getOptionschain, getQuotesdata, getGreekoptions, getMPosotion, getMwatchlistset } from '@/components/mixins/getAPIdata'
 import basketIconLight from '@/assets/usermenu/9.svg'
 import basketIconDark from '@/assets/usermenu/9d.svg'
 import basketOrderIcon from '@/assets/usermenu/9opt.svg'
@@ -2312,23 +2312,30 @@ function chartOption(script, putArray) {
     }
 }
 
-function depthOption(script, putArray) {
-    // Match old code: depthOption logic exactly
-    let chart
-    if (typeof putArray === 'object' && putArray) {
-        chart = putArray.find((item) => item.strprc === script.strprc)
-    } else {
-        chart = script
-    }
+const setSSDtab = (type, token, exch, tsym) => {
+    const val = [type, token, exch, tsym]
 
-    // Match old code: eventBus.$emit('ssd-event', 'depth', chart.token, chart.exch, chart.tsym)
-    // StocksDetails expects both array and object formats - send as array for compatibility
-    if (chart && chart.token) {
-        window.dispatchEvent(new CustomEvent('ssd-event', {
-            detail: ['depth', chart.token, chart.exch, chart.tsym]
-        }))
+    localStorage.setItem('ssdParams', JSON.stringify(val))
+    localStorage.setItem('ssdtsym', `${exch}:${tsym}`)
+    localStorage.setItem('ssdtoken', token)
+
+    const currentPath = router.currentRoute.value.path
+
+    if (currentPath !== "/stocks/details") {
+        router.push({
+            name: "stocks details",
+            params: { val },
+            query: { type, token, exch, tsym }
+        })
+    } else {
+        const event = new CustomEvent('ssd-event', {
+            detail: { type, token, exch, tsym }
+        })
+        window.dispatchEvent(event)
     }
 }
+
+
 
 function basketOption(script, putArray) {
     // Match old code: basketOption logic exactly
@@ -2358,20 +2365,48 @@ function basketOption(script, putArray) {
     }
 }
 
-function addOption(script, putArray) {
-    // Match old code: addOption logic exactly
-    let Add
-    if (typeof putArray === 'object' && putArray) {
-        Add = putArray.find((item) => item.strprc === script.strprc)
-    } else {
-        Add = script
+const handleAddToWatchlist = async (item) => {
+    // Get current watchlist name from localStorage or use default
+    const currentUid = sessionStorage.getItem('userid')
+    const currentTok = sessionStorage.getItem('msession')
+    
+    if (!currentUid || !currentTok) {
+        appStore.showSnackbar(0, 'User not logged in.')
+        return
     }
 
-    // Match old code: eventBus.$emit('addscript-wl', Add)
-    if (Add) {
-        window.dispatchEvent(new CustomEvent('addscript-wl', {
-            detail: Add
-        }))
+    let watchlistName = 'Default'
+
+    // Try to get the current watchlist from localStorage
+    try {
+        const stored = localStorage.getItem(`${currentUid}_watchlists`)
+        if (stored) {
+            const watchlists = JSON.parse(stored)
+            if (watchlists && watchlists.length > 0) {
+                // Use the first watchlist or find the active one
+                watchlistName = watchlists[0].key || watchlists[0].name || 'Default'
+            }
+        }
+    } catch (e) {
+        console.error('Error getting watchlist:', e)
+    }
+
+    // Add to watchlist directly
+    try {
+        const res = await getMwatchlistset(
+            `jData={"uid":"${currentUid}","wlname":"${watchlistName}","scrips":"${item.exch}|${item.token}"}&jKey=${currentTok}`,
+            "AddMultiScripsToMW"
+        )
+
+        if (res.stat === "Ok") {
+            const scriptName = item.tsym || item.tsyms || 'Script'
+            appStore.showSnackbar(1, `${scriptName} added to watchlist`)
+        } else {
+            appStore.showSnackbar(0, res.emsg || 'Failed to add to watchlist')
+        }
+    } catch (error) {
+        console.error('Add to watchlist error:', error)
+        appStore.showSnackbar(0, 'Failed to add to watchlist')
     }
 }
 

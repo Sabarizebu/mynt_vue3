@@ -304,7 +304,7 @@
 
                     <v-select v-model="treemaps" :items="treemapitem" @update:model-value="setStatavddec()"
                         :readonly="issloading" variant="flat" density="compact" hide-details bg-color="secbg"
-                        class="w-100 rounded-pill fullwidth-select" style="color: white;max-width: 50%;"></v-select>
+                        class="w-100 rounded-pill fullwidth-select mb-1" style="color: white;max-width: 50%;"></v-select>
 
 
                 </div>
@@ -1556,7 +1556,7 @@ const setSinglestock = (tsym, item) => {
         // For logged-in users: use the detailed stocks view with trading features
         let path = [0, item.token, item.exch, item.tsym];
         // Store params for refresh persistence
-        console.log("iffffffffff");
+        
         
         localStorage.setItem('ssdParams', JSON.stringify(path));
         localStorage.setItem('ssdtsym', `${item.exch}:${item.tsym}`);
@@ -1572,10 +1572,9 @@ const setSinglestock = (tsym, item) => {
                 tsym: item.tsym
             }
         });
-    } else if (item.exch == "NSE" && item.tsym.slice(-2) ==  "EQ") {
+    } else if (item.exch == "NSE" && item.tsym.slice(-2) ==  "EQ" ) {
         router.push(`/stocks/${tsym.toLowerCase()}`);
-        
-        
+        console.log("else iffffffffff");
         
     }
     else{
@@ -2020,7 +2019,18 @@ const setStatavddec = async () => {
             });
             // Use setSSDtab to navigate to stock details with proper parameters
             const stockData = params.value[5];
-            setSSDtab('Details', stockData.token, stockData.exch, stockData.tsym);
+                if (uid.value) {
+                console.log("User not logged in");
+                setSSDtab('Details', stockData.token, stockData.exch, stockData.tsym);
+            }
+             else{
+
+         
+            router.push('/stocks');
+            
+            console.log("0987654321");
+             }
+            
         });
 
         // Ensure full-width rendering: resize on container/layout changes

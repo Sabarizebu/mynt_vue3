@@ -296,9 +296,7 @@ export async function getMHoldings(flowis) {
     }
 
     if (flowis && holdingsdata && holdingsdata.response && holdingsdata.response.length > 0) {
-        setTimeout(() => {
-            window.dispatchEvent(new CustomEvent('tempdata-update', { detail: holdingsdata }));
-        }, 10);
+        window.dispatchEvent(new CustomEvent('tempdata-update', { detail: holdingsdata }));
     }
     requestMOption['body'] = `jData={"uid":"${currentUid}","actid":"${currentUid}","prd":"C"}&jKey=${currentTok}`
     var data = await fetchMyntAPI(mynturl.myntapi + "Holdings", requestMOption)
@@ -338,11 +336,9 @@ export async function getMHoldings(flowis) {
     }
     if (data != 500) {
         holdingsdata = { response: holdlist, edis: sum };
-        // Always dispatch event after storing new data (with delay to ensure listeners are ready)
+        // Always dispatch event after storing new data
         if (flowis && holdingsdata && holdingsdata.response) {
-            setTimeout(() => {
-                window.dispatchEvent(new CustomEvent('tempdata-update', { detail: holdingsdata }));
-            }, 150);
+            window.dispatchEvent(new CustomEvent('tempdata-update', { detail: holdingsdata }));
         }
     }
     return holdingsdata
@@ -370,9 +366,7 @@ export async function getMPosotion(flowis) {
     }
 
     if (flowis && positiondata && positiondata.data && positiondata.data.length > 0) {
-        setTimeout(() => {
-            window.dispatchEvent(new CustomEvent('tempdata-update', { detail: positiondata }));
-        }, 10);
+        window.dispatchEvent(new CustomEvent('tempdata-update', { detail: positiondata }));
     }
     requestMOption['body'] = `jData={"uid":"${currentUid}","actid":"${currentUid}"}&jKey=${currentTok}`
 
@@ -411,11 +405,9 @@ export async function getMPosotion(flowis) {
     } else if (data != 500) {
         positiondata = data
     }
-    // Always dispatch event after storing new data (with delay to ensure listeners are ready)
+    // Always dispatch event after storing new data
     if (flowis && positiondata && (positiondata.a || positiondata.o)) {
-        setTimeout(() => {
-            window.dispatchEvent(new CustomEvent('tempdata-update', { detail: positiondata }));
-        }, 150);
+        window.dispatchEvent(new CustomEvent('tempdata-update', { detail: positiondata }));
     }
     return positiondata
 }
@@ -580,11 +572,9 @@ export async function getMOrderbook(flowis) {
     }
     if (response != 500) {
         ordersdata = { response: response, openorders: openorders, execorders: execorders, stat: stat };
-        // Always dispatch event after storing new data (with delay to ensure listeners are ready)
+        // Always dispatch event after storing new data
         if (flowis && ordersdata && ordersdata.stat) {
-            setTimeout(() => {
-                window.dispatchEvent(new CustomEvent('tempdata-update', { detail: ordersdata }));
-            }, 150);
+            window.dispatchEvent(new CustomEvent('tempdata-update', { detail: ordersdata }));
         }
     }
     return ordersdata
@@ -1450,7 +1440,8 @@ export async function getLtpdata(item) {
 
 export async function getGreekoptions(item) {
     requestOptions['body'] = item
-    var response = await fetchMyntAPI(apiurl.zebuApiUrl + "getoptiongreeks", requestOptions)
+    // Use longer timeout for Greeks API as calculations can be complex
+    var response = await fetchMyntAPI(apiurl.zebuApiUrl + "getoptiongreeks", requestOptions, false, 15000)
     return response
 }
 
@@ -1499,9 +1490,12 @@ export async function setIndicators(uid, c) {
 }
 
 export async function setOrdprefApi(data, url) {
+    // Get uid from sessionStorage to prevent undefined clientid
+    const currentUid = sessionStorage.getItem('userid') || uid
+
     requestOptions['body'] = url ? JSON.stringify(data) : "";
     var response = (!url && orderprefdata && orderprefdata.metadata && orderprefdata.metadata.mainpreitems) ? orderprefdata
-        : await fetchMyntAPI(apiurl.zebuApiUrl + (url ? "weblog/savepreference" : `weblog/getpreference?clientid=${uid}&source=WEB`), url ? requestOptions : { method: 'get' })
+        : await fetchMyntAPI(apiurl.zebuApiUrl + (url ? "weblog/savepreference" : `weblog/getpreference?clientid=${currentUid}&source=WEB`), url ? requestOptions : { method: 'get' })
     orderprefdata = url ? data : response;
     return response
 }
@@ -1529,7 +1523,7 @@ export async function mastermfapi() {
     return response
 }
 
-export async function fetchMyntAPI(path, reqopt, way) {
+export async function fetchMyntAPI(path, reqopt, way, customTimeout) {
     const reqt = new Date().toLocaleString();
     const store = getAppStore();
 
@@ -1538,10 +1532,12 @@ export async function fetchMyntAPI(path, reqopt, way) {
     const isMFWatchlist = path && path.includes('watchlist_for_mobile');
 
     try {
+        // Use custom timeout if provided, otherwise default to 5000ms
+        const timeout = customTimeout || 5000;
         // Use regular fetch for mutual fund watchlist (no timeout), fetchWithTimeout for others
         const response = isMFWatchlist
             ? await fetch(path, { ...reqopt, mode: 'cors', credentials: 'omit' })
-            : await fetchWithTimeout(path, reqopt, 5000);
+            : await fetchWithTimeout(path, reqopt, timeout);
         // Get stores early for session validation
         const authStore = useAuthStore();
         const sessionStore = useSessionStore();
@@ -1677,7 +1673,10 @@ export async function fetchMyntAPI(path, reqopt, way) {
         return data;
 
     } catch (error) {
-        console.error('[fetchMyntAPI] Error caught:', error);
+        // Don't log timeout errors as they are expected and handled gracefully
+        if (!(error.message === 'Request timeout' || error.name === 'AbortError' || error.message?.includes('timeout'))) {
+            console.error('[fetchMyntAPI] Error caught:', error);
+        }
         if (uid && tok) {
             const rest = new Date().toLocaleString();
             const status = error.status || 0;

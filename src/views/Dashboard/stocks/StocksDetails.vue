@@ -73,7 +73,7 @@
                 <v-tooltip v-if="selectTVChartLayoutMenu && popdialog" location="top" color="black">
                     <template v-slot:activator="{ props }">
                         <div v-bind="props">
-                            <v-menu location="bottom" offset="4">
+                            <v-menu v-model="chartLayoutMenu" location="bottom" offset="4">
                                 <template v-slot:activator="{ props: menuProps }">
                                     <div v-bind="menuProps">
                                         <v-btn :disabled="ssdloader" size="small" class="mr-2" icon>
@@ -83,11 +83,11 @@
                                     </div>
                                 </template>
                                 <v-list density="compact">
-                                    <v-list-item v-for="(layout, index) in tvChartLayoutType" :key="index">
-                                        <v-list-item-title>{{ layout.id }}</v-list-item-title>
+                                    <v-list-item class="pl-3" v-for="(layout, index) in tvChartLayoutType" :key="index">
+                                        <p class="pl-3">{{ layout.id }}</p>
                                         <template v-slot:append>
                                             <v-btn @click.stop="changeSelectedTVChartLayout(layout)"
-                                                :disabled="ssdloader" size="small" class="mr-2" icon>
+                                                :disabled="ssdloader" size="small" class="mr-0 elevation-0" icon>
                                                 <img width="20px"
                                                     :src="getTvChartIconUrl(layout.icon)" />
                                             </v-btn>
@@ -116,12 +116,65 @@
 
             <!-- Chart Tab -->
             <v-window-item :value="1">
-                <div v-if="currentTVChartLayoutType != 1">
-                    <TVMultiChartContainer :currentTVChartLayoutType="currentTVChartLayoutType" v-if="!popchart" />
+                <!-- Multi-Chart Layouts (2 or 4 charts) -->
+                <div v-if="currentTVChartLayoutType != 1" style="display: flex; flex-wrap: wrap; gap: 4px;">
+                    <!-- Layout Type 2: Two Charts Side by Side -->
+                    <template v-if="currentTVChartLayoutType === 2">
+                        <div style="flex: 1; min-width: 49%;">
+                            <TVMultiChartContainer 
+                                :key="`tv_chart_1-${currentTVChartLayoutType}`"
+                                containerId="tv_chart_1"
+                                :chartLayoutType="currentTVChartLayoutType"
+                                v-if="!popchart" />
+                        </div>
+                        <div style="flex: 1; min-width: 49%;">
+                            <TVMultiChartContainer 
+                                :key="`tv_chart_2-${currentTVChartLayoutType}`"
+                                containerId="tv_chart_2"
+                                :chartLayoutType="currentTVChartLayoutType"
+                                v-if="!popchart" />
+                        </div>
+                    </template>
+                    
+                    <!-- Layout Type 4: Four Charts in 2x2 Grid -->
+                    <template v-else-if="currentTVChartLayoutType === 4">
+                        <div style="flex: 1; min-width: 49%;">
+                            <TVMultiChartContainer 
+                                :key="`tv_chart_1-${currentTVChartLayoutType}`"
+                                containerId="tv_chart_1"
+                                :chartLayoutType="currentTVChartLayoutType"
+                                v-if="!popchart" />
+                        </div>
+                        <div style="flex: 1; min-width: 49%;">
+                            <TVMultiChartContainer 
+                                :key="`tv_chart_2-${currentTVChartLayoutType}`"
+                                containerId="tv_chart_2"
+                                :chartLayoutType="currentTVChartLayoutType"
+                                v-if="!popchart" />
+                        </div>
+                        <div style="flex: 1; min-width: 49%;">
+                            <TVMultiChartContainer 
+                                :key="`tv_chart_3-${currentTVChartLayoutType}`"
+                                containerId="tv_chart_3"
+                                :chartLayoutType="currentTVChartLayoutType"
+                                v-if="!popchart" />
+                        </div>
+                        <div style="flex: 1; min-width: 49%;">
+                            <TVMultiChartContainer 
+                                :key="`tv_chart_4-${currentTVChartLayoutType}`"
+                                containerId="tv_chart_4"
+                                :chartLayoutType="currentTVChartLayoutType"
+                                v-if="!popchart" />
+                        </div>
+                    </template>
                 </div>
+                
+                <!-- Single Chart Layout -->
                 <div v-else>
                     <div v-if="popdialog">
-                        <TVSingleChartContainer v-if="!popchart" />
+                        <TVSingleChartContainer 
+                            :key="`single-chart-${currentTVChartLayoutType}`"
+                            v-if="!popchart" />
                     </div>
                     <v-container class="elevation-0" color="transparent" v-else>
                         <div class="my-16 py-16 text-center">
@@ -365,7 +418,7 @@ import toPipLargeIcon from '/src/assets/topip.svg'
 import noDataIcon from '/src/assets/no data folder.svg'
 
 const getTvChartIconUrl = (iconName) => {
-    return new URL(`/src/assets/tv_chart_icon/${iconName}.svg`, import.meta.url).href
+  return new URL(`/src/assets/tv_chart_icon/${iconName}.svg`, import.meta.url).href
 }
 
 const route = useRoute()
@@ -382,9 +435,10 @@ const tvChartLayoutType = ref([
     { id: 2, icon: 'dio-chart' },
     { id: 4, icon: 'quadro-chart' },
 ])
+const chartLayoutMenu = ref(false)
 
 // Loading State
-const ssdloader = ref(true)
+const ssdloader = ref(false)
 const bodytab = ref(0)
 
 // Tabs Configuration
@@ -407,7 +461,7 @@ const equlsdata = ref([])
 const optiondata = ref([])
 const futuredata = ref([])
 const securityinfos = ref({})
-const uniqkey = ref([])
+const uniqkey = ref(['', '', 'Your Script Symbol'])
 const maindata = ref(null)
 const linkedscrips = ref(null)
 
@@ -439,8 +493,26 @@ const futurechainhead = computed(() => [
 
 // Methods: Chart Layout
 const changeSelectedTVChartLayout = (layout) => {
+    // Close the menu immediately
+    chartLayoutMenu.value = false
+    
+    // Update layout type and icon
     currentTVChartLayoutType.value = layout.id
     currentTVChartLayoutIcon.value = layout.icon
+    
+    // Ensure popdialog is true so charts can render
+    popdialog.value = true
+    
+    // Use nextTick to ensure the DOM updates after changing layout
+    nextTick(() => {
+        // Dispatch event to notify chart components of layout change
+        window.dispatchEvent(new CustomEvent('chart-layout-changed', {
+            detail: {
+                layoutType: layout.id,
+                layoutIcon: layout.icon
+            }
+        }))
+    })
 }
 
 // Methods: Tab Management
