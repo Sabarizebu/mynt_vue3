@@ -72,7 +72,7 @@
                                                     <v-icon v-else :icon="m.icon" size="20" color="#506D84" />
                                                 </div>
                                             </template>
-                                            <v-list-item-title class="subline--text font-weight-medium fs-14">{{
+                                            <v-list-item-title class="  fs-14">{{
                                                 m.name }}</v-list-item-title>
                                         </v-list-item>
                                         <v-divider v-if="m.hr" class="mx-3"></v-divider>

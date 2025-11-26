@@ -492,10 +492,26 @@ const handleTempEvent = (evt) => {
     } catch (_) { }
 }
 
-const toNumber = (val, def = 0) => {
-    const n = Number(val)
-    return isFinite(n) ? n : def
-}
+const toNumber = (v, def = 0) => {
+    if (v === undefined || v === null) return def;
+
+    if (typeof v === "number") {
+        return Number.isFinite(v) ? v : def;
+    }
+
+    if (typeof v === "string") {
+        // remove commas, currency symbols, spaces
+        const cleaned = v.replace(/[,₹\s]/g, "").replace(/[^\d.-]/g, "");
+        if (cleaned === "" || cleaned === "-" || cleaned === "." || cleaned === "-.") return def;
+
+        const num = Number(cleaned);
+        return Number.isFinite(num) ? num : def;
+    }
+
+    const num = Number(v);
+    return Number.isFinite(num) ? num : def;
+};
+
 
 const updateText = (id, text) => {
     const el = document.getElementById(id)
@@ -617,9 +633,7 @@ const updateHoldingsStats = (list) => {
     const cpnl = invested > 0 ? ((totalPnl / invested) * 100) : 0;
     const d_cpnl = invested > 0 ? ((totalDPnl / invested) * 100) : 0;
     
-    console.log("📊 Totals:", {
-    invested, stockvalue, totalPnl, totalDPnl, cpnl, d_cpnl
-});
+   
     const positive = processedList.filter((x) => x.pnlc > 0);
     const negative = processedList.filter((x) => x.pnlc < 0);
 
@@ -758,27 +772,35 @@ async function loadAll() {
     if (initialLoaded) return
     initialLoaded = true
     // Trigger API load; handlers will compute once responses arrive
-    try {
-        const holdingsData = await getMHoldings(true)
-       
+   try {
+    const holdingsData = await getMHoldings(true);
+    console.log("🔥 holdings raw response:", holdingsData);
+console.log("🔥 first item:", holdingsData?.response?.[0]);
 
-        // Always process holdings data, even if empty, to reset display
-        if (holdingsData && holdingsData.response && Array.isArray(holdingsData.response)) {
-            setTimeout(() => { handleTempEvent({ detail: holdingsData }) }, 200)
-        } else {
-            // If no data or invalid response, reset to zero
-            setTimeout(() => {
-                holdingsList.value = []
-                holdingIndexByToken = {}
-                updateHoldingsStats([])
-            }, 200)
-        }
-    } catch (_) {
-        // On error, reset to zero
-        holdingsList.value = []
-        holdingIndexByToken = {}
-        updateHoldingsStats([])
+
+    if (holdingsData && holdingsData.response && Array.isArray(holdingsData.response)) {
+
+        // 🔥 FIX: Always compute stats immediately after loading
+        updateHoldingsStats(holdingsData.response);
+
+        setTimeout(() => { 
+            handleTempEvent({ detail: holdingsData }) 
+        }, 200);
+
+    } else {
+        setTimeout(() => {
+            holdingsList.value = [];
+            holdingIndexByToken = {};
+            updateHoldingsStats([]);
+        }, 200);
     }
+
+} catch (_) {
+    holdingsList.value = [];
+    holdingIndexByToken = {};
+    updateHoldingsStats([]);
+}
+
 
     try {
         const positionData = await getMPosotion(true)

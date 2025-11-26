@@ -6,13 +6,13 @@ export const useOptionsStore = defineStore('options', () => {
   const optionchainid = ref(true)
   const coractdata = ref(false)
   const coractloader = ref(true)
-  
+
   // Stock Symbol Info
   const optionStockSymbol = ref('')
   const optionStockSpot = ref('')
   const optionStockSymbolInfo = ref({})
   const optionStockName = ref('')
-  
+
   // Expiry & Chain Settings
   const lsexd = ref([]) // Expiry dates list
   const lsexdfilter = ref(0) // Selected expiry index
@@ -20,13 +20,13 @@ export const useOptionsStore = defineStore('options', () => {
   const daydiff = ref(null) // Days to expiry
   const ccfilter = ref(1) // Chain count filter index
   const chainCount = ref(null) // Selected chain count (5, 10, 15, 30, All)
-  
+
   // Options Chain Data
   const chainStocksList = ref([]) // All options chain data
   const subscriptionchainStocksList = ref([]) // For WebSocket subscription
   const chainSpotdata = ref({}) // Spot price data
   const chainSpotPrice = ref({})
-  
+
   // Segregated Options Data
   const upcallSO = ref([]) // Call options above spot
   const upputSO = ref([]) // Put options above spot
@@ -34,16 +34,16 @@ export const useOptionsStore = defineStore('options', () => {
   const dwnputSO = ref([]) // Put options below spot
   const callsideopc = ref([]) // All call options
   const putsideopc = ref([]) // All put options
-  
+
   // PCR (Put Call Ratio)
   const pcrRatio = ref(0.0)
   const pcrputRatio = ref(0.0)
   const pcrcallRatio = ref(0.0)
-  
+
   // Bar Calculations
   const barCallsOi = ref(null)
   const barPutsOi = ref(null)
-  
+
   // Column Visibility Settings
   const bitcheckbox = ref(true) // BID column
   const askcheckbox = ref(true) // ASK column
@@ -52,22 +52,22 @@ export const useOptionsStore = defineStore('options', () => {
   const vagacheckbox = ref(false) // VEGA column
   const gamacheckbox = ref(false) // GAMA column
   const deltacheckbox = ref(false) // DELTA column
-  
+
   // Table Style Settings
   const opchtablehead = ref(10) // Column count for header
   const simtblwidth = ref('100%') // Table width
   const simtblscroll = ref('hidden') // Scroll behavior
-  
+
   // Settings Drawer
   const drawer = ref(false)
-  
+
   // Position Data
   const positiondata = ref([])
   const positions = ref(null)
-  
+
   // Greeks Counter
   const greekCount = ref(0)
-  
+
   // Data Processing Arrays
   const data1 = ref([]) // Processed expiry dates
   const tsym = ref([]) // Symbol list
@@ -78,20 +78,18 @@ export const useOptionsStore = defineStore('options', () => {
   const exchange = ref('') // Exchange
   const scriptToken = ref('') // Script token
   const optoken = ref('') // Option token
-  
+
   // User Session
   const userid = ref('')
   const usession = ref('')
-  
+
   // Computed Properties
   const opdatabgs = computed(() => {
-    // Calculate background color based on theme
-    // Note: Will need to check theme from Vuetify theme or use CSS variable
-    const isDark = document.documentElement.classList.contains('v-theme--dark') || 
-                   window.matchMedia('(prefers-color-scheme: dark)').matches
-    return `background-color: ${isDark ? '#1E222D' : '#F9FCFF'} !important;`
+    // User requested to remove dark theme support for this part
+    // Always return light theme background
+    return `background-color: #F9FCFF !important;`
   })
-  
+
   // Actions
   const clearOption = (flow) => {
     if (!flow) {
@@ -120,13 +118,13 @@ export const useOptionsStore = defineStore('options', () => {
     optionStockSymbolInfo.value = {}
     subscriptionchainStocksList.value = []
   }
-  
+
   const setOptionChainData = (data) => {
     optionchain.value = data
     chainStocksList.value = data.values || []
     subscriptionchainStocksList.value = data.values || []
   }
-  
+
   const calculatePCR = () => {
     const oitotalupcal = upcallSO.value.reduce((v1, v2) => v1 + parseFloat(v2.oi || 0), 0)
     const oitotaldowncal = dwncallSO.value.reduce((v1, v2) => v1 + parseFloat(v2.oi || 0), 0)
@@ -144,7 +142,7 @@ export const useOptionsStore = defineStore('options', () => {
     pcrcallRatio.value = Number(pcrcall).toFixed(2)
     pcrputRatio.value = Number(pcrput).toFixed(2)
   }
-  
+
   const updateColumnVisibility = () => {
     // Match old code: simpleTablestyle() logic exactly
     let truecount = [
@@ -156,12 +154,12 @@ export const useOptionsStore = defineStore('options', () => {
       bitcheckbox.value,
       askcheckbox.value
     ]
-    
+
     let truemap = truecount.reduce((cnt, cur) => {
       cnt[cur] = (cnt[cur] || 0) + 1
       return cnt
     }, {})
-    
+
     // Match old code: exact width and column count logic
     if (truemap.true === 7) {
       opchtablehead.value = 15
@@ -196,14 +194,14 @@ export const useOptionsStore = defineStore('options', () => {
       }
     }
   }
-  
+
   const loadColumnSettings = (uid) => {
     if (!uid) return
-    
+
     try {
       const opdatstrue = JSON.parse(localStorage.getItem(`${uid}_opdatstrue`))
       const opvalstrue = JSON.parse(localStorage.getItem(`${uid}_opvalstrue`))
-      
+
       if (opdatstrue) {
         ivcheckbox.value = opdatstrue.ivcheckbox || false
         vagacheckbox.value = opdatstrue.vagacheckbox || false
@@ -212,7 +210,7 @@ export const useOptionsStore = defineStore('options', () => {
         deltacheckbox.value = opdatstrue.deltacheckbox || false
         bitcheckbox.value = opdatstrue.bitcheckbox !== undefined ? opdatstrue.bitcheckbox : true
         askcheckbox.value = opdatstrue.askcheckbox !== undefined ? opdatstrue.askcheckbox : true
-        
+
         // Match old code: Call defltTablestyle() after loading settings
         if (opvalstrue) {
           defltTablestyle(opvalstrue)
@@ -222,11 +220,11 @@ export const useOptionsStore = defineStore('options', () => {
       // console.error('Error loading column settings:', error)
     }
   }
-  
+
   // Match old code: defltTablestyle() - uses saved opvalstrue instead of calculating
   const defltTablestyle = (opvalstrue) => {
     if (!opvalstrue) return
-    
+
     // Match old code: exact logic from defltTablestyle()
     if (opvalstrue.true === '7' || opvalstrue.true === 7) {
       opchtablehead.value = 15
@@ -265,10 +263,10 @@ export const useOptionsStore = defineStore('options', () => {
       }
     }
   }
-  
+
   const saveColumnSettings = (uid) => {
     if (!uid) return
-    
+
     try {
       // Match old code: Calculate truemap for saving
       let truecount = [
@@ -280,12 +278,12 @@ export const useOptionsStore = defineStore('options', () => {
         bitcheckbox.value,
         askcheckbox.value
       ]
-      
+
       let truemap = truecount.reduce((cnt, cur) => {
         cnt[cur] = (cnt[cur] || 0) + 1
         return cnt
       }, {})
-      
+
       // Match old code: Save opdatstrue and opvalstrue
       const opdatstrue = JSON.stringify({
         ivcheckbox: ivcheckbox.value,
@@ -296,19 +294,19 @@ export const useOptionsStore = defineStore('options', () => {
         askcheckbox: askcheckbox.value,
         bitcheckbox: bitcheckbox.value
       })
-      
+
       const opvalstrue = JSON.stringify({
         true: String(truemap.true || 0),
         false: String(truemap.false || 0)
       })
-      
+
       localStorage.setItem(`${uid}_opdatstrue`, opdatstrue)
       localStorage.setItem(`${uid}_opvalstrue`, opvalstrue)
     } catch (error) {
       // console.error('Error saving column settings:', error)
     }
   }
-  
+
   return {
     // State
     optionchainid,

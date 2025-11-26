@@ -975,14 +975,14 @@
         <!-- Index Selection Dialog -->
         <v-dialog v-model="indexdialog" :scrim="false" width="420">
             <v-card class="pt-2 overflow-hidden elevation-6 rounded-xl" color="cardbg">
-                <v-list-item-title class="font-weight-bold title maintext--text my-2 px-4">
+                <v-list-item-title class="font-weight-bold fs-20 maintext--text my-2 px-4">
                     Select a Index
-                    <v-icon @click="indexdialog = false" class="float-right" color="maintext">mdi-close</v-icon>
+                    <v-icon @click="indexdialog = false" size="25" class="float-right" color="maintext">mdi-close</v-icon>
                 </v-list-item-title>
                 <v-divider></v-divider>
-                <v-expansion-panels v-model="indexpanel" flat class="expan" multiple>
+                <v-expansion-panels v-model="indexpanel" flat class="expan" >
                     <v-expansion-panel v-for="(q, w, e) in allindex" :key="`index-panel-${w}-${e}`" flat>
-                        <v-expansion-panel-title class="fs-14 font-weight-medium secbg primary--text"
+                        <v-expansion-panel-title class="fs-16  secbg primary--text"
                             style="color: #2b38b7 !important;background-color: #F1F3F8 !important;">
                             {{ w }} ({{ q.length }})
                         </v-expansion-panel-title>
@@ -994,7 +994,7 @@
                                         @click="singleindex.token != a.token ? setChangeindex(a, w) : null">
                                         <v-list-item-title
                                             :style="singleindex.token == a.token ? 'color: #2b38b7 !important;' : 'color: black !important;'"
-                                            class="mb-1 table-hov-text font-weight-medium">
+                                            class="mb-1 py-2 table-hov-text fs-16">
                                             {{ a.idxname ? a.idxname : "" }}
                                         </v-list-item-title>
                                         <template v-slot:append>
