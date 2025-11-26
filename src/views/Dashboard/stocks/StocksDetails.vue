@@ -384,11 +384,11 @@
         <!-- Pop Chart (Floating Window) -->
         <div :class="popdialog ? 'd-none' : 'd-flex'" class="rounded-lg" v-if="currentTVChartLayoutType == 1">
             <v-card id="popdiv" width="28%" height="20%" class="rounded-lg overflow-hidden pos-rlt">
-                <v-card class="pos-abs rounded-0 elevation-0" color="transparent" height="40px" width="100%"
+                <v-card class="pos-abs rounded-0 elevation-0" color="transparent"  width="100%"
                     id="popdivheader">
-                    <v-btn @click="setPopchart()" :disabled="ssdloader" color="maintext" size="x-small"
-                        class="mr-2 mt-2 float-right" icon>
-                        <v-icon>mdi-close</v-icon>
+                    <v-btn @click="setPopchart()" :disabled="ssdloader" size="x-small"
+                        class="mr-2 mt-2 float-right elevation-0" icon>
+                        <v-icon size="20">mdi-close</v-icon>
                     </v-btn>
                 </v-card>
                 <TVSingleChartContainer v-if="popchart" />

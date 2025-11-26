@@ -204,13 +204,36 @@ const setTabchange = () => {
     // Update breadcrumb
     bcitems.value[2].text = getTradeActionLabel(tradeaction.value)
 }
-
 const setSinglestock = (tsym, item) => {
     if (uid.value) {
-        let path = [0, item.token, item.exch, item.tsym]
-        router.push({ name: "stocks details", params: { val: path } })
-    } else {
-        router.push(`/stocks/${tsym.toLowerCase()}`)
+        // For logged-in users: use the detailed stocks view with trading features
+        let path = [0, item.token, item.exch, item.tsym];
+        // Store params for refresh persistence
+        
+        
+        localStorage.setItem('ssdParams', JSON.stringify(path));
+        localStorage.setItem('ssdtsym', `${item.exch}:${item.tsym}`);
+        localStorage.setItem('ssdtoken', item.token);
+        // Use query params to force route change detection
+        router.push({
+            name: "stocks details",
+            params: { val: path },
+            query: {
+                type: '0',
+                token: item.token,
+                exch: item.exch,
+                tsym: item.tsym
+            }
+        });
+    } else if (item.exch == "NSE" && item.tsym.slice(-2) ==  "EQ" ) {
+        router.push(`/stocks/${tsym.toLowerCase()}`);
+        console.log("else iffffffffff");
+        
+    }
+    else{
+        router.push(`/stocks`);
+       
+        
     }
 }
 

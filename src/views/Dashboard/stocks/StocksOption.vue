@@ -330,7 +330,7 @@
                                                 v-html="script.ltp ? script.ltp : '0.00'"> </span>
                                             <!-- Hover Action Buttons (Left Side) -->
                                     <tr v-if="script.token" class="opdatacallupbtn lfttrbtn"
-                                        style="margin-left: -192px">
+                                        >
                                         <th colspan="1" @click="setSSDtab('chart', script.token, script.exch, script.tsym)">
                                             <div style="min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
                                                 class="cursor-p mr-1">
@@ -356,12 +356,12 @@
                                             </div>
                                         </th>
                                         <th colspan="1" @click="sellOption(script)">
-                                            <div style="background-color: #F23645 !important;color: #fff !important;"
-                                                class="newhoverbtn newhoverbtnsize white--text cursor-p">S</div>
+                                            <div style="background-color: #F23645 !important;color: #ffffff !important;"
+                                                class="newhoverbtn newhoverbtnsize text-white  cursor-p">S</div>
                                         </th>
                                         <th colspan="1" @click="buyOption(script)">
-                                            <div style="background-color: #43A833 !important;color: #fff !important;"
-                                                class="newhoverbtn newhoverbtnsize white--text cursor-p">
+                                            <div style="background-color: #43A833 !important;color: #ffffff !important;"
+                                                class="newhoverbtn newhoverbtnsize text-white cursor-p">
                                                 B</div>
                                         </th>
                                     </tr>
@@ -435,12 +435,12 @@
                                         <tr v-if="optionsStore.upputSO[k] && optionsStore.upputSO[k].token"
                                             class="opdatacallupbtn uprghtrbtn">
                                             <th colspan="1" @click="buyOption(script, optionsStore.upputSO)">
-                                                <div style="background-color: #43A833 !important;color: #fff !important;"
-                                                    class="newhoverbtn newhoverbtnsize white--text cursor-p">B</div>
+                                                <div style="background-color: #43A833 !important;color: #ffffff !important;"
+                                                    class="newhoverbtn newhoverbtnsize text-white cursor-p">B</div>
                                             </th>
                                             <th colspan="1" @click="sellOption(script, optionsStore.upputSO)">
-                                                <div style="background-color: #F23645 !important;color: #fff !important;"
-                                                    class="newhoverbtn newhoverbtnsize white--text cursor-p">S</div>
+                                                <div style="background-color: #F23645 !important;color: #ffffff !important;"
+                                                    class="newhoverbtn newhoverbtnsize text-white cursor-p">S</div>
                                             </th>
                                             <th colspan="1" @click="handleAddToWatchlist(script)">
                                                 <div style="min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
@@ -552,7 +552,7 @@
                                             <div style="height: 2px; background-color: #FF720C;"></div>
                                         </th>
                                         <th id="opcenterview" colspan="4" class="text-center pa-2 opdatacalluphov">
-                                            <v-card class="white--text elevation-0" color="#FF720C"
+                                            <v-card class="text-white elevation-0" color="#FF720C"
                                                 style="border-radius: 4px; padding: 4px 12px; display: inline-block;">
                                                 <span class="font-weight-bold" style="font-size: 14px;">
                                                     {{ optionsStore.chainSpotdata.lp ?
@@ -645,7 +645,7 @@
                                                 v-html="Number(script.ltp) ? script.ltp : '0.00'"></span>
                                             <!-- Hover Action Buttons (Left Side) -->
                                     <tr v-if="script.token" class="opdatacallupbtn lfttrbtn"
-                                        style="margin-left: -192px">
+                                        >
                                         <th colspan="1" @click="setSSDtab('chart', script.token, script.exch, script.tsym)">
                                             <div style="min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
                                                 class="cursor-p mr-1">
@@ -671,13 +671,12 @@
                                             </div>
                                         </th>
                                         <th colspan="1" @click="sellOption(script)">
-                                            <div style="background-color: #F23645"
-                                                class="newhoverbtn newhoverbtnsize white--text cursor-p">
-                                                S</div>
+                                            <div style="background-color: #F23645 !important;color: #ffffff !important;"
+                                                class="newhoverbtn newhoverbtnsize text-white cursor-p">S</div>
                                         </th>
                                         <th colspan="1" @click="buyOption(script)">
-                                            <div style="background-color: #43A833"
-                                                class="newhoverbtn newhoverbtnsize white--text cursor-p">
+                                            <div style="background-color: #43A833 !important;color: #ffffff !important;"
+                                                class="newhoverbtn newhoverbtnsize text-white cursor-p">
                                                 B</div>
                                         </th>
                                     </tr>
@@ -750,12 +749,12 @@
                                         <tr v-if="optionsStore.dwnputSO[k] && optionsStore.dwnputSO[k].token"
                                             class="opdatacallupbtn dwnrghtrbtn">
                                             <th colspan="1" @click="buyOption(script, optionsStore.dwnputSO)">
-                                                <div style="background-color: #43A833"
-                                                    class="newhoverbtn newhoverbtnsize white--text cursor-p">B</div>
+                                                <div style="background-color: #43A833 !important;color: #ffffff !important;"
+                                                    class="newhoverbtn newhoverbtnsize text-white cursor-p">B</div>
                                             </th>
                                             <th colspan="1" @click="sellOption(script, optionsStore.dwnputSO)">
-                                                <div style="background-color: #F23645"
-                                                    class="newhoverbtn newhoverbtnsize white--text cursor-p">S</div>
+                                                <div style="background-color: #F23645 !important;color: #ffffff !important;"
+                                                    class="newhoverbtn newhoverbtnsize text-white cursor-p">S</div>
                                             </th>
                                             <th colspan="1" @click="handleAddToWatchlist(script)">
                                                 <div style="min-width: 32px; border-radius: 4px; border: thin solid #EBEEF0; padding: 1px 4px; background-color: #fff"
@@ -2657,11 +2656,12 @@ tr.opdatacallupbtn {
 
 .lfttrbtn {
     margin-top: -20px;
+    margin-left: -250px;
     display: none !important;
 }
 
 .dwnrghtrbtn {
-    margin-top: -2px;
+    margin-top: -20px;
     margin-left: 72px;
     display: none !important;
     z-index: 1;
@@ -2705,10 +2705,11 @@ tbody tr:hover {
 
 /* Improved table header styling */
 :deep(.v-table thead) {
-    background-color: #F5F5F5 !important;
+    background-color: #F1F3F8 !important;
 }
 
 :deep(.v-table thead th) {
+    background-color: #F1F3F8 !important;
     border-bottom: 1px solid #EBEEF0 !important;
     padding: 8px 4px !important;
 }

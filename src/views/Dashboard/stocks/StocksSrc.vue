@@ -49,7 +49,7 @@
         </v-card>
         <v-toolbar class="tool-sty elevation-0 crd-trn pt-10 pb-3" density="compact">
             <img width="32px" :src="indIcon" alt="ind" class="mr-1 pa-1" />
-            <p class="title font-weight-bold mb-0 mr-3">Top indices</p>
+            <p class=" font-weight-bold fs-20 mb-0 mr-3">Top indices</p>
             <v-spacer></v-spacer>
             <v-btn @click="scrollToo('indices', -600)" width="26px" height="26px" class="mr-2" variant="outlined" icon
                 size="small">
@@ -125,7 +125,7 @@
                                 bg-color="secbg" style="background-color: #F1F3F8 !important;">
                                 <v-row no-gutters>
                                     <v-col cols="5" sm="4" class="pr-0">
-                                        <p class="mb-0 subtitle-2 font-weight-medium lh-16">
+                                        <p class="mb-0fs-14 ">
                                             {{ i.title }} <span class="caption subtext-text font-weight-bold">({{ i.data
                                                 && i.data.sum ?
                                                 i.data.sum :
@@ -217,7 +217,7 @@
                                 <v-row no-gutters>
                                     <!-- duplicate same inner layout -->
                                     <v-col cols="5" sm="4" class="pr-0">
-                                        <p class="mb-0 subtitle-2 font-weight-medium lh-16">
+                                        <p class="mb-0  fs-14">
                                             {{ i.title }} <span class="caption subtext-text font-weight-bold">({{ i.data
                                                 &&
                                                 i.data.sum ?
@@ -299,12 +299,12 @@
             <v-col cols="12" sm="6" class="pt-md-0">
                 <div class="elevation-0 mx-auto"
                     style="display: flex;justify-content: space-between;align-items: center;width: 90%;">
-                    <p class="title font-weight-bold mb-0" style="flex-grow: 1;">Heatmap</p>
+                    <p class="fs-20 font-weight-bold mb-0" style="flex-grow: 1;">Heatmap</p>
                     <!-- <v-spacer></v-spacer> -->
 
                     <v-select v-model="treemaps" :items="treemapitem" @update:model-value="setStatavddec()"
-                        :readonly="issloading" variant="flat" density="compact" hide-details bg-color="secbg"
-                        class="w-100 rounded-pill fullwidth-select mb-1" style="color: white;max-width: 50%;"></v-select>
+                        :readonly="issloading" variant="flat" rounded="pill" density="compact" hide-details bg-color="secbg"
+                        class="w-100 rounded-pill fs-14  mb-1 select-left text-left pl-0" style="color: white; max-width: 50%;"></v-select>
 
 
                 </div>
@@ -324,7 +324,7 @@
         </v-row>
 
         <v-toolbar class="tool-sty elevation-0 my-3" ref="ttt" id="ttt" density="compact" color="transparent">
-            <p class="title font-weight-bold mb-0 mr-3">Today's trade action</p>
+            <p class="fs-20 font-weight-bold mb-0 mr-3">Today's trade action</p>
             <v-spacer></v-spacer>
 
 
@@ -403,7 +403,7 @@
         <v-card style="border: thin solid #EBEEF0 !important" variant="outlined" class="rounded-lg mb-8" color="cardbg">
             <v-toolbar ref="smcp" id="smcp" class="elevation-0 my-4 px-3" density="compact" color="transparent">
                 <img width="40px" :src="srcmIcon" alt="srcm" class="mr-2" />
-                <p class="title font-weight-bold mb-0 " style="color: black;">Stock monitor</p>
+                <p class="title fs-20 font-weight-bold mb-0 " style="color: black;">Stock monitor</p>
                 <v-spacer></v-spacer>
 
                 <v-row class="d-flex align-center justify-end px-4" no-gutters>
@@ -423,7 +423,7 @@
                         display: flex;
                         margin-top: 0 !important;
                         padding-top: 0 !important;
-                        align-self: center;
+                        
                         " @update:model-value="getContentlistdata('yes')" />
 
 
@@ -2705,20 +2705,7 @@ const optionChainDataParse = (data) => {
     /* hides default Vuetify border */
 }
 
-.fullwidth-select {
-    width: 60% !important;
-    /* full width */
-    /* justify-content: center !important; */
-}
 
-
-
-.fullwidth-select .v-field {
-    width: 100% !important;
-    /* stretch inside parent */
-    border-radius: 9999px !important;
-    /* full pill shape */
-}
 
 /* Tab Slider Effect */
 .tab-slider-container {
@@ -2736,5 +2723,18 @@ const optionChainDataParse = (data) => {
 .tab-slide {
     width: 100%;
     flex-shrink: 0;
+}
+
+.select-left .v-select__selection-text {
+    text-align: left !important;
+    justify-content: flex-start !important;
+}
+.select-left .v-field__input {
+    justify-content: flex-start !important;
+      font-size: 14px !important;
+}
+
+.select-left .v-select__selection-text {
+    text-align: left !important;
 }
 </style>

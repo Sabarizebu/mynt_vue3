@@ -480,8 +480,8 @@
 
                 <p class="font-weight-medium fs-12 subtext--text mb-2">Bank Account</p>
                 <v-select v-model="mf_accact" hide-details :items="menudata.mf_bankaccs" return-object
-                    item-title="Bank_Name" item-value="Bank_AcNo" 
-                    bg-color="#F2F3F8" flat density="compact" variant="solo-filled" rounded="pill" class=" mb-4" placeholder="bank" style="font-size: 14px;">
+                    item-title="Bank_Name" item-value="Bank_AcNo"  
+                    bg-color="#F2F3F8" flat density="compact" variant="solo" rounded="pill" class=" mb-4 placeholder-center select-left" placeholder="Select Bank Account" style="font-size: 14px; ">
                     <template v-slot:item="{ item, props, on }">
                         <v-list-item v-on="on" v-bind="props">
                             <v-list-item-content class="py-1">
@@ -498,7 +498,7 @@
 
                 <p class="font-weight-medium fs-12 subtext--text mb-2">Payment method<span class="red--text" style="font-size: 18px; line-height: 0;"></span></p>
                 <v-select v-model="mfpayinmode" hide-details  :items="mfpayinmodes" item-title="val" item-value="key" 
-                      bg-color="#F2F3F8" flat density="compact" variant="solo-filled"  rounded="pill" class="rounded-pill mb-6"
+                      bg-color="#F2F3F8" flat density="compact" variant="flat"  rounded="pill" class="rounded-pill mb-6 select-left"
                     placeholder="UPI, Net banking" style="font-size: 14px;"> </v-select>
 
 
@@ -1242,8 +1242,30 @@ export default {
 
 }
 
+/* add class="placeholder-center" on the v-select */
+.placeholder-center .v-field__input {
+  align-self: center !important;
+}
+
+/* nudge using translateY — tiny value avoids breaking layout */
+.placeholder-center .v-field__placeholder {
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  margin: 0 !important;
+
+}
 
 
+.select-left .v-select__selection-text {
+    text-align: left !important;
+    justify-content: flex-start !important;
+}
+.select-left .v-field__input {
+    justify-content: flex-start !important;
+      font-size: 14px !important;
+}
 
-
+.select-left .v-select__selection-text {
+    text-align: left !important;
+}
 </style>
