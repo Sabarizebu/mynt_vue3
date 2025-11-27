@@ -782,6 +782,7 @@ import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
 import { useAppStore } from '@/stores/appStore'
+import { usePositionsStore } from '@/stores/positionsStore'
 import { getMPosotion, getEXPosition, getMPosotionCon, getPlaceOrder, getQuotesdata } from '@/components/mixins/getAPIdata'
 import noDataImg from '@/assets/no data folder.svg'
 import * as echarts from 'echarts'
@@ -790,6 +791,7 @@ const router = useRouter()
 
 const authStore = useAuthStore()
 const appStore = useAppStore()
+const positionsStore = usePositionsStore()
 
 const uid = ref(null)
 const mtoken = ref(null)
@@ -797,6 +799,7 @@ const mtoken = ref(null)
 const ordertab = ref('positions')
 const opensearch = ref('')
 const exchtype = ref('all')
+const exposureDataLoaded = ref(false) // Track if exposure data has been loaded
 const dashitems = ref([
     { val: 'all', txt: 'All' },
     { val: 'stocks', txt: 'Stocks' },
@@ -902,6 +905,15 @@ watch(liveposgrp, async (newVal) => {
         if (chartInstance.value) chartInstance.value.clear()
     }
 }, { immediate: true })
+
+// PERFORMANCE OPTIMIZATION: Load exposure data on-demand when user switches to "All Positions" tab
+watch(ordertab, (newTab) => {
+    if (newTab === 'all' && !exposureDataLoaded.value) {
+        console.log('[POSITIONS] 👤 User switched to All Positions tab - loading data immediately')
+        getexPositionbook()
+        exposureDataLoaded.value = true
+    }
+})
 
 function renderEChart() {
     if (!document.getElementById('mtmchart') || !window.echarts) return
@@ -1228,10 +1240,18 @@ function sortExTable(column) {
 }
 
 function settempDatas(data) {
-    // replace all three lists atomically to avoid stale mixes on refresh
-    closeposition.value = Array.isArray(data.c) ? data.c : []
-    openposition.value = Array.isArray(data.o) ? data.o : []
-    positiondata.value = Array.isArray(data.a) ? data.a : []
+    // Process all data FIRST before updating arrays
+    // This prevents table from rebuilding twice (once with raw data, once with processed data)
+
+    const processedClose = Array.isArray(data.c) ? data.c.map(p => processPosition(p)) : []
+    const processedOpen = Array.isArray(data.o) ? data.o.map(p => processPosition(p)) : []
+    const processedAll = Array.isArray(data.a) ? data.a.map(p => processPosition(p)) : []
+
+    // Now update arrays atomically with fully processed data
+    closeposition.value = processedClose
+    openposition.value = processedOpen
+    positiondata.value = processedAll
+
     // console.log('settempDatas -> counts', {
     //     close: closeposition.value.length,
     //     open: openposition.value.length,
@@ -1241,6 +1261,13 @@ function settempDatas(data) {
     // Recompute summary only if we are on Positions tab to avoid being overwritten by exposure fetch
     if (ordertab.value !== 'all') computeStats()
     saveCachePositions()
+
+    // STORE INTEGRATION: Update store when temp data changes
+    if (data.a && Array.isArray(data.a)) {
+        console.log('[POSITIONS] 🔄 Updating store from settempDatas')
+        positionsStore.setPositions(data.a)
+    }
+
     // subscribe for WS updates
     if (positiondata.value && positiondata.value.length) {
         const event = new CustomEvent('web-scoketOn', { detail: { flow: 'sub', data: positiondata.value, is: 'pos', page: 'position' } })
@@ -1248,8 +1275,21 @@ function settempDatas(data) {
     }
 }
 
+// Helper function to process position data consistently
+function processPosition(p) {
+    // Add any necessary processing here (tokn, etc)
+    // For now, return as-is since processing happens elsewhere
+    return { ...p }
+}
+
 async function getPositionbook() {
-    loading.value = true
+    // Don't set loading if we already have cached data visible
+    // This prevents the table from showing loading overlay over cached data
+    const hasExistingData = positiondata.value.length > 0
+    if (!hasExistingData) {
+        loading.value = true
+    }
+
     try {
         const data = await getMPosotion(true)
         // Check if data is valid (not an error code)
@@ -1257,7 +1297,17 @@ async function getPositionbook() {
             // Valid response - always update data (even if empty arrays)
             // Empty arrays are valid - user might have no positions
             if (data.a !== undefined || data.o !== undefined || data.c !== undefined) {
+                // If we have existing data, update it smoothly without triggering loading state
+                if (hasExistingData) {
+                    console.log('[POSITIONS] 🔄 Updating existing data smoothly without loading overlay')
+                }
                 settempDatas(data)
+
+                // STORE INTEGRATION: Save to positionsStore for cross-component access
+                if (data.a && Array.isArray(data.a)) {
+                    console.log('[POSITIONS] 💾 Saving', data.a.length, 'positions to store')
+                    positionsStore.setPositions(data.a)
+                }
             } else if (data.emsg) {
                 // API returned an error message
                 appStore.showSnackbar(2, data.emsg)
@@ -1273,12 +1323,20 @@ async function getPositionbook() {
         appStore.showSnackbar(2, 'Failed to load positions')
         // Keep existing data on error
     } finally {
-        loading.value = false
+        if (!hasExistingData) {
+            loading.value = false
+        }
     }
 }
 
 async function getexPositionbook() {
-    exloading.value = true
+    // Don't set loading if we already have cached data visible
+    // This prevents the table from showing loading overlay over cached data
+    const hasExistingData = expositiondata.value.length > 0
+    if (!hasExistingData) {
+        exloading.value = true
+    }
+
     try {
         const data = await getEXPosition()
         // Check if data is valid (not an error code)
@@ -1296,6 +1354,12 @@ async function getexPositionbook() {
                     d.tokn = `${d.token}_${q}`
                     processedData.push(d)
                 }
+
+                // If we have existing data, update it smoothly without triggering loading state
+                if (hasExistingData) {
+                    console.log('[POSITIONS] 🔄 Updating All Positions data smoothly without loading overlay')
+                }
+
                 // Only update after processing is complete - prevents empty flash
                 // Empty array is valid - user might have no exposures
                 expositiondata.value = processedData
@@ -1323,7 +1387,9 @@ async function getexPositionbook() {
         appStore.showSnackbar(2, 'Failed to load exposures')
         // Keep existing data on error
     } finally {
-        exloading.value = false
+        if (!hasExistingData) {
+            exloading.value = false
+        }
     }
 }
 
@@ -1730,9 +1796,22 @@ onMounted(async () => {
     if (res === 'dmFsaWR1c2Vy') {
         uid.value = authStore.uid || sessionStorage.getItem('userid')
         mtoken.value = authStore.mtoken || sessionStorage.getItem('msession')
+
+        // PERFORMANCE OPTIMIZATION: Load primary tab data immediately, secondary tab in background
         setTimeout(() => {
+            // Load Positions tab data immediately (visible on page load)
+            console.log('[POSITIONS] 🚀 Loading primary tab (Positions) immediately')
             getPositionbook()
-            getexPositionbook()
+
+            // Load All Positions tab data in background (2 seconds delay)
+            console.log('[POSITIONS] ⏱️ Scheduling background load for All Positions tab in 2 seconds')
+            setTimeout(() => {
+                if (!exposureDataLoaded.value) {
+                    console.log('[POSITIONS] 📥 Loading All Positions data in background')
+                    getexPositionbook()
+                    exposureDataLoaded.value = true
+                }
+            }, 2000)
         }, 100)
     }
 

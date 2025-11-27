@@ -322,7 +322,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useTheme } from 'vuetify'
 import VSnackbars from "v-snackbars"
@@ -339,7 +339,7 @@ import { useAuthStore } from '../../stores/authStore'
 import { useSessionStore } from '../../stores/sessionStore'
 import { useWebsocketStore } from '../../stores/websocketStore'
 import { getActiveSession, getReSession, setOrdprefApi, getcallApi } from "../mixins/getAPIdata.js"
-import { seyCheckwebsocket } from "../mixins/webSocketstream.js"
+import { seyCheckwebsocket, cleanupWebSocket } from "../mixins/webSocketstream.js"
 import { mynturl } from "../../apiurl.js"
 import apiurl from "../../apiurl.js"
 import { getAssetPath } from '../../utils/assetHelper.js'
@@ -864,12 +864,22 @@ watch(
 )
 
 // Cleanup on unmount
-onUnmounted(() => {
-    // Stop session monitoring
+onBeforeUnmount(() => {
+    console.log('🧹 [LAYOUT] Component unmounting, starting cleanup...')
+
+    // 1. Stop session monitoring
     sessionStore.stopSessionMonitoring()
-    // Remove WebSocket event listener
+
+    // 2. Cleanup WebSocket connection and timers
+    // CRITICAL: This safely closes WebSocket, clears intervals, and cleans up Maps
+    // Safe to call here because LayoutSrc only unmounts when app/tab is closing
+    cleanupWebSocket()
+
+    // 3. Remove WebSocket event listener
     window.removeEventListener('web-scoketOn', handleWebSocketEvent)
-    })
+
+    console.log('✅ [LAYOUT] Cleanup completed')
+})
 </script>
 
 <style>

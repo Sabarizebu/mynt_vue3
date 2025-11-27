@@ -622,15 +622,17 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, computed, nextTick } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAppStore } from '@/stores/appStore'
+import { useHoldingsStore } from '@/stores/holdingsStore'
 import { getMHoldings, getMMHoldings, getQuotesdata, getHsTokenapi } from '@/components/mixins/getAPIdata'
 import CryptoJS from 'crypto-js'
 import { color } from 'echarts'
 
 const router = useRouter()
 const appStore = useAppStore()
+const holdingsStore = useHoldingsStore()
 
 const getOrderbookIconUrl = (iconName) => {
     return new URL(`/src/assets/orderbook/${iconName}.svg`, import.meta.url).href
@@ -641,6 +643,7 @@ const holdings = ref([])
 const tab = ref('stocks')
 const mfholdings = ref([])
 const mfLoading = ref(false)
+const mfDataLoaded = ref(false) // Track if MF holdings data has been loaded
 const opensearch = ref('')
 const exchtype = ref('all')
 const holdingdrawer = ref(false)
@@ -910,6 +913,11 @@ async function fetchHoldings() {
     const data = await getMHoldings(true)
     if (data && data.response && Array.isArray(data.response)) {
         setHoldingsPayload(data)
+
+        // STORE INTEGRATION: Save to holdingsStore for cross-component access
+        console.log('[HOLDINGS] 💾 Saving', data.response.length, 'holdings to store')
+        holdingsStore.setHoldings(data.response)
+
         // Cache for offline use
         sessionStorage.setItem('holdings_last', JSON.stringify(data))
     } else if (data !== 500) {
@@ -954,6 +962,11 @@ function onTempUpdate(e) {
     const payload = e.detail
     if (payload?.response) {
         setHoldingsPayload(payload)
+
+        // STORE INTEGRATION: Update store with new data
+        console.log('[HOLDINGS] 🔄 Updating store from temp-data event')
+        holdingsStore.setHoldings(payload.response)
+
         // Keep drawer details fresh when temp data updates (like Positions)
         if (holdingdrawer.value && singledata.value && singledata.value.tokn) {
             const si = holdings.value.findIndex(o => o.tokn === singledata.value.tokn)
@@ -1275,6 +1288,15 @@ function onOrderbookUpdate(e) {
     }
 }
 
+// PERFORMANCE OPTIMIZATION: Load MF holdings on-demand when user switches to "Mutual Funds" tab
+watch(tab, (newTab) => {
+    if (newTab === 'mutual' && !mfDataLoaded.value) {
+        console.log('[HOLDINGS] 👤 User switched to Mutual Funds tab - loading data immediately')
+        fetchMfHoldings()
+        mfDataLoaded.value = true
+    }
+})
+
 onMounted(() => {
     uid.value = sessionStorage.getItem('userid')
     stoken.value = sessionStorage.getItem('usession')
@@ -1292,9 +1314,20 @@ onMounted(() => {
         }
     }
 
-    // Fetch fresh data
+    // PERFORMANCE OPTIMIZATION: Load primary tab data immediately, secondary tab in background
+    // Fetch Stocks holdings data immediately (visible on page load)
+    console.log('[HOLDINGS] 🚀 Loading primary tab (Stocks) immediately')
     fetchHoldings()
-    fetchMfHoldings()
+
+    // Fetch Mutual Funds data in background (2 seconds delay)
+    console.log('[HOLDINGS] ⏱️ Scheduling background load for Mutual Funds tab in 2 seconds')
+    setTimeout(() => {
+        if (!mfDataLoaded.value) {
+            console.log('[HOLDINGS] 📥 Loading Mutual Funds data in background')
+            fetchMfHoldings()
+            mfDataLoaded.value = true
+        }
+    }, 2000)
 
     // Subscribe to updates
     window.addEventListener('tempdata-update', onTempUpdate)

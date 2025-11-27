@@ -1150,3 +1150,80 @@ export const WebSocketManager = {
         return false;
     }
 };
+
+/**
+ * MEMORY CLEANUP: Safe WebSocket cleanup for component unmount
+ * CRITICAL: This function safely cleans up WebSocket resources without breaking trading functionality
+ * - Closes WebSocket connection gracefully (triggers onclose handler which clears intervals)
+ * - Clears Maps to prevent memory leaks
+ * - Prevents reconnection attempts after cleanup
+ *
+ * SAFETY: Only call this when the main layout/app is unmounting, NOT on route navigation
+ */
+export function cleanupWebSocket() {
+    console.log('🧹 [WS-CLEANUP] Starting WebSocket cleanup...')
+
+    // 1. Clear reconnection attempts to prevent new connections
+    wsreconn = 999 // Set to high value to exceed reconnection threshold (200)
+    isConnecting = false
+    isReconnecting = false
+
+    // 2. Close WebSocket connection gracefully
+    // The onclose handler (lines 363-371) will automatically clear heartbeatInterval and orderStatusInterval
+    if (socket) {
+        try {
+            console.log('🧹 [WS-CLEANUP] Closing WebSocket connection...')
+            connectionStatus = false
+
+            // Remove event handlers to prevent onclose from triggering reconnection
+            socket.onclose = null
+            socket.onerror = null
+            socket.onmessage = null
+            socket.onopen = null
+
+            if (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING) {
+                socket.close()
+            }
+            socket = null
+            console.log('✅ [WS-CLEANUP] WebSocket closed successfully')
+        } catch (e) {
+            console.error('❌ [WS-CLEANUP] Error closing socket:', e)
+        }
+    }
+
+    // 3. Explicitly clear intervals (defensive, already cleared by onclose handler)
+    if (heartbeatInterval) {
+        clearInterval(heartbeatInterval)
+        heartbeatInterval = null
+        console.log('✅ [WS-CLEANUP] Cleared heartbeatInterval')
+    }
+
+    if (orderStatusInterval) {
+        clearInterval(orderStatusInterval)
+        orderStatusInterval = null
+        console.log('✅ [WS-CLEANUP] Cleared orderStatusInterval')
+    }
+
+    // 4. Clear batch timer in throttler
+    if (wsThrottler && wsThrottler.batchTimer) {
+        clearTimeout(wsThrottler.batchTimer)
+        wsThrottler.batchTimer = null
+        console.log('✅ [WS-CLEANUP] Cleared batch timer')
+    }
+
+    // 5. Clear Maps to prevent memory leaks
+    // NOTE: We clear these to release memory, but only on full app unmount
+    console.log('🧹 [WS-CLEANUP] Clearing Maps...', {
+        channelToSubscription: channelToSubscription.size,
+        guidToSubscription: guidToSubscription.size,
+        singleQuoteMap: singleQuoteMap.size,
+        socketPreResponse: socketPreResponse.size
+    })
+
+    channelToSubscription.clear()
+    guidToSubscription.clear()
+    singleQuoteMap.clear()
+    socketPreResponse.clear()
+
+    console.log('✅ [WS-CLEANUP] WebSocket cleanup completed')
+}

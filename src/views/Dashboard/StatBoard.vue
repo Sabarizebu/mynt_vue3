@@ -55,29 +55,23 @@
           </div>
 
           <div class="px-4">
-            <v-card :disabled="holdingdata.length === 0" class="elevation-0 d-inline-flex" style="width:100%; background-color:#F1F3F8;">
-              <v-card class="elevation-0 rounded-0 crd-trn overflow-hidden d-inline-flex"
-                      :style="{ width: statholding.p_advdec + '%' }" style="transition: width 250ms ease;">
-                <div v-for="n in 250" :key="`ph-${n}`">
-                  <v-card v-if="n % 2 === 0" class="elevation-0 rounded-0 py-4"
-                          :style="`width:4px; min-width:4px; background-color:${holdingdata.length === 0 ? '#F1F3F8' : '#ECF8F1'};`"></v-card>
-                  <v-card v-else class="elevation-0 rounded-0 py-4"
-                          :style="`width:4px; min-width:4px; background-color:${holdingdata.length === 0 ? '#ffffff' : '#43A833'};`"></v-card>
-                </div>
-              </v-card>
+            <!-- PERFORMANCE: Replaced 500 v-cards with CSS patterns - instant render -->
+            <div class="stat-progress-bar" :class="{ 'stat-progress-disabled': holdingdata.length === 0 }">
+              <!-- Positive section (green stripes) -->
+              <div
+                class="stat-progress-segment stat-progress-positive"
+                :style="{ width: statholding.p_advdec + '%' }">
+              </div>
 
-              <v-card class="elevation-0 rounded-0 crd-trn" style="width:4px; min-width:4px;"></v-card>
+              <!-- Separator -->
+              <div class="stat-progress-separator"></div>
 
-              <v-card class="elevation-0 rounded-0 crd-trn overflow-hidden d-inline-flex"
-                      :style="{ width: statholding.n_advdec + '%' }" style="transition: width 250ms ease;">
-                <div v-for="n in 250" :key="`nh-${n}`">
-                  <v-card v-if="n % 2 === 0" class="elevation-0 rounded-0 py-4"
-                          :style="`width:4px; min-width:4px; background-color:${holdingdata.length === 0 ? '#F1F3F8' : '#ffcdcd90'};`"></v-card>
-                  <v-card v-else class="elevation-0 rounded-0 py-4"
-                          :style="`width:4px; min-width:4px; background-color:${holdingdata.length === 0 ? '#ffffff' : '#F23645'};`"></v-card>
-                </div>
-              </v-card>
-            </v-card>
+              <!-- Negative section (red stripes) -->
+              <div
+                class="stat-progress-segment stat-progress-negative"
+                :style="{ width: statholding.n_advdec + '%' }">
+              </div>
+            </div>
           </div>
 
           <div class="px-4 pb-2 d-flex justify-start align-center mt-3">
@@ -147,23 +141,23 @@
           </div>
 
           <div class="px-4">
-            <v-card :disabled="positiondata.length === 0" class="elevation-0 d-inline-flex" style="width:100%; background-color:#F1F3F8;">
-              <v-card class="elevation-0 rounded-0 crd-trn overflow-hidden d-inline-flex" :style="{ width: statposition.p_advdec + '%' }" style="transition: width 250ms ease;">
-                <div v-for="n in 250" :key="`pp-${n}`">
-                  <v-card v-if="n % 2 === 0" class="elevation-0 rounded-0 py-4" :style="`width:4px; min-width:4px; background-color:${positiondata.length === 0 ? '#F1F3F8' : '#ECF8F1'};`"></v-card>
-                  <v-card v-else class="elevation-0 rounded-0 py-4" :style="`width:4px; min-width:4px; background-color:${positiondata.length === 0 ? '#ffffff' : '#43A833'};`"></v-card>
-                </div>
-              </v-card>
+            <!-- PERFORMANCE: Replaced 500 v-cards with CSS patterns - instant render -->
+            <div class="stat-progress-bar" :class="{ 'stat-progress-disabled': positiondata.length === 0 }">
+              <!-- Positive section (green stripes) -->
+              <div
+                class="stat-progress-segment stat-progress-positive"
+                :style="{ width: statposition.p_advdec + '%' }">
+              </div>
 
-              <v-card class="elevation-0 rounded-0 crd-trn" style="width:4px; min-width:4px;"></v-card>
+              <!-- Separator -->
+              <div class="stat-progress-separator"></div>
 
-              <v-card class="elevation-0 rounded-0 crd-trn overflow-hidden d-inline-flex" :style="{ width: statposition.n_advdec + '%' }" style="transition: width 250ms ease;">
-                <div v-for="n in 250" :key="`np-${n}`">
-                  <v-card v-if="n % 2 === 0" class="elevation-0 rounded-0 py-4" :style="`width:4px; min-width:4px; background-color:${positiondata.length === 0 ? '#F1F3F8' : '#ffcdcd90'};`"></v-card>
-                  <v-card v-else class="elevation-0 rounded-0 py-4" :style="`width:4px; min-width:4px; background-color:${positiondata.length === 0 ? '#ffffff' : '#F23645'};`"></v-card>
-                </div>
-              </v-card>
-            </v-card>
+              <!-- Negative section (red stripes) -->
+              <div
+                class="stat-progress-segment stat-progress-negative"
+                :style="{ width: statposition.n_advdec + '%' }">
+              </div>
+            </div>
           </div>
 
           <div class="px-4 pb-2 d-flex justify-start align-center mt-3">
@@ -293,7 +287,13 @@
 <script setup>
 /* eslint-disable no-console */
 import { ref, reactive, onMounted, onBeforeUnmount } from 'vue'
+import { useHoldingsStore } from '@/stores/holdingsStore'
+import { usePositionsStore } from '@/stores/positionsStore'
 import { getMHoldings, getMPosotion, getMOrderbook, getMLimits } from '../../components/mixins/getAPIdata'
+
+// Pinia Stores
+const holdingsStore = useHoldingsStore()
+const positionsStore = usePositionsStore()
 
 // Reactive data
 const holdingdata = ref([])
@@ -772,12 +772,50 @@ let sessionPoll = null
 
 async function loadAll() {
   if (!isMounted.value) return
+
+  // STORE INTEGRATION: Stale-While-Revalidate Pattern
+  // Step 1: Load from stores immediately (0ms display if data exists from other pages)
+  const storeHoldings = holdingsStore.holdingsList
+  const storePositions = positionsStore.positionsList
+
+  if (storeHoldings.length > 0) {
+    console.log('[STATBOARD] ⚡ Loading', storeHoldings.length, 'holdings from store instantly')
+    // Transform store data to match StatBoard format
+    holdingdata.value = storeHoldings.map((h, i) => ({
+      ...h,
+      tokn: `${h.token}_${i}`,
+      exch: h.exch || h.exchange,
+      netqty: h.qty || h.netqty,
+      upldprc: h.avgPrice || h.upldprc,
+      inv: h.investedValue,
+      curr: h.currentValue,
+      pnl: h.pnl,
+      pnlc: h.pnlPerc,
+      d_pnl: h.dayPnl,
+      d_pnlc: h.dayPnlPerc
+    }))
+    calculateHoldingStats()
+    setWebsocket("sub", holdingdata.value, "hold")
+  }
+
+  if (storePositions.length > 0) {
+    console.log('[STATBOARD] ⚡ Loading', storePositions.length, 'positions from store instantly')
+    positiondata.value = storePositions.map((p, i) => ({
+      ...p,
+      tokn: `${p.token}_${i}`
+    }))
+    calculatePositionStats()
+    setWebsocket("sub", positiondata.value, "pos")
+  }
+
+  // Step 2: Fetch fresh data in background (updates stores, UI auto-updates via reactivity)
+  console.log('[STATBOARD] 🔄 Refreshing data in background...')
   await getStatboardapi()
 }
 
 onMounted(async () => {
   isMounted.value = true
-  
+
   window.addEventListener('web-scoketConn', handleWsUpdate)
   window.addEventListener('statboard-event', statboardEventHandler)
   window.addEventListener('orderbook-update', handleOrderbookUpdate)
@@ -786,7 +824,7 @@ onMounted(async () => {
 
   const uid = sessionStorage.getItem('userid')
   const tok = sessionStorage.getItem('msession')
-  
+
   if (uid && tok) {
     loadAll()
   } else {
@@ -797,7 +835,7 @@ onMounted(async () => {
         clearInterval(sessionPoll)
         sessionPoll = null
         loadAll()
-      } else if (tries > 40) { 
+      } else if (tries > 40) {
         clearInterval(sessionPoll)
         sessionPoll = null
       }
@@ -828,4 +866,69 @@ onBeforeUnmount(() => {
 .mainred--text { color: #F23645 !important; }
 .subtext--text { color: #6b7280 !important; }
 .cardbg { background: #fff; }
+
+/* PERFORMANCE: CSS-based progress bar (replaces 500 v-cards) */
+.stat-progress-bar {
+  display: flex;
+  width: 100%;
+  height: 32px;
+  background-color: #F1F3F8;
+  overflow: hidden;
+}
+
+.stat-progress-segment {
+  height: 100%;
+  transition: width 250ms ease;
+  background-size: 8px 100%;
+  background-repeat: repeat-x;
+}
+
+.stat-progress-positive {
+  /* Green striped pattern using repeating-linear-gradient */
+  background-image: repeating-linear-gradient(
+    90deg,
+    #ECF8F1 0px,
+    #ECF8F1 4px,
+    #43A833 4px,
+    #43A833 8px
+  );
+}
+
+.stat-progress-negative {
+  /* Red striped pattern using repeating-linear-gradient */
+  background-image: repeating-linear-gradient(
+    90deg,
+    #ffcdcd90 0px,
+    #ffcdcd90 4px,
+    #F23645 4px,
+    #F23645 8px
+  );
+}
+
+.stat-progress-separator {
+  width: 4px;
+  min-width: 4px;
+  background: transparent;
+}
+
+/* Disabled state - gray out when no data */
+.stat-progress-disabled .stat-progress-positive {
+  background-image: repeating-linear-gradient(
+    90deg,
+    #F1F3F8 0px,
+    #F1F3F8 4px,
+    #ffffff 4px,
+    #ffffff 8px
+  );
+}
+
+.stat-progress-disabled .stat-progress-negative {
+  background-image: repeating-linear-gradient(
+    90deg,
+    #F1F3F8 0px,
+    #F1F3F8 4px,
+    #ffffff 4px,
+    #ffffff 8px
+  );
+}
 </style>
