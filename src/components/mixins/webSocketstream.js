@@ -41,6 +41,62 @@ var orderStatusInterval = null;
 var isConnecting = false;
 var isReconnecting = false;
 
+// Advanced WebSocket throttler with per-token batching
+class WebSocketBatchDispatcher {
+    constructor(batchDelay = 100) {
+        this.batchDelay = batchDelay
+        this.tokenBatches = new Map() // token -> latest responseFeed
+        this.batchTimer = null
+    }
+
+    // Add to batch (per-token, keeps latest data only)
+    addToBatch(responseFeed) {
+        // Use token as key, or message type if no token
+        const token = responseFeed.tk || responseFeed.token || responseFeed.t || 'general'
+
+        // Store latest data for this token (overwrites previous)
+        this.tokenBatches.set(token, responseFeed)
+
+        // Schedule batch flush if not already scheduled
+        if (!this.batchTimer) {
+            this.batchTimer = setTimeout(() => {
+                this.flushBatch()
+            }, this.batchDelay)
+        }
+    }
+
+    // Dispatch critical message immediately
+    dispatchImmediate(responseFeed) {
+        const event = new CustomEvent('web-scoketConn', {
+            detail: [responseFeed, 'watchlist']
+        })
+        window.dispatchEvent(event)
+    }
+
+    // Flush all batched updates
+    flushBatch() {
+        if (this.tokenBatches.size === 0) {
+            this.batchTimer = null
+            return
+        }
+
+        // Dispatch all batched updates (one per token)
+        this.tokenBatches.forEach((responseFeed) => {
+            const event = new CustomEvent('web-scoketConn', {
+                detail: [responseFeed, 'watchlist']
+            })
+            window.dispatchEvent(event)
+        })
+
+        // Clear batch and timer
+        this.tokenBatches.clear()
+        this.batchTimer = null
+    }
+}
+
+// Create global throttler instance
+const wsThrottler = new WebSocketBatchDispatcher(100)
+
 // Function to get tokenid dynamically using sessionStore
 function getTokenId() {
     if (params) {
@@ -202,13 +258,13 @@ function establishSocketConnection(type) {
         const store = getAppStore();
 
         if (!!responseFeed.t && responseFeed.t == 'ck' && responseFeed.s == 'OK') {
+            console.log("🔌 [WS-STREAM] Received 'ck' with 's=OK' - setting connectionStatus = true")
             connectionStatus = true
             isConnecting = false;
             isReconnecting = false;
             wsreconn = 0; // Reset reconnection counter on successful connection
             // Reset retry counter on successful connection
             window.wsRetryCount = 0;
-            // console.log("✅ WebSocket connection established successfully")
 
             // Start heartbeat interval
             if (!heartbeatInterval) {
@@ -237,8 +293,25 @@ function establishSocketConnection(type) {
                 Datafeed.subscribeQuotesChain([last], undefined, undefined);
             }
             else {
+                console.log("📝 [WS-STREAM] Setting sessionStorage wsstat = 'Ok'")
                 sessionStorage.setItem('wsstat', 'Ok');
-                // console.log("✅ WebSocket status set to 'Ok'")
+
+                // CRITICAL: Notify websocketStore that connection is ready
+                // This will flush all pending subscriptions (indices, watchlist, etc.)
+                // Use setTimeout to ensure sessionStorage is fully committed
+                console.log("⏱️ [WS-STREAM] Scheduling markWebSocketReady() call in 10ms...")
+                setTimeout(async () => {
+                    try {
+                        console.log("🔔 [WS-STREAM] Calling markWebSocketReady() now...")
+                        const module = await import('../../stores/websocketStore')
+                        const { useWebsocketStore } = module
+                        const websocketStore = useWebsocketStore()
+                        websocketStore.markWebSocketReady()
+                    } catch (err) {
+                        console.error('❌ [WS-STREAM] Failed to notify websocketStore:', err)
+                    }
+                }, 10)
+
                 if (type == 'attempt') {
                     // Trigger order update via store
                     store.addWSOrderAlert('attempt');
@@ -264,15 +337,26 @@ function establishSocketConnection(type) {
         }
 
         // Trigger WebSocket connection event for components
+        // Use advanced throttling: Critical messages bypass, quotes/prices are batched
         if (responseFeed.t && responseFeed.t !== 'ck') {
-            const event = new CustomEvent('web-scoketConn', {
-                detail: [responseFeed, 'watchlist']
-            })
-            window.dispatchEvent(event)
+            // Identify critical messages that need immediate dispatch
+            const isCriticalMessage =
+                responseFeed.t === 'o' ||   // Order updates
+                responseFeed.t === 'om' ||  // Order modifications
+                responseFeed.t === 'ok'     // Order acknowledgments
+
+            if (isCriticalMessage) {
+                // CRITICAL: Dispatch immediately, no throttle/batch
+                wsThrottler.dispatchImmediate(responseFeed)
+            } else {
+                // PRICE/QUOTE DATA: Add to batch (per-token throttling)
+                wsThrottler.addToBatch(responseFeed)
+            }
         }
     }
 
     socket.onclose = function (event) {
+        console.log("❌ [WS-STREAM] WebSocket onclose fired - setting connectionStatus = false")
         isConnecting = false;
         connectionStatus = false;
 
@@ -284,6 +368,17 @@ function establishSocketConnection(type) {
         if (orderStatusInterval) {
             clearInterval(orderStatusInterval);
             orderStatusInterval = null;
+        }
+
+        // Reset WebSocket ready state in store
+        if (!params) {
+            import('../../stores/websocketStore').then(module => {
+                const { useWebsocketStore } = module
+                const websocketStore = useWebsocketStore()
+                websocketStore.resetWebSocketReady()
+            }).catch(err => {
+                console.error('Failed to reset websocketStore:', err)
+            })
         }
 
         let log = sessionStorage.getItem(userId + new Date().toLocaleDateString());
@@ -412,6 +507,8 @@ export async function websocketSubscription(payload) {
             };
             await establishConnection(json);
         }
+    } else {
+        console.warn('[WS] ❌ websocketSubscription called but connectionStatus=false, subscription dropped:', payload)
     }
 }
 

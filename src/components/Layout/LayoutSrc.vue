@@ -479,9 +479,9 @@ const closeRisk = () => {
 
 // WebSocket event handler for 'web-scoketOn' custom events
 const handleWebSocketEvent = (event) => {
-    const { flow, data, is, page } = event.detail
-    websocketStore.handleWebSocketRequest(flow, data, is, page)
-}
+        const { flow, data, is, page } = event.detail
+        websocketStore.handleWebSocketRequest(flow, data, is, page)
+        } 
 
 const getPublicIP = async () => {
     try {
@@ -512,8 +512,8 @@ const getUserSession = async (k) => {
             // IMPORTANT: Set session status BEFORE calling WebSocket functions
             sessionStorage.setItem("c3RhdHVz", "dmFsaWR1c2Vy")
 
-            // Listen for custom WebSocket events from components
-            window.addEventListener('web-scoketOn', handleWebSocketEvent)
+            // NOTE: Listener already registered early in onMounted (line 650)
+            // No need to register again here
 
             await seyCheckwebsocket()
 
@@ -628,6 +628,10 @@ const getUserSession = async (k) => {
 
 // Lifecycle
 onMounted(async () => {
+    // CRITICAL: Register WebSocket event listener FIRST, synchronously, before any async operations
+    // This ensures child components can dispatch events during parent's async initialization
+    window.addEventListener('web-scoketOn', handleWebSocketEvent)
+    
     // console.log("🚀 LayoutSrc onMounted starting...")
     // Don't remove session status here - only remove it on logout
     // sessionStorage.removeItem("c3RhdHVz")
@@ -760,9 +764,8 @@ onMounted(async () => {
                 appStore.setWatchlistLayout(wllayout === 'true')
             }
 
-            // IMPORTANT: Initialize WebSocket listener for existing sessions too
-            // console.log("🔌 Initializing WebSocket listener for existing session...")
-            window.addEventListener('web-scoketOn', handleWebSocketEvent)
+            // NOTE: Listener already registered early in onMounted (line 650)
+            // No need to register again here
 
             // IMPORTANT: Load order preferences API (this was being skipped!)
             // console.log("📥 Loading order preferences...")
@@ -862,12 +865,11 @@ watch(
 
 // Cleanup on unmount
 onUnmounted(() => {
-    // console.log("🧹 LayoutSrc unmounting, stopping session monitoring...")
     // Stop session monitoring
     sessionStore.stopSessionMonitoring()
     // Remove WebSocket event listener
     window.removeEventListener('web-scoketOn', handleWebSocketEvent)
-})
+    })
 </script>
 
 <style>
