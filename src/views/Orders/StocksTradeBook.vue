@@ -2,7 +2,7 @@
     <div>
         <!-- Header Section -->
         <v-toolbar flat dense class="tradebook-header" style="background-color: #ffffff;">
-            <p class="title font-weight-bold mb-0" style="font-size: 20px; color: #000000; margin-left: 0;">
+            <p class="title font-weight-bold mt-3" style="font-size: 20px; color: #000000; margin-left: 0;">
                 Tradebook ({{ orderbookdata.length }})
             </p>
             <v-spacer></v-spacer>

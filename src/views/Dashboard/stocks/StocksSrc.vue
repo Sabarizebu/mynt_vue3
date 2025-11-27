@@ -47,7 +47,7 @@
                 </v-card>
             </div>
         </v-card>
-        <v-toolbar class="tool-sty elevation-0 crd-trn pt-10 pb-3" density="compact">
+        <v-toolbar class="tool-sty elevation-0 crd-trn pt-2" density="compact">
             <img width="32px" :src="indIcon" alt="ind" class="mr-1 pa-1" />
             <p class=" font-weight-bold fs-20 mb-0 mr-3">Top indices</p>
             <v-spacer></v-spacer>
@@ -61,7 +61,7 @@
             width="100%">
             <v-card v-for="(s, l) in pdmwdata" :key="l"
                 @click="() => { setSSDtab('Details', s.token, s.exch, s.tsym); }"
-                class="px-3 py-2 crd-trn pos-rlt table-row" :class="l != pdmwdata.length - 1 ? 'mr-4' : ''"
+                class="px-3 py-2 bordercss pos-rlt table-row elevation-0" :class="l != pdmwdata.length - 1 ? 'mr-4' : ''"
                 min-width="160px" style="border: 1px solid #EBEEF0 !important;">
                 <div v-if="uid" @click.stop class="pos-abs table-hov" style="bottom: 35px; right: 4px;">
                     <v-btn :disabled="!s.too" @click="navigateToAdvanceDecline(s.too)" min-width="20px" color="mainbg"
@@ -82,10 +82,10 @@
 
                 <p class="mb-2 ws-p font-weight-bold" style="font-size: 14px;" v-text="s.tsym ? s.tsym : ''"></p>
                 <v-card class="pt-02 mb-3 elevation-0 rounded-pill" width="30%" color="maintext"></v-card>
-                <p class="fs-14 txt-000 font-weight-medium mb-0">
+                <p class="fs-14 txt-000  mb-0">
                     ₹<span :id="`ssdpd${s.token}ltp`">{{ s.ltp ? Number(s.ltp).toFixed(2) : "0.00" }}</span>
                 </p>
-                <p class="fs-12 font-weight-medium mb-0" :id="`ssdpd${s.token}chpclr`"
+                <p class="fs-12 mb-0" :id="`ssdpd${s.token}chpclr`"
                     :style="s.ch > 0 ? 'color: #43A833;' : s.ch < 0 ? 'color: #FF0000;' : 'color: #000000;'">
                     <span :id="`ssdpd${s.token}ch`">{{ s.ch ? Number(s.ch).toFixed(2) : "0.00" }}</span>
                     <span :id="`ssdpd${s.token}chp`"> ({{ s.chp ? Number(s.chp).toFixed(2) : "0.00" }}%)</span>
@@ -107,7 +107,7 @@
                             </div>
                             <v-card class="elevation-0 mx-auto"
                                 :color="(advdectab === (p === 0 ? 'sectors' : 'thematic')) ? 'primary' : 'transparent'"
-                                height="2px" style="max-width: 120px;"></v-card>
+                                height="2px" ></v-card>
                         </v-col>
                     </template>
                 </v-row>
@@ -125,13 +125,13 @@
                                 bg-color="secbg" style="background-color: #F1F3F8 !important;">
                                 <v-row no-gutters>
                                     <v-col cols="5" sm="4" class="pr-0">
-                                        <p class="mb-0fs-14 ">
+                                        <p class="mb-0 fs-14 ">
                                             {{ i.title }} <span class="caption subtext-text font-weight-bold">({{ i.data
                                                 && i.data.sum ?
                                                 i.data.sum :
                                                 ".." }})</span>
                                         </p>
-                                        <p class="fs-14 maintext--text font-weight-medium mb-0 lh-16">
+                                        <p class="fs-14 maintext--text mb-0 ">
                                             <span
                                                 v-if="advdecitems.wsdata && i.data && i.data.token && advdecitems.wsdata[i.data.token]">
                                                 <span :id="`ssdad${i.data.token}ltp`">₹{{ advdecitems.wsdata && i.data
@@ -218,12 +218,12 @@
                                     <!-- duplicate same inner layout -->
                                     <v-col cols="5" sm="4" class="pr-0">
                                         <p class="mb-0  fs-14">
-                                            {{ i.title }} <span class="caption subtext-text font-weight-bold">({{ i.data
+                                            {{ i.title }} <span class=" subtext-text font-weight-bold">({{ i.data
                                                 &&
                                                 i.data.sum ?
                                                 i.data.sum : ".." }})</span>
                                         </p>
-                                        <p class="fs-14 maintext--text font-weight-medium mb-0 lh-16">
+                                        <p class="fs-14 maintext--text  mb-0 ">
                                             <span
                                                 v-if="advdecitems.wsdata && i.data && i.data.token && advdecitems.wsdata[i.data.token]">
                                                 <span :id="`ssdad${i.data.token}ltp`">₹{{
@@ -293,7 +293,7 @@
                 <div class="text-center mt-2">
                     <v-btn v-if="advdecitems && (advdecitems.Sectors || advdecitems.Thematic)"
                         @click="$router.push({ name: 'stocks advance decline', params: { abc: advdectab === 'sectors' ? advdecitems.Sectors[0].key : advdecitems.Thematic[0].key, main: advdectab === 'sectors' ? 'Sectors' : 'Thematic' } })"
-                        text variant="flat" size="small" block class="text-none primary--text px-2">See all</v-btn>
+                        text variant="solo" size="small"   block class="text-none primary--text px-2 ">See all</v-btn>
                 </div>
             </v-col>
             <v-col cols="12" sm="6" class="pt-md-0">
@@ -303,7 +303,7 @@
                     <!-- <v-spacer></v-spacer> -->
 
                     <v-select v-model="treemaps" :items="treemapitem" @update:model-value="setStatavddec()"
-                        :readonly="issloading" variant="flat" rounded="pill" density="compact" hide-details bg-color="secbg"
+                        :readonly="issloading" menu-icon="mdi-chevron-down" variant="flat" rounded="pill" density="compact" hide-details bg-color="secbg"
                         class="w-100 rounded-pill fs-14  mb-1 select-left text-left pl-0" style="color: white; max-width: 50%;"></v-select>
 
 
@@ -410,16 +410,16 @@
                     <v-select v-model="screent0" :items="screent0item" item-title="text" item-value="value"
                         variant="flat" density="compact" hide-details menu-icon="mdi-chevron-down"
                         :readonly="issloading" class="rounded-pill d-none d-sm-flex text-center mr-3 elevation-0" style="
-                        max-width: 180px;
+                        max-width: 200px;
                         height: 36px;
                         background-color: #f1f3f8;
                         color: #000;
                         font-weight: 500;
-                        font-size: 14px;
+                        font-size: 12px;
                         padding: 0 15px;
                         border-radius: 9999px;
-                        align-items: center;
-                        justify-content: center;
+                        
+                        justify-content: space-between;
                         display: flex;
                         margin-top: 0 !important;
                         padding-top: 0 !important;
@@ -525,7 +525,7 @@
             </v-data-table>
             <v-divider></v-divider>
             <v-btn v-if="screentitems && screentitems.length > 0" :disabled="issloading" to="/stocks/screener" block
-                text class="text-none primary--text" height="48px">See
+                text class="text-none elevation-0 primary--text" height="48px">See
                 all</v-btn>
         </v-card>
 
@@ -608,7 +608,7 @@
                     </div>
                     <v-btn v-if="allcropact && allcropact.length > 0 && uid"
                         :href="`https://profile.zebuetrade.com/corporateaction?uid=${uid}&token=${stoken}`"
-                        target="_blank" block text class="text-none primary--text rounded-t-0 rounded-b-lg"
+                        target="_blank" block text class="text-none elevation-0 primary--text rounded-t-0 rounded-b-lg"
                         height="48px">See
                         all</v-btn>
                 </v-card>
@@ -677,7 +677,7 @@
                         </div>
                     </div>
                     <v-btn v-if="allnews && allnews.length > 0" href="https://zebuetrade.com/news" target="_blank" block
-                        text class="text-none primary--text rounded-t-0 rounded-b-lg" height="48px">See all</v-btn>
+                        text class="text-none primary--text rounded-t-0 elevation-0 rounded-b-lg" height="48px">See all </v-btn>
                 </v-card>
             </v-col>
         </v-row>
@@ -2737,4 +2737,31 @@ const optionChainDataParse = (data) => {
 .select-left .v-select__selection-text {
     text-align: left !important;
 }
-</style>
+
+/* Reduce input text size */
+.v-select .v-field__input {
+  font-size: 13px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Reduce placeholder size */
+.v-select .v-field__placeholder {
+  font-size: 13px !important;
+}
+
+/* Reduce selected text inside field */
+.v-select .v-select__selection-text {
+  font-size: 13px !important;
+}
+
+/* Reduce dropdown list text */
+.v-overlay-container .v-list-item-title {
+  font-size: 13px !important;
+}
+.v-select .v-field__append-inner {
+  margin-left: auto !important;
+  padding-left: 8px !important;
+}</style>
+
+

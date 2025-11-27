@@ -50,7 +50,7 @@
                                 <div v-else class="pos-stk top-80">
                                     <v-card outlined rounded="lg"
                                         class=" ss-login-card bordercss px-10 pt-4 elevation-0  pos-rlt  d-flex"
-                                        width="100%"  style="overflow: visible !important;">
+                                        width="100%" style="overflow: visible !important;">
                                         <div class="my-auto">
                                             <img :src="getAssetPath(`products-sec/${bodytab == 'Mutual funds' ? 'mutual-funds' : bodytab == 'IPOs' ? 'ipos' : bodytab == 'Bonds' ? 'bonds' : 'Stocks-ETFs'}.png`)"
                                                 :alt="bodytab" class="" width="100%" />
@@ -59,7 +59,8 @@
                                                 Open your demat account <br /> effortlessly
                                                 with our six-click process.
                                             </p>
-                                            <v-card class="elevation-0 rounded-0 crd-trn" width="100%" style="overflow: visible !important;">
+                                            <v-card class="elevation-0 rounded-0 crd-trn" width="100%"
+                                                style="overflow: visible !important;">
                                                 <v-form ref="form" v-model="valid" lazy-validation
                                                     @submit.prevent="getCall()">
                                                     <v-row no-gutters>
@@ -74,13 +75,14 @@
                                                                 class="sign-up-filed elevation-0 rounded-pill caption mb-3 px-3"
                                                                 placeholder="Enter Client ID/Mobile to begin">
                                                                 <template #prepend-inner>
-                                                                    <img class="pt-0" :src="phoneIconSrc" width="16" height="16"
-                                                                        alt="phone-icon" />
+                                                                    <img class="pt-0" :src="phoneIconSrc" width="16"
+                                                                        height="16" alt="phone-icon" />
                                                                 </template>
                                                             </v-text-field>
                                                         </v-col>
-                                                        <v-col cols="2" class="d-flex align-center" style="margin-right: -48px; overflow: visible;">
-                                                            <v-btn class="mb-3 elevation-0"  color="transparent"
+                                                        <v-col cols="2" class="d-flex align-center"
+                                                            style="margin-right: -48px; overflow: visible;">
+                                                            <v-btn class="mb-3 elevation-0" color="transparent"
                                                                 @click="goSso(true)" fab small>
                                                                 <v-icon size="24">
                                                                     mdi-qrcode-scan
@@ -88,7 +90,7 @@
                                                             </v-btn>
                                                         </v-col>
                                                     </v-row>
-                                                    <v-btn type="submit" block height="48px"   color="#FFF07E"
+                                                    <v-btn type="submit" block height="48px" color="#FFF07E"
                                                         class="text-none rounded-pill elevation-0"><span
                                                             class="black--text font-weight-bold">Continue</span></v-btn>
                                                 </v-form>
@@ -126,16 +128,18 @@
                         </v-dialog>
                         <v-dialog v-model="riskdialog" persistent width="620">
                             <v-card class="elevation-0 py-4 px-2 rounded-xl">
-                                <v-card-title class="title font-weight-bold ">
+                                <v-card-title class="font-weight-bold d-flex align-center pa-4">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                        fill="none" class="mt-5">
+                                        fill="none">
                                         <path
                                             d="M14 2.26953V6.40007C14 6.96012 14 7.24015 14.109 7.45406C14.2049 7.64222 14.3578 7.7952 14.546 7.89108C14.7599 8.00007 15.0399 8.00007 15.6 8.00007H19.7305M16 13H8M16 17H8M10 9H8M14 2H8.8C7.11984 2 6.27976 2 5.63803 2.32698C5.07354 2.6146 4.6146 3.07354 4.32698 3.63803C4 4.27976 4 5.11984 4 6.8V17.2C4 18.8802 4 19.7202 4.32698 20.362C4.6146 20.9265 5.07354 21.3854 5.63803 21.673C6.27976 22 7.11984 22 8.8 22H15.2C16.8802 22 17.7202 22 18.362 21.673C18.9265 21.3854 19.3854 20.9265 19.673 20.362C20 19.7202 20 18.8802 20 17.2V8L14 2Z"
                                             :stroke="theme.current.value.dark ? 'white' : 'black'" stroke-width="2"
                                             stroke-linecap="round" stroke-linejoin="round" />
                                     </svg>
-                                    <span class="ml-3 mb-3 pb-2"> Risk disclosures on derivatives </span>
+
+                                    <span class="ml-3">Risk disclosures on derivatives sam</span>
                                 </v-card-title>
+
                                 <v-divider class="mx-4"></v-divider>
                                 <v-card-text class="px-4 px-md-8 py-7 riskpopup">
                                     <ul :class="theme.current.value.dark ? 'white--text' : 'black--text'"

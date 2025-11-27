@@ -56,7 +56,7 @@
             :class="['pb-5 overflow-hidden rounded-lg', isStickyDialog ? 'sticky-dialog' : '']" :style="dialogStyle"
             color="cardbg" :width="isQuickOrder ? '400px' : '540px'" height="auto" >
             <v-card id="maindivheader" :loading="isPlacingOrder" class="elevation-0 rounded-b-0 "
-                :class="isQuickOrder ? 'py-2 pt-3' : 'pt-4 pb-2'" :color="!buyOrSellIsSell ? 'secgreen' : 'secred'">
+                :class="isQuickOrder ? 'py-2 pt-3 pb-3' : 'pt-4 pb-2'" :color="!buyOrSellIsSell ? 'secgreen' : 'secred'">
                 <v-toolbar class="elevation-0 " :class="isQuickOrder ? 'pr-4' : 'px-2'" density="compact"
                     style="background-color: #00000000 !important;">
                     <div :class="isQuickOrder ? 'px-5 pt-3 ' : 'px-5'">
@@ -84,7 +84,7 @@
                 <div class="px-6  py-1">
                     <!-- Order Type Tabs: Regular / Cover / Bracket / GTT / SIP -->
                     <div v-if="!isQuickOrder" class="d-flex align-center" style="border-bottom: 1px solid #e0e0e0;">
-                        <v-tabs v-model="orderType" density="compact" class="mb-2 flex-grow-1"
+                        <v-tabs v-model="orderType" density="compact" class="mb-0 flex-grow-1"
                             @update:model-value="onOrderTypeChanged">
                             <v-tab :value="0" class="text-none fs-14">Regular</v-tab>
                             <v-tab :value="1" class="text-none fs-14">Cover</v-tab>
@@ -93,7 +93,7 @@
                             <v-tab v-if="menudata[0]?.exch === 'NSE' || menudata[0]?.exch === 'BSE'" :value="4"
                                 class="text-none fs-12">SIP</v-tab>
                         </v-tabs>
-                        <v-menu offset-y left>
+                        <v-menu offset-y right>
                             <template v-slot:activator="{ props }">
                                 <v-btn icon v-bind="props" variant="text" density="compact">
                                     <v-badge :model-value="isStickyDialog || quickOrderDefault" dot overlap
@@ -102,10 +102,10 @@
                                     </v-badge>
                                 </v-btn>
                             </template>
-                            <v-list density="compact" class="py-2">
+                            <v-list density="compact" class="py-2 ">
                                 <v-list-item class="px-3">
                                     <v-switch v-model="isStickyDialog" color="primary" hide-details density="compact"
-                                        @update:model-value="saveOrderPreferences" class="ma-0">
+                                        @update:model-value="saveOrderPreferences" class="ma-2">
                                         <template #label>
                                             <div class="d-flex align-center">
                                                 <span class="fs-14 maintext--text">Sticky {{ isStickyDialog ? 'On' :
@@ -124,7 +124,7 @@
                                 </v-list-item>
                                 <v-list-item class="px-3">
                                     <v-switch v-model="quickOrderDefault" color="primary" hide-details density="compact"
-                                        @update:model-value="saveOrderPreferences" class="ma-0">
+                                        @update:model-value="saveOrderPreferences" class="ma-2">
                                         <template #label>
                                             <div class="d-flex align-center">
                                                 <span class="fs-14 maintext--text">Quick Order screen {{
@@ -169,7 +169,7 @@
                                     'Switch to Delivery' : 'Switch to Carry Forward' }}</span>
                         </v-tooltip>
                     </div>
-                    <div v-else-if="orderType == 0 || orderType == 3" class="pt-2">
+                    <div v-else-if="orderType == 0 || orderType == 3" class="pt-4   ">
                         <p class="subtext--text fs-13 font-weight-regular mb-0">Investment type</p>
                         <v-radio-group @update:model-value="onOrderTypeChanged" v-model="investType" inline hide-details
                             class="ml-n2">
@@ -183,7 +183,7 @@
                     <!-- Price Type (hidden for SIP and GTT, and Quick Order) -->
                     <div v-if="!isQuickOrder && orderType !== 3 && orderType !== 4"
                         style="border-bottom: 1px solid #e0e0e0;" class="pb-2 mt-3 ">
-                        <p class="subtext--text fs-13 font-weight-regular mb-0 mt-2 mb-2">Select order type</p>
+                        <p class="subtext--text fs-13 font-weight-regular mb-0">Select order type</p>
                         <v-chip-group v-model="priceType" @update:model-value="onOrderTypeChanged" row mandatory>
                             <v-chip value="LMT" :style="{
                                 backgroundColor: priceType === 'LMT' ? '#000' : '#F1F3F8',
@@ -237,7 +237,7 @@
                                 <!-- Quantity Field -->
                                 <v-text-field density="compact" bg-color="secbg" rounded="xl" variant="flat"
                                     type="number" v-model.number="quantity" hide-details hide-spin-buttons single-line
-                                    class="font-weight-bold fs-16" @blur="validateQuantity">
+                                    class=" fs-16 disclosed-field" @blur="validateQuantity">
                                     <!-- PREPEND ( - ) -->
                                     <template #prepend-inner>
                                         <v-btn @click="decreaseQuantity()" icon class="elevation-0"
@@ -310,7 +310,7 @@
                                         </v-btn>
                                     </template>
                                 </v-text-field>
-                                <p v-if="menudata[1]" class="lh-16 fs-10 subtext--text mb-0 mt-1">Freeze qty: {{
+                                <p v-if="menudata[1]" class="lh-16 fs-10 subtext--text mb-0 mt-0">Freeze qty: {{
                                     menudata[1]?.frzqty ?? '-' }}</p>
                             </div>
                         </v-col>
@@ -340,12 +340,12 @@
                                     </div>
                                 </v-col>
                                 <v-col cols="7">
-                                    <v-text-field density="compact" bg-color="secbg" variant="flat"
+                                    <v-text-field density="compact" bg-color="secbg" variant="flat" class="disclosed-field"
                                         style="height: 45px;" rounded="xl" type="number" hide-spin-buttons
                                         :readonly="priceType === 'MKT' || priceType === 'SL-MKT'" v-model.number="price"
                                         hide-details @input="handlePriceInput">
                                         <template #prepend-inner>
-                                            <div class="d-flex align-center justify-center" style="
+                                            <div class="d-flex align-center justify-center pt-1" style="
                                                 background-color: white;
                                                 border-radius: 50%;
                                                 height: 23px;
@@ -375,7 +375,7 @@
                                 </v-col>
                     
                                 <v-col cols="6">
-                                    <p v-if="menudata[1]" class="lh-16 fs-10 subtext--text mb-0 mt-1">Circuit level: {{
+                                    <p v-if="menudata[1]" class=" fs-10 subtext--text mb-0 mt-0">Circuit level: {{
                                         menudata[1]?.lc ?? '-' }} - {{ menudata[1]?.uc ?? '-' }}</p>
                                 </v-col>
                             </v-row>
@@ -429,7 +429,7 @@
 
                             <v-text-field v-if="showTrigger" density="compact" bg-color="secbg" variant="flat"
                                 rounded="xl" type="number" hide-spin-buttons v-model.number="triggerPrice" hide-details
-                                style="height: 45px;" class="mt-1">
+                                style="height: 45px;" class="mt-1 disclosed-field">
                                 <template #prepend-inner>
                                     <div class="d-flex align-center justify-center" style="
                 background-color: white;
@@ -453,10 +453,10 @@
                         <v-row class="mt-n3">
                             <v-col cols="6">
                                 <v-checkbox v-model="showTarget" label="Target" density="compact" hide-details
-                                    color="black" class="font-weight-bold"></v-checkbox>
+                                    color="black" class="font-weight-bold disclosed-field"></v-checkbox>
                                 <v-text-field v-if="showTarget" density="compact" bg-color="secbg" variant="flat"
                                     rounded="xl" type="number" v-model.number="targetPrice" hide-details
-                                    style="height: 45px;" class="mt-1 no-spin" hide-spin-buttons>
+                                    style="height: 45px;" class="mt-1 mb-2 no-spin" hide-spin-buttons>
                                     <template #prepend-inner>
                                         <div class="d-flex align-center justify-center" style="
         background-color: white;
@@ -474,7 +474,7 @@
                             </v-col>
                             <v-col cols="6">
                                 <v-checkbox v-model="showStopLoss" label="Stoploss" density="compact" hide-details
-                                    color="black" class="font-weight-bold"></v-checkbox>
+                                    color="black" class="font-weight-bold disclosed-field"></v-checkbox>
                                 <v-text-field v-if="showStopLoss" density="compact" bg-color="secbg" variant="flat"
                                     rounded="xl" type="number" v-model.number="stopLossPrice" hide-details
                                     hide-spin-buttons style="height: 45px;" class="mt-1 no-spin">
@@ -500,14 +500,14 @@
                     <v-row v-else-if="orderType !== 3">
                         <!-- Trigger -->
                         <v-col cols="12" md="6" v-if="priceType === 'SL-LMT' || priceType === 'SL-MKT'">
-                            <div class="d-flex align-center justify-space-between">
+                            <div class="">
                                 <p class="subtext--text fs-14 font-weight-regular mb-2 mt-2">Trigger</p>
                             </div>
                             <v-text-field class="mt-2" style="height: 50px;" density="compact" bg-color="secbg"
                                 variant="flat" type="number" v-model.number="triggerPrice" rounded="xl"
                                 label="Trigger price" hide-details>
                                 <template #prepend-inner>
-                                    <div class="d-flex align-center justify-center" style="
+                                    <div class="d-flex align-center justify-center pt-1" style="
                                         background-color: white;
                                         border-radius: 50%;
                                         height: 23px;
@@ -522,7 +522,7 @@
 
                         <!-- Stop Loss -->
                         <v-col cols="12" md="6" v-if="orderType === 1 || orderType === 2">
-                            <div class="d-flex align-center justify-space-between">
+                            <div class="">
                                 <p class="subtext--text fs-14 font-weight-regular mb-2 mt-2">Stop Loss</p>
                             </div>
                             <v-text-field density="comfortable" bg-color="secbg" variant="flat" rounded="xl"
@@ -540,7 +540,7 @@
                         <!-- Target -->
                         <v-col cols="12" md="6" v-if="orderType === 2">
                             <div class="d-flex align-center justify-space-between">
-                                <p class="font-weight-regular fs-14 subtext--text mb-0 mt-2">Target</p>
+                                <p class="font-weight-regular fs-14 subtext--text mb-2 mt-2">Target</p>
                             </div>
                             <v-text-field density="comfortable" bg-color="secbg" variant="flat" rounded="xl"
                                 type="number" v-model.number="targetPrice" hide-details height="45px"
@@ -843,7 +843,7 @@
 
                     <!-- Validity & Disclosed Qty -->
                     <div v-if="orderType !== 3 && orderType !== 4 && !isQuickOrder">
-                        <v-checkbox color="maintext" v-model="addValidityQty" hide-details>
+                        <v-checkbox color="maintext" v-model="addValidityQty" hide-details class="checkbox-left">
                             <template #label>
                                 <p class="font-weight-regular fs-14 subtext--text mb-0">Add Validity & Disclosed Qty</p>
                             </template>
@@ -884,7 +884,7 @@
 
 
                                     <v-text-field density="compact" bg-color="secbg" rounded="xl" variant="flat"
-                                        type="number" v-model.number="disclosedQty" hide-details
+                                        type="number" v-model.number="disclosedQty" hide-details single-line class="disclosed-field"
                                         @blur="validateDisclosedQty">
                                         <template #append-inner>
                                             <v-btn @click="increaseDisclosedQty()" icon class="elevation-0"
@@ -919,8 +919,8 @@
 
                     <!-- After Market Order -->
                     <div class="d-flex align-center mt-0" style="border-top: 1px solid #e0e0e0;"
-                        v-if="orderType !== 1 && orderType !== 3 && orderType !== 2 && !isQuickOrder">
-                        <v-checkbox color="maintext" v-model="afterMarket" hide-details
+                        v-if="orderType === 0 || orderType === 1 || orderType === 2 && !isQuickOrder">
+                        <v-checkbox color="maintext" v-model="afterMarket" hide-details class="checkbox-left"
                             :disabled="orderContextType === 're-order' || orderContextType === 'mod-order'">
                             <template #label>
                                 <p class="font-weight-regular fs-14 subtext--text mb-0">After market order (AMO)</p>
@@ -935,7 +935,7 @@
                         <p class="font-weight-regular fs-14 subtext--text mb-2">Market Protection %</p>
                         <v-text-field density="compact" bg-color="secbg" variant="flat" rounded="xl"
                             v-model.number="marketProtection" type="number" min="0" max="20" step="0.01"
-                            hide-spin-buttons hide-details="auto" persistent-hint hint="Enter a value between 1 to 20"
+                            hide-spin-buttons hide-details="auto" persistent-hint
                             @blur="validateMarketProtectionOnBlur" />
                     </div>
 
@@ -3745,6 +3745,21 @@ onBeforeUnmount(() => {
 
 .fs-12 {
     font-size: 12px !important;
+}
+::v-deep(.checkbox-left .v-selection-control) {
+  margin-left: -10px !important;   /* adjust as needed */
+}
+::v-deep(.disclosed-field .v-field__input) {
+  display: flex !important;
+  align-items: center !important;
+  padding-top: 6 !important;
+  padding-bottom: 0 !important;
+}
+
+::v-deep(.disclosed-field .v-field__prepend-inner),
+::v-deep(.disclosed-field .v-field__append-inner) {
+  display: flex !important;
+  align-items: center !important;
 }
 
 

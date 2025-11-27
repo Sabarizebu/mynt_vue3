@@ -102,61 +102,22 @@ function createPublicRequestOptions() {
 // Helper function to add timeout to fetch requests with proper cancellation
 // Reduced timeout to 5 seconds for faster failure detection on Firebase
 function fetchWithTimeout(url, options = {}, timeout = 5000) {
-    // Create AbortController to actually cancel the request
-    const controller = new AbortController();
-    let timeoutId;
-
-    // Create a promise that rejects on timeout
-    const timeoutPromise = new Promise((_, reject) => {
-        timeoutId = setTimeout(() => {
-            controller.abort();
-            reject(new Error('Request timeout'));
-        }, timeout);
-    });
-
-    // If there's an existing signal, listen to it and abort our controller if it's aborted
-    if (options.signal) {
-        if (options.signal.aborted) {
-            clearTimeout(timeoutId);
-            controller.abort();
-            return Promise.reject(new Error('Request already aborted'));
-        } else {
-            options.signal.addEventListener('abort', () => {
-                clearTimeout(timeoutId);
-                controller.abort();
-            });
-        }
-    }
-
-    // Merge abort signal with existing options
+    // Timeout logic removed as per user request
     const fetchOptions = {
         ...options,
-        signal: controller.signal,
         // Add mode and credentials to handle CORS properly
         mode: 'cors',
         credentials: 'omit'
     };
 
-    // Race between fetch and timeout
-    return Promise.race([
-        fetch(url, fetchOptions)
-            .then(response => {
-                clearTimeout(timeoutId);
-                return response;
-            })
-            .catch(error => {
-                clearTimeout(timeoutId);
-                // Handle network errors (CORS, connection refused, etc.)
-                if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
-                    throw new Error('Network error: Failed to fetch - possible CORS or connection issue');
-                }
-                if (error.name === 'AbortError') {
-                    throw new Error('Request timeout');
-                }
-                throw error;
-            }),
-        timeoutPromise
-    ]);
+    return fetch(url, fetchOptions)
+        .catch(error => {
+            // Handle network errors (CORS, connection refused, etc.)
+            if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                throw new Error('Network error: Failed to fetch - possible CORS or connection issue');
+            }
+            throw error;
+        });
 }
 
 export async function GetAllSearchData(item, cat) {
@@ -1619,8 +1580,8 @@ export async function fetchMyntAPI(path, reqopt, way, customTimeout) {
         }
 
         let data = await response.json();
-        data = JSON.stringify(data);
-        data = JSON.parse(data);
+        // data = JSON.stringify(data);
+        // data = JSON.parse(data);
 
         if (uid && tok) {
             const status = response.status;
@@ -1772,16 +1733,27 @@ export async function fetchMyntAPI(path, reqopt, way, customTimeout) {
 }
 
 function saveApiLog(log, requestTime) {
-    const logs = JSON.parse(localStorage.getItem(`${uid}_apiLogs`) || '[]');
-    const currentLogDate = getDateOnly(requestTime);
-    const firstLogDate = logs.length ? logs[0] : null;
-    if (currentLogDate && typeof firstLogDate === 'string' && firstLogDate.includes(currentLogDate)) {
-        logs.unshift(log);
-    } else {
-        logs.length = 0;
-        logs.unshift(log);
+    try {
+        const logs = JSON.parse(localStorage.getItem(`${uid}_apiLogs`) || '[]');
+        const currentLogDate = getDateOnly(requestTime);
+        const firstLogDate = logs.length ? logs[0] : null;
+
+        if (currentLogDate && typeof firstLogDate === 'string' && firstLogDate.includes(currentLogDate)) {
+            logs.unshift(log);
+        } else {
+            logs.length = 0;
+            logs.unshift(log);
+        }
+
+        // Limit logs to last 50 entries to prevent performance issues
+        if (logs.length > 50) {
+            logs.length = 50;
+        }
+
+        localStorage.setItem(`${uid}_apiLogs`, JSON.stringify(logs));
+    } catch (e) {
+        // Ignore logging errors
     }
-    localStorage.setItem(`${uid}_apiLogs`, JSON.stringify(logs));
 }
 
 function getDateOnly(dateString) {
@@ -1802,8 +1774,8 @@ export async function fetchMyntjson(path, options = {}) {
         }
 
         let data = await response.json();
-        data = JSON.stringify(data);
-        data = JSON.parse(data);
+        // data = JSON.stringify(data);
+        // data = JSON.parse(data);
         return data
     } catch (error) {
         // Handle timeout and network errors gracefully

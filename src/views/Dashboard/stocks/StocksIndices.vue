@@ -52,7 +52,7 @@
 
                 <v-select @update:model-value="setTabchange()" style="max-width: 180px" v-model="exchtype" hide-details
                      prepend-inner-icon="mdi-playlist-check" class="rounded-pill mr-3 centered-select"
-                    density="compact" variant="flat" rounded="pill" bg-color="secbg" :items="['NSE', 'BSE', 'MCX']" ></v-select>
+                    density="compact" variant="flat" rounded="pill" bg-color="secbg" :items="['NSE', 'BSE', 'MCX']"    menu-icon="mdi-chevron-down"></v-select>
 
                 <v-text-field style="max-width: 220px;" :disabled="isloading" v-model="opensearch" hide-details
                     prepend-inner-icon="mdi-magnify" label="Search for Indices" single-line
@@ -186,10 +186,34 @@ const setTabchange = () => {
 
 const setSinglestock = (tsym, item) => {
     if (uid.value) {
-        let path = [0, item.token, item.exch, item.tsym]
-        router.push({ name: "stocks details", params: { val: path } })
-    } else {
-        router.push({ name: "stocks advance decline", params: { abc: tsym, main: "find" } })
+        // For logged-in users: use the detailed stocks view with trading features
+        let path = [0, item.token, item.exch, item.tsym];
+        // Store params for refresh persistence
+        
+        
+        localStorage.setItem('ssdParams', JSON.stringify(path));
+        localStorage.setItem('ssdtsym', `${item.exch}:${item.tsym}`);
+        localStorage.setItem('ssdtoken', item.token);
+        // Use query params to force route change detection
+        router.push({
+            name: "stocks details",
+            params: { val: path },
+            query: {
+                type: '0',
+                token: item.token,
+                exch: item.exch,
+                tsym: item.tsym
+            }
+        });
+    } else if (item.exch == "NSE" && item.tsym.slice(-2) ==  "EQ" ) {
+        router.push(`/stocks/${tsym.toLowerCase()}`);
+        console.log("else iffffffffff");
+        
+    }
+    else{
+        router.push(`/stocks`);
+       
+        
     }
 }
 

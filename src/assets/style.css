@@ -1020,7 +1020,6 @@ tr:hover,
 
 .nav-drawer {
   border-bottom: thin solid #EBEEF0 !important;
-  box-shadow: 0px 1px 15px 0px rgba(44, 44, 45, 0.03), 0px 5px 22px 0px rgba(154, 154, 156, 0.02) !important;
 }
 
 .stat-card {
@@ -2211,16 +2210,17 @@ tr:hover,
 .search-field-center .v-field__input {
   display: flex !important;
   align-items: center !important;
+  font-size: 14px !important;
 }
 
 .search-field-center input {
-  line-height: 1.5 !important;
+  line-height: 2 !important;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
 }
 
 .search-field-center .v-field__input input {
-  line-height: 1.5 !important;
+  line-height: 2 !important;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
 }

@@ -4,7 +4,7 @@
             <v-card id="fun" class="crd-trn ss-cards overflow-hidden mb-md-6" width="100%">
                 <v-card color="secbg" class="elevation-0 rounded-0 pt-2 px-md-0 px-3">
                     <v-row no-gutters style="background-color: #F1F3F8 !important;">
-                        <v-col cols="12" md="7" class="pb-1 pb-md-2">
+                        <v-col cols="12" md="7" class="pb-1 pb-md-1">
                             <div class="d-flex align-center px-0 px-md-4 pt-3 pb-2">
                                 <!-- Left Avatar Section -->
                                 <v-avatar color="#fbfbfb" size="56" class="my-0">
@@ -74,8 +74,8 @@
                     </v-row>
                 </v-card>
                 <div class="py-3 py-md-1">
-                    <v-toolbar class="nav-drawer elevation-0  crd-trn pa-3" density="compact">
-                        <v-list-item class="px-0">
+                    <v-toolbar class="nav-drawer elevation-0  pa-3" density="compact">
+                        <v-list-item class="px-0" elevation="0">
                             <v-list-item-title class="font-weight-bold title mb-1 ">Fundamental
                                 ratios</v-list-item-title>
                             <v-list-item-subtitle class="maintext--text font-weight-medium fs-12">
@@ -129,12 +129,12 @@
                         </v-list-item>
                         <v-spacer></v-spacer>
 
-                        <v-select @update:model-value="setFinchartdata()" hide-details rounded="pill"
+                        <v-select @update:model-value="setFinchartdata()" hide-details rounded="pill" menu-icon="mdi-chevron-down"
                             v-model="fin_fiter" :items="[
                                 { key: 'Standalone', val: 'stockFinancialsStandalone' },
                                 { key: 'Consolidated', val: 'stockFinancialsConsolidated' },
                             ]" item-title="key" item-value="val" class=" max-w-160" density="compact" variant="flat"
-                            bg-color="secbg" label="Filter"></v-select>
+                            bg-color="secbg" ></v-select>
                     </v-toolbar>
                 </div>
                 <v-data-table item-key="name" must-sort :sort-by="[financialtab != 2 ? 'idx' : 'name']"
@@ -386,13 +386,13 @@
                         </v-col>
                         <v-col cols="12" md="5" class="pr-md-0 pl-md-4 px-0 pb-0">
                             <v-card variant="outlined" class="bordercss pa-3 rounded-lg">
-                                <p class="font-weight-bold fs-16  mb-1">Shareholding History</p>
+                                <p class="font-weight-bold fs-16  mb-1">Shareholding History </p>
                                 <p class="subtext--text mb-4 fs-12">Select a segment from the breakdowns
                                     to see its
                                     pattern here</p>
                                 <v-select hide-details v-model="shareholdings.y" rounded="pill"
                                     :items="shareholdings.table || []" item-title="investor" item-value="shares" block
-                                    class="mt-2 text-left" density="compact" variant="flat" bg-color="secbg"
+                                    class="mt-2 text-left" density="compact" menu-icon="mdi-chevron-down" variant="flat" bg-color="secbg"
                                     label="Filter" @update:model-value="setHoldchartdata()">
                                     <template v-slot:selection="{ item }">
                                         <span style="text-align: left; width: 100%; display: block; padding-left: 0;">{{
@@ -1795,6 +1795,7 @@ watch(() => shareholdings.y, () => {
     text-align: left !important;
     padding-left: 12px !important;
     padding-bottom: 10px !important;
+    padding-top: 15px !important;
 }
 
 :deep(.v-select .v-field__input input) {

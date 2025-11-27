@@ -97,7 +97,7 @@
             </v-row>
 
             <!-- Toolbar -->
-            <v-toolbar flat dense class="tool-sty my-0 pl-4 crd-trn">
+            <v-toolbar flat dense class="tool-sty my-0 py-3 crd-trn">
                 <v-tabs v-model="tab" color="primary" fixed show-arrows density="compact">
                     <v-tab value="stocks" class="font-weight-bold subtitle-1 mb-0 text-none">Stocks ({{ holdings.length
                     }})</v-tab>
@@ -166,7 +166,7 @@
                                         style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
                                         min-width="20px" color="mainbg" class="font-weight-bold elevation-0 mr-1"
                                         size="x-small">
-                                        <v-icon size="14" color="#666666">mdi-chart-line-variant</v-icon>
+                                        <v-icon size="14" color="#000000">mdi-chart-line-variant</v-icon>
                                     </v-btn>
                                     <v-tooltip location="bottom">
                                         <template #activator="{ props }">
@@ -176,7 +176,7 @@
                                                     style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
                                                     min-width="20px" color="mainbg"
                                                     class="font-weight-bold elevation-0 mr-1" size="x-small">
-                                                    <v-icon size="14" color="#666666">mdi-close</v-icon>
+                                                    <v-icon size="14" color="#000000">mdi-close</v-icon>
                                                 </v-btn>
                                             </div>
                                         </template>
@@ -188,7 +188,7 @@
                                                 style="border: 1px solid #EBEEF0; background-color: #ffffff; border-radius: 4px; min-width: 20px; height: 20px; padding: 0;"
                                                 min-width="20px" color="mainbg"
                                                 class="font-weight-bold elevation-0 mr-1" size="x-small">
-                                                <v-icon size="14" color="#666666">mdi-dots-horizontal</v-icon>
+                                                <v-icon size="14" color="#000000">mdi-dots-horizontal</v-icon>
                                             </v-btn>
                                         </template>
                                         <v-card class="table-menu-list">
@@ -880,7 +880,7 @@ function setHoldingsPayload(payload) {
     })
 
     holdings.value = list
-console.log('📦 Processed Holdings List:', JSON.stringify(list, null, 2));
+
     // Subscribe to WebSocket for live updates
     if (list.length > 0) {
         window.dispatchEvent(new CustomEvent('web-scoketOn', {

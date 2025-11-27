@@ -2,17 +2,17 @@
     <div class="mb-2">
         <v-row>
             <v-col sm="6" cols="12">
-                <v-card class="elevation-0 px-2 pt-3 pb-4 px-1 rounded-0 stat-card rounded">
+                <v-card class="elevation-0 px-2 pt-1 pb-4  rounded-0 stat-card rounded">
                     <div style="display: flex; align-items: center;gap: 10px;" class="ml-4">
-                        <v-list-item-avatar tile size="24">
+                        <v-list-item-avatar  size="24">
                             <img src="@/assets/stocks/holdings.svg" alt="">
                         </v-list-item-avatar>
-                        <p class="font-weight-bold fs-18">Holdings</p>
+                        <p class=" fs-18 py-3 pl-2">Holdings</p>
                     </div>
 
-                    <v-card class="elevation-0 card-border py-1 mx-4 mt-2 cardbg px-2 py-3">
+                    <v-card class="elevation-0 card-border py-3 mx-4 mt-2 cardbg">
                         <div style="display: flex; align-items: center;justify-content: space-between;padding: 0 10px;">
-                            <v-list-item-content style="max-width: 22%;">
+                            <v-list-item-content style="max-width: 22%;" class="">
                                 <v-list-item-title class="font-weight-medium" style="font-size: 16px !important;">
                                     <span id="holdstatinv">0.00</span>
                                 </v-list-item-title>
@@ -100,17 +100,17 @@
 
             </v-col>
             <v-col sm="6" cols="12">
-                <v-card class="elevation-0 px-2 pt-3 pb-4 px-1 rounded-0 stat-card rounded">
+                <v-card class="elevation-0 px-2 pt-1 pb-4 rounded-0 stat-card rounded">
                     <div style="display: flex; align-items: center;gap: 10px;" class="ml-4">
                         <v-list-item-avatar tile size="20">
                             <img src="@/assets/stocks/position.svg" width="22" alt="">
                         </v-list-item-avatar>
-                        <p class="font-weight-bold fs-18">Position </p>
+                        <p class="py-3 fs-18 pl-2">Position </p>
                     </div>
 
-                    <v-card class="elevation-0 card-border py-1 mx-4 mt-2 cardbg px-2 py-3">
+                    <v-card class="elevation-0 card-border py-3 mx-4 mt-2 cardbg ">
 
-                        <div style="display: flex; align-items: center;justify-content: space-between;padding: 0 10px;">
+                        <div style="display: flex; align-items: center;justify-content: space-between;padding: 0 16px;">
                             <v-list-item-content style="max-width: 22%;">
                                 <v-list-item-title class="font-weight-medium" style="font-size: 16px !important;">
                                     <span id="poststatval">0.00</span>
@@ -200,13 +200,12 @@
             <v-col sm="6" cols="12">
                 <v-card class="elevation-0 px-2 pt-1 pb-4 rounded-0 stat-card rounded">
                     <div style="display: flex; align-items: center;justify-content: space-between;">
-                        <div style="display: flex; align-items: center;gap: 10px;">
-                            <v-list-item-avatar tile size="20">
-                                <img src="@/assets/stocks/orders.svg" alt="">
+                        <div style="display: flex; align-items: center;gap: 10px;" class="px-4">
+                            <v-list-item-avatar size="20">
+                                <img  src="@/assets/stocks/orders.svg" alt="">
                             </v-list-item-avatar>
                             <v-list-item-content>
-                                <v-list-item-title class="font-weight-medium"
-                                    style="font-size: 18px !important;">Orders</v-list-item-title>
+                                <p class="py-3 fs-18 pl-2">Orders</p>
                             </v-list-item-content>
                         </div>
                         <v-list-item-content>
@@ -250,13 +249,12 @@
             <v-col sm="6" cols="12">
                 <v-card class="elevation-0 px-2 pt-1 pb-4 rounded-0 stat-card rounded">
                     <div style="display: flex; align-items: center;justify-content: space-between;">
-                        <div style="display: flex; align-items: center;gap: 10px;">
+                        <div style="display: flex; align-items: center;gap: 10px;" class="px-4">
                             <v-list-item-avatar tile size="20">
                                 <img src="@/assets/stocks/margin.svg" alt="">
                             </v-list-item-avatar>
                             <v-list-item-content>
-                                <v-list-item-title class="font-weight-medium"
-                                    style="font-size: 18px !important;">Margins</v-list-item-title>
+                                <p class="py-3 fs-18 pl-2">Margins</p>
                             </v-list-item-content>
                         </div>
                         <v-list-item-content>
@@ -539,7 +537,7 @@ const formatMoney = (amt) => {
 // Calculate holdings stats exactly like old code (lines 429-496)
 const updateHoldingsStats = (list) => {
 
-    // Debug original API list
+  
     
 
     // Filter only valid holdings

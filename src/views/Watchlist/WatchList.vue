@@ -536,7 +536,7 @@
                                     height: '20px'
                                 }">
                                     <span class="fs-10">
-                                        {{ w.SubType ? w.SubType : "" }}43534
+                                        {{ w.SubType ? w.SubType : "" }}
                                     </span>
                                 </v-chip>
                             </v-chip-group>
@@ -696,7 +696,7 @@
                                     ₹<span :id="`${item.token}ltp`">{{ getLiveValue(item, 'ltp') }}</span>
                                 </span>
                             </p>
-                            <p class="mb-0 px-1 lh-16">
+                            <p class="mb-1 px-1 lh-16">
                                 <span style="border-radius: 4px; padding: 0px 6px; background-color: #F1F3F8 !important"
                                     class="mr-1 table-hov-prd">
                                     <span class="font-weight-medium lh-16" style="font-size: 11px !important;">{{

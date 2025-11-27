@@ -8,7 +8,7 @@
                     variant="outlined" icon style="position: absolute; top: 20px; right: 20px; z-index: 1;">
                     <v-icon size="17">mdi-close</v-icon>
                 </v-btn>
-                <v-card class="elevation-0 pt-6 pb-2" color="secbg">
+                <v-card class="elevation-0 py-4" color="secbg">
                     <P v-if="mf_tenure == null" class="font-weight-bold fs-16 maintext--text mb-2 px-4 px-md-6">Create
                         mandate </P>
 
@@ -20,8 +20,7 @@
 
                     <v-list-item v-if="mf_tenure != null && menudata.types != 'redem'" class="px-4 px-md-6">
                         <v-list-item-content class="py-0">
-                            <v-list-item-title class="font-weight-bold fs-16 maintext--text mb-1">{{ menudata.item ?
-                                menudata.item.name : "" }} </v-list-item-title>
+                            <v-list-item-title class="font-weight-bold fs-16 maintext--text mb-1">{{ this.truncate(menudata.item ? menudata.item.name : "", 30) }} </v-list-item-title>
 
                             <div class="d-flex align-center mt-1">
                                 <div>
@@ -475,7 +474,7 @@
             </v-card>
             <v-card v-else class="pb-5 pa-5" color="cardbg" :loading="orderpoploadernew" style="border-radius: 16px;">
 
-                <p class="font-weight-bold text-h6 mb-4">Pay With</p>
+                <p class="font-weight-bold text-h6 mb-4">Pay With 234</p>
                 <v-divider class="mb-4"></v-divider>
 
                 <p class="font-weight-medium fs-12 subtext--text mb-2">Bank Account</p>
@@ -650,7 +649,9 @@ export default {
         paymentconfirm: false,
         paystausres: []
     }),
-
+   
+      
+    
     async mounted() {
         // Create bound handlers to maintain 'this' context
         this.handleMenuDialog = (event) => {
@@ -724,6 +725,10 @@ export default {
         },
     },
     methods: {
+          truncate(text, length = 30) {
+            if (!text) return "";
+            return text.length > length ? text.substring(0, length) + "..." : text;
+        },
         incrEment(amt) {
             this.mf_invest_amt = Number(this.mf_invest_amt) + Number(amt)
         },
@@ -1186,8 +1191,8 @@ export default {
             }
 
         },
-
-
+        
+        
         async setMfpayment(price, orderid) {
             let data = JSON.stringify({
                 client_code: this.uid,

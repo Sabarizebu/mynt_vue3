@@ -97,8 +97,10 @@
 
             <template #item.qty="{ item }">
                 <div class="d-flex align-center justify-end">
-                    <v-chip @click="setOrderrowdata(item)" small class="table-hov-prd" text-color="#666"
-                        style="border-radius: 5px; padding: 10px 8px !important; cursor: pointer;">
+                    <v-chip @click="setOrderrowdata(item)" small class="table-hov-prd" variant="flat"  text-color="#666"
+                        style="border-radius: 5px; padding: 10px 8px !important; cursor: pointer; background-Color: #F1F3F8 !important;
+                                color: #666666"
+                                >
                         <span class="font-weight-medium fs-12">{{ item.qty }}</span>
                     </v-chip>
                 </div>

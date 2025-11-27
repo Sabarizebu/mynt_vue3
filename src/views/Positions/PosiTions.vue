@@ -65,7 +65,7 @@
             </v-row>
 
             <!-- Toolbar -->
-            <v-toolbar flat density="compact" class="tool-sty my-2 pl-4 crd-trn">
+            <v-toolbar flat density="compact" class="tool-sty my-2 py-3 crd-trn">
                 <v-tabs v-model="ordertab" color="primary" fixed show-arrows density="compact" @change="onTabChange">
                     <v-tab value="positions" class="font-weight-bold subtitle-1 mb-0 text-none">Positions ({{
                         positiondata.length || 0 }})</v-tab>
@@ -79,7 +79,7 @@
                     class="rounded mr-4" style="max-width: 220px" flat bg-color="secbg" />
 
                 <v-select v-if="ordertab !== 'group'" style="max-width: 160px" v-model="exchtype" rounded hide-details
-                    item-title="txt" item-value="val" prepend-inner-icon="mdi-format-list-bulleted"
+                    item-title="txt" item-value="val" prepend-inner-icon="mdi-format-list-bulleted"   menu-icon="mdi-chevron-down"
                     class="rounded-pill ml-4" variant="solo" density="compact" flat bg-color="secbg" elevation="0"
                     :items="dashitems" />
 

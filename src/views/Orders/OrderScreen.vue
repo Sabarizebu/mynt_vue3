@@ -8,7 +8,7 @@
             </v-tab>
         </v-tabs>
 
-        <v-toolbar variant="flat" density="compact" class="tool-sty pl-4 crd-trn my-4">
+        <v-toolbar variant="flat" density="compact" class="tool-sty  crd-trn my-4">
             <v-tabs v-model="ordertab" color="primary" fixed show-arrows density="compact" @change="onTabChange">
                 <v-tab value="orders" style="font-size: 16px !important;letter-spacing: 0px !important;"
                     class="font-weight-bold mb-0 text-none">

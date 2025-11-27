@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-dialog v-if="menudata[0]" v-model="alertdialog" :scrim="false" width="480px" persistent>
-            <v-card class="alert-dialog-card overflow-hidden" color="cardbg">
+            <v-card class=" overflow-hidden" color="cardbg" style="border-radius: 15px;">
                 <!-- Header Section -->
                 <v-card class="elevation-0 alert-dialog-header" color="secbg">
                     <div class="d-flex align-center justify-space-between pa-4">
@@ -37,13 +37,13 @@
                         <v-col cols="4" class="pr-2">
                             <p class="alert-field-label mb-2">Alert me</p>
                             <v-select density="compact" @update:model-value="handleAlertTypeChange" v-model="alertis"
-                                :items="alertitems" bg-color="secbg" variant="flat" class="alert-select-field"
+                                :items="alertitems" bg-color="secbg" variant="flat" class="alert-select-field"   menu-icon="mdi-chevron-down" 
                                 hide-details></v-select>
                         </v-col>
                         <v-col cols="4" class="px-1">
                             <p class="alert-field-label mb-2">Condition</p>
                             <v-select density="compact" :disabled="alertis == 'VOLUME'" v-model="condition"
-                                :items="['>', '<']" bg-color="secbg" variant="flat" class="alert-select-field"
+                                :items="['>', '<']" bg-color="secbg" variant="flat" class="alert-select-field"   menu-icon="mdi-chevron-down"
                                 hide-details></v-select>
                         </v-col>
                         <v-col cols="4" class="pl-2">
@@ -425,7 +425,7 @@ onBeforeUnmount(() => {
 <style scoped>
 /* Alert Dialog Styles */
 .alert-dialog-card {
-    border-radius: 8px;
+    border-radius: 15px;
 }
 
 .alert-dialog-header {

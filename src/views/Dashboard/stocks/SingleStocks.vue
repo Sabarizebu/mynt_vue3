@@ -228,7 +228,7 @@
                         <!-- Fundamental Ratios Section -->
                         <v-card id="fun" class="crd-trn ss-cards overflow-hidden mb-md-6" width="100%">
                             <div class="py-3 py-md-6">
-                                <v-toolbar class="elevation-0 px-md-2 px-0 crd-trn" density="compact">
+                                <v-toolbar class="elevation-0 px-md-2 px-0" density="compact">
                                     <v-list-item class="">
                                         <v-list-item-title class="font-weight-bold fs-20 mb-1">Fundamental
                                             ratios</v-list-item-title>
