@@ -711,6 +711,11 @@ onMounted(async () => {
             sessionStorage.setItem("imei", imei)
         }
 
+        // CRITICAL FIX: Set session status flag IMMEDIATELY (before async validation)
+        // This allows WatchList and other components to detect login state on first mount
+        // The flag will remain valid as we're about to validate the session
+        sessionStorage.setItem("c3RhdHVz", "dmFsaWR1c2Vy")
+
         getPublicIP()
 
         // Update authStore from sessionStorage

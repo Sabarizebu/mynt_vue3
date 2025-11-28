@@ -855,42 +855,10 @@ function includeSearch(item, keys, term) {
 }
 
 // Cache helpers: persist last good data in sessionStorage to show when WS is idle
-function saveCachePositions() {
-    try {
-        sessionStorage.setItem('positions_last', JSON.stringify({ a: positiondata.value, o: openposition.value, c: closeposition.value }))
-    } catch (e) { }
-}
-function saveCacheExposures() {
-    try {
-        sessionStorage.setItem('exposures_last', JSON.stringify(expositiondata.value))
-    } catch (e) { }
-}
-function loadCachePositions() {
-    try {
-        const raw = sessionStorage.getItem('positions_last')
-        if (raw) {
-            const cached = JSON.parse(raw)
-            if (cached && (cached.a?.length || cached.o?.length || cached.c?.length)) {
-                settempDatas(cached)
-                // console.log('Loaded cached positions')
-            }
-        }
-    } catch (e) { }
-}
-function loadCacheExposures() {
-    try {
-        const raw = sessionStorage.getItem('exposures_last')
-        if (raw) {
-            const cached = JSON.parse(raw)
-            if (Array.isArray(cached) && cached.length) {
-                expositiondata.value = cached
-                updateExpoHeaders()
-                if (ordertab.value === 'all') computeStats()
-                // console.log('Loaded cached exposures')
-            }
-        }
-    } catch (e) { }
-}
+// REMOVED: saveCachePositions, saveCacheExposures, loadCachePositions, loadCacheExposures
+// Trading data should NOT be cached in sessionStorage for security reasons
+// User-specific data must be fetched fresh on each page load
+// Pinia stores provide instant display during the session without persistence risk
 
 // Watch for group change, fetch & render chart data
 // Removed getPostPnL API call - it was causing 401 errors
@@ -1260,7 +1228,7 @@ function settempDatas(data) {
     updatePositionHeaders()
     // Recompute summary only if we are on Positions tab to avoid being overwritten by exposure fetch
     if (ordertab.value !== 'all') computeStats()
-    saveCachePositions()
+    // REMOVED: saveCachePositions() - no longer caching for security
 
     // STORE INTEGRATION: Update store when temp data changes
     if (data.a && Array.isArray(data.a)) {
@@ -1305,17 +1273,67 @@ async function getPositionbook() {
 
                 // STORE INTEGRATION: Save to positionsStore for cross-component access
                 if (data.a && Array.isArray(data.a)) {
-                    console.log('[POSITIONS] 💾 Saving', data.a.length, 'positions to store')
-                    positionsStore.setPositions(data.a)
+                    if (data.a.length === 0 && data.o?.length === 0 && data.c?.length === 0) {
+                        // CRITICAL FIX: Clear ALL data when API returns empty arrays
+                        // This prevents previous user's data from showing to new user
+                        console.log('[POSITIONS] 🧹 Clearing all positions data - API returned empty arrays')
+
+                        // 1. Clear component local state (already done by settempDatas, but explicit for safety)
+                        positiondata.value = []
+                        openposition.value = []
+                        closeposition.value = []
+
+                        // 2. Clear sessionStorage cache
+                        sessionStorage.removeItem('positions_last')
+                        sessionStorage.removeItem('exposures_last')
+
+                        // 3. Clear Pinia store
+                        positionsStore.clearPositions()
+                    } else {
+                        console.log('[POSITIONS] 💾 Saving', data.a.length, 'positions to store')
+                        positionsStore.setPositions(data.a)
+                    }
+                } else {
+                    // data.a is undefined or null - clear everything
+                    console.log('[POSITIONS] 🧹 Clearing all positions data - no positions data in API response')
+
+                    // 1. Clear component local state
+                    positiondata.value = []
+                    openposition.value = []
+                    closeposition.value = []
+
+                    // 2. Clear sessionStorage cache
+                    sessionStorage.removeItem('positions_last')
+                    sessionStorage.removeItem('exposures_last')
+
+                    // 3. Clear Pinia store
+                    positionsStore.clearPositions()
                 }
             } else if (data.emsg) {
                 // API returned an error message
                 appStore.showSnackbar(2, data.emsg)
+                // CRITICAL FIX: Clear ALL data when API returns error (e.g., "No Data Found")
+                // This prevents previous user's data from showing to new user
+                console.log('[POSITIONS] 🧹 Clearing all positions data - API returned error:', data.emsg)
+
+                // 1. Clear component local state
+                positiondata.value = []
+                openposition.value = []
+                closeposition.value = []
+                expositiondata.value = []
+
+                // 2. Clear sessionStorage cache
+                sessionStorage.removeItem('positions_last')
+                sessionStorage.removeItem('exposures_last')
+
+                // 3. Clear Pinia store
+                positionsStore.clearPositions()
             }
             // If data has no a/o/c properties and no emsg, keep existing data silently
         } else if (data === 500) {
             // Network error - keep existing data, show error
             appStore.showSnackbar(2, 'Network error. Please check your connection.')
+            // Do NOT clear store on network error - keep cached data visible
         }
         // Keep existing data visible if API call fails
     } catch (error) {
@@ -1370,7 +1388,7 @@ async function getexPositionbook() {
                 }
                 // Only recompute stats if the "All Positions" tab is active
                 if (ordertab.value === 'all') computeStats()
-                saveCacheExposures()
+                // REMOVED: saveCacheExposures() - no longer caching for security
             } else if (data && typeof data === 'object' && data.emsg) {
                 // API returned an error message (not an array)
                 appStore.showSnackbar(2, data.emsg)
@@ -1625,7 +1643,7 @@ function onWebSocketConn(e) {
             singledata.value = { ...positiondata.value[si] }
         }
     }
-    saveCachePositions()
+    // REMOVED: saveCachePositions() - no longer caching for security
 }
 
 function onTempDataUpdate(e) {
@@ -1789,9 +1807,8 @@ function closeDrawer() {
 onMounted(async () => {
     // ensure store state is hydrated on hard refresh
     try { authStore.loadFromSession && authStore.loadFromSession() } catch (e) { }
-    // Optimistic UI: show cached last good data instantly, real data will replace
-    loadCachePositions()
-    loadCacheExposures()
+    // REMOVED: loadCachePositions() and loadCacheExposures() - no longer using sessionStorage cache for security
+    // Pinia store provides instant display during session, fresh data fetched on mount
     const res = sessionStorage.getItem('c3RhdHVz')
     if (res === 'dmFsaWR1c2Vy') {
         uid.value = authStore.uid || sessionStorage.getItem('userid')

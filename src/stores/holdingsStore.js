@@ -233,12 +233,22 @@ export const useHoldingsStore = defineStore('holdings', () => {
         }
     })
 
+    /**
+     * Clear all holdings from the store
+     * Used on logout or when switching users
+     */
+    const clearHoldings = () => {
+        Object.keys(holdings).forEach(key => delete holdings[key])
+        console.log('[HOLDINGS-STORE] Cleared all holdings')
+    }
+
     return {
         holdings,
         holdingsList,
         portfolioSummary,
         setHoldings,
         updateHoldings,
-        loadHoldings
+        loadHoldings,
+        clearHoldings
     }
 })

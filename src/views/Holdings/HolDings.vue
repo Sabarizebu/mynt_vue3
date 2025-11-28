@@ -915,22 +915,33 @@ async function fetchHoldings() {
         setHoldingsPayload(data)
 
         // STORE INTEGRATION: Save to holdingsStore for cross-component access
-        console.log('[HOLDINGS] 💾 Saving', data.response.length, 'holdings to store')
-        holdingsStore.setHoldings(data.response)
-
-        // Cache for offline use
-        sessionStorage.setItem('holdings_last', JSON.stringify(data))
-    } else if (data !== 500) {
-        appStore.showSnackbar(2, data && data.emsg ? data.emsg : 'Failed to load holdings')
-        // Try to load cached data
-        const cached = sessionStorage.getItem('holdings_last')
-        if (cached) {
-            try {
-                setHoldingsPayload(JSON.parse(cached))
-            } catch (e) {
-                // console.error('Failed to load cached holdings', e)
-            }
+        if (data.response.length === 0) {
+            // CRITICAL FIX: Clear store when API returns empty holdings array
+            // This prevents previous user's data from showing to new user
+            console.log('[HOLDINGS] 🧹 Clearing holdings store - API returned empty array')
+            holdingsStore.clearHoldings()
+            // Also clear local state
+            holdings.value = []
+        } else {
+            console.log('[HOLDINGS] 💾 Saving', data.response.length, 'holdings to store')
+            holdingsStore.setHoldings(data.response)
         }
+        // REMOVED: sessionStorage caching for security - trading data should not persist
+    } else if (data !== 500) {
+        // API returned error or no data
+        // CRITICAL FIX: Clear all data when API returns error (e.g., "No Data Found")
+        // This prevents previous user's data from showing to new user
+        const errorMsg = data && data.emsg ? data.emsg : 'Failed to load holdings'
+        appStore.showSnackbar(2, errorMsg)
+        console.log('[HOLDINGS] 🧹 Clearing holdings - API returned error:', errorMsg)
+        holdingsStore.clearHoldings()
+        holdings.value = []
+        // REMOVED: sessionStorage cache - no longer persisting trading data
+    } else if (data === 500) {
+        // Network error - keep existing data in memory, show error
+        appStore.showSnackbar(2, 'Network error. Please check your connection.')
+        // REMOVED: Cache loading - trading data should not persist across sessions
+        // Existing data in Pinia store/component state remains visible
     }
     loading.value = false
 }
@@ -940,20 +951,15 @@ async function fetchMfHoldings() {
     const data = await getMMHoldings()
     if (data && Array.isArray(data.data)) {
         mfholdings.value = data.data.map((d, idx) => ({ ...d, idx, holdtype: 'mf' }))
-        // Cache for offline use
-        sessionStorage.setItem('mfholdings_last', JSON.stringify(data))
+        // REMOVED: sessionStorage caching for security - trading data should not persist
     } else if (data !== 500) {
+        // API error - clear MF holdings
         appStore.showSnackbar(2, data && data.emsg ? data.emsg : 'Failed to load MF holdings')
-        // Try to load cached data
-        const cached = sessionStorage.getItem('mfholdings_last')
-        if (cached) {
-            try {
-                const parsed = JSON.parse(cached)
-                mfholdings.value = parsed.data ? parsed.data.map((d, idx) => ({ ...d, idx, holdtype: 'mf' })) : []
-            } catch (e) {
-                // console.error('Failed to load cached MF holdings', e)
-            }
-        }
+        mfholdings.value = []
+        // REMOVED: Cache loading - trading data should not persist across sessions
+    } else if (data === 500) {
+        // Network error - keep existing data in memory
+        appStore.showSnackbar(2, 'Network error. Please check your connection.')
     }
     mfLoading.value = false
 }
@@ -1301,18 +1307,8 @@ onMounted(() => {
     uid.value = sessionStorage.getItem('userid')
     stoken.value = sessionStorage.getItem('usession')
 
-    // Load cached data immediately for optimistic UI
-    const cached = sessionStorage.getItem('holdings_last')
-    if (cached) {
-        try {
-            const parsed = JSON.parse(cached)
-            if (parsed.response && Array.isArray(parsed.response) && parsed.response.length > 0) {
-                setHoldingsPayload(parsed)
-            }
-        } catch (e) {
-            // console.error('Failed to load cached holdings', e)
-        }
-    }
+    // REMOVED: Cache loading - trading data should not persist across sessions
+    // Pinia store provides instant display during session, fresh data fetched on mount
 
     // PERFORMANCE OPTIMIZATION: Load primary tab data immediately, secondary tab in background
     // Fetch Stocks holdings data immediately (visible on page load)

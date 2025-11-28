@@ -227,12 +227,22 @@ export const usePositionsStore = defineStore('positions', () => {
         }
     })
 
+    /**
+     * Clear all positions from the store
+     * Used on logout or when switching users
+     */
+    const clearPositions = () => {
+        Object.keys(positions).forEach(key => delete positions[key])
+        console.log('[POSITIONS-STORE] Cleared all positions')
+    }
+
     return {
         positions,
         positionsList,
         portfolioMTM,
         setPositions,
         updatePositions,
-        loadPositions
+        loadPositions,
+        clearPositions
     }
 })

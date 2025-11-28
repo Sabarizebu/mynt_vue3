@@ -873,6 +873,10 @@ const trader1item = ref([
 const trader1 = ref("NSEALL")
 const tradeactionitem = ref([[], [], [], []])
 
+// Track subscribed tokens for cleanup
+const subscribedTradeActionTokens = ref([])
+const subscribedStockMonitorTokens = ref([])
+
 // Pre-imported icons for trade action header: 0=tg,1=tl,2=vb,3=ma
 const tradeIcons = [ic_tg, ic_tl, ic_vb, ic_ma]
 const tradeLabels = ['tg', 'tl', 'vb', 'ma']
@@ -1345,9 +1349,24 @@ onBeforeUnmount(() => {
     window.removeEventListener('websocket-quote-update', handleQuoteUpdate);
     window.removeEventListener('web-scoketConn', handleWebSocketConnection);
 
-    // Fix: Unsubscribe from WebSocket when leaving page
-    if (uid.value && pdmwdata.value && pdmwdata.value.length > 0) {
-        setWebsocket('unsub', pdmwdataStatic, 'ssd-pd');
+    // CRITICAL FIX: Unsubscribe from all WebSocket subscriptions when leaving page
+    if (uid.value) {
+        // Unsubscribe top indices
+        if (pdmwdata.value && pdmwdata.value.length > 0) {
+            setWebsocket('unsub', pdmwdataStatic, 'ssd-pd');
+        }
+
+        // Unsubscribe Today's Trade Action (4 categories x 5 items = 20 max)
+        if (subscribedTradeActionTokens.value.length > 0) {
+            setWebsocket('unsub', subscribedTradeActionTokens.value, 'ta');
+            subscribedTradeActionTokens.value = [];
+        }
+
+        // Unsubscribe Stock Monitor (10 items)
+        if (subscribedStockMonitorTokens.value.length > 0) {
+            setWebsocket('unsub', subscribedStockMonitorTokens.value, 'sc');
+            subscribedStockMonitorTokens.value = [];
+        }
     }
 
     // Remove storage-reset listener
@@ -1591,7 +1610,12 @@ const handleWebSocketConnection = (event) => {
                         chp: detail.chp || detail.pc || (detail.c && detail.lp ? ((detail.lp - detail.c) / detail.c * 100) : null),
                         c: detail.c,
                         exchange: detail.e,
-                        exch: detail.e
+                        exch: detail.e,
+                        // CRITICAL FIX: Map volume fields to prevent flickering
+                        // For logged-in users, socketVolume is the real-time accumulated volume
+                        socketVolume: detail.socketVolume,
+                        volume: detail.volume,
+                        v: detail.v
                     };
                     optionChainDataParse(mappedData);
 
@@ -1869,19 +1893,28 @@ const getToplistdata = async () => {
             });
         }
 
+        // PERFORMANCE FIX: Only subscribe to top 5 per category (20 total)
+        // UI only shows 5 items per category, no need to subscribe to all
         let wsdata = [];
-        let arr = tradeactionitem.value[0].concat(tradeactionitem.value[1].concat(tradeactionitem.value[2].concat(tradeactionitem.value[3])));
-        arr.map((o) => wsdata.push({ exch: o.exch, token: o.token, tsym: o.tsym }));
-         if (uid.value) {
+        for (let i = 0; i < tradeactionitem.value.length; i++) {
+            const top5 = tradeactionitem.value[i].slice(0, 5);
+            top5.forEach((o) => wsdata.push({ exch: o.exch, token: o.token, tsym: o.tsym }));
+        }
+
+        if (uid.value && wsdata.length > 0) {
             setWebsocket("sub", wsdata, "ta");
-        } 
-    } 
+            // Track subscribed tokens for cleanup
+            subscribedTradeActionTokens.value = wsdata;
+        }
+    }
     isloading.value = false;
     }
 
 const getContentlistdata = async (change) => {
-    if (change == "yes" && uid.value) {
-        setWebsocket("unsub-D", screentitems.value, "sc");
+    // CRITICAL FIX: Unsubscribe old stock monitor items when switching dropdown
+    if (change == "yes" && uid.value && subscribedStockMonitorTokens.value.length > 0) {
+        setWebsocket("unsub-D", subscribedStockMonitorTokens.value, "sc");
+        subscribedStockMonitorTokens.value = [];
     }
     issloading.value = true;
     screentitems.value = [];
@@ -1917,9 +1950,16 @@ const getContentlistdata = async (change) => {
             });
         }
 
-        if (uid.value) {
-            setWebsocket("sub", data, "sc");
-        } 
+        // CRITICAL FIX: Subscribe only to the 10 displayed items, not all data
+        if (uid.value && screentitems.value.length > 0) {
+            setWebsocket("sub", screentitems.value, "sc");
+            // Track subscribed tokens for cleanup
+            subscribedStockMonitorTokens.value = screentitems.value.map(item => ({
+                exch: item.exch,
+                token: item.token,
+                tsym: item.tsym
+            }));
+        }
     } 
     screentidata.value = false;
     issloading.value = false;

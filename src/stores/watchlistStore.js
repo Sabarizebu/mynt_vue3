@@ -84,10 +84,6 @@ export const useWatchlistStore = defineStore('watchlist', {
     
     // Client details
     clientdetails: {},
-    
-    // Price caching
-    priceCache: {},
-    lastState: {}, // Per-token merged quote state
   }),
   
   getters: {
@@ -221,9 +217,9 @@ export const useWatchlistStore = defineStore('watchlist', {
         )
         
         if (res && res.stat === "Ok" && res.values) {
-          this.watchlistData = res.values || []
+          // Clean API data to remove "+" prefix from all numeric values
+          this.watchlistData = this.cleanApiData(res.values || [])
           this.saveWatchlistToCache(wlName, this.watchlistData)
-          this.restorePriceStates(this.watchlistData)
         } else {
           this.watchlistData = 'no data'
         }
@@ -360,8 +356,9 @@ export const useWatchlistStore = defineStore('watchlist', {
           }
           
           if (data && Array.isArray(data) && data.length > 0) {
-            this.watchlistData = data.map((o) => o.exch_tsym?.[0]).filter(Boolean)
-            this.restorePriceStates(this.watchlistData)
+            const rawData = data.map((o) => o.exch_tsym?.[0]).filter(Boolean)
+            // Clean API data to remove "+" prefix
+            this.watchlistData = this.cleanApiData(rawData)
           } else {
             this.watchlistData = 'no data'
           }
@@ -488,44 +485,80 @@ export const useWatchlistStore = defineStore('watchlist', {
       }))
     },
     
-    restorePriceStates(data) {
-      if (!Array.isArray(data)) return
-      
-      data.forEach(item => {
-        if (item.token && this.lastState[item.token]) {
-          const state = this.lastState[item.token]
-          item.ltp = state.ltp !== undefined ? state.ltp.toFixed(2) : (item.ltp || null)
-          item.ch = state.ch !== undefined ? state.ch.toFixed(2) : (item.ch || null)
-          item.chp = state.chp !== undefined ? state.chp.toFixed(2) : (item.chp || null)
-        }
-      })
-    },
     
-    // Update price from WebSocket
-    updatePrice(token, priceData) {
+    /**
+     * Clean value by removing "+" prefix if present
+     * @param {string|number} value - The value to clean
+     * @returns {string} Cleaned value as string
+     */
+    cleanNumericValue(value) {
+      if (value === undefined || value === null || value === '') return '0.00'
+      const strValue = String(value).replace(/^\+/, '') // Remove leading "+"
+      const numValue = Number(strValue)
+      return isNaN(numValue) ? '0.00' : numValue.toFixed(2)
+    },
+
+    /**
+     * Clean API data by removing "+" prefix from all numeric fields
+     * @param {Array} data - Array of watchlist items from API
+     * @returns {Array} Cleaned data
+     */
+    cleanApiData(data) {
+      if (!Array.isArray(data)) return data
+
+      return data.map(item => ({
+        ...item,
+        ltp: item.ltp !== undefined ? this.cleanNumericValue(item.ltp) : item.ltp,
+        ch: item.ch !== undefined ? this.cleanNumericValue(item.ch) : item.ch,
+        chp: item.chp !== undefined ? this.cleanNumericValue(item.chp) : item.chp,
+        c: item.c !== undefined ? this.cleanNumericValue(item.c) : item.c,
+        pc: item.pc !== undefined ? this.cleanNumericValue(item.pc) : item.pc
+      }))
+    },
+
+    /**
+     * Update price from WebSocket (SIMPLIFIED)
+     * Logic: ch = lp - c, chp = (ch / c) * 100
+     * @param {string} token - Token identifier
+     * @param {object} wsData - WebSocket data with lp, c fields
+     */
+    updatePrice(token, wsData) {
+      if (!token || !wsData) return
+
+      // Extract LTP and Close from WebSocket and clean "+" prefix
+      const lpRaw = String(wsData.lp || '0').replace(/^\+/, '')
+      const cRaw = String(wsData.c || '0').replace(/^\+/, '')
+      const lp = lpRaw ? Number(lpRaw) : null
+      const c = cRaw ? Number(cRaw) : null
+
+      // Calculate change and percentage
+      let ch = null
+      let chp = null
+
+      if (lp !== null && c !== null && c > 0) {
+        ch = lp - c
+        chp = (ch / c) * 100
+      }
+
       // Update in watchlistData
       if (Array.isArray(this.watchlistData)) {
         const item = this.watchlistData.find(w => w.token === token)
         if (item) {
-          if (priceData.ltp !== undefined) item.ltp = parseFloat(priceData.ltp).toFixed(2)
-          if (priceData.ch !== undefined) item.ch = parseFloat(priceData.ch).toFixed(2)
-          if (priceData.chp !== undefined) item.chp = parseFloat(priceData.chp).toFixed(2)
+          if (lp !== null) item.ltp = lp.toFixed(2)
+          if (c !== null) item.c = c.toFixed(2)
+          if (ch !== null) item.ch = ch.toFixed(2)
+          if (chp !== null) item.chp = chp.toFixed(2)
         }
       }
-      
+
       // Update in pdmwdata
       const pdmwItem = this.pdmwdata.find(p => p.token === token)
       if (pdmwItem) {
-        if (priceData.ltp !== undefined) pdmwItem.ltp = parseFloat(priceData.ltp).toFixed(2)
-        if (priceData.ch !== undefined) pdmwItem.ch = parseFloat(priceData.ch).toFixed(2)
-        if (priceData.chp !== undefined) pdmwItem.chp = parseFloat(priceData.chp).toFixed(2)
+        if (lp !== null) pdmwItem.ltp = lp.toFixed(2)
+        if (c !== null) pdmwItem.c = c.toFixed(2)
+        if (ch !== null) pdmwItem.ch = ch.toFixed(2)
+        if (chp !== null) pdmwItem.chp = chp.toFixed(2)
       }
-      
-      // Update lastState for caching
-      if (!this.lastState[token]) {
-        this.lastState[token] = {}
-      }
-      Object.assign(this.lastState[token], priceData)
     },
     
     // WebSocket Subscription Helpers (Phase 3)
@@ -617,50 +650,22 @@ export const useWatchlistStore = defineStore('watchlist', {
       window.dispatchEvent(event)
     },
     
-    // Handle WebSocket price update from 'web-scoketConn' event
+    /**
+     * Handle WebSocket price update from 'web-scoketConn' event (SIMPLIFIED)
+     * Logic: ch = lp - c, chp = (ch / c) * 100
+     * @param {object} wsData - WebSocket data with token, lp, c fields
+     */
     handleWebSocketPriceUpdate(wsData) {
       if (!wsData || !wsData.token) return
-      
+
       const token = wsData.token
-      const ltp = wsData.ltp || wsData.lp || wsData.l
-      const ch = wsData.ch
-      const chp = wsData.chp
-      const prevClose = wsData.c || wsData.prev_close_price || wsData.close
-      
-      // Calculate change and change percent if not provided
-      let finalCh = ch
-      let finalChp = chp
-      
-      if (ltp !== undefined && prevClose !== undefined && prevClose > 0) {
-        const ltpNum = parseFloat(ltp)
-        const closeNum = parseFloat(prevClose)
-        
-        if (finalCh === undefined) {
-          finalCh = ltpNum - closeNum
-        }
-        
-        if (finalChp === undefined && closeNum > 0) {
-          finalChp = (finalCh / closeNum) * 100
-        }
-      }
-      
-      const priceData = {
-        ltp: ltp !== undefined ? parseFloat(ltp) : undefined,
-        ch: finalCh !== undefined ? parseFloat(finalCh) : undefined,
-        chp: finalChp !== undefined ? parseFloat(finalChp) : undefined,
-      }
-      
-      // Remove undefined values
-      Object.keys(priceData).forEach(key => {
-        if (priceData[key] === undefined) {
-          delete priceData[key]
-        }
-      })
-      
-      // Update price in store
-      if (Object.keys(priceData).length > 0) {
-        this.updatePrice(token, priceData)
-      }
+
+      // Extract LTP (lp) and Close (c) - no fallbacks, just direct fields
+      const lp = wsData.lp
+      const c = wsData.c
+
+      // Pass raw WebSocket data to updatePrice (it will calculate ch and chp)
+      this.updatePrice(token, { lp, c })
     },
   }
 })

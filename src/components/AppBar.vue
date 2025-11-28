@@ -319,6 +319,8 @@ import { useAuthStore } from '../stores/authStore'
 import { useAppStore } from '../stores/appStore'
 import { useNavStore } from '../stores/navStore'
 import { useSessionStore } from '../stores/sessionStore'
+import { usePositionsStore } from '../stores/positionsStore'
+import { useHoldingsStore } from '../stores/holdingsStore'
 import { getProfiledata, getDeskLogout, getMyntLogout, getHsTokenapi } from "./mixins/getAPIdata.js"
 import { mynturl } from "../apiurl.js"
 import CryptoJS from "crypto-js"
@@ -336,6 +338,8 @@ const authStore = useAuthStore()
 const appStore = useAppStore()
 const navStore = useNavStore()
 const sessionStore = useSessionStore()
+const positionsStore = usePositionsStore()
+const holdingsStore = useHoldingsStore()
 
 // Session check interval for polling session status
 let sessionCheckInterval = null
@@ -516,8 +520,21 @@ const goLogin = () => {
 const logOut = async () => {
     await getDeskLogout([authStore.uid, authStore.token])
     await getMyntLogout(sessionStore.source || "WEB")
+
     // Clear session status indicator
     sessionStorage.removeItem("c3RhdHVz")
+
+    // CRITICAL FIX: Clear user-specific cache data
+    sessionStorage.removeItem("holdings_last")
+    sessionStorage.removeItem("mfholdings_last")
+    sessionStorage.removeItem("positions_last")
+    sessionStorage.removeItem("exposures_last")
+
+    // CRITICAL FIX: Clear Pinia stores to prevent data leak between users
+    positionsStore.clearPositions()
+    holdingsStore.clearHoldings()
+    console.log('🧹 [LOGOUT] Cleared positions and holdings stores')
+
     appStore.resetStorage()
     authStore.clearAuth()
     window.location.reload()

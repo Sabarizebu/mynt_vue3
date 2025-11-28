@@ -97,12 +97,14 @@ export const useMarketDataStore = defineStore('marketData', () => {
             if (update.pc !== undefined) normalizedUpdate.prev_close = cleanValue(update.pc)
             if (update.c !== undefined) normalizedUpdate.prev_close = cleanValue(update.c)
 
-            // Map Change & Change Percent and clean "+" prefixes
-            if (update.ch !== undefined) normalizedUpdate.ch = cleanValue(update.ch)
-            if (update.cp !== undefined) normalizedUpdate.chp = cleanValue(update.cp)
-            if (update.chp !== undefined) normalizedUpdate.chp = cleanValue(update.chp)
+            // CRITICAL FIX: Don't accept ch/chp from feed - we'll calculate them
+            // Only accept ltp and close, then calculate ch = ltp - close, chp = (ch/close)*100
+            // This prevents stale/incorrect ch/chp values from the feed
+            // if (update.ch !== undefined) normalizedUpdate.ch = cleanValue(update.ch)
+            // if (update.cp !== undefined) normalizedUpdate.chp = cleanValue(update.cp)
+            // if (update.chp !== undefined) normalizedUpdate.chp = cleanValue(update.chp)
 
-            // Merge normalized data into existing state
+            // Merge normalized data into existing state (without ch/chp from feed)
             deepMerge(liveData[key], normalizedUpdate)
 
             // --- Calculation Logic ---

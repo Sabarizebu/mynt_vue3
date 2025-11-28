@@ -595,7 +595,7 @@
                                 (parseFloat(getLiveValue(s, 'ch')) > 0) ? 'maingreen--text' : (parseFloat(getLiveValue(s, 'ch')) < 0) ? 'mainred--text' : 'subtext--text'
                             ]" :id="`p${s.token}chpclr`">
                                 <span :id="`p${s.token}ch`">{{ getLiveValue(s, 'ch') }}</span>
-                                <span :id="`p${s.token}chp`">({{ getLiveValue(s, 'chp') }})</span>
+                                <span :id="`p${s.token}chp`">({{ getLiveValue(s, 'chp') }}%)</span>
                             </div>
                             <div class="pos-abs pdmwlist z-i1 mt-n6 ml-0">
                                 <v-btn @click.stop @click="getAllindicedata(s, l)" class="elevation-1" variant="flat"
@@ -1020,15 +1020,15 @@
             :offset="[0, 8]">
             <v-list dense>
                 <v-list-item @click="removeFromWatchlist(contextMenu.item, contextMenu.index)">
-                    <v-list-item-icon>
+                    <template v-slot:prepend>
                         <v-icon color="error">mdi-delete</v-icon>
-                    </v-list-item-icon>
+                    </template>
                     <v-list-item-title>Remove from Watchlist</v-list-item-title>
                 </v-list-item>
                 <v-list-item @click="openStockDetails(contextMenu.item)">
-                    <v-list-item-icon>
+                    <template v-slot:prepend>
                         <v-icon>mdi-chart-line</v-icon>
-                    </v-list-item-icon>
+                    </template>
                     <v-list-item-title>View Details</v-list-item-title>
                 </v-list-item>
             </v-list>
@@ -1063,13 +1063,20 @@ const marketDataStore = useMarketDataStore()
 
 // Helper to get live value from store or fallback to item
 const getLiveValue = (item, field) => {
-    if (!item) return '0.00'
-    // Try to get from store first
+    if (!item) return '--'
+
+    // CRITICAL FIX: For ch and chp, ALWAYS use item value (calculated fresh)
+    // Never use marketDataStore for ch/chp as it may have stale values
+    if (field === 'ch' || field === 'chp') {
+        return item[field] !== undefined && item[field] !== null ? item[field] : '--'
+    }
+
+    // For other fields (ltp, etc.), try store first
     const val = marketDataStore.getField(item.exch, item.token, field)
     if (val !== undefined && val !== null) return val
 
     // Fallback to item's own property
-    return item[field] !== undefined && item[field] !== null ? item[field] : '0.00'
+    return item[field] !== undefined && item[field] !== null ? item[field] : '--'
 }
 
 // Reactive data
@@ -1135,10 +1142,6 @@ watch(watchlistdata, (newVal) => {
 })
 
 
-// Cache last known prices to avoid flashing 0.00 when WS sends sparse/partial ticks
-const priceCache = ref({})
-// Persist a per-token merged quote so we can update only keys provided in each tick
-const lastState = ref({})
 // Cache complete watchlist data for fallback when WebSocket doesn't update
 const watchlistDataCache = ref({}) // { watchlistName: { data: [], timestamp: number } }
 
@@ -1227,36 +1230,35 @@ const menulist = ref([
 const aaddtoMW = ref([])
 const uniqkey = ref([])
 
-const mergeTick = (token, patch) => {
-    const prev = lastState.value[token] || {}
-    const out = { ...prev }
-
-    // Normalize numbers
-    const num = (v) => {
-        const n = parseFloat(v)
-        return isFinite(n) ? n : undefined
+/**
+ * Calculate price changes (SIMPLIFIED)
+ * Logic: ch = lp - c, chp = (ch / c) * 100
+ */
+const calculatePriceChanges = (wsData, existingItem = null) => {
+    // Clean values by removing "+" prefix
+    const cleanValue = (val) => {
+        if (val === undefined || val === null) return null
+        const cleaned = String(val).replace(/^\+/, '')
+        const num = Number(cleaned)
+        return isNaN(num) ? null : num
     }
 
-    const ltp = num(patch.ltp ?? patch.lp ?? patch.l)
-    const prevClose = num(patch.c ?? patch.prev_close_price ?? patch.close)
-    const chIn = num(patch.ch)
-    const chpIn = num(patch.chp)
-
-    if (typeof ltp !== 'undefined') out.ltp = ltp
-    if (typeof prevClose !== 'undefined') out.prevClose = prevClose
-    if (typeof chIn !== 'undefined') out.ch = chIn
-    if (typeof chpIn !== 'undefined') out.chp = chpIn
-
-    // Derive missing values
-    if (typeof out.ch === 'undefined' && typeof out.ltp !== 'undefined' && typeof out.prevClose !== 'undefined') {
-        out.ch = out.ltp - out.prevClose
-    }
-    if (typeof out.chp === 'undefined' && typeof out.ch !== 'undefined' && typeof out.prevClose !== 'undefined' && out.prevClose > 0) {
-        out.chp = (out.ch / out.prevClose) * 100
+    const lp = cleanValue(wsData.lp)
+    // CRITICAL FIX: Use existing close price if WebSocket doesn't send it
+    let c = cleanValue(wsData.c)
+    if (c === null && existingItem && existingItem.c !== undefined && existingItem.c !== null) {
+        c = Number(existingItem.c)
     }
 
-    lastState.value[token] = out
-    return out
+    let ch = null
+    let chp = null
+
+    if (lp !== null && c !== null && c > 0) {
+        ch = lp - c
+        chp = (ch / c) * 100
+    }
+
+    return { lp, c, ch, chp }
 }
 const PreMWlist = ref([
     { key: "MY:HOLDINGS", text: "My stocks" },
@@ -1382,13 +1384,13 @@ const getPriceChangeColor = (change) => {
 const formatPriceChange = (change) => {
     if (!change) return '0.00'
     const num = parseFloat(change)
-    return num > 0 ? `+${num.toFixed(2)}` : num.toFixed(2)
+    return num > 0 ? `${num.toFixed(2)}` : num.toFixed(2)
 }
 
 const formatPercentage = (percentage) => {
     if (!percentage) return '0.00'
     const num = parseFloat(percentage)
-    return num > 0 ? `+${num.toFixed(2)}` : num.toFixed(2)
+    return num > 0 ? `${num.toFixed(2)}` : num.toFixed(2)
 }
 
 const getPriceChangeClass = (value) => {
@@ -1402,7 +1404,7 @@ const getPriceChangeClass = (value) => {
 const formatPercentageChange = (value) => {
     if (!value) return '0.00%'
     const numValue = parseFloat(value)
-    const formatted = numValue > 0 ? `+${numValue.toFixed(2)}` : numValue.toFixed(2)
+    const formatted = numValue > 0 ? `${numValue.toFixed(2)}` : numValue.toFixed(2)
     return `${formatted}%`
 }
 
@@ -1600,15 +1602,8 @@ const setPDwatchlist = async () => {
         const cached = loadWatchlistFromCache(watchlistis.value)
         if (cached && Array.isArray(cached) && cached.length > 0) {
             watchlistdata.value = cached
-            // Restore price states from lastState cache
-            cached.forEach(item => {
-                if (item.token && lastState.value[item.token]) {
-                    const state = lastState.value[item.token]
-                    item.ltp = state.ltp !== undefined ? state.ltp.toFixed(2) : (item.ltp || null)
-                    item.ch = state.ch !== undefined ? state.ch.toFixed(2) : (item.ch || null)
-                    item.chp = state.chp !== undefined ? state.chp.toFixed(2) : (item.chp || null)
-                }
-            })
+            // REMOVED: lastState cache restoration - causes flicker with stale values
+            // WebSocket will provide fresh data
             ensureUniqueIds()
         }
 
@@ -1651,18 +1646,30 @@ const setPDwatchlist = async () => {
                             item.tsym = item.token
                         }
 
-                        // Initialize price fields
-                        if (!item.ltp && item.ltp !== 0) item.ltp = null
-                        if (!item.ch && item.ch !== 0) item.ch = null
-                        if (!item.chp && item.chp !== 0) item.chp = null
+                        // CRITICAL FIX: Calculate ch and chp from ltp and close (like top indices)
+                        const ltp = item.ltp !== undefined && item.ltp !== null ? Number(item.ltp) : null
+                        const close = item.c !== undefined && item.c !== null ? Number(item.c) :
+                                      item.close !== undefined && item.close !== null ? Number(item.close) : null
 
-                        // Restore cached prices if available
-                        if (item.token && lastState.value[item.token]) {
-                            const state = lastState.value[item.token]
-                            if (state.ltp !== undefined) item.ltp = state.ltp.toFixed(2)
-                            if (state.ch !== undefined) item.ch = state.ch.toFixed(2)
-                            if (state.chp !== undefined) item.chp = state.chp.toFixed(2)
+                        // CRITICAL: Store close price as 'c' for WebSocket updates to use
+                        if (close !== null) {
+                            item.c = close.toFixed(2)
                         }
+
+                        // Calculate ch = ltp - close, chp = (ch / close) * 100
+                        if (ltp !== null && close !== null && close > 0) {
+                            const ch = ltp - close
+                            const chp = (ch / close) * 100
+                            item.ch = ch.toFixed(2)
+                            item.chp = chp.toFixed(2)
+                        } else {
+                            item.ch = null
+                            item.chp = null
+                        }
+
+                        // REMOVED: lastState cache restoration
+                        // ch and chp are now calculated from ltp and close, not cached
+                        // WebSocket will provide fresh ltp data
 
                         // Ensure unique ID for draggable
                         if (!item.id && item.token) {
@@ -1699,23 +1706,32 @@ const setPDwatchlist = async () => {
                             item.tsym = item.token || 'Unknown'
                         }
 
-                        // Initialize price fields properly
-                        if (item.ltp === undefined || item.ltp === null) item.ltp = null
-                        else if (item.ltp === 0) item.ltp = 0
+                        // CRITICAL FIX: Calculate ch and chp from ltp and close (like top indices)
+                        // Don't use API values for ch/chp as they may be stale/incorrect
+                        const ltp = item.ltp !== undefined && item.ltp !== null ? Number(item.ltp) : null
+                        const close = item.c !== undefined && item.c !== null ? Number(item.c) :
+                                      item.close !== undefined && item.close !== null ? Number(item.close) : null
 
-                        if (item.ch === undefined || item.ch === null) item.ch = null
-                        else if (item.ch === 0) item.ch = 0
-
-                        if (item.chp === undefined || item.chp === null) item.chp = null
-                        else if (item.chp === 0) item.chp = 0
-
-                        // Restore cached prices if available
-                        if (item.token && lastState.value[item.token]) {
-                            const state = lastState.value[item.token]
-                            if (state.ltp !== undefined) item.ltp = state.ltp.toFixed(2)
-                            if (state.ch !== undefined) item.ch = state.ch.toFixed(2)
-                            if (state.chp !== undefined) item.chp = state.chp.toFixed(2)
+                        // CRITICAL: Store close price as 'c' for WebSocket updates to use
+                        if (close !== null) {
+                            item.c = close.toFixed(2)
                         }
+
+                        // Calculate ch = ltp - close, chp = (ch / close) * 100
+                        if (ltp !== null && close !== null && close > 0) {
+                            const ch = ltp - close
+                            const chp = (ch / close) * 100
+                            item.ch = ch.toFixed(2)
+                            item.chp = chp.toFixed(2)
+                        } else {
+                            // No valid data to calculate - set to null (will show '--')
+                            item.ch = null
+                            item.chp = null
+                        }
+
+                        // REMOVED: lastState cache restoration
+                        // ch and chp are now calculated from ltp and close, not cached
+                        // WebSocket will provide fresh ltp data
 
                         watchlistdata.value.push(item)
                     })
@@ -2474,15 +2490,8 @@ const getMWlistdata = async () => {
         const cached = loadWatchlistFromCache(watchlistis.value)
         if (cached && Array.isArray(cached) && cached.length > 0) {
             watchlistdata.value = cached
-            // Restore price states from lastState cache
-            cached.forEach(item => {
-                if (item.token && lastState.value[item.token]) {
-                    const state = lastState.value[item.token]
-                    item.ltp = state.ltp !== undefined ? state.ltp.toFixed(2) : (item.ltp || null)
-                    item.ch = state.ch !== undefined ? state.ch.toFixed(2) : (item.ch || null)
-                    item.chp = state.chp !== undefined ? state.chp.toFixed(2) : (item.chp || null)
-                }
-            })
+            // REMOVED: lastState cache restoration - causes flicker with stale values
+            // WebSocket will provide fresh data
             ensureUniqueIds()
         }
 
@@ -2521,23 +2530,32 @@ const getMWlistdata = async () => {
                     wl[l].tsym = wl[l].token || `Item ${l + 1}`
                 }
 
-                // Initialize price fields properly
-                if (wl[l].ltp === undefined || wl[l].ltp === null) wl[l].ltp = null;
-                else if (wl[l].ltp === 0) wl[l].ltp = 0;
+                // CRITICAL FIX: Calculate ch and chp from ltp and close (like top indices)
+                // Don't use API values for ch/chp as they may be stale/incorrect
+                const ltp = wl[l].ltp !== undefined && wl[l].ltp !== null ? Number(wl[l].ltp) : null
+                const close = wl[l].c !== undefined && wl[l].c !== null ? Number(wl[l].c) :
+                              wl[l].close !== undefined && wl[l].close !== null ? Number(wl[l].close) : null
 
-                if (wl[l].ch === undefined || wl[l].ch === null) wl[l].ch = null;
-                else if (wl[l].ch === 0) wl[l].ch = 0;
-
-                if (wl[l].chp === undefined || wl[l].chp === null) wl[l].chp = null;
-                else if (wl[l].chp === 0) wl[l].chp = 0;
-
-                // Restore cached prices if available
-                if (wl[l].token && lastState.value[wl[l].token]) {
-                    const state = lastState.value[wl[l].token]
-                    if (state.ltp !== undefined) wl[l].ltp = state.ltp.toFixed(2)
-                    if (state.ch !== undefined) wl[l].ch = state.ch.toFixed(2)
-                    if (state.chp !== undefined) wl[l].chp = state.chp.toFixed(2)
+                // CRITICAL: Store close price as 'c' for WebSocket updates to use
+                if (close !== null) {
+                    wl[l].c = close.toFixed(2)
                 }
+
+                // Calculate ch = ltp - close, chp = (ch / close) * 100
+                if (ltp !== null && close !== null && close > 0) {
+                    const ch = ltp - close
+                    const chp = (ch / close) * 100
+                    wl[l].ch = ch.toFixed(2)
+                    wl[l].chp = chp.toFixed(2)
+                } else {
+                    // No valid data to calculate - set to null (will show '--')
+                    wl[l].ch = null
+                    wl[l].chp = null
+                }
+
+                // REMOVED: lastState cache restoration
+                // ch and chp are now calculated from ltp and close, not cached
+                // WebSocket will provide fresh ltp data
 
                 watchlistdata.value.push(wl[l]);
             }
@@ -2599,24 +2617,21 @@ const getMWlistdata = async () => {
     }
 }
 
-// WebSocket data update handler (like Vue 2 optionChainDataParse)
+/**
+ * WebSocket data update handler (SIMPLIFIED)
+ * Logic: ch = lp - c, chp = (ch / c) * 100
+ */
 const handleWebSocketUpdate = (event) => {
     const detail = event.detail
 
-    // Handle pdmwdata updates (top indices like NIFTY50, NIFTYBANK)
-    // Like Vue 2 line 1719-1734 (optionChainDataParse)
-    // Check for both direct data format and array format
+    // Extract token and data from various event formats
     let data = null
     let token = null
 
-    // Handle array format: [data, page] or { flow, data, is, page }
-    // Note: pdmwdata is subscribed with is: 'pd', watchlistdata with is: 'wl'
+    // Handle array format: [data, page]
     if (Array.isArray(detail) && detail.length >= 2) {
-        const [wsData, page] = detail
-        // Check if this is for pdmwdata (page will be 'pd' or 'watchlist' for pd)
-        // We need to check the data format to determine if it's pdmwdata
+        const [wsData] = detail
         if (wsData && (wsData.token || wsData.tk || wsData.t)) {
-            // Check if this token matches any pdmwdata token
             const testToken = wsData.token || wsData.tk || wsData.t
             if (pdmwdata.value && pdmwdata.value.some(p => p.token == testToken)) {
                 data = wsData
@@ -2629,101 +2644,62 @@ const handleWebSocketUpdate = (event) => {
         data = detail.data || detail
         token = data.token || data.tk || data.t
     }
-    // Handle direct data format - check if token matches pdmwdata
+    // Handle direct data format
     else if (detail && (detail.token || detail.tk || detail.t)) {
         const testToken = detail.token || detail.tk || detail.t
-        // Only process if this token matches a pdmwdata token
         if (pdmwdata.value && pdmwdata.value.some(p => p.token == testToken)) {
             data = detail
             token = testToken
         }
     }
 
-    // Update pdmwdata if token matches (like Vue 2 line 1720-1734)
+    // Update pdmwdata if token matches
     if (token && data && pdmwdata.value && Array.isArray(pdmwdata.value)) {
         const pIndex = pdmwdata.value.findIndex((o) => o.token == token)
-        if (pIndex >= 0 && pdmwdata.value[pIndex].token == token) {
-            // Extract price data from different WebSocket formats
-            // Handle WebSocket feed format (dk/df): data.l or data.lp
-            // Handle processed format: data.lp, data.ch, data.chp
-            const ltp = data.l || data.lp || data.ltp
-            const ch = data.ch
-            const chp = data.chp || data.chpct
-
-            // Calculate change if we have ltp and previous close
-            let newCh = ch
-            let newChp = chp
-            const prevClose = pdmwdata.value[pIndex].prevClose || parseFloat(pdmwdata.value[pIndex].ltp) - parseFloat(pdmwdata.value[pIndex].ch || 0)
-
-            // Update pdmwdata prices reactively (Vue 3)
-            if (ltp !== undefined && ltp !== null) {
-                pdmwdata.value[pIndex].ltp = Number(ltp).toFixed(2)
-
-                // Calculate change if not provided
-                if (newCh === undefined && prevClose > 0) {
-                    newCh = Number(ltp) - prevClose
-                }
+        if (pIndex >= 0) {
+            // Clean values by removing "+" prefix
+            const cleanValue = (val) => {
+                if (val === undefined || val === null) return null
+                const cleaned = String(val).replace(/^\+/, '')
+                const num = Number(cleaned)
+                return isNaN(num) ? null : num
             }
 
-            if (newCh !== undefined && newCh !== null) {
-                pdmwdata.value[pIndex].ch = Number(newCh) > 0 || Number(newCh) < 0
-                    ? Number(newCh).toFixed(2)
-                    : (0).toFixed(2)
-
-                // Calculate percentage change if not provided
-                if (newChp === undefined && prevClose > 0) {
-                    newChp = (newCh / prevClose) * 100
-                }
+            // Extract LTP (lp) and Close (c) from WebSocket
+            const lp = cleanValue(data.lp)
+            // CRITICAL FIX: Use existing close price if WebSocket doesn't send it
+            let c = cleanValue(data.c)
+            if (c === null && pdmwdata.value[pIndex].c !== undefined && pdmwdata.value[pIndex].c !== null) {
+                c = Number(pdmwdata.value[pIndex].c)
             }
 
-            if (newChp !== undefined && newChp !== null) {
-                pdmwdata.value[pIndex].chp = Number(newChp).toFixed(2)
+            // Calculate change and percentage
+            let ch = null
+            let chp = null
+
+            if (lp !== null && c !== null && c > 0) {
+                ch = lp - c
+                chp = (ch / c) * 100
             }
 
-            // Store previous close for future calculations
-            if (ltp !== undefined && ltp !== null) {
-                pdmwdata.value[pIndex].prevClose = prevClose || Number(ltp)
+            // Update pdmwdata reactively
+            if (lp !== null) {
+                pdmwdata.value[pIndex].ltp = lp.toFixed(2)
+            }
+            if (c !== null) {
+                pdmwdata.value[pIndex].c = c.toFixed(2)
+            }
+            if (ch !== null) {
+                pdmwdata.value[pIndex].ch = ch.toFixed(2)
+            }
+            if (chp !== null) {
+                pdmwdata.value[pIndex].chp = chp.toFixed(2)
             }
 
-            // Force Vue 3 reactivity update by reassigning the array
-            // This ensures the template updates immediately
+            // REACTIVE VUE 3: Force reactivity update
+            // Vue will automatically update the DOM through template bindings
+            // No need for manual DOM manipulation (getElementById, innerHTML, etc.)
             pdmwdata.value = [...pdmwdata.value]
-
-            // Update DOM elements for immediate visual feedback (performance optimization)
-            // Vue's reactivity will also update, but DOM updates ensure instant feedback
-            // Use nextTick to ensure DOM is ready and Vue reactivity is processed
-            nextTick(() => {
-                const ltpTag = document.getElementById(`p${token}ltp`)
-                if (ltpTag) {
-                    ltpTag.innerHTML = pdmwdata.value[pIndex].ltp || "0.00"
-
-                    const chTag = document.getElementById(`p${token}ch`)
-                    const chpTag = document.getElementById(`p${token}chp`)
-                    const chpclrTag = document.getElementById(`p${token}chpclr`)
-
-                    if (chTag) chTag.innerHTML = pdmwdata.value[pIndex].ch || "0.00"
-                    if (chpTag) chpTag.innerHTML = `(${pdmwdata.value[pIndex].chp || "0.00"})`
-
-                    // Update color class (like Vue 2 line 1731)
-                    // Match exactly with template's :class binding
-                    if (chpclrTag) {
-                        const ch = parseFloat(pdmwdata.value[pIndex].ch) || 0
-                        // Build class string to match template exactly
-                        const baseClasses = 'd-inline-flex font-weight-medium fs-12 px-2'
-                        const colorClass = ch > 0
-                            ? 'maingreen--text'
-                            : ch < 0
-                                ? 'mainred--text'
-                                : 'subtext--text'
-
-                        // Set className to match Vue's reactive binding
-                        chpclrTag.className = `${baseClasses} ${colorClass}`
-
-                        // Also ensure the style binding works (for immediate visual feedback)
-                        // The :class binding will handle the color, but we ensure it's correct
-                    }
-                }
-            })
         }
     }
 
@@ -2760,49 +2736,38 @@ const handleWebSocketUpdate = (event) => {
     }
 }
 
+/**
+ * Update watchlist data from WebSocket (SIMPLIFIED)
+ * Logic: ch = lp - c, chp = (ch / c) * 100
+ */
 const updateWatchlistDataFromWebSocket = (wsData) => {
-    // Map WebSocket field names to our data structure
     const token = wsData.tk || wsData.token
     const exchange = wsData.e || wsData.exchange
 
-    if (!token) {
-        return
-    }
+    if (!token) return
 
-    // Try to find by token and exchange, or just token if exchange doesn't match
+    // Find by token and exchange, or just token
     let index = watchlistdata.value.findIndex(item =>
         item.token === token && item.exch === exchange
     )
 
-    // If not found with exchange match, try just token
     if (index < 0) {
         index = watchlistdata.value.findIndex(item => item.token === token)
     }
 
     if (index >= 0) {
-        const merged = mergeTick(token, wsData)
+        // Calculate price changes - pass existing item to preserve close price
+        const { lp, c, ch, chp } = calculatePriceChanges(wsData, watchlistdata.value[index])
 
-        // Save to simple cache for legacy use
-        if (isFinite(merged.ltp)) {
-            priceCache.value[token] = {
-                ltp: merged.ltp,
-                ch: merged.ch ?? 0,
-                chp: merged.chp ?? 0
-            }
-        }
+        // Update watchlist data
+        if (lp !== null) watchlistdata.value[index].ltp = lp.toFixed(2)
+        if (c !== null) watchlistdata.value[index].c = c.toFixed(2)
+        if (ch !== null) watchlistdata.value[index].ch = ch.toFixed(2)
+        if (chp !== null) watchlistdata.value[index].chp = chp.toFixed(2)
 
-        // Update only provided keys
-        const current = { ...watchlistdata.value[index] }
-        if (typeof merged.ltp !== 'undefined') current.ltp = merged.ltp.toFixed(2)
-        if (typeof merged.ch !== 'undefined') current.ch = merged.ch.toFixed(2)
-        if (typeof merged.chp !== 'undefined') current.chp = merged.chp.toFixed(2)
-        watchlistdata.value[index] = { ...watchlistdata.value[index], ...current }
-
-        updateDOMElements(token, {
-            ltp: current.ltp ?? watchlistdata.value[index].ltp ?? '0.00',
-            ch: current.ch ?? watchlistdata.value[index].ch ?? '0.00',
-            chp: current.chp ?? watchlistdata.value[index].chp ?? '0.00'
-        })
+        // REACTIVE VUE 3: Force reactivity update
+        // Vue will automatically update the DOM through template bindings
+        watchlistdata.value = [...watchlistdata.value]
 
         // Update cache after WebSocket update
         if (watchlistdata.value && Array.isArray(watchlistdata.value) && watchlistdata.value.length > 0) {
@@ -2811,34 +2776,27 @@ const updateWatchlistDataFromWebSocket = (wsData) => {
     }
 }
 
+/**
+ * Update watchlist data (SIMPLIFIED)
+ * Logic: ch = lp - c, chp = (ch / c) * 100
+ */
 const updateWatchlistData = (data) => {
-
     const token = data.token || data.tk
     const index = watchlistdata.value.findIndex(item => item.token === token)
 
     if (index >= 0) {
-        const merged = mergeTick(token, data)
+        // Calculate price changes - pass existing item to preserve close price
+        const { lp, c, ch, chp } = calculatePriceChanges(data, watchlistdata.value[index])
 
-        // cache
-        if (isFinite(merged.ltp)) {
-            priceCache.value[token] = {
-                ltp: merged.ltp,
-                ch: merged.ch ?? 0,
-                chp: merged.chp ?? 0
-            }
-        }
+        // Update watchlist data
+        if (lp !== null) watchlistdata.value[index].ltp = lp.toFixed(2)
+        if (c !== null) watchlistdata.value[index].c = c.toFixed(2)
+        if (ch !== null) watchlistdata.value[index].ch = ch.toFixed(2)
+        if (chp !== null) watchlistdata.value[index].chp = chp.toFixed(2)
 
-        const current = { ...watchlistdata.value[index] }
-        if (typeof merged.ltp !== 'undefined') current.ltp = merged.ltp.toFixed(2)
-        if (typeof merged.ch !== 'undefined') current.ch = merged.ch.toFixed(2)
-        if (typeof merged.chp !== 'undefined') current.chp = merged.chp.toFixed(2)
-        watchlistdata.value[index] = { ...watchlistdata.value[index], ...current }
-
-        updateDOMElements(token, {
-            ltp: current.ltp ?? watchlistdata.value[index].ltp ?? '0.00',
-            ch: current.ch ?? watchlistdata.value[index].ch ?? '0.00',
-            chp: current.chp ?? watchlistdata.value[index].chp ?? '0.00'
-        })
+        // REACTIVE VUE 3: Force reactivity update
+        // Vue will automatically update the DOM through template bindings
+        watchlistdata.value = [...watchlistdata.value]
 
         // Update cache after WebSocket update
         if (watchlistdata.value && Array.isArray(watchlistdata.value) && watchlistdata.value.length > 0) {
@@ -2847,26 +2805,9 @@ const updateWatchlistData = (data) => {
     }
 }
 
-const updateDOMElements = (token, prices) => {
-    // Update DOM elements directly for better performance
-    const ltpElement = document.getElementById(`${token}ltp`)
-    const chElement = document.getElementById(`${token}ch`)
-    const chpElement = document.getElementById(`${token}chp`)
-
-    if (ltpElement) {
-        // Template already has ₹ symbol, so only update the number value
-        ltpElement.textContent = prices.ltp || '0.00'
-    }
-    if (chElement) {
-        chElement.textContent = formatPriceChange(prices.ch)
-        chElement.className = `change-value ${getPriceChangeClass(prices.ch)}`
-    }
-    if (chpElement) {
-        // Template shows ({{ formatPercentageChange(item.chp) }}), so wrap in parentheses
-        chpElement.textContent = `(${formatPercentageChange(prices.chp)})`
-        chpElement.className = `change-percent ${getPriceChangeClass(prices.chp)}`
-    }
-}
+// REMOVED: updateDOMElements function
+// DOM updates are now handled automatically by Vue 3 reactivity system
+// through template bindings. No manual DOM manipulation needed.
 
 // Hover scroll functionality (watchlist only)
 const handleMouseEnter = () => {
@@ -3759,10 +3700,15 @@ const setChangeindex = async (item, exch) => {
                 }, 100)
             }
 
-            // Fetch initial LTP data for updated card (new requirement to show data immediately)
-            // Reset flag to allow fetching again
-            initialIndicesDataCalled.value = false
-            await fetchInitialIndicesData()
+            // CRITICAL FIX: Only fetch API data for non-logged-in users
+            // Logged-in users will get data from WebSocket (already re-subscribed above)
+            const sessionStatus = sessionStorage.getItem('c3RhdHVz')
+            if (sessionStatus !== "dmFsaWR1c2Vy") {
+                // Guest user - fetch API data to show immediately
+                initialIndicesDataCalled.value = false
+                await fetchInitialIndicesData()
+            }
+            // For logged-in users: WebSocket will populate data within ~100ms
 
             // Force template update to show new index name immediately
             await nextTick()
@@ -3816,40 +3762,31 @@ const fetchInitialIndicesData = async () => {
                 const v = raw[item.token]
 
                 if (v) {
-                    const newLtp = Number(v.lp || v.ltp || 0).toFixed(2)
-                    const prevClose = Number(v.close || v.prev_close_price || 0)
-                    const newCh = prevClose > 0 ? Number(newLtp - prevClose).toFixed(2) : (Number(v.ch || 0).toFixed(2))
-                    const newChp = prevClose > 0 ? Number((newCh / prevClose) * 100).toFixed(2) : (Number(v.chp || 0).toFixed(2))
+                    // Clean values by removing "+" prefix
+                    const cleanValue = (val) => {
+                        if (val === undefined || val === null) return 0
+                        return Number(String(val).replace(/^\+/, ''))
+                    }
 
-                    // Update pdmwdata values
+                    const newLtp = cleanValue(v.lp || v.ltp || 0).toFixed(2)
+                    const prevClose = cleanValue(v.close || v.prev_close_price || 0)
+                    const newCh = prevClose > 0 ? Number(newLtp - prevClose).toFixed(2) : cleanValue(v.ch || 0).toFixed(2)
+                    const newChp = prevClose > 0 ? Number((newCh / prevClose) * 100).toFixed(2) : cleanValue(v.chp || 0).toFixed(2)
+
+                    // REACTIVE VUE 3: Update pdmwdata values
+                    // Vue will automatically update the DOM through template bindings
                     pdmwdata.value[l]["ltp"] = newLtp
                     pdmwdata.value[l]["ch"] = newCh
                     pdmwdata.value[l]["chp"] = newChp
                     anyUpdated = true
-
-                    // Update DOM elements immediately
-                    await nextTick()
-                    const ltpTag = document.getElementById(`p${item.token}ltp`)
-                    if (ltpTag) {
-                        ltpTag.innerHTML = newLtp
-                        const chTag = document.getElementById(`p${item.token}ch`)
-                        const chpTag = document.getElementById(`p${item.token}chp`)
-                        const chpclrTag = document.getElementById(`p${item.token}chpclr`)
-
-                        if (chTag) chTag.innerHTML = newCh
-                        if (chpTag) chpTag.innerHTML = ` (${newChp}%)`
-                        if (chpclrTag) {
-                            const ch = parseFloat(newCh) || 0
-                            chpclrTag.className = ch > 0
-                                ? 'd-inline-flex font-weight-medium fs-12 px-2 maingreen--text'
-                                : ch < 0
-                                    ? 'd-inline-flex font-weight-medium fs-12 px-2 mainred--text'
-                                    : 'd-inline-flex font-weight-medium fs-12 px-2 subtext--text'
-                        }
-                    }
                 } else {
                     // console.log('fetchInitialIndicesData: No data for token', item.token)
                 }
+            }
+
+            // Force Vue reactivity update after batch updates
+            if (anyUpdated) {
+                pdmwdata.value = [...pdmwdata.value]
             }
 
             // Save to cache after updating all prices
@@ -4450,8 +4387,14 @@ onMounted(async () => {
         await getAdvdecIndices()
     }
 
-    // Fetch initial LTP data for pdmwdata cards (ensures data shows on mount and after refresh)
-    await fetchInitialIndicesData()
+    // CRITICAL FIX: Only fetch initial LTP data for NON-LOGGED-IN users
+    // Logged-in users get real-time data from WebSocket (already subscribed above)
+    // This prevents the flicker from stale API data → fresh WebSocket data
+    if (sessionStatus !== "dmFsaWR1c2Vy") {
+        // Guest user - needs API data since no WebSocket
+        await fetchInitialIndicesData()
+    }
+    // For logged-in users: WebSocket will populate data, no API call needed
 
     // Warm-up re-subscribe after refresh to avoid stuck state
     setTimeout(() => {
@@ -4622,11 +4565,8 @@ watch([uid, mtoken], async ([newUid, newMtok]) => {
             await getAdvdecIndices()
         }
 
-        // Fetch initial LTP data for pdmwdata cards after login
-        // This ensures data shows immediately after login (only if not already called)
-        if (!initialIndicesDataCalled.value) {
-            await fetchInitialIndicesData()
-        }
+        // REMOVED: fetchInitialIndicesData() - logged-in users get data from WebSocket
+        // WebSocket already subscribed above (line 4585-4589), data will arrive within ~100ms
 
         // After getWatchlist, check if we need to load predefined watchlist
         // If watchlistis is a predefined watchlist, load it

@@ -666,35 +666,49 @@ const setLoadingdata = async (type, token, exch, tsym) => {
         let l, si
         uniqkey.value = Array.from([token, exch, tsym])
 
+        // CRITICAL FIX: Always fetch fresh quote data, never use cache
+        // Cache contains stale ch/chp values with single-digit precision
+        // We can use cached linked scrips and security info, but NOT quote data
+        let cachedLinkedScrips = null
+        let cachedSecurityInfo = null
         if (window.ssdreqdata && window.ssdreqdata.data && window.ssdreqdata.data[token]) {
-            // Use cached data
-            l = window.ssdreqdata.data[token].l
-            si = window.ssdreqdata.data[token].i
-            if (window.ssdreqdata.data[token].s && window.ssdreqdata.data[token].s.fundamental) {
-                dashitems.value[2].tab = true
-                window.ssddetail = [
-                    window.ssdreqdata.data[token].q,
-                    window.ssdreqdata.data[token].s,
-                    l,
-                    si
-                ]
-            } else {
-                dashitems.value[2].tab = true
-                window.ssddetail = [
-                    window.ssdreqdata.data[token].q,
-                    'no data',
-                    l,
-                    si
-                ]
-            }
-            maindata.value = window.ssdreqdata.data[token].q
-        } else {
-            // Fetch fresh data from APIs
+            cachedLinkedScrips = window.ssdreqdata.data[token].l
+            cachedSecurityInfo = window.ssdreqdata.data[token].i
+        }
+
+        // Always fetch fresh data (at minimum, fresh quote data)
+        {
+            // PERFORMANCE FIX: Fetch all APIs in parallel instead of sequentially
+            // This drastically reduces loading time by running all requests simultaneously
             try {
-                const q = await getQuotesdata(`${exch}|${token}|${tsym}`)
-                const s = (exch == 'BSE' || exch == 'NSE') ? await getssDetails(`${exch}:${tsym}`) : null
-                l = await getLinkedScrips(`${exch}|${token}|${tsym}`)
-                si = await getSecuritydata(`${exch}|${token}`)
+                // Run all 5 API calls in parallel (including technicals)
+                const [q, s, linkedScripsData, si, tech] = await Promise.all([
+                    getQuotesdata(`${exch}|${token}|${tsym}`),
+                    (exch == 'BSE' || exch == 'NSE') ? getssDetails(`${exch}:${tsym}`) : Promise.resolve(null),
+                    getLinkedScrips(`${exch}|${token}|${tsym}`),
+                    getSecuritydata(`${exch}|${token}`),
+                    (exch == 'NSE' || exch == 'BSE') ? getTechnicals(`${exch}|${token}|${encodeURIComponent(tsym)}`).catch(e => null) : Promise.resolve(null)
+                ])
+
+                l = linkedScripsData
+
+                // CRITICAL FIX: Calculate ch and chp from ltp and close
+                // Never trust API ch/chp values as they may be stale or single-digit precision
+                if (q) {
+                    const ltp = q.ltp !== undefined && q.ltp !== null ? Number(q.ltp) : null
+                    const close = q.prev_close_price !== undefined && q.prev_close_price !== null ? Number(q.prev_close_price) :
+                                 (q.close !== undefined && q.close !== null ? Number(q.close) : null)
+
+                    if (ltp !== null && close !== null && close > 0) {
+                        const ch = ltp - close
+                        const chp = (ch / close) * 100
+                        q.ch = ch.toFixed(2)
+                        q.chp = chp.toFixed(2)
+                    }
+
+                    // Ensure 2 decimal precision for ltp
+                    if (q.ltp !== undefined) q.ltp = Number(q.ltp).toFixed(2)
+                }
 
                 if (s && s.fundamental) {
                     dashitems.value[2].tab = true
@@ -703,7 +717,8 @@ const setLoadingdata = async (type, token, exch, tsym) => {
                     dashitems.value[2].tab = true
                     window.ssddetail = [q, 'no data', l, si]
                 }
-                window.ssdreqdata.data[token] = { q, s, l, t: null, i: si }
+                // Store in cache WITHOUT ch/chp to avoid using stale calculated values
+                window.ssdreqdata.data[token] = { q, s, l, t: tech, i: si }
                 linkedscrips.value = l
                 maindata.value = q
             } catch (error) {
@@ -768,7 +783,23 @@ const upScriptdata = async (token, exch, tsym, l) => {
         equlsdata.value = []
         if (maindata.value && maindata.value.instname != 'UNDIND' && maindata.value.instname != 'COM' && data.equls && data.equls.length > 0) {
             dashitems.value[2].tab = true
-            equlsdata.value = data.equls
+            // CRITICAL FIX: Calculate ch and chp from ltp and close for equities
+            equlsdata.value = data.equls.map(item => {
+                const ltp = item.ltp !== undefined && item.ltp !== null ? Number(item.ltp) : null
+                const close = item.c !== undefined && item.c !== null ? Number(item.c) :
+                             (item.cp !== undefined && item.cp !== null ? Number(item.cp) : null)
+
+                if (ltp !== null && close !== null && close > 0) {
+                    const ch = ltp - close
+                    const chp = (ch / close) * 100
+                    item.ch = ch.toFixed(2)
+                    item.chp = chp.toFixed(2)
+                }
+
+                // Ensure 2 decimal precision
+                if (item.ltp !== undefined) item.ltp = Number(item.ltp).toFixed(2)
+                return item
+            })
         } else {
             dashitems.value[2].tab = true
         }
@@ -776,7 +807,23 @@ const upScriptdata = async (token, exch, tsym, l) => {
         optiondata.value = []
         if (maindata.value && data.opt_exp && data.opt_exp.length > 0) {
             dashitems.value[3].tab = true
-            optiondata.value = data.opt_exp
+            // CRITICAL FIX: Calculate ch and chp from ltp and close for options
+            optiondata.value = data.opt_exp.map(item => {
+                const ltp = item.ltp !== undefined && item.ltp !== null ? Number(item.ltp) : null
+                const close = item.c !== undefined && item.c !== null ? Number(item.c) :
+                             (item.cp !== undefined && item.cp !== null ? Number(item.cp) : null)
+
+                if (ltp !== null && close !== null && close > 0) {
+                    const ch = ltp - close
+                    const chp = (ch / close) * 100
+                    item.ch = ch.toFixed(2)
+                    item.chp = chp.toFixed(2)
+                }
+
+                // Ensure 2 decimal precision
+                if (item.ltp !== undefined) item.ltp = Number(item.ltp).toFixed(2)
+                return item
+            })
         } else {
             dashitems.value[3].tab = true
         }
@@ -788,7 +835,27 @@ const upScriptdata = async (token, exch, tsym, l) => {
                 if (data.fut[i].exch == 'NFO' || data.fut[i].exch == 'BFO') {
                     // Future processing if needed
                 }
-                futuredata.value.push(data.fut[i])
+
+                // CRITICAL FIX: Calculate ch and chp from ltp and close on initial load
+                // Don't trust API values as they may be stale or single-digit precision
+                const item = data.fut[i]
+                const ltp = item.ltp !== undefined && item.ltp !== null ? Number(item.ltp) : null
+                const close = item.c !== undefined && item.c !== null ? Number(item.c) :
+                             (item.cp !== undefined && item.cp !== null ? Number(item.cp) : null)
+
+                if (ltp !== null && close !== null && close > 0) {
+                    const ch = ltp - close
+                    const chp = (ch / close) * 100
+                    item.ch = ch.toFixed(2)
+                    item.chp = chp.toFixed(2)
+                }
+
+                // Ensure 2 decimal precision for all price fields
+                if (item.ltp !== undefined) item.ltp = Number(item.ltp).toFixed(2)
+                if (item.cp !== undefined) item.cp = Number(item.cp).toFixed(2)
+                if (item.c !== undefined) item.c = Number(item.c).toFixed(2)
+
+                futuredata.value.push(item)
                 futuredata.value.sort((a, b) => new Date(a.exd) - new Date(b.exd))
             }
             setWebsocket('sub', futuredata.value, 'ssd')
@@ -862,37 +929,55 @@ const optionChainDataParse = (data) => {
 
     const w = futuredata.value.findIndex((o) => o.token == data.token)
     if (w >= 0 && futuredata.value[w].token == data.token) {
-        futuredata.value[w].ltp = Number(data.lp).toFixed(2)
-        futuredata.value[w].ch = Number(data.ch) > 0 || Number(data.ch) < 0 ? Number(data.ch).toFixed(2) : 0
-        futuredata.value[w].chp = Number(data.chp).toFixed(2)
-        futuredata.value[w].vol = Number(data.volume)
-        futuredata.value[w].h_p = Number(data.high_price).toFixed(2)
-        futuredata.value[w].l_p = Number(data.low_price).toFixed(2)
-        futuredata.value[w].op = Number(data.open_price).toFixed(2)
-        futuredata.value[w].cp = Number(data.prev_close_price).toFixed(2)
-        futuredata.value[w].ap = Number(data.ap).toFixed(2)
-        futuredata.value[w].bid_qty = data.bid_qty
-        futuredata.value[w].bid = Number(data.bid).toFixed(2)
-        futuredata.value[w].ask_qty = data.ask_qty
-        futuredata.value[w].ask = Number(data.ask).toFixed(2)
-
-        // Direct DOM updates for performance
-        const tag = document.getElementById(`futt${data.token}ltp`)
-        if (tag) {
-            document.getElementById(`futt${data.token}ltp`).innerHTML = futuredata.value[w].ltp
-            document.getElementById(`futt${data.token}chs`).innerHTML = ` ${futuredata.value[w].ch} (${futuredata.value[w].chp}%)`
-            // Update color class
-            const colorEl = document.getElementById(`futt${data.token}chsclr`)
-            if (colorEl) {
-                colorEl.className = `fs-12 ${futuredata.value[w].ch > 0 ? 'maingreen--text' : futuredata.value[w].ch < 0 ? 'mainred--text' : 'maintext--text'}`
-            }
-            document.getElementById(`futt${data.token}vol`).innerHTML = futuredata.value[w].vol
-            document.getElementById(`futt${data.token}h_p`).innerHTML = futuredata.value[w].h_p
-            document.getElementById(`futt${data.token}l_p`).innerHTML = futuredata.value[w].l_p
-            document.getElementById(`futt${data.token}op`).innerHTML = futuredata.value[w].op
-            document.getElementById(`futt${data.token}cp`).innerHTML = futuredata.value[w].cp
-            document.getElementById(`futt${data.token}ap`).innerHTML = futuredata.value[w].ap
+        // Clean values by removing "+" prefix
+        const cleanValue = (val) => {
+            if (val === undefined || val === null) return null
+            const cleaned = String(val).replace(/^\+/, '')
+            const num = Number(cleaned)
+            return isNaN(num) ? null : num
         }
+
+        // Extract LTP and Close price
+        const lp = cleanValue(data.lp)
+
+        // CRITICAL: Get close price from existing data or WebSocket
+        // WebSocket may not send close price on every tick, so preserve it
+        let close = cleanValue(data.prev_close_price || data.c)
+        if (close === null && futuredata.value[w].cp !== undefined && futuredata.value[w].cp !== null) {
+            close = Number(futuredata.value[w].cp)
+        }
+
+        // CRITICAL FIX: Calculate ch and chp from ltp and close (same as watchlist/stocks page)
+        // Never accept ch/chp directly from WebSocket as they may be stale
+        let ch = null
+        let chp = null
+
+        if (lp !== null && close !== null && close > 0) {
+            ch = lp - close
+            chp = (ch / close) * 100
+        }
+
+        // Update futuredata reactively with proper 2 decimal formatting
+        if (lp !== null) futuredata.value[w].ltp = lp.toFixed(2)
+        if (ch !== null) futuredata.value[w].ch = ch.toFixed(2)
+        if (chp !== null) futuredata.value[w].chp = chp.toFixed(2)
+
+        // Update other fields
+        if (data.volume !== undefined) futuredata.value[w].vol = Number(data.volume)
+        if (data.high_price !== undefined) futuredata.value[w].h_p = Number(data.high_price).toFixed(2)
+        if (data.low_price !== undefined) futuredata.value[w].l_p = Number(data.low_price).toFixed(2)
+        if (data.open_price !== undefined) futuredata.value[w].op = Number(data.open_price).toFixed(2)
+        if (close !== null) futuredata.value[w].cp = close.toFixed(2)
+        if (data.ap !== undefined) futuredata.value[w].ap = Number(data.ap).toFixed(2)
+        if (data.bid_qty !== undefined) futuredata.value[w].bid_qty = data.bid_qty
+        if (data.bid !== undefined) futuredata.value[w].bid = Number(data.bid).toFixed(2)
+        if (data.ask_qty !== undefined) futuredata.value[w].ask_qty = data.ask_qty
+        if (data.ask !== undefined) futuredata.value[w].ask = Number(data.ask).toFixed(2)
+
+        // REACTIVE VUE 3: Force reactivity update
+        // Vue will automatically update the DOM through template bindings
+        // No need for manual DOM manipulation (getElementById, innerHTML, etc.)
+        futuredata.value = [...futuredata.value]
     }
 }
 

@@ -552,8 +552,24 @@ const initializeOverviewFromQuote = (q) => {
     const n0 = (v) => (v || v === 0) ? Number(v) : 0
 
     menudata.value[0].ltp = n2(q.lp || q.ltp)
-    menudata.value[0].ch = n2(q.ch)
-    menudata.value[0].chp = n2(q.chp)
+
+    // CRITICAL FIX: Calculate ch and chp from ltp and close (same as watchlist/stocks/details)
+    // Never trust API ch/chp values as they may be stale or single-digit precision
+    const ltp = q.lp !== undefined && q.lp !== null ? Number(q.lp) :
+                (q.ltp !== undefined && q.ltp !== null ? Number(q.ltp) : null)
+    const close = q.prev_close_price !== undefined && q.prev_close_price !== null ? Number(q.prev_close_price) :
+                  (q.close !== undefined && q.close !== null ? Number(q.close) : null)
+
+    if (ltp !== null && close !== null && close > 0) {
+        const ch = ltp - close
+        const chp = (ch / close) * 100
+        menudata.value[0].ch = ch.toFixed(2)
+        menudata.value[0].chp = chp.toFixed(2)
+    } else {
+        menudata.value[0].ch = '0.00'
+        menudata.value[0].chp = '0.00'
+    }
+
     menudata.value[0].high_price = n2(q.high_price || q.high)
     menudata.value[0].low_price = n2(q.low_price || q.low)
     menudata.value[0].open_price = n2(q.open_price || q.open)
@@ -566,26 +582,10 @@ const initializeOverviewFromQuote = (q) => {
     menudata.value[0].ltt = q.ltt || '00:00:00'
     menudata.value[0].ltq = n0(q.ltq)
 
-    const setText = (id, val) => {
-        const el = document.getElementById(id)
-        if (el) el.innerHTML = val
-    }
-    if (token) {
-        setText(`ssdove${token}ltp`, menudata.value[0].ltp)
-        setText(`ssdove${token}ch`, menudata.value[0].ch ? Math.round(Number(menudata.value[0].ch)) : "0")
-        setText(`ssdove${token}chp`, menudata.value[0].chp ? Math.round(Number(menudata.value[0].chp)) : "0")
-        setText(`ssdove${token}hp`, menudata.value[0].high_price ? Math.round(Number(menudata.value[0].high_price)) : "0")
-        setText(`ssdove${token}lp`, menudata.value[0].low_price ? Math.round(Number(menudata.value[0].low_price)) : "0")
-        setText(`ssdove${token}op`, menudata.value[0].open_price)
-        setText(`ssdove${token}cp`, menudata.value[0].close_price)
-        setText(`ssdove${token}vol`, menudata.value[0].vol)
-        setText(`ssdove${token}ap`, menudata.value[0].ap)
-        setText(`ssdove${token}oi`, menudata.value[0].oi)
-        setText(`ssdove${token}uc`, menudata.value[0].uc)
-        setText(`ssdove${token}lc`, menudata.value[0].lc)
-        setText(`ssdove${token}ltt`, menudata.value[0].ltt)
-        setText(`ssdove${token}ltq`, menudata.value[0].ltq)
-    }
+    // REACTIVE VUE 3: Force reactivity update
+    // Vue will automatically update the DOM through template bindings
+    // No need for manual DOM manipulation
+    menudata.value = [...menudata.value]
 }
 
 const setWebsocket = (flow, data, is) => {
@@ -608,17 +608,37 @@ const optionChainDataParse = (data) => {
     const token = data.token || data.tk
     if (!token || !menudata.value[0] || menudata.value[0].token != token) return
 
-    const newLpVal = Number(data.lp || data.ltp || 0)
-    // Do not overwrite with zero/invalid; keep last known value so it matches Watchlist
-    if (!isNaN(newLpVal) && newLpVal > 0) {
+    // Clean values by removing "+" prefix
+    const cleanValue = (val) => {
+        if (val === undefined || val === null) return null
+        const cleaned = String(val).replace(/^\+/, '')
+        const num = Number(cleaned)
+        return isNaN(num) ? null : num
+    }
+
+    const newLpVal = cleanValue(data.lp || data.ltp)
+    // Do not overwrite with zero/invalid; keep last known value
+    if (newLpVal !== null && newLpVal > 0) {
         menudata.value[0]["ltp"] = newLpVal.toFixed(2)
     }
     menudata.value[0].lp = menudata.value[0]["ltp"]
 
-    const chIn = Number(data.ch || data.c)
-    if (!isNaN(chIn)) menudata.value[0]["ch"] = chIn.toFixed(2)
-    const chpIn = Number(data.chp)
-    if (!isNaN(chpIn)) menudata.value[0]["chp"] = chpIn.toFixed(2)
+    // CRITICAL FIX: Calculate ch and chp from ltp and close (same as watchlist/stocks/details)
+    // Never accept ch/chp directly from WebSocket as they may be stale
+    const ltp = newLpVal !== null ? newLpVal : (menudata.value[0].ltp ? Number(menudata.value[0].ltp) : null)
+    let close = cleanValue(data.prev_close_price || data.close || data.c)
+
+    // Preserve close price if WebSocket doesn't send it
+    if (close === null && menudata.value[0].close_price !== undefined && menudata.value[0].close_price !== null) {
+        close = Number(menudata.value[0].close_price)
+    }
+
+    if (ltp !== null && close !== null && close > 0) {
+        const ch = ltp - close
+        const chp = (ch / close) * 100
+        menudata.value[0]["ch"] = ch.toFixed(2)
+        menudata.value[0]["chp"] = chp.toFixed(2)
+    }
     const hIn = Number(data.high_price || data.high)
     if (!isNaN(hIn)) menudata.value[0]["high_price"] = hIn.toFixed(2)
     const lIn = Number(data.low_price || data.low)
@@ -660,61 +680,10 @@ const optionChainDataParse = (data) => {
         }
     }
 
-    // Save to cache for next mount/fallback
-    const cache = getPriceCache()
-    cache[token] = {
-        ltp: menudata.value[0].ltp,
-        ch: menudata.value[0].ch,
-        chp: menudata.value[0].chp,
-        high_price: menudata.value[0].high_price,
-        low_price: menudata.value[0].low_price,
-        open_price: menudata.value[0].open_price,
-        close_price: menudata.value[0].close_price
-    }
-    setPriceCache(cache)
-
-    // Direct DOM updates for real-time display
-    let tag = document.getElementById(`ssdove${token}ltp`)
-    if (tag) {
-        if (menudata.value[0].ltp && Number(menudata.value[0].ltp) > 0) {
-            tag.innerHTML = menudata.value[0].ltp
-        }
-        const chTag = document.getElementById(`ssdove${token}ch`)
-        const chpTag = document.getElementById(`ssdove${token}chp`)
-        const chpclrTag = document.getElementById(`ssdove${token}chpclr`)
-        if (chTag && menudata.value[0].ch !== undefined) chTag.innerHTML = menudata.value[0].ch ? Math.round(Number(menudata.value[0].ch)) : "0"
-        if (chpTag && menudata.value[0].chp !== undefined) chpTag.innerHTML = menudata.value[0].chp ? Math.round(Number(menudata.value[0].chp)) : "0"
-        if (chpclrTag) {
-            const ch = parseFloat(menudata.value[0].ch) || 0
-            chpclrTag.className = ch > 0
-                ? 'fs-12 maingreen--text'
-                : ch < 0
-                    ? 'fs-12 mainred--text'
-                    : 'fs-12 subtext-text'
-        }
-        const oiTag = document.getElementById(`ssdove${token}oi`)
-        const ucTag = document.getElementById(`ssdove${token}uc`)
-        const lcTag = document.getElementById(`ssdove${token}lc`)
-        const lttTag = document.getElementById(`ssdove${token}ltt`)
-        const ltqTag = document.getElementById(`ssdove${token}ltq`)
-        const volTag = document.getElementById(`ssdove${token}vol`)
-        const apTag = document.getElementById(`ssdove${token}ap`)
-        const hpTag = document.getElementById(`ssdove${token}hp`)
-        const lpTag = document.getElementById(`ssdove${token}lp`)
-        const opTag = document.getElementById(`ssdove${token}op`)
-        const cpTag = document.getElementById(`ssdove${token}cp`)
-        if (oiTag) oiTag.innerHTML = menudata.value[0].oi
-        if (ucTag) ucTag.innerHTML = menudata.value[0].uc
-        if (lcTag) lcTag.innerHTML = menudata.value[0].lc
-        if (lttTag) lttTag.innerHTML = menudata.value[0].ltt
-        if (ltqTag) ltqTag.innerHTML = menudata.value[0].ltq
-        if (volTag) volTag.innerHTML = menudata.value[0].vol
-        if (apTag) apTag.innerHTML = menudata.value[0].ap
-        if (hpTag) hpTag.innerHTML = menudata.value[0].high_price ? Math.round(Number(menudata.value[0].high_price)) : "0"
-        if (lpTag) lpTag.innerHTML = menudata.value[0].low_price ? Math.round(Number(menudata.value[0].low_price)) : "0"
-        if (opTag) opTag.innerHTML = menudata.value[0].open_price
-        if (cpTag) cpTag.innerHTML = menudata.value[0].close_price
-    }
+    // REACTIVE VUE 3: Force reactivity update
+    // Vue will automatically update the DOM through template bindings
+    // No need for manual DOM manipulation or caching stale ch/chp values
+    menudata.value = [...menudata.value]
 
     let tago = document.getElementById(`ssdove${token}rbg`)
     if (tago && stockreturns.value.length > 0) {

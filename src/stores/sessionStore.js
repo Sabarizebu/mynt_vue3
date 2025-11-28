@@ -132,31 +132,55 @@ export const useSessionStore = defineStore('session', () => {
   const handleSessionError = (error, authStore, appStore) => {
     // Extract error message (exact same as old app: line 713)
     const errorMsg = error.emsg ? error.emsg : (typeof error === 'string' ? error : "Session expired : Invalid Session Key")
-    
+
     // Check if it's "another system" error or session expired
-    const isAnotherSystem = typeof errorMsg === 'string' && 
-      (errorMsg.includes('another system') || 
+    const isAnotherSystem = typeof errorMsg === 'string' &&
+      (errorMsg.includes('another system') ||
        errorMsg.includes('already logged in') ||
        errorMsg.includes('logged in on') ||
        errorMsg.includes('Session Expired') ||
        errorMsg.includes('Invalid Session Key'))
-    
+
     // console.log("🔄 Session error detected, logging out user:", errorMsg);
-    
+
     // IMPORTANT: Clear sessionStorage FIRST so components reading from it get null immediately
     sessionStorage.removeItem("c3RhdHVz")
     sessionStorage.removeItem("userid")
     sessionStorage.removeItem("usession")
     sessionStorage.removeItem("msession")
-    
+
+    // CRITICAL FIX: Clear user-specific cache data
+    sessionStorage.removeItem("holdings_last")
+    sessionStorage.removeItem("mfholdings_last")
+    sessionStorage.removeItem("positions_last")
+    sessionStorage.removeItem("exposures_last")
+
     // Clear user-related data from localStorage
     localStorage.removeItem("profile_data")
     localStorage.removeItem("client_data")
-    
+
+    // CRITICAL FIX: Clear Pinia stores to prevent data leak between users
+    // Import and clear positions and holdings stores
+    try {
+      const { usePositionsStore } = require('./positionsStore')
+      const { useHoldingsStore } = require('./holdingsStore')
+
+      const positionsStore = usePositionsStore()
+      const holdingsStore = useHoldingsStore()
+
+      positionsStore.clearPositions()
+      holdingsStore.clearHoldings()
+
+      console.log('🧹 [SESSION] Cleared positions and holdings stores on logout')
+    } catch (e) {
+      // Stores might not be available in all contexts
+      console.log('⚠️ [SESSION] Could not clear stores:', e.message)
+    }
+
     // Clear auth store completely (removes all login functionality)
     // This will trigger watchers in components that watch authStore.uid
     authStore.clearAuth()
-    
+
     // Reset storage
     appStore.resetStorage()
     

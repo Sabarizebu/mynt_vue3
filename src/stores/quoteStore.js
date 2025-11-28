@@ -34,10 +34,13 @@ export const useQuoteStore = defineStore('quote', () => {
         const existing = quotes.value.get(tokenStr) || {}
 
         // Normalize volume field to prevent flickering
-        // Extract volume value from any possible field (volume, v, vol)
-        const volumeValue = quoteData.volume !== undefined ? Number(quoteData.volume) :
-            (quoteData.v !== undefined ? Number(quoteData.v) :
-                (quoteData.vol !== undefined ? Number(quoteData.vol) : existing.volume))
+        // CRITICAL: For logged-in users, WebSocket sends socketVolume (real-time accumulated volume)
+        // For non-logged-in users, use volume field
+        // Priority: socketVolume > volume > v > vol > existing
+        const volumeValue = quoteData.socketVolume !== undefined ? Number(quoteData.socketVolume) :
+            (quoteData.volume !== undefined ? Number(quoteData.volume) :
+                (quoteData.v !== undefined ? Number(quoteData.v) :
+                    (quoteData.vol !== undefined ? Number(quoteData.vol) : existing.volume)))
 
         // Merge new data with existing
         const updated = {
