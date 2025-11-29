@@ -128,8 +128,8 @@ async function getAllmargin() {
 }
 
 async function loadLimits() {
-    // Initial load - use getMLimits which returns cached data if already loaded once
-    const data = await getMLimits(true)
+    // Initial load - force refresh to get latest funds data
+    const data = await forceRefreshMLimits(true)
     if (data && data.stat === 'Ok') {
         limits.value = data
     } else if (data !== 500 && data && data.emsg) {

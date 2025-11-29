@@ -435,13 +435,9 @@ const imageicon = ref(null)
 const stockreturns = ref([])
 const stkltp = ref(0)
 const lwchartis = ref(false)
-// Simple token→price cache in localStorage to avoid showing zeros on first paint
-const getPriceCache = () => {
-    try { return JSON.parse(localStorage.getItem('price_cache') || '{}') } catch { return {} }
-}
-const setPriceCache = (cache) => {
-    try { localStorage.setItem('price_cache', JSON.stringify(cache)) } catch { }
-}
+// REMOVED: Price cache functions
+// Cache was causing stale single-digit ch/chp values
+// We now calculate fresh ch/chp from ltp and close on every update
 
 // Helpers
 const computeReturnPercent = (baseValue) => {
@@ -490,21 +486,8 @@ const setSingleData = async (token, exch, tsym) => {
     // Initialize UI values immediately from existing quote to avoid zeros until WS arrives
     initializeOverviewFromQuote(menudata.value[0])
 
-    // If still zero, hydrate from cache
-    const cache = getPriceCache()
-    if (menudata.value && menudata.value[0] && token) {
-        const c = cache[token]
-        if (c) {
-            const apply = (k) => {
-                if (!menudata.value[0][k] || Number(menudata.value[0][k]) === 0) menudata.value[0][k] = c[k]
-            }
-                ;['ltp', 'ch', 'chp', 'high_price', 'low_price', 'open_price', 'close_price'].forEach(apply)
-            const setText = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined) el.innerHTML = val }
-            setText(`ssdove${token}ltp`, menudata.value[0].ltp)
-            setText(`ssdove${token}ch`, menudata.value[0].ch)
-            setText(`ssdove${token}chp`, menudata.value[0].chp)
-        }
-    }
+    // REMOVED: Cache hydration with stale single-digit ch/chp values
+    // We now calculate fresh ch/chp from ltp and close, no need for cache
 }
 
 const getReturns = (token) => {

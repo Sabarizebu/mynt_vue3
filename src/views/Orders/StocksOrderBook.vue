@@ -957,14 +957,8 @@ const menulist = {
 }
 
 // Lifecycle Hooks
-onMounted(() => {
-    let res = sessionStorage.getItem("c3RhdHVz");
-    if (res == "dmFsaWR1c2Vy") {
-        orderStore.fetchOrders();
-    } else {
-        router.push("/");
-    }
-})
+// REMOVED: Duplicate onMounted that was causing double API calls
+// Auth check and fetchOrders moved to the main onMounted hook below
 
 // Note: WebSocket updates are now handled by the store via webSocketEventBus and webSocketstream
 onBeforeUnmount(() => {
@@ -1825,7 +1819,15 @@ onMounted(() => {
         currentSort.value = { column: 'norentm', desc: true }
     }
 
-    getOrderbook()
+    // CRITICAL FIX: Auth check before fetching orders (moved from duplicate onMounted)
+    // This prevents duplicate API calls - previously had two onMounted hooks both calling fetchOrders
+    let res = sessionStorage.getItem("c3RhdHVz");
+    if (res == "dmFsaWR1c2Vy") {
+        getOrderbook()
+    } else {
+        router.push("/");
+        return; // Don't set up event listeners if redirecting
+    }
 
     // Event listeners
     window.addEventListener('tempdata-update', onTempUpdate)

@@ -2117,6 +2117,38 @@ async function handleMenuDialogEvent(event) {
                     price.value = Number(q?.lp || 0)
                 }
 
+                // CRITICAL FIX: For modify/re-order/exit, calculate quantity here (no duplicate API call)
+                // Previously this was done in a separate GetQuotes call at line 2200
+                if (item && (type === 'mod-order' || type === 're-order' || type === 'exit-order')) {
+                    // For exit-order, item is a position (has netqty). For mod/re-order, item is an order (has qty)
+                    const rawItemQty = type === 'exit-order'
+                        ? Math.abs(Number(item.netqty) || 0)
+                        : Math.abs(Number(item.qty) || 0)
+                    const lotSize = (exch === 'MCX') ? Number(q?.ls || 1) : 1
+                    const displayQty = rawItemQty > 0 ? Number(rawItemQty / lotSize) : 1
+                    quantity.value = displayQty || 1
+
+                    if (priceType.value !== 'MKT' && priceType.value !== 'SL-MKT' && !price.value) {
+                        price.value = Number(item.prc || q?.lp || 0)
+                    }
+                }
+
+                // CRITICAL FIX: For GTT modify, calculate GTT quantities here (no duplicate API calls)
+                // Previously this was done in separate GetQuotes calls at lines 2266 and 2284
+                if (item && type === 'mod-GTT') {
+                    const lotSize = Number(q?.ls || 1)
+
+                    // Update GTT main quantity
+                    if (item.res?.place_order_params) {
+                        gttQty.value = Number(item.res.place_order_params.qty) / lotSize || 1
+                    }
+
+                    // Update GTT OCO quantity (only for sell orders)
+                    if (item.res?.place_order_params_leg2 && buyOrSellIsSell.value) {
+                        ocoQty.value = Number(item.res.place_order_params_leg2.qty) / lotSize || 1
+                    }
+                }
+
                 // Fetch security data if needed (non-blocking)
                 if (q && q.instname !== 'UNDIND' && q.instname !== 'COM') {
                     getSecuritydata(`${exch}|${token}`).then(s => {
@@ -2133,6 +2165,28 @@ async function handleMenuDialogEvent(event) {
                     })
                 }
 
+                // CRITICAL FIX: Subscribe to WebSocket here (no duplicate API call)
+                // Previously this was done in a separate GetQuotes call at line 2365
+                if (q && q.token && q.exch) {
+                    try {
+                        const wsEvent = new CustomEvent('web-scoketOn', {
+                            detail: {
+                                flow: 'sub',
+                                data: [{
+                                    token: q.token,
+                                    exch: q.exch,
+                                    tsym: q.tsym
+                                }],
+                                is: 'order-window',
+                                page: 'order-window'
+                            }
+                        })
+                        window.dispatchEvent(wsEvent)
+                    } catch (e) {
+                        // console.error('[StockOrderWindow] Error subscribing to websocket:', e)
+                    }
+                }
+
                 // Compute margin after quote data is loaded
                 debouncedComputeMarginAndBrokerage(true)
             }
@@ -2142,8 +2196,16 @@ async function handleMenuDialogEvent(event) {
         // Note: This will be updated when quote data loads, but set defaults now
         if (item && (type === 'mod-order' || type === 're-order' || type === 'exit-order')) {
             priceType.value = item.prctyp || 'LMT'
-            // Store raw quantity from item (this is the actual order quantity in raw units)
-            const rawItemQty = Math.abs(Number(item.qty) || 0)
+
+            // For exit-order, item is a position (has netqty). For mod/re-order, item is an order (has qty)
+            let rawItemQty
+            if (type === 'exit-order') {
+                // Position quantity - use netqty
+                rawItemQty = Math.abs(Number(item.netqty) || 0)
+            } else {
+                // Order quantity - use qty
+                rawItemQty = Math.abs(Number(item.qty) || 0)
+            }
 
             // Set initial quantity based on exchange and item lot size
             // Old app logic: divide by lot size for MCX, divide by 1 for others
@@ -2153,15 +2215,54 @@ async function handleMenuDialogEvent(event) {
             const displayQty = rawItemQty > 0 ? Number(rawItemQty / initialLotSize) : 1
             quantity.value = displayQty || 1
 
-            price.value = (priceType.value === 'MKT' || priceType.value === 'SL-MKT') ? 0 : Number(item.prc || 0)
-            triggerPrice.value = (priceType.value === 'SL-LMT' || priceType.value === 'SL-MKT') ? Number(item.trgprc || 0) : 0
-            buyOrSellIsSell.value = (item.trantype || '').toUpperCase() === 'S'
+            // For exit-order, positions don't have prc/trgprc - will be set from quote LTP
+            // For mod/re-order, use the order's price and trigger price
+            if (type === 'exit-order') {
+                price.value = 0 // Will be set from quote LTP
+                triggerPrice.value = 0
+            } else {
+                price.value = (priceType.value === 'MKT' || priceType.value === 'SL-MKT') ? 0 : Number(item.prc || 0)
+                triggerPrice.value = (priceType.value === 'SL-LMT' || priceType.value === 'SL-MKT') ? Number(item.trgprc || 0) : 0
+            }
+
+            // For modify/re-order, use item.trantype. For exit-order, use the trantype parameter (already set at line 2058)
+            if (type === 'mod-order' || type === 're-order') {
+                buyOrSellIsSell.value = (item.trantype || '').toUpperCase() === 'S'
+            }
+            // For exit-order, buyOrSellIsSell is already correctly set from trantype parameter (opposite of position)
 
             // Set product type (delivery/intraday) from item for modify and re-order
             if (type === 'mod-order' || type === 're-order') {
                 // Use prd field if available, otherwise map from s_prdt_ali
                 if (item.prd) {
-                    investType.value = item.prd
+                    // Check if it's a Cover or Bracket order based on product type
+                    if (item.prd === 'H') {
+                        // Cover order
+                        orderType.value = 1
+                        // For Cover orders, check if there's an underlying product type
+                        // Otherwise default to Intraday
+                        investType.value = 'I'
+                        // Set stop loss from blprc field
+                        if (item.blprc) {
+                            stopLossPrice.value = Number(item.blprc)
+                        }
+                    } else if (item.prd === 'B') {
+                        // Bracket order
+                        orderType.value = 2
+                        investType.value = 'I'
+                        // Set stop loss from blprc field
+                        if (item.blprc) {
+                            stopLossPrice.value = Number(item.blprc)
+                        }
+                        // Set target price if available
+                        if (item.bpprc) {
+                            targetPrice.value = Number(item.bpprc)
+                        }
+                    } else {
+                        // Regular order - set investType from prd
+                        orderType.value = 0
+                        investType.value = item.prd
+                    }
                 } else if (item.s_prdt_ali) {
                     const productMap = {
                         'CNC': 'C',
@@ -2171,6 +2272,7 @@ async function handleMenuDialogEvent(event) {
                         'I': 'I',
                         'M': 'M'
                     }
+                    orderType.value = 0
                     investType.value = productMap[item.s_prdt_ali.toUpperCase()] || investType.value
                 }
                 // Set AMO value from item
@@ -2194,41 +2296,9 @@ async function handleMenuDialogEvent(event) {
             //     }
             // })
 
-            // Update quantity with lot size when quote loads
-            // Match old app logic: divide by lot size for MCX, divide by 1 for others
-            Promise.all([
-                getQuotesdata(`${exch}|${token}`).catch(() => null)
-            ]).then(([q]) => {
-                if (q && item) {
-                    // Old app logic: Number(Math.abs(item.qty) / Number(exch == "MCX" ? this.menudata[1].ls : 1))
-                    // item.qty is in raw units, divide by lot size only for MCX, otherwise divide by 1
-                    const lotSize = (exch === 'MCX') ? Number(q?.ls || 1) : 1
-                    const displayQty = rawItemQty > 0 ? Number(rawItemQty / lotSize) : 1
-                    quantity.value = displayQty || 1
-
-                    // console.log('[StockOrderWindow] Updated quantity after quote load:', {
-                    // rawItemQty,
-                    //     exch,
-                    //     lotSize,
-                    //     displayQty: quantity.value,
-                    //     quoteData: q
-                    // })
-
-                    if (priceType.value !== 'MKT' && priceType.value !== 'SL-MKT' && !price.value) {
-                        price.value = Number(item.prc || q?.lp || 0)
-                    }
-                } else {
-                    // If quote fails to load, use old app logic: divide by 1 for non-MCX, or assume lot size = 1
-                    const lotSize = (exch === 'MCX') ? 1 : 1 // Default to 1 if quote not available
-                    const displayQty = rawItemQty > 0 ? Number(rawItemQty / lotSize) : 1
-                    quantity.value = displayQty || 1
-                    // console.warn('[StockOrderWindow] Quote data not available, using default lot size calculation:', {
-                    //     rawItemQty,
-                    //     exch,
-                    //     displayQty: quantity.value
-                    // })
-                }
-            })
+            // REMOVED: Duplicate GetQuotes call
+            // Quantity calculation now happens in the first GetQuotes call above (line 2122-2131)
+            // This prevents duplicate API calls when opening modify/re-order/exit dialogs
         }
 
         // GTT modify prefill (like old app line 1299-1336)
@@ -2276,17 +2346,13 @@ async function handleMenuDialogEvent(event) {
                 gttValue.value = Number(item.res?.oivariable?.[0]?.d || item.value || 0)
                 priceType.value = item.res.place_order_params.prctyp || 'LMT'
                 investType.value = item.res.place_order_params.prd || investType.value
-                // Set default qty, will be updated when quote loads
+                // Set default qty, will be updated when quote loads (in first GetQuotes callback)
                 gttQty.value = Number(item.res.place_order_params.qty) || 1
                 gttPrice.value = (item.res.place_order_params.prctyp === 'MKT' || item.res.place_order_params.prctyp === 'SL-MKT') ? 0 : Number(item.res.place_order_params.prc || 0)
                 gttTriggerPrice.value = Number(item.res.place_order_params.trgprc || 0)
 
-                // Update with lot size when quote loads
-                getQuotesdata(`${exch}|${token}`).then(q => {
-                    if (q && item.res?.place_order_params) {
-                        gttQty.value = Number(item.res.place_order_params.qty) / Number(q?.ls || 1) || 1
-                    }
-                }).catch(() => { })
+                // REMOVED: Duplicate GetQuotes call
+                // Quantity calculation now happens in the first GetQuotes call above (line 2139-2141)
             }
 
             // Only load OCO data if it's a sell order (buy orders don't have OCO)
@@ -2294,17 +2360,13 @@ async function handleMenuDialogEvent(event) {
                 gttOCOPanel.value = true
                 ocoValue.value = Number(item.res?.oivariable?.[1]?.d || 0)
                 ocoPriceType.value = item.res.place_order_params_leg2.prctyp || 'LMT'
-                // Set default qty, will be updated when quote loads
+                // Set default qty, will be updated when quote loads (in first GetQuotes callback)
                 ocoQty.value = Number(item.res.place_order_params_leg2.qty) || 1
                 ocoPrice.value = (item.res.place_order_params_leg2.prctyp === 'MKT' || item.res.place_order_params_leg2.prctyp === 'SL-MKT') ? 0 : Number(item.res.place_order_params_leg2.prc || 0)
                 ocoTriggerPrice.value = Number(item.res.place_order_params_leg2.trgprc || 0)
 
-                // Update with lot size when quote loads
-                getQuotesdata(`${exch}|${token}`).then(q => {
-                    if (q && item.res?.place_order_params_leg2) {
-                        ocoQty.value = Number(item.res.place_order_params_leg2.qty) / Number(q?.ls || 1) || 1
-                    }
-                }).catch(() => { })
+                // REMOVED: Duplicate GetQuotes call
+                // Quantity calculation now happens in the first GetQuotes call above (line 2144-2146)
             }
 
             orderType.value = 3
@@ -2371,31 +2433,9 @@ async function handleMenuDialogEvent(event) {
             }
         }
 
-        // Update websocket subscription when quote loads with real data
-        Promise.all([
-            getQuotesdata(`${exch}|${token}`).catch(() => null)
-        ]).then(([q]) => {
-            if (q && q.token && q.exch) {
-                // Re-subscribe with real quote data for better accuracy
-                try {
-                    const wsEvent = new CustomEvent('web-scoketOn', {
-                        detail: {
-                            flow: 'sub',
-                            data: [{
-                                token: q.token,
-                                exch: q.exch,
-                                tsym: q.tsym
-                            }],
-                            is: 'order-window',
-                            page: 'order-window'
-                        }
-                    })
-                    window.dispatchEvent(wsEvent)
-                } catch (e) {
-                    // console.error('[StockOrderWindow] Error re-subscribing to websocket:', e)
-                }
-            }
-        })
+        // REMOVED: Duplicate GetQuotes call for WebSocket subscription
+        // WebSocket subscription now happens in the first GetQuotes call above (line 2165-2185)
+        // This prevents duplicate API calls when opening the order window
 
         // Reset last price tracking when dialog opens
         lastPriceForMargin = null
@@ -2622,17 +2662,28 @@ function calculateSliceQuantities() {
     // Calculate total quantity in lot size units (like old code)
     const totalQty = Number(quantity.value || 0) * (isMCX ? lotSize : 1)
 
-    if (freezeQty > 0 && totalQty > freezeQty) {
+    // For non-MCX exchanges, ensure freeze quantity is a multiple of lot size
+    // Round down to nearest lot size multiple to avoid validation errors
+    let adjustedFreezeQty = freezeQty
+    if (!isMCX && lotSize > 1 && freezeQty > 0) {
+        const freezeInLots = Math.floor(freezeQty / lotSize)
+        adjustedFreezeQty = freezeInLots * lotSize
+        if (adjustedFreezeQty !== freezeQty) {
+            console.log(`Freeze qty adjusted from ${freezeQty} to ${adjustedFreezeQty} (${freezeInLots} lots x ${lotSize})`)
+        }
+    }
+
+    if (adjustedFreezeQty > 0 && totalQty > adjustedFreezeQty) {
         // Calculate number of slices using Math.trunc (like old code)
-        const numSlices = Math.trunc(totalQty / freezeQty)
-        const remainder = totalQty - (freezeQty * numSlices)
+        const numSlices = Math.trunc(totalQty / adjustedFreezeQty)
+        const remainder = totalQty - (adjustedFreezeQty * numSlices)
 
         // Ensure numSlices is at least 1
         if (numSlices > 0) {
             // Create array with all slice quantities (like old code)
             sliceFzqty.value = []
             for (let i = 0; i < numSlices; i++) {
-                sliceFzqty.value.push(freezeQty)
+                sliceFzqty.value.push(adjustedFreezeQty)
             }
             if (remainder > 0) {
                 sliceFzqty.value.push(remainder)
@@ -2704,9 +2755,10 @@ async function placeSliceOrder() {
             }
 
             if (sliceFzqty.value[i] > 0) {
-                // Use actual quantity from sliceFzqty (already in lot size units)
-                // Convert to display units for quantity.value (like old code uses fqty directly)
-                const sliceQty = isMCX ? sliceFzqty.value[i] : sliceFzqty.value[i] / lotSize
+                // sliceFzqty contains quantities in shares for both MCX and NFO
+                // For MCX: convert shares to lots by dividing by lotSize (quantity.value is in lots)
+                // For NFO: keep as shares (quantity.value is in shares)
+                const sliceQty = isMCX ? sliceFzqty.value[i] / lotSize : sliceFzqty.value[i]
                 quantity.value = sliceQty
 
                 // Place order for this slice (suppress individual success messages with loop=true)
@@ -2717,9 +2769,10 @@ async function placeSliceOrder() {
                     // Place order with actual quantity (like old code)
                     await placeOrder(true, sliceFzqty.value[i])
                     successCount++
+                    console.log(`Slice ${i + 1} placed successfully`)
                 } catch (e) {
                     failCount++
-                    // console.error(`Slice ${i + 1} failed:`, e)
+                    console.error(`Slice ${i + 1} failed:`, e.message || e)
                 }
 
                 // Small delay between orders (like old code uses 0ms timeout)
@@ -3265,6 +3318,10 @@ async function placeOrder(loop, fqty = null) {
     // Validate order before placing
     const err = validateOrder()
     if (err) {
+        // For loop orders (slice orders), throw error so caller can track failures
+        if (loop) {
+            throw new Error(err)
+        }
         appStore.showSnackbar(2, err)
         return
     }
@@ -3423,7 +3480,11 @@ async function placeOrder(loop, fqty = null) {
 
         let typeArg = 'place'
         if (orderContextType.value === 'mod-order') typeArg = 'mod'
-        if (orderContextType.value === 'exit-order') typeArg = 'can-ex'
+        // For exit-order: use 'can-ex' only if it's an existing order (has norenordno)
+        // Otherwise it's a position exit, which is a new 'place' order
+        if (orderContextType.value === 'exit-order') {
+            typeArg = existingOrderItem.value?.norenordno ? 'can-ex' : 'place'
+        }
         if (orderContextType.value === 're-order') typeArg = 're'
         if (typeArg === 'mod' || typeArg === 'can-ex') {
             const nor = existingOrderItem.value?.norenordno
@@ -3432,7 +3493,13 @@ async function placeOrder(loop, fqty = null) {
 
         const res = await getPlaceOrder(item, typeArg)
         if (res?.stat !== 'Ok') {
-            appStore.showSnackbar(2, res?.emsg || 'Order failed')
+            const errorMsg = res?.emsg || 'Order failed'
+            // For loop orders (slice orders), throw error so caller can track failures
+            if (loop) {
+                throw new Error(errorMsg)
+            }
+            appStore.showSnackbar(2, errorMsg)
+            return
         } else {
             // Close dialog only if sticky is OFF (like old app: if (loop != true && !this.ordsrcpop))
             if (!loop && !isStickyDialog.value) {

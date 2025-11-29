@@ -255,12 +255,10 @@
                                 <span class="font-weight-medium fs-12">{{ `T1 ${item.btstqty}` }}</span>
                             </v-chip>
                             <v-chip size="small"
-                                :color="item.netqty > 0 ? 'secgreen' : item.netqty < 0 ? 'secred' : item.way != 'open' ? 'mainbg' : 'secbg'"
-                                :class="item.netqty > 0 ? 'maingreen--text' : item.netqty < 0 ? 'mainred--text' : 'subtext--text'"
-                                :style="`border: 1px solid ${item.netqty > 0 ? '#C1E7BA' : item.netqty < 0 ? '#FFCDCD' : '#DDD'}; border-radius: 5px; padding: 10px 8px !important;`"
+                                :style="`background-color: ${item.netqty > 0 ? '#E8F5E9' : item.netqty < 0 ? '#FFEBEE' : 'transparent'} !important; color: ${item.netqty > 0 ? '#1b8f3a' : item.netqty < 0 ? '#d32f2f' : '#666'} !important; border: 1px solid ${item.netqty > 0 ? '#C1E7BA' : item.netqty < 0 ? '#FFCDCD' : '#DDD'}; border-radius: 5px; padding: 10px 8px !important;`"
                                 class="netqty-chip">
                                 <span class="font-weight-medium fs-12"
-                                    :class="item.netqty > 0 ? 'maingreen--text' : item.netqty < 0 ? 'mainred--text' : 'subtext--text'">{{
+                                    :style="`color: ${item.netqty > 0 ? '#1b8f3a' : item.netqty < 0 ? '#d32f2f' : '#666'} !important;`">{{
                                         item && item.netqty >
                                             0 ?
                                             `+${item.netqty / (item.exch == "MCX" ? item.ls : 1)}` : item

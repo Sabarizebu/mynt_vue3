@@ -1063,12 +1063,31 @@ const marketDataStore = useMarketDataStore()
 
 // Helper to get live value from store or fallback to item
 const getLiveValue = (item, field) => {
-    if (!item) return '--'
+    if (!item) return '0.00'
 
-    // CRITICAL FIX: For ch and chp, ALWAYS use item value (calculated fresh)
-    // Never use marketDataStore for ch/chp as it may have stale values
+    // CRITICAL FIX: For ch and chp, calculate LIVE from current ltp and close price
+    // This ensures change values update immediately when ltp updates via WebSocket
     if (field === 'ch' || field === 'chp') {
-        return item[field] !== undefined && item[field] !== null ? item[field] : '--'
+        // Get current ltp from store (live data)
+        const ltp = marketDataStore.getField(item.exch, item.token, 'ltp')
+        const ltpVal = ltp !== undefined && ltp !== null ? Number(ltp) :
+                       (item.ltp !== undefined && item.ltp !== null ? Number(item.ltp) : null)
+
+        // Get close price (from item - this is static for the day)
+        const close = item.c !== undefined && item.c !== null ? Number(item.c) :
+                      item.close !== undefined && item.close !== null ? Number(item.close) : null
+
+        // Calculate ch and chp live
+        if (ltpVal !== null && close !== null && close > 0) {
+            const ch = ltpVal - close
+            if (field === 'ch') {
+                return ch.toFixed(2)
+            } else { // chp
+                const chp = (ch / close) * 100
+                return chp.toFixed(2)
+            }
+        }
+        return '0.00'
     }
 
     // For other fields (ltp, etc.), try store first
@@ -1076,7 +1095,7 @@ const getLiveValue = (item, field) => {
     if (val !== undefined && val !== null) return val
 
     // Fallback to item's own property
-    return item[field] !== undefined && item[field] !== null ? item[field] : '--'
+    return item[field] !== undefined && item[field] !== null ? item[field] : '0.00'
 }
 
 // Reactive data
@@ -1724,7 +1743,7 @@ const setPDwatchlist = async () => {
                             item.ch = ch.toFixed(2)
                             item.chp = chp.toFixed(2)
                         } else {
-                            // No valid data to calculate - set to null (will show '--')
+                            // No valid data to calculate - set to null (will show '0.00')
                             item.ch = null
                             item.chp = null
                         }

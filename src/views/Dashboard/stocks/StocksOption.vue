@@ -275,24 +275,19 @@
                                         </th>
                                         <!-- Call Side: VOL -->
                                         <th colspan="2" class="text-center opdatas" :style="optionsStore.opdatabgs">
-                                            <span class="optiondatasty" :id="`upcall${script.token}vol`"
+                                            <span class="optiondatasty"
                                                 v-html="script.vol ? script.vol : '0.00'"></span>
                                         </th>
                                         <!-- Call Side: OI with Progress Bar -->
                                         <th colspan="2" class="text-center opdatas opdatacalluphov"
                                             :style="optionsStore.opdatabgs">
-                                            <div class="callprogress" :style="`--my-width-var:${script.pro || 0}%;`"
-                                                :id="`upcall${script.token}pro`">
+                                            <div class="callprogress" :style="`--my-width-var:${script.pro || 0}%;`">
                                                 <span class="optiondatasty optionbartext">
-                                                    <span :id="`upcall${script.token}oi`">{{ script.oi ? script.oi :
-                                                        '0.00'
-                                                    }}</span>
-                                                    <span :id="`upcall${script.token}oiclr`"
+                                                    <span>{{ script.oi ? script.oi : '0.00' }}</span>
+                                                    <span
                                                         :style="`color:${script.oich > 0 ? '#43A833' : script.oich < 0 ? '#F23645' : 'none'};`"
                                                         class="optionchsty">
-                                                        <span :id="`upcall${script.token}oich`">({{ script.oich ?
-                                                            script.oich : '0.00'
-                                                        }})</span>
+                                                        <span>({{ script.oich ? script.oich : '0.00' }})</span>
                                                     </span>
                                                 </span>
                                             </div>
@@ -301,24 +296,21 @@
                                         <th v-if="optionsStore.bitcheckbox" colspan="1" class="text-center pa-0"
                                             :style="optionsStore.opdatabgs">
                                             <div width="100%" height="32px" class="optiondatasty"
-                                                :id="`upcall${script.token}bid`"
                                                 v-html="script.bid ? script.bid : '0.00'"></div>
                                         </th>
                                         <!-- Call Side: ASK (optional) -->
                                         <th v-if="optionsStore.askcheckbox" colspan="1" class="text-center pa-0"
                                             :style="optionsStore.opdatabgs">
                                             <div width="100%" height="32px" class="optiondatasty"
-                                                :id="`upcall${script.token}ask`"
                                                 v-html="script.ask ? script.ask : '0.00'"></div>
                                         </th>
                                         <!-- Call Side: CH -->
                                         <th colspan="2" class="text-center opdatas" :style="optionsStore.opdatabgs">
                                             <span
                                                 :style="`color:${script.ch > 0 ? '#43A833' : script.ch < 0 ? '#F23645' : ''};`"
-                                                :id="`upcall${script.token}chpclr`" class="optiondatasty">
-                                                <span :id="`upcall${script.token}ch`">{{ script.ch ? script.ch : '0.00'
-                                                }}</span>
-                                                <span :id="`upcall${script.token}chp`" class="optionchsty">
+                                                class="optiondatasty">
+                                                <span>{{ script.ch ? script.ch : '0.00' }}</span>
+                                                <span class="optionchsty">
                                                     ({{ script.chp ? script.chp : '0.00' }}%)
                                                 </span>
                                             </span>
@@ -326,7 +318,7 @@
                                         <!-- Call Side: LTP -->
                                         <th colspan="2" class="text-center opdatacalluphov opdatas"
                                             :style="optionsStore.opdatabgs">
-                                            <span class="optiondatasty" :id="`upcall${script.token}ltp`"
+                                            <span class="optiondatasty"
                                                 v-html="script.ltp ? script.ltp : '0.00'"> </span>
                                             <!-- Hover Action Buttons (Left Side) -->
                                     <tr v-if="script.token" class="opdatacallupbtn lfttrbtn"
@@ -376,8 +368,7 @@
                                     <th colspan="4" class="text-center opstrprcborder opdatacalluphov pos-rlt"
                                         :style="optionsStore.opdatabgs">
                                         <div class="lftbarstatus"
-                                            :style="`--my-lftbrdclr-var:${script.bar || 'rgba(0, 0, 0, 0.12)'};`"
-                                            :id="`upcall${script.token}bar`"></div>
+                                            :style="`--my-lftbrdclr-var:${script.bar || 'rgba(0, 0, 0, 0.12)'};`"></div>
                                         <!-- Position Badge (Call Side) -->
                                         <v-tooltip v-if="script.p" location="left" color="black">
                                             <template v-slot:activator="{ props }">
@@ -416,8 +407,7 @@
                                             </span>
                                         </v-tooltip>
                                         <div class="rgtbarstatus"
-                                            :style="`--my-rgtbrdclr-var:${optionsStore.upputSO[k]?.bar || 'rgba(0, 0, 0, 0.12)'};`"
-                                            :id="`upput${optionsStore.upputSO[k]?.token || ''}bar`"></div>
+                                            :style="`--my-rgtbrdclr-var:${optionsStore.upputSO[k]?.bar || 'rgba(0, 0, 0, 0.12)'};`"></div>
                                     </th>
                                     <!-- Put Side: IV (optional) -->
                                     <th v-if="optionsStore.ivcheckbox" colspan="1" class="text-center pa-0">
@@ -428,7 +418,6 @@
                                     <!-- Put Side: LTP -->
                                     <th colspan="2" class="text-center opdatacalluphov opdatas">
                                         <span class="optiondatasty"
-                                            :id="`upput${optionsStore.upputSO[k]?.token || ''}ltp`"
                                             v-html="optionsStore.upputSO[k]?.ltp ? optionsStore.upputSO[k].ltp : '0.00'">
                                         </span>
                                         <!-- Hover Action Buttons (Right Side - Upper) -->
@@ -472,13 +461,11 @@
                                     <th colspan="2" class="text-center opdatas">
                                         <span
                                             :style="`color:${optionsStore.upputSO[k]?.ch > 0 ? '#43A833' : optionsStore.upputSO[k]?.ch < 0 ? '#F23645' : ''};`"
-                                            :id="`upput${optionsStore.upputSO[k]?.token || ''}chpclr`"
                                             class="optiondatasty">
-                                            <span :id="`upput${optionsStore.upputSO[k]?.token || ''}ch`">
+                                            <span>
                                                 {{ optionsStore.upputSO[k]?.ch ? optionsStore.upputSO[k].ch : '0.00' }}
                                             </span>
-                                            <span :id="`upput${optionsStore.upputSO[k]?.token || ''}chp`"
-                                                class="optionchsty">
+                                            <span class="optionchsty">
                                                 ({{ optionsStore.upputSO[k]?.chp ? optionsStore.upputSO[k].chp : '0.00'
                                                 }}%)
                                             </span>
@@ -487,29 +474,26 @@
                                     <!-- Put Side: BID (optional) -->
                                     <th v-if="optionsStore.bitcheckbox" colspan="1" class="text-center opdatas">
                                         <span class="optiondatasty"
-                                            :id="`upput${optionsStore.upputSO[k]?.token || ''}bid`"
                                             v-html="optionsStore.upputSO[k]?.bid ? optionsStore.upputSO[k].bid : '0.00'"></span>
                                     </th>
                                     <!-- Put Side: ASK (optional) -->
                                     <th v-if="optionsStore.askcheckbox" colspan="1" class="text-center opdatas">
                                         <span class="optiondatasty"
-                                            :id="`upput${optionsStore.upputSO[k]?.token || ''}ask`"
                                             v-html="optionsStore.upputSO[k]?.ask ? optionsStore.upputSO[k].ask : '0.00'"></span>
                                     </th>
                                     <!-- Put Side: OI with Progress Bar -->
                                     <th colspan="2" class="text-center opdatas opdatacalluphov">
                                         <div class="putprogress"
-                                            :style="`--my-width-var:${optionsStore.upputSO[k]?.pro || 0}%;`"
-                                            :id="`upput${optionsStore.upputSO[k]?.token || ''}pro`">
+                                            :style="`--my-width-var:${optionsStore.upputSO[k]?.pro || 0}%;`">
                                             <span class="optiondatasty optionbartext">
-                                                <span :id="`upput${optionsStore.upputSO[k]?.token || ''}oi`">
+                                                <span>
                                                     {{ optionsStore.upputSO[k]?.oi ? optionsStore.upputSO[k].oi : '0.00'
                                                     }}
                                                 </span>
-                                                <span :id="`upput${optionsStore.upputSO[k]?.token || ''}oiclr`"
+                                                <span
                                                     :style="`color:${optionsStore.upputSO[k]?.oich > 0 ? '#43A833' : optionsStore.upputSO[k]?.oich < 0 ? '#F23645' : 'none'};`"
                                                     class="optionchsty">
-                                                    <span :id="`upput${optionsStore.upputSO[k]?.token || ''}oich`">
+                                                    <span>
                                                         ({{ optionsStore.upputSO[k]?.oich ? optionsStore.upputSO[k].oich
                                                             : '0.00' }})
                                                     </span>
@@ -520,7 +504,6 @@
                                     <!-- Put Side: VOL -->
                                     <th colspan="2" class="text-center opdatas">
                                         <span class="optiondatasty"
-                                            :id="`upput${optionsStore.upputSO[k]?.token || ''}vol`"
                                             v-html="optionsStore.upputSO[k]?.vol ? optionsStore.upputSO[k].vol : '0.00'"></span>
                                     </th>
                                     <!-- Put Side: Greeks (optional) -->
@@ -591,24 +574,19 @@
                                         </th>
                                         <!-- Call Side: VOL -->
                                         <th colspan="2" class="text-center opdatas" :style="optionsStore.opdatabgs">
-                                            <span class="optiondatasty" :id="`dwncall${script.token}vol`"
+                                            <span class="optiondatasty"
                                                 v-html="script.vol ? script.vol : '0.00'"></span>
                                         </th>
                                         <!-- Call Side: OI with Progress Bar -->
                                         <th colspan="2" class="text-center opdatas opdatacalluphov"
                                             :style="optionsStore.opdatabgs">
-                                            <div class="callprogress" :style="`--my-width-var:${script.pro || 0}%;`"
-                                                :id="`dwncall${script.token}pro`">
+                                            <div class="callprogress" :style="`--my-width-var:${script.pro || 0}%;`">
                                                 <span class="optiondatasty optionbartext">
-                                                    <span :id="`dwncall${script.token}oi`">{{ script.oi ? script.oi :
-                                                        '0.00'
-                                                    }}</span>
-                                                    <span :id="`dwncall${script.token}oiclr`"
+                                                    <span>{{ script.oi ? script.oi : '0.00' }}</span>
+                                                    <span
                                                         :style="`color:${script.oich > 0 ? '#43A833' : script.oich < 0 ? '#F23645' : 'none'};`"
                                                         class="optionchsty">
-                                                        <span :id="`dwncall${script.token}oich`">({{ script.oich ?
-                                                            script.oich : '0.00'
-                                                        }})</span>
+                                                        <span>({{ script.oich ? script.oich : '0.00' }})</span>
                                                     </span>
                                                 </span>
                                             </div>
@@ -616,24 +594,22 @@
                                         <!-- Call Side: BID (optional) -->
                                         <th v-if="optionsStore.bitcheckbox" colspan="1" class="text-center opdatas"
                                             :style="optionsStore.opdatabgs">
-                                            <span class="optiondatasty" :id="`dwncall${script.token}bid`"
+                                            <span class="optiondatasty"
                                                 v-html="script.bid ? script.bid : '0.00'"></span>
                                         </th>
                                         <!-- Call Side: ASK (optional) -->
                                         <th v-if="optionsStore.askcheckbox" colspan="1" class="text-center opdatas"
                                             :style="optionsStore.opdatabgs">
-                                            <span class="optiondatasty" :id="`dwncall${script.token}ask`"
+                                            <span class="optiondatasty"
                                                 v-html="script.ask ? script.ask : '0.00'"></span>
                                         </th>
                                         <!-- Call Side: CH -->
                                         <th colspan="2" class="text-center opdatas" :style="optionsStore.opdatabgs">
                                             <span
                                                 :style="`color:${script.ch > 0 ? '#43A833' : script.ch < 0 ? '#F23645' : ''};`"
-                                                :id="`dwncall${script.token}chpclr`" class="optiondatasty">
-                                                <span :id="`dwncall${script.token}ch`">{{ script.ch ? script.ch :
-                                                    '0.00'
-                                                }}</span>
-                                                <span :id="`dwncall${script.token}chp`" class="optionchsty">
+                                                class="optiondatasty">
+                                                <span>{{ script.ch ? script.ch : '0.00' }}</span>
+                                                <span class="optionchsty">
                                                     ({{ script.chp ? script.chp : '0.00' }}%)
                                                 </span>
                                             </span>
@@ -641,7 +617,7 @@
                                         <!-- Call Side: LTP -->
                                         <th colspan="2" class="text-center opdatacalluphov opdatas"
                                             :style="optionsStore.opdatabgs">
-                                            <span class="optiondatasty" :id="`dwncall${script.token}ltp`"
+                                            <span class="optiondatasty"
                                                 v-html="Number(script.ltp) ? script.ltp : '0.00'"></span>
                                             <!-- Hover Action Buttons (Left Side) -->
                                     <tr v-if="script.token" class="opdatacallupbtn lfttrbtn"
@@ -691,8 +667,7 @@
                                     <th colspan="4" class="text-center opstrprcborder opdatacalluphov pos-rlt"
                                         :style="optionsStore.opdatabgs">
                                         <div class="lftbarstatus"
-                                            :style="`--my-lftbrdclr-var:${script.bar || 'rgba(0, 0, 0, 0.12)'};`"
-                                            :id="`dwncall${script.token}bar`"></div>
+                                            :style="`--my-lftbrdclr-var:${script.bar || 'rgba(0, 0, 0, 0.12)'};`"></div>
                                         <!-- Position Badge (Call Side) -->
                                         <v-tooltip v-if="script.p" location="left" color="black">
                                             <template v-slot:activator="{ props }">
@@ -731,8 +706,7 @@
                                             </span>
                                         </v-tooltip>
                                         <div class="rgtbarstatus"
-                                            :style="`--my-rgtbrdclr-var:${optionsStore.dwnputSO[k]?.bar || 'rgba(0, 0, 0, 0.12)'};`"
-                                            :id="`dwnput${optionsStore.dwnputSO[k]?.token || ''}bar`"></div>
+                                            :style="`--my-rgtbrdclr-var:${optionsStore.dwnputSO[k]?.bar || 'rgba(0, 0, 0, 0.12)'};`"></div>
                                     </th>
                                     <!-- Put Side: IV (optional) -->
                                     <th v-if="optionsStore.ivcheckbox" colspan="1" class="text-center pa-0">
@@ -743,7 +717,6 @@
                                     <!-- Put Side: LTP -->
                                     <th colspan="2" class="text-center opdatacalluphov opdatas">
                                         <span class="optiondatasty"
-                                            :id="`dwnput${optionsStore.dwnputSO[k]?.token || ''}ltp`"
                                             v-html="Number(optionsStore.dwnputSO[k]?.ltp) ? optionsStore.dwnputSO[k].ltp : '0.00'"></span>
                                         <!-- Hover Action Buttons (Right Side - Lower) -->
                                         <tr v-if="optionsStore.dwnputSO[k] && optionsStore.dwnputSO[k].token"
@@ -786,14 +759,12 @@
                                     <th colspan="2" class="text-center opdatas">
                                         <span
                                             :style="`color:${optionsStore.dwnputSO[k]?.ch > 0 ? '#43A833' : optionsStore.dwnputSO[k]?.ch < 0 ? '#F23645' : ''};`"
-                                            :id="`dwnput${optionsStore.dwnputSO[k]?.token || ''}chpclr`"
                                             class="optiondatasty">
-                                            <span :id="`dwnput${optionsStore.dwnputSO[k]?.token || ''}ch`">
+                                            <span>
                                                 {{ optionsStore.dwnputSO[k]?.ch ? optionsStore.dwnputSO[k].ch :
                                                     '0.00' }}
                                             </span>
-                                            <span :id="`dwnput${optionsStore.dwnputSO[k]?.token || ''}chp`"
-                                                class="optionchsty">
+                                            <span class="optionchsty">
                                                 ({{ optionsStore.dwnputSO[k]?.chp ? optionsStore.dwnputSO[k].chp :
                                                     '0.00'
                                                 }}%)
@@ -803,32 +774,29 @@
                                     <!-- Put Side: BID (optional) -->
                                     <th v-if="optionsStore.bitcheckbox" colspan="1" class="text-center pa-0">
                                         <div width="100%" height="32px" class="optiondatasty"
-                                            :id="`dwnput${optionsStore.dwnputSO[k]?.token || ''}bid`"
                                             v-html="optionsStore.dwnputSO[k]?.bid ? optionsStore.dwnputSO[k].bid : '0.00'">
                                         </div>
                                     </th>
                                     <!-- Put Side: ASK (optional) -->
                                     <th v-if="optionsStore.askcheckbox" colspan="1" class="text-center pa-0">
                                         <div width="100%" height="32px" class="optiondatasty"
-                                            :id="`dwnput${optionsStore.dwnputSO[k]?.token || ''}ask`"
                                             v-html="optionsStore.dwnputSO[k]?.ask ? optionsStore.dwnputSO[k].ask : '0.00'">
                                         </div>
                                     </th>
                                     <!-- Put Side: OI with Progress Bar -->
                                     <th colspan="2" class="text-center opdatas opdatacalluphov">
                                         <div class="putprogress"
-                                            :style="`--my-width-var:${optionsStore.dwnputSO[k]?.pro || 0}%;`"
-                                            :id="`dwnput${optionsStore.dwnputSO[k]?.token || ''}pro`">
+                                            :style="`--my-width-var:${optionsStore.dwnputSO[k]?.pro || 0}%;`">
                                             <span class="optiondatasty optionbartext">
-                                                <span :id="`dwnput${optionsStore.dwnputSO[k]?.token || ''}oi`">
+                                                <span>
                                                     {{ optionsStore.dwnputSO[k]?.oi ? optionsStore.dwnputSO[k].oi :
                                                         '0.00'
                                                     }}
                                                 </span>
-                                                <span :id="`dwnput${optionsStore.dwnputSO[k]?.token || ''}oiclr`"
+                                                <span
                                                     :style="`color:${optionsStore.dwnputSO[k]?.oich > 0 ? '#43A833' : optionsStore.dwnputSO[k]?.oich < 0 ? '#F23645' : 'none'};`"
                                                     class="optionchsty">
-                                                    <span :id="`dwnput${optionsStore.dwnputSO[k]?.token || ''}oich`">
+                                                    <span>
                                                         ({{ optionsStore.dwnputSO[k]?.oich ?
                                                             optionsStore.dwnputSO[k].oich
                                                             : '0.00' }})
@@ -840,7 +808,6 @@
                                     <!-- Put Side: VOL -->
                                     <th colspan="2" class="text-center opdatas">
                                         <span class="optiondatasty"
-                                            :id="`dwnput${optionsStore.dwnputSO[k]?.token || ''}vol`"
                                             v-html="optionsStore.dwnputSO[k]?.vol ? optionsStore.dwnputSO[k].vol : '0.00'"></span>
                                     </th>
                                     <!-- Put Side: Greeks (optional) -->
@@ -1155,7 +1122,9 @@ function mergeTick(token, patch) {
     const bid = num(patch.bid ?? patch.b)
     const oi = num(patch.oi)
     const poi = num(patch.poi ?? patch.prev_oi)
-    const vol = num(patch.vol ?? patch.volume ?? patch.socketVolume)
+    // CRITICAL FIX: Prioritize socketVolume for logged-in users (accumulated volume)
+    // For non-logged-in users, use vol or volume (incremental)
+    const vol = num(patch.socketVolume ?? patch.vol ?? patch.volume ?? patch.v)
     const ch = num(patch.ch)
     const chp = num(patch.chp)
 
@@ -1225,12 +1194,19 @@ async function setWaiting(tsym, exit) {
             optionsStore.coractloader = true
             optionsStore.coractdata = false
         } else {
+            // CRITICAL FIX: Clear loading state when option chain not available
             optionsStore.clearOption()
             optionsStore.optionStockSymbol = sym
+            optionsStore.coractloader = false
+            optionsStore.coractdata = false
         }
     } else if (opt && opt.opt_exp && opt.opt_exp.length === 0) {
+        // CRITICAL FIX: Clear loading state when no expiry dates available
         optionsStore.clearOption()
+        optionsStore.coractloader = false
+        optionsStore.coractdata = false
     } else {
+        // Data not ready yet, retry after 100ms
         setTimeout(() => {
             setWaiting(tsym, exit)
         }, 100)
@@ -1353,8 +1329,8 @@ async function optionChainDate() {
         // console.log('[Options] Current expiry filter:', optionsStore.lsexdfilter)
         // console.log('[Options] Available expiry dates:', optionsStore.lsexd)
 
-        // Match old code: Reset state first (like old code line 1187-1193)
-        // NOTE: Old code does NOT set coractloader = true here - it's already set in optionchainMet
+        // CRITICAL FIX: Reset state first to clear old data
+        // Loading state is already set by caller (optionchainMet or handleSSDEvent)
         optionsStore.greekCount = 0
         optionsStore.daydiff = ''
         optionsStore.chainStocksList = []
@@ -1524,6 +1500,13 @@ async function optionChainDate() {
                     item.bar = 'rgba(0, 0, 0, 0.12)'
                 }
             })
+
+            // CRITICAL FIX: Clear arrays again right before populating to prevent race condition duplicates
+            // This handles the case where multiple optionChainDate calls might overlap
+            optionsStore.upcallSO = []
+            optionsStore.dwncallSO = []
+            optionsStore.upputSO = []
+            optionsStore.dwnputSO = []
 
             // Separate calls and puts, above and below spot
             optionsStore.callsideopc = myArray.filter((item) => {
@@ -1714,13 +1697,13 @@ function setBaskorder(type) {
 // Event Handlers
 function handleSSDEvent(event) {
     const detail = event.detail
-    let type, token, exch, tsym
+    let token, exch, tsym
 
     // Handle both array and object formats
     if (Array.isArray(detail)) {
-        ;[type, token, exch, tsym] = detail
+        // Array format: [type, token, exch, tsym] - skip type
+        ;[, token, exch, tsym] = detail
     } else if (detail && typeof detail === 'object') {
-        type = detail.type
         token = detail.token
         exch = detail.exch
         tsym = detail.tsym
@@ -1728,11 +1711,18 @@ function handleSSDEvent(event) {
 
     if (token && exch && tsym) {
         optionsStore.optionStockSymbol = tsym
+        // CRITICAL FIX: Unsubscribe from old option chain before loading new symbol
         setWebsocket('unsub-D', optionsStore.chainStocksList, 'ssd')
+
+        // CRITICAL FIX: Reset state completely when switching symbols
+        // This ensures we start fresh even if previous load was stuck
         optionsStore.clearOption(true)
-        optionsStore.coractloader = true
+        optionsStore.coractloader = false  // Reset first
         optionsStore.coractdata = false
-        setWaiting(`${exch}:${tsym}`, 'exit')
+
+        // Now start loading new symbol
+        // setWaiting will set coractloader = true when ready
+        setWaiting(`${exch}:${tsym}`)
     }
 }
 
@@ -1832,12 +1822,11 @@ function optionChainDataParse(data) {
             option.icon = option.pmtm > 0 ? 'mdi-arrow-up-drop-circle' : option.pmtm < 0 ? 'mdi-arrow-down-drop-circle' : 'mdi-minus-circle'
         }
 
-        // Update reactive array
+        // REACTIVE VUE 3: Update reactive array
+        // Vue will automatically update the DOM through template bindings
+        // No need for manual DOM manipulation (getElementById, innerHTML, etc.)
         optionsStore.upcallSO[upci] = { ...optionsStore.upcallSO[upci], ...option }
         optionsStore.upcallSO = [...optionsStore.upcallSO]
-
-        // Update DOM elements
-        setOptionchainvalue('upcall', token, option)
     }
     // Process updates for upputSO (puts above spot)
     else if (uppi >= 0) {
@@ -1888,12 +1877,10 @@ function optionChainDataParse(data) {
             option.icon = option.pmtm > 0 ? 'mdi-arrow-up-drop-circle' : option.pmtm < 0 ? 'mdi-arrow-down-drop-circle' : 'mdi-minus-circle'
         }
 
-        // Update reactive array
+        // REACTIVE VUE 3: Update reactive array
+        // Vue will automatically update the DOM through template bindings
         optionsStore.upputSO[uppi] = { ...optionsStore.upputSO[uppi], ...option }
         optionsStore.upputSO = [...optionsStore.upputSO]
-
-        // Update DOM elements
-        setOptionchainvalue('upput', token, option)
     }
     // Process updates for dwncallSO (calls below spot)
     else if (dwnci >= 0) {
@@ -1944,12 +1931,10 @@ function optionChainDataParse(data) {
             option.icon = option.pmtm > 0 ? 'mdi-arrow-up-drop-circle' : option.pmtm < 0 ? 'mdi-arrow-down-drop-circle' : 'mdi-minus-circle'
         }
 
-        // Update reactive array
+        // REACTIVE VUE 3: Update reactive array
+        // Vue will automatically update the DOM through template bindings
         optionsStore.dwncallSO[dwnci] = { ...optionsStore.dwncallSO[dwnci], ...option }
         optionsStore.dwncallSO = [...optionsStore.dwncallSO]
-
-        // Update DOM elements
-        setOptionchainvalue('dwncall', token, option)
     }
     // Process updates for dwnputSO (puts below spot)
     else if (dwnpi >= 0) {
@@ -2000,12 +1985,10 @@ function optionChainDataParse(data) {
             option.icon = option.pmtm > 0 ? 'mdi-arrow-up-drop-circle' : option.pmtm < 0 ? 'mdi-arrow-down-drop-circle' : 'mdi-minus-circle'
         }
 
-        // Update reactive array
+        // REACTIVE VUE 3: Update reactive array
+        // Vue will automatically update the DOM through template bindings
         optionsStore.dwnputSO[dwnpi] = { ...optionsStore.dwnputSO[dwnpi], ...option }
         optionsStore.dwnputSO = [...optionsStore.dwnputSO]
-
-        // Update DOM elements
-        setOptionchainvalue('dwnput', token, option)
     }
 
     // Update max OI for progress bars
@@ -2053,93 +2036,6 @@ function optionChainDataParse(data) {
         if (uppi >= 0 && optionsStore.upputSO[uppi] && !('IV' in optionsStore.upputSO[uppi])) {
             getGreekValues('upputSO', optionsStore.upputSO, uppi)
         }
-    }
-}
-
-// Phase 4: Update DOM elements directly for performance
-function setOptionchainvalue(k, t, d) {
-    // k: prefix (upcall, upput, dwncall, dwnput)
-    // t: token
-    // d: data object
-    const token = String(t)
-
-    const tag = document.getElementById(`${k}${token}ltp`)
-    if (tag) {
-        // Update LTP
-        const ltpTag = document.getElementById(`${k}${token}ltp`)
-        if (ltpTag) {
-            ltpTag.innerHTML = d.ltp || '0.00'
-        }
-
-        // Update CH
-        const chTag = document.getElementById(`${k}${token}ch`)
-        if (chTag) {
-            chTag.innerHTML = d.ch || '0.00'
-        }
-
-        // Update CHP
-        const chpTag = document.getElementById(`${k}${token}chp`)
-        if (chpTag) {
-            chpTag.innerHTML = ` (${d.chp || '0.00'}%)`
-        }
-
-        // Update color for CH
-        const chpclrTag = document.getElementById(`${k}${token}chpclr`)
-        if (chpclrTag) {
-            const ch = parseFloat(d.ch) || 0
-            chpclrTag.className = ch > 0 ? 'optiondatasty maingreen--text' : ch < 0 ? 'optiondatasty mainred--text' : 'optiondatasty'
-            chpclrTag.style.color = ch > 0 ? '#43A833' : ch < 0 ? '#F23645' : ''
-        }
-
-        // Update OI
-        const oiTag = document.getElementById(`${k}${token}oi`)
-        if (oiTag) {
-            oiTag.innerHTML = d.oi || '0.00'
-        }
-
-        // Update OI Change
-        const oichTag = document.getElementById(`${k}${token}oich`)
-        if (oichTag) {
-            oichTag.innerHTML = ` (${d.oich || '0.00'})`
-        }
-
-        // Update color for OI Change
-        const oiclrTag = document.getElementById(`${k}${token}oiclr`)
-        if (oiclrTag) {
-            const oich = parseFloat(d.oich) || 0
-            oiclrTag.style.color = oich > 0 ? '#43A833' : oich < 0 ? '#F23645' : 'none'
-        }
-
-        // Update VOL
-        const volTag = document.getElementById(`${k}${token}vol`)
-        if (volTag) {
-            volTag.innerHTML = d.vol || '0.00'
-        }
-
-        // Update progress bar width
-        const proTag = document.getElementById(`${k}${token}pro`)
-        if (proTag && d.pro) {
-            proTag.style.setProperty('--my-width-var', `${d.pro}%`)
-        }
-
-        // Update bar color
-        const barTag = document.getElementById(`${k}${token}bar`)
-        if (barTag && d.bar) {
-            const prop = k === 'upput' || k === 'dwnput' ? '--my-rgtbrdclr-var' : '--my-lftbrdclr-var'
-            barTag.style.setProperty(prop, d.bar)
-        }
-    }
-
-    // Update BID
-    const bidTag = document.getElementById(`${k}${token}bid`)
-    if (bidTag) {
-        bidTag.innerHTML = d.bid || '0.00'
-    }
-
-    // Update ASK
-    const askTag = document.getElementById(`${k}${token}ask`)
-    if (askTag) {
-        askTag.innerHTML = d.ask || '0.00'
     }
 }
 
@@ -2485,6 +2381,13 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+    // CRITICAL FIX: Unsubscribe from WebSocket before unmounting
+    // This prevents memory leaks and unnecessary WebSocket updates
+    if (optionsStore.chainStocksList && optionsStore.chainStocksList.length > 0) {
+        setWebsocket('unsub-D', optionsStore.chainStocksList, 'ssd')
+    }
+
+    // Remove event listeners
     window.removeEventListener('ssd-event', handleSSDEvent)
     window.removeEventListener('web-scoketConn', handleWebSocketUpdate)
 })
@@ -2586,12 +2489,12 @@ onUnmounted(() => {
 
 /* Phase 2: Progress bars and position badges */
 .lftbarstatus {
+    left: 0;
     width: 4px;
     height: 33px;
     position: absolute;
     background-color: var(--my-lftbrdclr-var);
-    margin-top: -5px;
-    margin-left: -16px;
+    margin-top: -27px;
     z-index: 1;
 }
 
