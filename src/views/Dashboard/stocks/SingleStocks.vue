@@ -400,8 +400,7 @@
                             <div class="pt-6 pb-4 pl-md-6 pl-4">
                                 <v-toolbar flat density="compact" class="tool-sty mb-5 crd-trn">
                                     <v-list-item class="px-0">
-                                        <v-list-item-title class="font-weight-bold fs-20 mb-1">Price
-                                            Comparison</v-list-item-title>
+                                        <v-list-item-title class="font-weight-bold fs-20 mb-1">Price Comparison</v-list-item-title>
                                         <v-list-item-subtitle class="subtext--text font-weight-medium fs-12">Compare
                                             <span class="primary--text">{{ menudata[0] ? menudata[0].symname : ""
                                                 }}</span>
@@ -716,7 +715,7 @@ const Fundamentalsfield = ref({
     'Sector PE': '',
     'EVEBITDA': '',
     'PB Ratio': '',
-    'Sector PB': '',
+    'EPS': '',
     'Dividend Yield': '',
     'ROCE': '',
     'ROE': '',
@@ -926,6 +925,7 @@ const updateParams = async () => {
 }
 
 const checkScript = async (params) => {
+    log
     let quotesdata = await getQuotedata(params.tsym ? params.tsym : params)
     if (quotesdata && quotesdata.symname && !quotesdata.msg) {
         setSingleData(quotesdata.token, quotesdata.exch, quotesdata.tsym, quotesdata)
@@ -1056,6 +1056,7 @@ const putFinancialUpdates = (dates, values) => {
 
 const setPricechart = () => {
     const chartDom = document.getElementById("pricechart")
+    console.log(chartDom,"7ujjj")
     if (!chartDom) return
     var myChart = echarts.init(chartDom)
 

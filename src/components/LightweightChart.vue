@@ -134,8 +134,11 @@ const initializeData = async (resolution, init) => {
         }
 
         if (init && resolution == "1D" && raw && raw.emsg && raw.emsg.includes('no data')) {
+            console.log("1D data missing, switching to 1W view...")
+            isLoading.value = false
             setData(1)
             toggle.value = 1
+            return
         }
         isLoading.value = false
         currentRequest.value = null
@@ -249,7 +252,7 @@ const optionChainDataParse = (data) => {
 const setLWchart = async (init) => {
     // Prevent duplicate initialization
     if (isInitialized.value && !init) {
-        // console.log('Chart already initialized, skipping...')
+        console.log('Chart already initialized, skipping...')
         return
     }
 
@@ -257,7 +260,7 @@ const setLWchart = async (init) => {
     if (!chartContainer.value) {
         await nextTick()
         if (!chartContainer.value) {
-            // console.error('Chart container element not found')
+            console.error('Chart container element not found')
             return
         }
     }
@@ -270,7 +273,7 @@ const setLWchart = async (init) => {
     }
 
     if (chartContainer.value && (chartContainer.value.offsetWidth === 0 || chartContainer.value.offsetHeight === 0)) {
-        // console.warn('Chart container has no dimensions, chart may not render correctly')
+        console.warn('Chart container has no dimensions, chart may not render correctly')
         // Still try to initialize, but it might fail
     }
 

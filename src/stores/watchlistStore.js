@@ -9,12 +9,14 @@ export const useWatchlistStore = defineStore('watchlist', {
     currentWatchlist: null,
     watchlistData: [],
     watchlistDataCache: {}, // { watchlistName: { data: [], timestamp: number } }
-    
+    activeWatchlist: null,
+
+
     // Loading states
     isLoading: true,
     mfisLoading: true,
     searchloading: false,
-    
+
     // Filters and sorting
     mwfilter: null,
     mwfilters: [
@@ -27,13 +29,13 @@ export const useWatchlistStore = defineStore('watchlist', {
     ],
     stocksexch: 0, // Exchange filter: 0=All, 1=Equity, 2=F&O, 3=Currency, 4=Commodities, 5=Indices
     exchfilter: ["All", "Equity", "F&O", "Currency", "Commodities", "Indices"],
-    
+
     // Search
     search: '',
     items: [],
     allitems: [],
     nodata: null,
-    
+
     // Predefined watchlists
     PreMWlist: [
       { key: "MY:HOLDINGS", text: "My stocks" },
@@ -46,7 +48,7 @@ export const useWatchlistStore = defineStore('watchlist', {
       { key: "NIFTY50:NSE", exch: "NSE", token: "26000", tsym: "Nifty 50" },
       { key: "NIFTYBANK:NSE", exch: "NSE", token: "26009", tsym: "Nifty Bank" },
     ],
-    
+
     // Mutual fund data
     mfuseritem: [],
     mfwatchlistdata: [],
@@ -63,7 +65,7 @@ export const useWatchlistStore = defineStore('watchlist', {
       { key: "y-h", text: "3yr rtn - High to Low" },
       { key: "y-l", text: "3yr rtn - Low to High" },
     ],
-    
+
     // Options chain basket
     optchainbasket: false,
     optchainbasketdata: [],
@@ -71,30 +73,34 @@ export const useWatchlistStore = defineStore('watchlist', {
     totalmargin: 0,
     postTrademargin: 0,
     orderloader: false,
-    
+
     // Options search
     optsearch: false,
     optsearchdata: {},
-    
+
     // Index management
     allindex: { NSE: [], BSE: [], MCX: [] },
     indexdialog: false,
     singleindex: {},
     indexpanel: 0,
-    
+
     // Client details
     clientdetails: {},
   }),
-  
+
   getters: {
+    getters: {
+      getActiveWatchlist: (state) => state.activeWatchlist
+    }
+    ,
     // Filtered and sorted watchlist data
     filteredWatchlistData: (state) => {
       if (!state.mwfilter || !Array.isArray(state.watchlistData)) {
         return state.watchlistData
       }
-      
+
       let filtered = [...state.watchlistData]
-      
+
       switch (state.mwfilter) {
         case "a": // A to Z
           filtered.sort((a, b) => {
@@ -139,35 +145,35 @@ export const useWatchlistStore = defineStore('watchlist', {
           })
           break
       }
-      
+
       return filtered
     },
-    
+
     // Check if current watchlist is predefined
     isPreDefinedWatchlist: (state) => {
       return state.PreMWlist.some(p => p.key === state.currentWatchlist)
     },
-    
+
     // Check if current watchlist is MY:HOLDINGS
     isHoldingsWatchlist: (state) => {
       return state.currentWatchlist === 'MY:HOLDINGS'
     },
   },
-  
+
   actions: {
     // Watchlist management
     async fetchWatchlists() {
       try {
         const uid = sessionStorage.getItem('userid')
         const mtoken = sessionStorage.getItem('msession')
-        
+
         if (!uid || !mtoken) return
-        
+
         const res = await getMwatchlistset(
           `jData={"uid":"${uid}"}&jKey=${mtoken}`,
           "GetMWlistset"
         )
-        
+
         if (res && res.stat === "Ok" && res.wlname) {
           this.watchlists = res.wlname
           // Load first watchlist if none selected
@@ -180,10 +186,11 @@ export const useWatchlistStore = defineStore('watchlist', {
         // console.error('Error fetching watchlists:', error)
       }
     },
-    
+
     async selectWatchlist(wlName) {
-      this.currentWatchlist = wlName
-      
+      currentWatchlist = wlName
+
+
       // Check if it's a predefined watchlist
       if (this.PreMWlist.find(p => p.key === wlName)) {
         await this.setPreDefinedWatchlist()
@@ -191,18 +198,18 @@ export const useWatchlistStore = defineStore('watchlist', {
         await this.fetchWatchlistData(wlName)
       }
     },
-    
+
     async fetchWatchlistData(wlName) {
       try {
         this.isLoading = true
         const uid = sessionStorage.getItem('userid')
         const mtoken = sessionStorage.getItem('msession')
-        
+
         if (!uid || !mtoken) {
           this.isLoading = false
           return
         }
-        
+
         // Try to load from cache first
         const cached = this.loadWatchlistFromCache(wlName)
         if (cached && Array.isArray(cached) && cached.length > 0) {
@@ -210,12 +217,12 @@ export const useWatchlistStore = defineStore('watchlist', {
           this.restorePriceStates(cached)
           this.isLoading = false
         }
-        
+
         const res = await getMwatchlistset(
           `jData={"uid":"${uid}","wlname":"${wlName}"}&jKey=${mtoken}`,
           "GetMWlistdata"
         )
-        
+
         if (res && res.stat === "Ok" && res.values) {
           // Clean API data to remove "+" prefix from all numeric values
           this.watchlistData = this.cleanApiData(res.values || [])
@@ -230,19 +237,19 @@ export const useWatchlistStore = defineStore('watchlist', {
         this.isLoading = false
       }
     },
-    
+
     async addSymbol(wlName, symbol) {
       try {
         const uid = sessionStorage.getItem('userid')
         const mtoken = sessionStorage.getItem('msession')
-        
+
         if (!uid || !mtoken) return false
-        
+
         const res = await getMwatchlistset(
           `jData={"uid":"${uid}","wlname":"${wlName}","scrips":"${symbol.exch}|${symbol.token}"}&jKey=${mtoken}`,
           "AddMultiScripsToMW"
         )
-        
+
         if (res && res.stat === "Ok") {
           await this.fetchWatchlistData(wlName)
           return true
@@ -253,19 +260,19 @@ export const useWatchlistStore = defineStore('watchlist', {
         return false
       }
     },
-    
+
     async removeSymbol(wlName, symbol) {
       try {
         const uid = sessionStorage.getItem('userid')
         const mtoken = sessionStorage.getItem('msession')
-        
+
         if (!uid || !mtoken) return false
-        
+
         const res = await getMwatchlistset(
           `jData={"uid":"${uid}","wlname":"${wlName}","scrips":"${symbol.exch}|${symbol.token}"}&jKey=${mtoken}`,
           "DeleteScripsFromMW"
         )
-        
+
         if (res && res.stat === "Ok") {
           await this.fetchWatchlistData(wlName)
           return true
@@ -276,19 +283,19 @@ export const useWatchlistStore = defineStore('watchlist', {
         return false
       }
     },
-    
+
     async createWatchlist(wlName) {
       try {
         const uid = sessionStorage.getItem('userid')
         const mtoken = sessionStorage.getItem('msession')
-        
+
         if (!uid || !mtoken) return false
-        
+
         const res = await getMwatchlistset(
           `jData={"uid":"${uid}","wlname":"${wlName}"}&jKey=${mtoken}`,
           "SetMWlist"
         )
-        
+
         if (res && res.stat === "Ok") {
           await this.fetchWatchlists()
           return true
@@ -299,19 +306,19 @@ export const useWatchlistStore = defineStore('watchlist', {
         return false
       }
     },
-    
+
     async deleteWatchlist(wlName) {
       try {
         const uid = sessionStorage.getItem('userid')
         const mtoken = sessionStorage.getItem('msession')
-        
+
         if (!uid || !mtoken) return false
-        
+
         const res = await getMwatchlistset(
           `jData={"uid":"${uid}","wlname":"${wlName}"}&jKey=${mtoken}`,
           "DeleteMWlistset"
         )
-        
+
         if (res && res.stat === "Ok") {
           await this.fetchWatchlists()
           if (this.currentWatchlist === wlName) {
@@ -326,24 +333,24 @@ export const useWatchlistStore = defineStore('watchlist', {
         return false
       }
     },
-    
+
     // Predefined watchlists
     async setPreDefinedWatchlist() {
       try {
         this.isLoading = true
-        
+
         if (!this.PreDefinedMW || this.PreDefinedMW.stat !== "Ok") {
           this.PreDefinedMW = await getPreDefinedMW()
         }
-        
+
         if (this.currentWatchlist === "MY:HOLDINGS") {
           let data = getMHoldingdata()
-          
+
           if (!data || !Array.isArray(data) || data.length === 0) {
             try {
               const uid = sessionStorage.getItem('userid')
               const mtoken = sessionStorage.getItem('msession')
-              
+
               if (uid && mtoken) {
                 const holdingsResponse = await getMHoldings(true)
                 if (holdingsResponse && holdingsResponse.response && Array.isArray(holdingsResponse.response) && holdingsResponse.response.length > 0) {
@@ -354,7 +361,7 @@ export const useWatchlistStore = defineStore('watchlist', {
               // console.error('Error loading holdings data:', error)
             }
           }
-          
+
           if (data && Array.isArray(data) && data.length > 0) {
             const rawData = data.map((o) => o.exch_tsym?.[0]).filter(Boolean)
             // Clean API data to remove "+" prefix
@@ -378,39 +385,39 @@ export const useWatchlistStore = defineStore('watchlist', {
         this.isLoading = false
       }
     },
-    
+
     // Filtering and sorting
     setFilter(filterKey) {
       this.mwfilter = filterKey
     },
-    
+
     setExchangeFilter(exchIndex) {
       this.stocksexch = exchIndex
     },
-    
+
     // Search
     async searchScript(searchText, category = '', optSearch = false) {
       try {
         this.searchloading = true
         const uid = sessionStorage.getItem('userid')
         const mtoken = sessionStorage.getItem('msession')
-        
+
         if (!uid || !mtoken) {
           this.searchloading = false
           return
         }
-        
+
         if (!this.clientdetails || Object.keys(this.clientdetails).length === 0) {
           this.clientdetails = await getClientDetails()
         }
-        
+
         const query = `jData={"uid":"${uid}","stext":"${searchText}","fil":${JSON.stringify(this.clientdetails?.exarr || [])},"cat":"${category}","opt":"${optSearch ? "1" : "0"}"}&jKey=${mtoken}`
-        
+
         const res = await getGloabSearch(query)
-        
+
         if (res && res.stat === "Ok" && res.values && res.values.length > 0) {
           this.allitems = res.values
-          
+
           // Mark items already in watchlist
           if (Array.isArray(this.watchlistData)) {
             this.allitems.forEach((so) => {
@@ -419,7 +426,7 @@ export const useWatchlistStore = defineStore('watchlist', {
               }
             })
           }
-          
+
           // Apply exchange filter
           this.applyExchangeFilter()
           this.nodata = null
@@ -436,7 +443,7 @@ export const useWatchlistStore = defineStore('watchlist', {
         this.searchloading = false
       }
     },
-    
+
     applyExchangeFilter() {
       if (this.stocksexch === 0) {
         this.items = [...this.allitems]
@@ -452,12 +459,12 @@ export const useWatchlistStore = defineStore('watchlist', {
         })
       }
     },
-    
+
     // Price caching
     loadWatchlistFromCache(wlName) {
       const uid = sessionStorage.getItem('userid')
       if (!uid) return null
-      
+
       const cacheKey = `${uid}_watchlist_${wlName}`
       const cached = localStorage.getItem(cacheKey)
       if (cached) {
@@ -473,19 +480,19 @@ export const useWatchlistStore = defineStore('watchlist', {
       }
       return null
     },
-    
+
     saveWatchlistToCache(wlName, data) {
       const uid = sessionStorage.getItem('userid')
       if (!uid) return
-      
+
       const cacheKey = `${uid}_watchlist_${wlName}`
       localStorage.setItem(cacheKey, JSON.stringify({
         data,
         timestamp: Date.now()
       }))
     },
-    
-    
+
+
     /**
      * Clean value by removing "+" prefix if present
      * @param {string|number} value - The value to clean
@@ -560,19 +567,19 @@ export const useWatchlistStore = defineStore('watchlist', {
         if (chp !== null) pdmwItem.chp = chp.toFixed(2)
       }
     },
-    
+
     // WebSocket Subscription Helpers (Phase 3)
     subscribeToWatchlist() {
       if (!Array.isArray(this.watchlistData) || this.watchlistData.length === 0) {
         return
       }
-      
+
       const subscriptionData = this.watchlistData.map(item => ({
         token: item.token,
         exch: item.exch,
         tsym: item.tsym || item.tsyms
       }))
-      
+
       const event = new CustomEvent('web-scoketOn', {
         detail: {
           flow: 'sub',
@@ -583,18 +590,18 @@ export const useWatchlistStore = defineStore('watchlist', {
       })
       window.dispatchEvent(event)
     },
-    
+
     unsubscribeFromWatchlist() {
       if (!Array.isArray(this.watchlistData) || this.watchlistData.length === 0) {
         return
       }
-      
+
       const subscriptionData = this.watchlistData.map(item => ({
         token: item.token,
         exch: item.exch,
         tsym: item.tsym || item.tsyms
       }))
-      
+
       const event = new CustomEvent('web-scoketOn', {
         detail: {
           flow: 'unsub',
@@ -605,18 +612,18 @@ export const useWatchlistStore = defineStore('watchlist', {
       })
       window.dispatchEvent(event)
     },
-    
+
     subscribeToPdmwdata() {
       if (!Array.isArray(this.pdmwdata) || this.pdmwdata.length === 0) {
         return
       }
-      
+
       const subscriptionData = this.pdmwdata.map(item => ({
         token: item.token,
         exch: item.exch,
         tsym: item.tsym
       }))
-      
+
       const event = new CustomEvent('web-scoketOn', {
         detail: {
           flow: 'sub',
@@ -627,18 +634,18 @@ export const useWatchlistStore = defineStore('watchlist', {
       })
       window.dispatchEvent(event)
     },
-    
+
     unsubscribeFromPdmwdata() {
       if (!Array.isArray(this.pdmwdata) || this.pdmwdata.length === 0) {
         return
       }
-      
+
       const subscriptionData = this.pdmwdata.map(item => ({
         token: item.token,
         exch: item.exch,
         tsym: item.tsym
       }))
-      
+
       const event = new CustomEvent('web-scoketOn', {
         detail: {
           flow: 'unsub',
@@ -649,7 +656,7 @@ export const useWatchlistStore = defineStore('watchlist', {
       })
       window.dispatchEvent(event)
     },
-    
+
     /**
      * Handle WebSocket price update from 'web-scoketConn' event (SIMPLIFIED)
      * Logic: ch = lp - c, chp = (ch / c) * 100

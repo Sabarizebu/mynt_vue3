@@ -416,7 +416,7 @@ import toPipIcon from '/src/assets/to-pip.svg'
 import outPipIcon from '/src/assets/out-pip.svg'
 import toPipLargeIcon from '/src/assets/topip.svg'
 import noDataIcon from '/src/assets/no data folder.svg'
-
+import { useWatchlistStore } from '@/stores/watchlistStore'
 const getTvChartIconUrl = (iconName) => {
   return new URL(`/src/assets/tv_chart_icon/${iconName}.svg`, import.meta.url).href
 }
@@ -594,6 +594,8 @@ const handleMenuDialog = (type, token, exch, tsym, trantype, item) => {
     }))
 }
 
+
+const store = useWatchlistStore()
 const handleAddToWatchlist = async (item) => {
     // Ensure session is ready
     if (!(await ensureSessionReady())) {
@@ -605,21 +607,31 @@ const handleAddToWatchlist = async (item) => {
     const currentUid = sessionStorage.getItem('userid')
     let watchlistName = 'Default'
 
-    // Try to get the current watchlist from localStorage
+    // Try to get the active/selected watchlist from localStorage
     try {
         const stored = localStorage.getItem(`${currentUid}_watchlists`)
-        if (stored) {
+        const stored1 = store.activeWatchlist
+        console.log(stored1,"stored")
+        if (stored1) {
+             watchlistName = stored1
+        }else if (stored) {
             const watchlists = JSON.parse(stored)
             if (watchlists && watchlists.length > 0) {
-                // Use the first watchlist or find the active one
-                watchlistName = watchlists[0].key || watchlists[0].name || 'Default'
+                if (typeof watchlists[0] === 'string') {
+                    watchlistName = watchlists[0]
+                    console.log(watchlistName,"watchlistName")
+                } else if (watchlists[0] && (watchlists[0].key || watchlists[0].name)) {
+                    watchlistName = watchlists[0].key || watchlists[0].name || 'Millionaire'
+                }
             }
+        }else{
+            watchlistName = 'Millionaire'
         }
     } catch (e) {
         console.error('Error getting watchlist:', e)
     }
 
-    // Add to watchlist directly
+    // Add to watchlist
     try {
         const res = await getMwatchlistset(
             `jData={"uid":"${uid.value}","wlname":"${watchlistName}","scrips":"${item.exch}|${item.token}"}&jKey=${mtoken.value}`,
@@ -629,6 +641,11 @@ const handleAddToWatchlist = async (item) => {
         if (res.stat === "Ok") {
             const scriptName = item.tsym || item.tsyms || 'Script'
             appStore.showSnackbar(1, `${scriptName} added to watchlist`)
+            
+            // Dispatch event to notify watchlist component to refresh
+            window.dispatchEvent(new CustomEvent('watchlist-updated', {
+                detail: { watchlistName, action: 'add', script: item }
+            }))
         } else {
             appStore.showSnackbar(0, res.emsg || 'Failed to add to watchlist')
         }
@@ -1080,7 +1097,12 @@ const handleWebSocketConnection = (event) => {
 }
 
 // Lifecycle
+
+// const store = useWatchlistStore();
 onMounted(async () => {
+console.log("Active WL:", store.getActiveWatchlist);
+console.log(store.getActiveWatchlist);
+
     // Wait for auth/session to be ready to avoid undefined uid/jKey in API payloads
     await ensureSessionReady(4000)
     // Do not auto-open pop chart on mount

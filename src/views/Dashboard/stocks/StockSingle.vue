@@ -312,7 +312,8 @@
                 </v-data-table>
                 <v-divider class="d-md-none"></v-divider>
             </v-card>
-            <v-card id="price" class="crd-trn ss-cards overflow-hidden mb-md-4" width="100%">
+           <v-card id="price" class="crd-trn ss-cards mb-md-4">
+
                 <div class="pt-4 pb-2 pl-4">
                     <v-toolbar flat density="compact" class="tool-sty mb-5 crd-trn">
                         <v-list-item class="px-0">
@@ -613,7 +614,7 @@ const Fundamentalsfield = reactive({
     'Sector PE': '',
     EVEBITDA: '',
     'PB Ratio': '',
-    'Sector PB': '',
+    'EPS': '',
     'Dividend Yield': '',
     ROCE: '',
     ROE: '',
@@ -803,12 +804,14 @@ const setSingleData = async (token, exch, tsym) => {
 
     if (data && data.fundamental && data.fundamental[0]) {
         menudata.f = data.fundamental[0]
+        console.log(Fundamentalsfield,"Fundamentalsfield")
         Object.assign(Fundamentalsfield, {
             'PE Ratio': data.fundamental[0].pe || '',
             'Sector PE': data.fundamental[0].sector_pe || '',
             EVEBITDA: data.fundamental[0].ev_ebitda || '',
             'PB Ratio': data.fundamental[0].price_book_value || '',
-            'Sector PB': '',
+            // 'Sector PB': '',
+            'EPS': data.fundamental[0].eps || '',
             'Dividend Yield': data.fundamental[0].dividend_yield_percent || '',
             ROCE: data.fundamental[0].roce_percent || '',
             ROE: data.fundamental[0].roe_percent || '',
@@ -935,6 +938,8 @@ const setSingleData = async (token, exch, tsym) => {
     }
 
     if (data.peerComparisonChart && Object.keys(data.peerComparisonChart).length > 0) {
+        console.log("FINAL PeerComp Data:", JSON.stringify(data.peerComparisonChart, null, 2))
+
         pricecompar.dates = []
         pricecompar.script = []
         pricecompar.closes = []
@@ -945,31 +950,41 @@ const setSingleData = async (token, exch, tsym) => {
             }
             try {
                 pricecompar.script.push(key.split(':')[1].split('-')[0])
-                if (value.date.length == 61 && pricecompar.dates.length != 61) {
+                if (value.date.length > 0 && pricecompar.dates.length === 0) {
                     value.date.map((ele) => {
                         pricecompar.dates.push(new Date(ele).toLocaleString('default', { month: 'short', year: '2-digit' }))
                     })
                 }
+                // pricecompar.closes.push({
+                //     name: key.split(':')[1].split('-')[0],
+                //     type: 'line',
+                //     symbol: 'none',
+                //     sampling: 'lttb',
+                //     data: value.close.slice(1),
+                //     color: colors[i] || '#148564',
+                //     areaStyle: {
+                //         color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                //             { offset: 0, color: (colors[i] || '#148564') + '20' },
+                //             { offset: 1, color: colors[i] || '#148564' }
+                //         ])
+                //     }
+                // })
                 pricecompar.closes.push({
                     name: key.split(':')[1].split('-')[0],
                     type: 'line',
                     symbol: 'none',
                     sampling: 'lttb',
                     data: value.close.slice(1),
-                    color: colors[i] || '#148564',
-                    areaStyle: {
-                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                            { offset: 0, color: (colors[i] || '#148564') + '20' },
-                            { offset: 1, color: colors[i] || '#148564' }
-                        ])
-                    }
+                    color: colors[i] || '#148564'
                 })
             } catch (e) {
                 console.error('Error processing peer comparison chart data:', e)
             }
         })
         if (pricecompar.closes.length > 0) {
-            setPricechart()
+            nextTick(() => {
+                setPricechart()
+            })
         }
     } else {
         pricecompar.dates = []
@@ -1228,14 +1243,20 @@ const putFinancialUpdates = (dates, values) => {
 }
 
 const setPricechart = () => {
-    if (!myCharto.value) {
-        const chartEl = document.getElementById('pricechart')
-        if (chartEl) {
-            myCharto.value = echarts.init(chartEl)
-        }
+    const chartEl = document.getElementById('pricechart')
+    if (!chartEl) return
+
+    // If the element is not yet visible (width 0), delay initialization
+    if (chartEl.offsetWidth === 0 || chartEl.offsetHeight === 0) {
+        setTimeout(() => setPricechart(), 150)
+        return
     }
 
-    if (!myCharto.value) return
+    if (myCharto.value) {
+        try { myCharto.value.dispose() } catch { }
+        myCharto.value = null
+    }
+    myCharto.value = echarts.init(chartEl)
 
     // Filter out any undefined or invalid series entries
     const validSeries = pricecompar.closes.filter(series =>
@@ -1625,6 +1646,7 @@ const handleWebSocketConnection = (event) => {
 
 // Lifecycle hooks
 onMounted(() => {
+
     let local = localStorage.getItem('ssdtsym')
     if (local && local.includes(':')) {
         mainloader.value = true

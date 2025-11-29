@@ -45,7 +45,8 @@ export default {
   imgicon: "https://besim.zebull.in/static/equity/icons/",
   searchapi: 'https://v3.mynt.in/search/',
 
-  eqapi: 'https://v3.mynt.in/equity/',
+  // eqapi: 'https://v3.mynt.in/equity/',
+  eqapi: 'https://eqapi.zebuetrade.com/',
   // eqapiD: 'http://192.168.5.138:5000/',
 
   copy: 'https://copy.mynt.in/',

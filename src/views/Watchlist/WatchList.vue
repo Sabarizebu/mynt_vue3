@@ -1043,6 +1043,7 @@ import { useAppStore } from '../../stores/appStore'
 import { useAuthStore } from '../../stores/authStore'
 import { useSessionStore } from '../../stores/sessionStore'
 import { useMarketDataStore } from '../../stores/marketDataStore'
+import { useWatchlistStore } from '../../stores/watchlistStore'
 import { getMwatchlistset, getGloabSearch, getMHoldingdata, getMHoldings, getPreDefinedMW, getClientDetails, getMFwatchlist, getBSKMargin, getPlaceOrder, getIndexList, getLtpdata, getMPosotion, getMOrderbook, getMLimits, getADindices } from '../../components/mixins/getAPIdata.js'
 import { mynturl, myntappurl, params } from '../../apiurl.js'
 import draggable from 'vuedraggable'
@@ -1589,9 +1590,12 @@ const addToWatchlist = async (item, index) => {
         appStore.showSnackbar(0, 'Failed to add to watchlist')
     }
 }
-
+const store = useWatchlistStore()
 const selectWatchlist = async (wl) => {
     watchlistis.value = wl
+    console.log(wl,"ufbiufef")
+    store.activeWatchlist = wl
+    
 
     // Check if it's a predefined watchlist
     if (PreMWlist.value.find(p => p.key === wl)) {
@@ -4257,7 +4261,59 @@ const handleAddScriptWL = (event) => {
     }
 }
 
+const handleWatchlistUpdate = async (event) => {
+    const { watchlistName, action, script } = event.detail
+    
+    // Only refresh if the updated watchlist is the currently active one
+    if (watchlistName === watchlistis.value) {
+        if (action === 'add') {
+            // Optimistically add to UI if we have the script details
+            // This makes it feel instant while the API refresh happens
+            if (script && Array.isArray(watchlistdata.value)) {
+                // Check if already exists to prevent duplicates
+                const exists = watchlistdata.value.some(item => item.token === script.token)
+                if (!exists) {
+                    // Create a compatible item object
+                    const newItem = { ...script }
+                    // Ensure essential fields
+                    if (!newItem.tsyms) newItem.tsyms = newItem.tsym
+                    
+                    // Add to list
+                    watchlistdata.value.push(newItem)
+                    
+                    // Subscribe to websocket for this new item
+                    const event = new CustomEvent('web-scoketOn', {
+                        detail: { flow: 'sub', data: [newItem], is: 'wl', page: 'watchlist' }
+                    })
+                    window.dispatchEvent(event)
+                }
+            }
+            
+            // Refresh full data from API to ensure consistency
+            await getMWlistdata()
+        } else if (action === 'delete') {
+            // For delete, we can just filter it out locally first
+            if (script && Array.isArray(watchlistdata.value)) {
+                watchlistdata.value = watchlistdata.value.filter(item => item.token !== script.token)
+            }
+            await getMWlistdata()
+        } else {
+            // Generic refresh
+            await getMWlistdata()
+        }
+    } else {
+        // If we updated a different watchlist, just clear its cache so it loads fresh next time
+        const currentUid = authStore.uid || sessionStorage.getItem('userid')
+        if (currentUid) {
+            const cacheKey = `${currentUid}_watchlist_${watchlistName}`
+            localStorage.removeItem(cacheKey)
+        }
+    }
+}
+
 onMounted(async () => {
+    // Listen for watchlist updates from other components (like StocksDetails)
+    window.addEventListener('watchlist-updated', handleWatchlistUpdate)
     // Check pathname to set panel state (like Vue 2 created hook)
     checkPathForPanel()
 
@@ -4301,7 +4357,6 @@ onMounted(async () => {
 
     // Listen for option-search event
     window.addEventListener('option-search', handleOptionSearchEvent)
-    
 
     // Get client exchange data
     await getClientexch()
@@ -4451,6 +4506,7 @@ onUnmounted(() => {
     window.removeEventListener('addscript-wl', handleAddScriptWL)
     window.removeEventListener('bskwatch-event', handleBskWatchEvent)
     window.removeEventListener('option-search', handleOptionSearchEvent)
+    window.removeEventListener('watchlist-updated', handleWatchlistUpdate)
 
     // Clean up scroll cache
     cachedScrollInfo = null

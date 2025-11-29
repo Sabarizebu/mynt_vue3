@@ -91,14 +91,28 @@
                         <v-row no-gutters>
                             <v-col cols="6" class="pt-0 pr-2">
                                 <v-list-item class="px-0 pt-0">
+                                    
                                     <v-list-item-subtitle
                                         class="font-weight-regular fs-10 subtext--text mb-2 py-0">Market Cap
                                     </v-list-item-subtitle>
-                                    <v-list-item-title class="font-weight-medium fs-12 mb-0 py-0"> {{
+                                    <v-list-item-title class="font-weight-medium fs-12 mb-0 py-0">
+                                         <!-- {{
                                         menudata.f &&
                                             menudata.f.market_cap ? `${Number(menudata.f.market_cap).toLocaleString()}` :
                                             "0.00"
-                                    }}</v-list-item-title>
+                                    }} -->
+                                      {{
+  menudata?.[0]?.lp && menudata?.[0]?.issuecap
+    ? (
+        (Number(menudata[0].lp) * Number(menudata[0].issuecap)) / 10000000
+      ).toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })
+    : "0.00"
+}}
+
+                                    </v-list-item-title>
                                 </v-list-item>
                             </v-col>
                             <v-col cols="6" class="pt-0 pl-2">
@@ -108,7 +122,7 @@
                                     </v-list-item-subtitle>
                                     <v-list-item-title class="font-weight-medium fs-12 mb-0 py-0"
                                         :id="`ssdove${stkltp}vol`">
-                                        {{ menudata[0] && menudata[0].volume ? `${menudata[0].volume.toLocaleString()}`
+                                        {{ menudata[0] && menudata[0].v ? `${menudata[0].v.toLocaleString()}`
                                             : "0.00"
                                         }}</v-list-item-title>
                                 </v-list-item>
@@ -122,7 +136,7 @@
                                     </v-list-item-subtitle>
                                     <v-list-item-title class="font-weight-medium fs-12 mb-0 py-0">
                                         ₹<span :id="`ssdove${stkltp}op`"> {{ menudata[0] && menudata[0].open_price ?
-                                            Math.round(Number(menudata[0].open_price)) : "0"
+                                            Number(menudata[0].open_price).toFixed(2) : "0"
                                         }}</span></v-list-item-title>
                                 </v-list-item>
                             </v-col>
@@ -133,7 +147,7 @@
                                     </v-list-item-subtitle>
                                     <v-list-item-title class="font-weight-medium fs-12 mb-0 py-0">
                                         ₹<span :id="`ssdove${stkltp}cp`">{{ menudata[0] && menudata[0].close_price ?
-                                            menudata[0].close_price : "0.00" }}</span></v-list-item-title>
+                                            Number(menudata[0].close_price).toFixed(2): "0.00" }}</span></v-list-item-title>
                                 </v-list-item>
                             </v-col>
                             <v-col cols="12">
@@ -149,7 +163,7 @@
                                             <span>
                                                 ₹<span :id="`ssdove${stkltp}hp`"> {{ menudata[0] &&
                                                     menudata[0].high_price ?
-                                                    Math.round(Number(menudata[0].high_price))
+                                                   Number(menudata[0].high_price).toFixed(2)
                                                     : "0" }}</span>
                                             </span>
                                             <v-card
@@ -164,7 +178,7 @@
                                             <span class="ml-auto">
                                                 ₹<span :id="`ssdove${stkltp}lp`"> {{ menudata[0] &&
                                                     menudata[0].low_price ?
-                                                    Math.round(Number(menudata[0].low_price)) :
+                                                    Number(menudata[0].low_price).toFixed(2) :
                                                     "0" }}</span>
                                             </span>
                                         </div>
@@ -209,24 +223,29 @@
                                         class="font-weight-regular fs-12 subtext--text mb-1 text-uppercase py-0">Buy
                                         order
                                         Qty </v-list-item-subtitle>
-                                    <v-list-item-title class="font-weight-medium fs-13 mb-1 py-0">{{ menudata[0].bid_qty
+                                    <v-list-item-title class="font-weight-medium fs-13 mb-1 py-0">
+                                       ({{ menudata[0].bid_qty
                                         > 0 ?
-                                        menudata[0].bid_qty : "0.00" }}%</v-list-item-title>
+                                        menudata[0].bid_qty : "0.00" }}%)
+                                        <span class="ml-2">{{ menudata[0].tbq || "0.00" }}</span>
+                                      
+                                    </v-list-item-title>
                                     <template v-slot:append>
                                         <div class="text-right">
                                             <v-list-item-subtitle
                                                 class="font-weight-regular fs-12 subtext--text mb-1 text-uppercase py-0">Sell
                                                 order
                                                 Qty </v-list-item-subtitle>
-                                            <v-list-item-title class="font-weight-medium fs-13 mb-1 py-0">{{
+                                            <v-list-item-title class="font-weight-medium fs-13 mb-1 py-0">({{
                                                 menudata[0].ask_qty > 0 ?
-                                                    menudata[0].ask_qty : "0.00" }}%</v-list-item-title>
+                                                    menudata[0].ask_qty : "0.00" }}%)
+                                                     <span class="ml-2">{{ menudata[0].tsq || "0.00" }}</span>  </v-list-item-title>
                                         </div>
                                     </template>
                                 </v-list-item>
                                 <v-progress-linear
                                     v-if="(menudata[0] && menudata[0].bid_qty > 0) || menudata[0].ask_qty > 0"
-                                    class="market-depth" color="maingreen"
+                                    class="market-depth" style="background-color:red" color="maingreen"
                                     :model-value="menudata[0].bid_qty"></v-progress-linear>
                                 <v-progress-linear v-else color="#D9DBDC" :model-value="100"></v-progress-linear>
 
@@ -291,7 +310,7 @@
                                 <span :id="`ssdove${stkltp}ap`">
                                     {{
                                         menudata[0] && menudata[0].ap
-                                            ? Math.round(Number(menudata[0].ap) * 100) / 100
+                                            ? Number(menudata[0].ap).toFixed(2)
                                             : 0
                                     }}
                                 </span>
@@ -409,7 +428,7 @@
                             </v-card>
                             <p class="fs-12 mb-0 font-weight-medium pos-rlt" :class="l <= 2 ? '' : 'text-right'">
                                 {{ Number(p.value) ? Number(p.value).toFixed(2) : "" }} <span v-if="l == 2"
-                                    class="pos-abs" style="right: -32px">{{ Number(menudata.pivotpoint) ?
+                                    class="pos-abs" style="right: 0px;z-index: 999 !important;">{{ Number(menudata.pivotpoint) ?
                                         Number(menudata.pivotpoint).toFixed(2)
                                         : ""
                                     }}</span>
@@ -478,6 +497,8 @@ const setSingleData = async (token, exch, tsym) => {
     } else {
         menudata.value["f"] = []
     }
+    console.log("After setting f:", menudata.value, menudata.value.f);
+
 
     getReturns(token)
     setWebsocket("sub", [{ token: token, exch: exch, tsym: tsym }], "ssd")
@@ -513,6 +534,8 @@ const getReturns = (token) => {
                 ]
                 : []
         menudata.value["pivotpoint"] = Number(windata[token].t.pivot_point) ? Number(windata[token].t.pivot_point) : 0
+        console.log("After setting pivot:", menudata.value, menudata.value.pivot);
+
     } else {
         stockreturns.value = []
         setTimeout(() => {
@@ -568,7 +591,20 @@ const initializeOverviewFromQuote = (q) => {
     // REACTIVE VUE 3: Force reactivity update
     // Vue will automatically update the DOM through template bindings
     // No need for manual DOM manipulation
+    console.log("Before spread in initializeOverviewFromQuote:", menudata.value, menudata.value.f);
+    const f = menudata.value.f;
+    const pivot = menudata.value.pivot;
+    const pivotpoint = menudata.value.pivotpoint;
+    
     menudata.value = [...menudata.value]
+    
+    // Restore properties lost during spread
+    if (f) menudata.value.f = f;
+    if (pivot) menudata.value.pivot = pivot;
+    if (pivotpoint) menudata.value.pivotpoint = pivotpoint;
+    
+    console.log("After spread in initializeOverviewFromQuote:", menudata.value, menudata.value.f);
+
 }
 
 const setWebsocket = (flow, data, is) => {
@@ -649,9 +685,11 @@ const optionChainDataParse = (data) => {
     const ltqIn = Number(data.ltq)
     if (!isNaN(ltqIn)) menudata.value[0]["ltq"] = ltqIn
 
-    if (data.tbq && data.tsq) {
-        menudata.value[0]["bid_qty"] = data.tbq > 0 || data.tsq > 0 ? (((data.tbq - (data.tbq + data.tsq)) / (data.tbq + data.tsq)) * 100 + 100).toFixed(2) : 0
-        menudata.value[0]["ask_qty"] = data.tbq > 0 || data.tsq > 0 ? Math.abs(100 - menudata.value[0].bid_qty).toFixed(2) : 0
+    if (data.tbq !== undefined || data.tsq !== undefined) {
+        const tbq = Number(data.tbq || 0)
+        const tsq = Number(data.tsq || 0)
+        menudata.value[0]["bid_qty"] = tbq > 0 || tsq > 0 ? (((tbq - (tbq + tsq)) / (tbq + tsq)) * 100 + 100).toFixed(2) : 0
+        menudata.value[0]["ask_qty"] = tbq > 0 || tsq > 0 ? Math.abs(100 - menudata.value[0].bid_qty).toFixed(2) : 0
     }
     if (data.depth) {
         menudata.value[0]["depth"] = data.depth
@@ -666,7 +704,16 @@ const optionChainDataParse = (data) => {
     // REACTIVE VUE 3: Force reactivity update
     // Vue will automatically update the DOM through template bindings
     // No need for manual DOM manipulation or caching stale ch/chp values
+    const f = menudata.value.f;
+    const pivot = menudata.value.pivot;
+    const pivotpoint = menudata.value.pivotpoint;
+
     menudata.value = [...menudata.value]
+
+    // Restore properties lost during spread
+    if (f) menudata.value.f = f;
+    if (pivot) menudata.value.pivot = pivot;
+    if (pivotpoint) menudata.value.pivotpoint = pivotpoint;
 
     let tago = document.getElementById(`ssdove${token}rbg`)
     if (tago && stockreturns.value.length > 0) {
@@ -721,6 +768,7 @@ const handleWebSocketConnection = (event) => {
 
 // Lifecycle hooks
 onMounted(() => {
+      
     let local = localStorage.getItem("ssdtsym")
     if (local && local.includes(":")) {
         mainloader.value = true
